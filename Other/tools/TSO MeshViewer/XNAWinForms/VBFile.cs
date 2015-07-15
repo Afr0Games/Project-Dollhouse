@@ -7,7 +7,6 @@ The Original Code is TSO Dressup.
 The Initial Developer of the Original Code is
 ddfzcsm. All Rights Reserved.
 
-Contributor(s):
 */
 
 using System;

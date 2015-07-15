@@ -7,7 +7,6 @@ The Original Code is the TSO SimsLib.
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
 
-Contributor(s):
 */
 
 using System;
