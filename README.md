@@ -20,6 +20,8 @@ Looking for something to do? Check out the issues tagged as [good for new contri
 * [MonoGame](http://www.monogame.net): Stable or Development Builds
 * [Bass.NET](http://www.un4seen.com/filez/4/Bass24.Net.zip)
 
+If you're using a Visual Studio alternative, like MonoDevelop, then you'll need to install the Windows 7 SDK.
+
 # License
 > This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 > If a copy of the MPL was not distributed with this file, You can obtain one at
