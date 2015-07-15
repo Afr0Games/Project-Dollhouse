@@ -6,8 +6,6 @@ The Original Code is the TSO LoginServer.
 
 The Initial Developer of the Original Code is
 ddfczm. All Rights Reserved.
-
-Contributor(s): ______________________________________.
 */
 
 using System;

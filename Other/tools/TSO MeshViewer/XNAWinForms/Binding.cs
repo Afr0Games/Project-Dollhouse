@@ -6,8 +6,6 @@ The Original Code is TSO Dressup.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
-
-Contributor(s): ______________________________________.
 */
 
 using System;

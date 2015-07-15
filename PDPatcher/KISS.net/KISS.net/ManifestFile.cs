@@ -6,8 +6,6 @@ The Original Code is the KISS.Net.
 
 The Initial Developer of the Original Code is
 Afr0. All Rights Reserved.
-
-Contributor(s): ______________________________________.
 */
 
 using System;

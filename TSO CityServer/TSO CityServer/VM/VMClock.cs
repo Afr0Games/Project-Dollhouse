@@ -6,8 +6,6 @@ The Original Code is the TSO CityServer.
 
 The Initial Developer of the Original Code is
 Rhys Simpson. All Rights Reserved.
-
-Contributor(s): ______________________________________.
 */
 
 using System;

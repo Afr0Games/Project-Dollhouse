@@ -6,8 +6,6 @@ The Original Code is the PDPatcher.
 
 The Initial Developer of the Original Code is
 Afr0. All Rights Reserved.
-
-Contributor(s): ______________________________________.
 */
 
 using System;

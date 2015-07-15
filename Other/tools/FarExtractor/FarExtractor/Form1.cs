@@ -6,8 +6,6 @@ The Original Code is the FarExtractor.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
-
-Contributor(s): ______________________________________.
 */
 
 using System;
