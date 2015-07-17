@@ -47,6 +47,8 @@ namespace TSOClient.Code.UI.Controls.Catalog
                         });
                     }
 
+                    
+
                         //load and build downloads also
                     var dpackingslip = new XmlDocument();
 
@@ -66,7 +68,7 @@ namespace TSOClient.Code.UI.Controls.Catalog
                         });
                     }
 
-                    
+                    for (int i = 0; i < 30; i++) _Catalog[i].Sort(new CatalogSorter());
 
                     return _Catalog;
                 }
