@@ -28,13 +28,34 @@ namespace TSOClient.Code.UI.Controls.Catalog
                     //load and build catalog
                     _Catalog = new List<UICatalogElement>[30];
                     for (int i = 0; i < 30; i++) _Catalog[i] = new List<UICatalogElement>();
-
+                    
                     var packingslip = new XmlDocument();
                     
                     packingslip.Load(Path.Combine(GlobalSettings.Default.StartupPath, "packingslips\\catalog.xml"));
                     var objectInfos = packingslip.GetElementsByTagName("P");
 
                     foreach (XmlNode objectInfo in objectInfos)
+                    {
+                        sbyte Category = Convert.ToSByte(objectInfo.Attributes["s"].Value);
+                        if (Category < 0) continue;
+                        _Catalog[Category].Add(new UICatalogElement()
+                        {
+                            GUID = Convert.ToUInt32(objectInfo.Attributes["g"].Value, 16),
+                            Category = Category,
+                            Price = Convert.ToUInt32(objectInfo.Attributes["p"].Value),
+                            Name = objectInfo.Attributes["n"].Value
+                        });
+                    }
+
+                    
+
+                        //load and build downloads also
+                    var dpackingslip = new XmlDocument();
+
+                    dpackingslip.Load(Path.Combine(GlobalSettings.Default.StartupPath, "packingslips\\catalog_downloads.xml"));
+                    var downloadInfos = dpackingslip.GetElementsByTagName("P");
+
+                    foreach (XmlNode objectInfo in downloadInfos)
                     {
                         sbyte Category = Convert.ToSByte(objectInfo.Attributes["s"].Value);
                         if (Category < 0) continue;

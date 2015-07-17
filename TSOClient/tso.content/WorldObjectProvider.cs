@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using TSO.Files.formats.iff;
 using TSO.Files.formats.iff.chunks;
 using TSO.Files.formats.otf;
+using System.IO;
 
 namespace TSO.Content
 {
@@ -23,6 +24,7 @@ namespace TSO.Content
         private FAR1Provider<Iff> Sprites;
         private FAR1Provider<OTF> TuningTables;
         private Content ContentManager;
+        private List<Iff> Downloads;
 
         private Dictionary<ulong, GameObjectReference> Entries;
 
@@ -39,6 +41,7 @@ namespace TSO.Content
             Iffs = new FAR1Provider<Iff>(ContentManager, new IffCodec(), "objectdata\\objects\\objiff.far");
             Sprites = new FAR1Provider<Iff>(ContentManager, new IffCodec(), new Regex(".*\\\\objspf.*\\.far"));
             TuningTables = new FAR1Provider<OTF>(ContentManager, new OTFCodec(), new Regex(".*\\\\objotf.*\\.far"));
+            Downloads = new List<Iff>();
 
             Iffs.Init();
             TuningTables.Init();
@@ -61,6 +64,26 @@ namespace TSO.Content
                     FileName = objectInfo.Attributes["n"].Value
                 });
             }
+
+            //Add the iff files in downloads to objects collection
+            DirectoryInfo info = new DirectoryInfo(this.ContentManager.GetPath(@"userdata\downloads"));
+            foreach (FileInfo info2 in info.GetFiles())
+            {
+                if (info2.Extension == "iff")
+                {
+                    this.Downloads.Add(new Iff(info2.FullName));
+                }
+            }
+            var document3 = new XmlDocument();
+            document3.Load(this.ContentManager.GetPath(@"packingslips\downloads.xml"));
+            XmlNodeList list3 = document3.GetElementsByTagName("I");
+            foreach (XmlNode node3 in list3)
+            {
+                ulong num;
+                num = Convert.ToUInt32(node3.Attributes["g"].Value, 0x10);
+                this.Entries.Add(num, new GameObjectReference(this) { ID = num, FileName = node3.Attributes["n"].Value });
+            }
+
         }
 
         private List<string> ProcessedFiles = new List<string>();
@@ -92,6 +115,27 @@ namespace TSO.Content
                 var tuning = this.TuningTables.Get(reference.FileName + ".otf");
                 ProcessedFiles.Add(reference.FileName);
 
+                if (iff == null)
+                {
+                    //Get objects from iff, if there is no file from far with that id;
+                    iff = new Iff(this.ContentManager.GetPath(@"userdata\downloads\") + reference.FileName + ".iff");
+                    var resource = new GameObjectResource(iff, null, null);
+                    foreach (OBJD objd in iff.List<OBJD>())
+                    {
+                        var obj = new GameObject
+                        {
+                            GUID = (ulong)objd.GUID,
+                            OBJ = objd,
+                            Resource = resource
+                        };
+                        if (!this.Cache.ContainsKey(obj.GUID))
+                        {
+                            this.Cache.Add(obj.GUID, obj);
+                        }
+                    }
+                }
+                else
+                {
                 var resource = new GameObjectResource(iff, sprites, tuning);
 
                 foreach (var objd in iff.List<OBJD>())
@@ -112,7 +156,13 @@ namespace TSO.Content
                 {
                     return null;
                 }
+
+
+                }
+
+
                 return Cache[id];
+
                 
             }
         }
