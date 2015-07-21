@@ -98,6 +98,30 @@ namespace TSO.Content
                     floorID++;
                 }
             }
+
+            //Load custom floor files
+            DirectoryInfo dirfloors = new DirectoryInfo(this.ContentManager.GetPath(@"userdata\downloads"));
+            foreach (FileInfo info in dirfloors.GetFiles())
+            {
+                if (info.Extension == "flr")
+                {
+                    var iff = new Iff(info.FullName);
+
+                    var far = iff.Get<SPR2>(1);
+                    var medium = iff.Get<SPR2>(257);
+                    var near = iff.Get<SPR2>(513);
+
+                    AddFloor(new Floor
+                    {
+                        ID = floorID,
+                        Near = near,
+                        Medium = medium,
+                        Far = far
+                    });
+                    floorID++;
+                }
+            }
+
         }
 
         private void AddFloor(Floor floor)

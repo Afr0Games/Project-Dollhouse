@@ -57,6 +57,7 @@ namespace TSOClient.Code.UI.Panels
 
         public int WallsMode;
 
+        private UILabel floorsLabel, objectLabel;
         private int OldMX;
         private int OldMY;
 
@@ -89,6 +90,14 @@ namespace TSOClient.Code.UI.Panels
             QueryPanel.X = 177;
             QueryPanel.Y = GlobalSettings.Default.GraphicsHeight - 228;
             this.Add(QueryPanel);
+
+            floorsLabel = new UILabel();
+            this.Add(floorsLabel);
+            floorsLabel.Position = new Vector2(0, 50);
+
+            objectLabel = new UILabel();
+            this.Add(objectLabel);
+            objectLabel.Position = new Vector2(0, 100);
 
             vm.OnDialog += vm_OnDialog;
         }
@@ -293,6 +302,32 @@ namespace TSOClient.Code.UI.Panels
                     cuts.Add(MouseCutRect);
                     vm.Context.Blueprint.Damage.Add(new tso.world.model.BlueprintDamage(tso.world.model.BlueprintDamageType.WALL_CUT_CHANGED));
                 }
+            
+
+            if (ObjectHolder.Holding != null)
+                {
+                    //Calculate object holder coordinates
+                    int MapX = (int)Math.Floor(ObjectHolder.Holding.TilePos.X);
+                    int MapY = (int)Math.Floor(ObjectHolder.Holding.TilePos.Y);
+
+                    if (MapX >= vm.Context.Blueprint.Width)
+                        MapX = 0;
+
+                    if (MapX < 0)
+                        MapX = 0;
+
+                    if (MapY >= vm.Context.Blueprint.Height)
+                        MapY = 0;
+
+                    if (MapY < 0)
+                        MapY = 0;
+
+                    if (vm.Context.Blueprint.GetFloor((short)MapX, (short)MapY, 1) != null)
+                        floorsLabel.Caption = "Coordinates " + " X= " + MapX + " Y= " + MapY + " Floor id=" + vm.Context.Blueprint.GetFloor((short)MapX, (short)MapY, 1).FloorID.ToString();
+                    objectLabel.Caption = "Object value " + " GUID= " + ObjectHolder.Holding.Group.BaseObject.Object.GUID.ToString("X");
+
+                }
+
             }
         }
     }
