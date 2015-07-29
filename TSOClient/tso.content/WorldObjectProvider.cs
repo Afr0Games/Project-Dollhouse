@@ -61,6 +61,29 @@ namespace TSO.Content
                     FileName = objectInfo.Attributes["n"].Value
                 });
             }
+
+            //Load downloads
+            var downloadsinfo = new XmlDocument();
+            downloadsinfo.Load(@"Content\packingslips\downloads.xml");
+            XmlNodeList list2 = downloadsinfo.GetElementsByTagName("I");
+            foreach (XmlNode node2 in list2)
+            {
+                ulong num;
+                num = Convert.ToUInt32(node2.Attributes["g"].Value, 0x10);
+                this.Entries.Add(num, new GameObjectReference(this) { ID = num, FileName = node2.Attributes["n"].Value });
+            }
+
+            //Load custom npcs
+            var charactersinfo = new XmlDocument();
+            charactersinfo.Load(@"Content\packingslips\characters.xml");
+            XmlNodeList list3 = charactersinfo.GetElementsByTagName("I");
+            foreach (XmlNode node3 in list3)
+            {
+                ulong num;
+                num = Convert.ToUInt32(node3.Attributes["g"].Value, 0x10);
+                this.Entries.Add(num, new GameObjectReference(this) { ID = num, FileName = node3.Attributes["n"].Value });
+            }
+
         }
 
         private List<string> ProcessedFiles = new List<string>();
