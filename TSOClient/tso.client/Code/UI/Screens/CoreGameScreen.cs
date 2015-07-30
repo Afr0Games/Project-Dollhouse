@@ -350,13 +350,17 @@ namespace TSOClient.Code.UI.Screens
             var sim = activator.CreateAvatar();
             sim.Position = LotTilePos.FromBigTile(56, 33, 1);
 
-            var sim2 = activator.CreateAvatar();
+            var sim2 = activator.CreateNPC(0x6FD96A52);
             sim2.Position = LotTilePos.FromBigTile(56, 34, 1);
+
+            var sim3 = activator.CreateNPC(0x573D3196);
+            sim3.Position = LotTilePos.FromBigTile(56, 35, 1);
 
             var mailbox = vm.Entities.First(x => (x.Object.OBJ.GUID == 0xEF121974 || x.Object.OBJ.GUID == 0x1D95C9B0));
 
             VMFindLocationFor.FindLocationFor(sim, mailbox, vm.Context);
             VMFindLocationFor.FindLocationFor(sim2, mailbox, vm.Context);
+            VMFindLocationFor.FindLocationFor(sim3, mailbox, vm.Context);
             HITVM.Get().PlaySoundEvent("lot_enter");
 
             World.State.CenterTile = new Vector2(sim.VisualPosition.X, sim.VisualPosition.Y);

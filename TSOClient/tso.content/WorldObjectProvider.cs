@@ -115,6 +115,28 @@ namespace TSO.Content
                 var tuning = this.TuningTables.Get(reference.FileName + ".otf");
                 ProcessedFiles.Add(reference.FileName);
 
+                if (iff == null)
+                {
+                    //Get objects from iff, if there is no file from far with that id;
+                    iff = new Iff(this.ContentManager.GetPath(@"userdata\downloads\") + reference.FileName + ".iff");
+                    var resource = new GameObjectResource(iff, null, null);
+                    foreach (OBJD objd in iff.List<OBJD>())
+                    {
+                        var obj = new GameObject
+                        {
+                            GUID = (ulong)objd.GUID,
+                            OBJ = objd,
+                            Resource = resource
+                        };
+                        if (!this.Cache.ContainsKey(obj.GUID))
+                        {
+                            this.Cache.Add(obj.GUID, obj);
+                        }
+                    }
+                }
+
+                else
+                {
                 var resource = new GameObjectResource(iff, sprites, tuning);
 
                 foreach (var objd in iff.List<OBJD>())
@@ -134,6 +156,8 @@ namespace TSO.Content
                 if (!Cache.ContainsKey(id))
                 {
                     return null;
+                }
+
                 }
                 return Cache[id];
                 

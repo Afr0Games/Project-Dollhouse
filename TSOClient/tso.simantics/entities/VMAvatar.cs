@@ -87,7 +87,7 @@ namespace TSO.Simantics
 
             BodyStrings = Object.Resource.Get<STR>(Object.OBJ.BodyStringID);
 
-            SetAvatarType(BodyStrings);
+            SetAvatarType(BodyStrings, obj.GUID);
             SkinTone = AppearanceType.Light;
 
             var avatarc = (AvatarComponent)WorldUI;
@@ -100,7 +100,8 @@ namespace TSO.Simantics
             }
         }
 
-        public void SetAvatarType(STR data) {
+        public void SetAvatarType(STR data, ulong id)
+        {
             if (data == null)
             {
                 AvatarType = VMAvatarType.Adult;
@@ -113,6 +114,17 @@ namespace TSO.Simantics
                 else if (type == "cat") AvatarType = VMAvatarType.Cat;
                 else if (type == "dog") AvatarType = VMAvatarType.Dog;
             }
+
+            if (id != TEMPLATE_PERSON)
+            {
+                AvatarType = VMAvatarType.Adult;
+                Avatar = new SimAvatar(TSO.Content.Content.Get().AvatarSkeletons.Get("adult.skel"));
+                Avatar.Head = TSO.Content.Content.Get().AvatarOutfits.Get(data.GetString(1)); //head bodystring
+                Avatar.Body = TSO.Content.Content.Get().AvatarOutfits.Get(data.GetString(2)); //body bodystring
+                Avatar.Handgroup = Avatar.Body;
+
+            }
+            else
 
             switch (AvatarType)
             {
