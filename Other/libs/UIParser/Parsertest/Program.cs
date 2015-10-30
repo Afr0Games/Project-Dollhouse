@@ -63,18 +63,8 @@ namespace Parsertest
 
                         Console.Write("SetSharedProperties: ");
 
-                        foreach (UIParser.Nodes.AssignmentNode Assignment in SharedPropertiesNode.Assignments)
-                        {
-                            switch(Assignment.TypeOfAssignment)
-                            {
-                                case AssignmentType.StringDirAssignment:
-                                    Console.WriteLine("stringDir=" + Assignment.StrValue);
-                                    break;
-                                case AssignmentType.StringTableAssignment:
-                                    Console.WriteLine("stringTable=" + Assignment.NumberValue);
-                                    break;
-                            }
-                        }
+                        if (SharedPropertiesNode.StringTable != null)
+                            Console.WriteLine("StringTable: " + SharedPropertiesNode.StringTable);
                         break;
                     case "DefineString":
                         Console.WriteLine("DefineString: " + ANode.ChildNodes[0].ToString());

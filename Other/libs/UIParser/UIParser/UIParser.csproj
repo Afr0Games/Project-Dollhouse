@@ -30,11 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Irony">
-      <HintPath>Irony_2013_12_12\Irony\bin\Debug\Irony.dll</HintPath>
+    <Reference Include="Irony, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <HintPath>..\packages\Irony.0.9.0\lib\net45\Irony.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Irony.Interpreter">
-      <HintPath>Irony_2013_12_12\Irony.Interpreter\bin\Debug\Irony.Interpreter.dll</HintPath>
+    <Reference Include="Irony.Interpreter, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <HintPath>..\packages\Irony.Interpreter.0.9.0\lib\net45\Irony.Interpreter.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="MonoGame.Framework, Version=3.4.0.459, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\TSOClient\Gonzo\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\MonoGame.Framework.dll</HintPath>

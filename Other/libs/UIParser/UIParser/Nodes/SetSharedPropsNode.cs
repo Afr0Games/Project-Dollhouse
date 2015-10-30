@@ -30,8 +30,8 @@ namespace UIParser.Nodes
         {
             InitChildrenAsList(nodes);
 
-            if (nodes[2].AstNode != null)
-                AssignmentBlock = (AssignmentBlockNode)nodes[2].AstNode;
+            if (nodes[1].AstNode != null)
+                AssignmentBlock = (AssignmentBlockNode)nodes[1].AstNode;
 
             foreach (AssignmentNode ANode in AssignmentBlock.ChildNodes[0].ChildNodes)
             {
