@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C58D344E-CB5C-4A61-851B-3CDC9E3F6913}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UIParser</RootNamespace>
+    <AssemblyName>UIParser</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Irony">
+      <HintPath>Irony_2013_12_12\Irony\bin\Debug\Irony.dll</HintPath>
+    </Reference>
+    <Reference Include="Irony.Interpreter">
+      <HintPath>Irony_2013_12_12\Irony.Interpreter\bin\Debug\Irony.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework, Version=3.4.0.459, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\TSOClient\Gonzo\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\MonoGame.Framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\TSOClient\Gonzo\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\OpenTK.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Nodes\AddButtonNode.cs" />
+    <Compile Include="Nodes\AddFormatedTextNode.cs" />
+    <Compile Include="Nodes\AddListboxNode.cs" />
+    <Compile Include="Nodes\AddProgressBarNode.cs" />
+    <Compile Include="Nodes\AddSliderNode.cs" />
+    <Compile Include="Nodes\AddTextEditNode.cs" />
+    <Compile Include="Nodes\AddTextNode.cs" />
+    <Compile Include="Nodes\AnyAssignment.cs" />
+    <Compile Include="Nodes\ArrayListNode.cs" />
+    <Compile Include="Nodes\ArrayNode.cs" />
+    <Compile Include="Nodes\AssignmentBlockNode.cs" />
+    <Compile Include="Nodes\AssignmentNode.cs" />
+    <Compile Include="Nodes\BeginNode.cs" />
+    <Compile Include="Nodes\BeginStatementNode.cs" />
+    <Compile Include="Nodes\CommaNode.cs" />
+    <Compile Include="Nodes\DefineImageNode.cs" />
+    <Compile Include="Nodes\DefineStringNode.cs" />
+    <Compile Include="Nodes\EndNode.cs" />
+    <Compile Include="Nodes\LineContentNode.cs" />
+    <Compile Include="Nodes\NumberValueNode.cs" />
+    <Compile Include="Nodes\SetControlPropsNode.cs" />
+    <Compile Include="Nodes\SetSharedPropsNode.cs" />
+    <Compile Include="Nodes\StartStatementNode.cs" />
+    <Compile Include="Nodes\StringValueNode.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ParserState.cs" />
+    <Compile Include="UIGrammar.cs" />
+    <Compile Include="Nodes\UINode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

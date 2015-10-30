@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using SimsLib.FAR3;
+using Files.FAR3;
 
 namespace Mr.Shipper
 {
@@ -79,7 +79,7 @@ namespace Mr.Shipper
         /// </summary>
         /// <param name="Entry">The entry generated for the file.</param>
         /// <returns>A FileID (see RogueFileIDs enum in Database.cs)</returns>
-        public static uint GetFileID(Far3Entry Entry)
+        public static uint GetFileID(FAR3Entry Entry)
         {
             try
             {
@@ -102,9 +102,9 @@ namespace Mr.Shipper
         /// <param name="FileID">The generated ID to check.</param>
         /// <param name="UIEntries">The entries to check.</param>
         /// <returns>True if any collisions were found.</returns>
-        public static bool CheckCollision(ulong ID, Dictionary<Far3Entry, string> UIEntries)
+        public static bool CheckCollision(ulong ID, Dictionary<FAR3Entry, string> UIEntries)
         {
-            foreach (KeyValuePair<Far3Entry, string> KVP in UIEntries)
+            foreach (KeyValuePair<FAR3Entry, string> KVP in UIEntries)
             {
                 if (KVP.Key.FileID == ID)
                     Console.WriteLine("Found ID collision: " + ID);
@@ -152,13 +152,8 @@ namespace Mr.Shipper
         /// <returns></returns>
         public static ulong ToID(uint TypeID, uint FileID)
         {
-            MemoryStream MemStream = new MemoryStream();
-            BinaryWriter Writer = new BinaryWriter(MemStream);
-
-            Writer.Write(TypeID);
-            Writer.Write(FileID);
-
-            return BitConverter.ToUInt64(MemStream.ToArray(), 0);
+            var fileIDLong = ((ulong)FileID) << 32;
+            return fileIDLong | TypeID;
         }
     }
 }
