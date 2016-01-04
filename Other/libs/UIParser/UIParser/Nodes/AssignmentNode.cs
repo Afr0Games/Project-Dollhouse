@@ -356,7 +356,7 @@ namespace UIParser.Nodes
                     break;
             }
 
-            AsString = "AssignmentNode";
+            AsString = "Assignment";
         }
     }
 }

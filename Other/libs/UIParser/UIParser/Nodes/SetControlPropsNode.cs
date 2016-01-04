@@ -7,7 +7,11 @@ namespace UIParser.Nodes
 {
     public class SetControlPropsNode : UINode
     {
+        public AssignmentBlockNode AssignmentBlock;
+
         public string Control { get; private set; }
+        public string Image { get; private set; }
+        public int[] PositionAssignment { get; private set; }
         public List<AssignmentNode> Assignments = new List<AssignmentNode>();
 
         public override void Accept(IUIVisitor visitor)
@@ -20,11 +24,24 @@ namespace UIParser.Nodes
             InitChildrenAsList(nodes);
 
             Control = nodes[1].Token.Text;
+            Image = "";
 
-            foreach (ParseTreeNode Node in nodes[1].ChildNodes)
+            if (nodes[2].AstNode != null)
+                AssignmentBlock = (AssignmentBlockNode)nodes[2].AstNode;
+
+            foreach(AssignmentNode ANode in AssignmentBlock.ChildNodes[0].ChildNodes)
             {
-                if (Node.AstNode != null)
-                    Assignments.Add((AssignmentNode)AddChild("AssignmentNode", Node));
+                switch(ANode.TypeOfAssignment)
+                {
+                    case AssignmentType.ImageAssignment:
+                        Image = ANode.StrValue;
+                        break;
+                    case AssignmentType.PositionAssignment:
+                        PositionAssignment = new int[2];
+                        PositionAssignment[0] = ANode.Array.Numbers[0];
+                        PositionAssignment[1] = ANode.Array.Numbers[1];
+                        break;
+                }
             }
 
             AsString = "SetControlProperties";

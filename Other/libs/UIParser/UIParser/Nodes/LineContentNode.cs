@@ -19,7 +19,7 @@ namespace UIParser.Nodes
         {
             InitChildrenAsList(nodes);
 
-            AsString = "LineContentNode";
+            AsString = "LineContent";
         }
     }
 }

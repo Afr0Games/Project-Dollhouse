@@ -25,7 +25,7 @@ namespace UIParser.Nodes
                     LineContent = (LineContentNode)AddChild("LineContent", nodes[0]);
             }
 
-            AsString = "StartStatementNode";
+            AsString = "StartStatement";
         }
     }
 }

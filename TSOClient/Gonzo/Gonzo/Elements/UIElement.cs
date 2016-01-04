@@ -5,66 +5,86 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Gonzo
+namespace Gonzo.Elements
 {
+    /// <summary>
+    /// UIElement is the base class for all UI related elements (UIButton, UIControl, 
+    /// UIDialog, UIImage, UILabel, UISlider, UITextEdit).
+    /// </summary>
     public class UIElement
     {
-        protected Matrix m_Mat;
         protected UIElement m_Parent;
+        protected UIScreen m_Screen;
         protected Dictionary<string, UIElement> m_Elements = new Dictionary<string, UIElement>();
         protected string m_Name;
         protected int m_ID;
 
-        public Matrix PositionMatrix { get { return m_Mat; } }
-
-        protected List<CaretSeparatedText> m_StringTables = new List<CaretSeparatedText>();
-        protected Dictionary<string, string> m_Strings = new Dictionary<string, string>();
         protected bool m_Opaque = false;
-        protected Vector2 m_Size, m_Position;
-        public Color TextColor;
+        protected Vector2 m_Size;
+
+        private Vector2 m_Position;
+        private readonly object m_PositionLock = new object();
+
+        public Color TextColor, TextColorSelected, TextColorHighlighted, TextColorDisabled;
 
         public string Tooltip { get; set; }
-        public Texture2D Image;
+        public UIImage Image;
+
+        protected SpriteFont m_Font;
 
         public int Tracking, Trigger;
 
         public virtual void Update(InputHelper Helper) { }
         public virtual void Draw(SpriteBatch SBatch) { }
+        public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect) { }
         public virtual void Draw() { }
 
-        public UIElement(string Name, Vector2 Position, Vector2 Size, UIElement Parent = null)
+        public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null)
         {
             m_Name = Name;
-            m_Mat = Matrix.CreateTranslation(Size.X, Size.Y, 0); //TODO: What happens if this element is a child?
             m_Size = Size;
 
             if (Parent != null)
             {
                 m_Parent = Parent;
-                m_Position = Vector2.Transform(new Vector2(Position.X, Position.Y), m_Parent.PositionMatrix);
+                m_Position += Parent.m_Position;
             }
             else
                 m_Position = Position;
-        }
 
-        public UIElement(UIElement Parent)
-        {
-            m_Parent = Parent;
+            m_Screen = Screen;
         }
 
         /// <summary>
-        /// Sets the position for this UIElement.
+        /// Constructs a UIElement from a Screen instance and an optional UIElement that acts as a parent.
         /// </summary>
-        /// <param name="X">The X position to set.</param>
-        /// <param name="Y">The Y position to set.</param>
-        public void SetPosition(int X, int Y)
+        /// <param name="Screen">A Screen instance.</param>
+        /// <param name="Parent">(Optional) UIElement that acts as a parent.</param>
+        public UIElement(UIScreen Screen, UIElement Parent = null)
         {
-            m_Position.X = X;
-            m_Position.Y = Y;
-            Vector2 NewPosition = Vector2.Transform(new Vector2(X, Y), m_Mat);
+            m_Screen = Screen;
 
-            foreach (KeyValuePair<string, UIElement> KVP in m_Elements)
-                m_Elements[KVP.Key].SetPosition((int)NewPosition.X, (int)NewPosition.Y);
+            if (Parent != null)
+                m_Parent = Parent;
+        }
+
+        /// <summary>
+        /// Gets or sets the position for this UIElement.
+        /// </summary>
+        public Vector2 Position
+        {
+            get { return m_Position; }
+            set
+            {
+                lock(m_PositionLock)
+                {
+                    m_Position.X = value.X;
+                    m_Position.Y = value.Y;
+
+                    if (m_Parent != null)
+                        m_Position += m_Parent.m_Position;
+                }
+            }
         }
 
         /// <summary>
@@ -77,7 +97,8 @@ namespace Gonzo
             m_Size.X = Width;
             m_Size.Y = Height;
 
-            //TODO: Scale children...
+            foreach (KeyValuePair<string, UIElement> KVP in m_Elements)
+                KVP.Value.SetSize(Width, Height);
         }
 
         /// <summary>
@@ -97,32 +118,24 @@ namespace Gonzo
             }
         }
 
-        public string GetString(string Name)
-        {
-            try
-            {
-                return m_Strings[Name];
-            }
-            catch (Exception)
-            {
-                throw new Exception("Couldn't find string: " + Name + " in UIElement.cs");
-            }
-        }
-
         uint[] PixelData = new uint[1]; // Delare an Array of 1 just to store data for one pixel
-        protected bool PixelCheck(InputHelper Input)
+        protected bool PixelCheck(InputHelper Input, int Width)
         {
+            if (Image == null || !Image.Loaded)
+                return false;
+
             // Get Mouse position relative to top left of Texture
             Vector2 pixelPosition = Input.MousePosition - m_Position;
 
             // I know. I just checked this condition at OnMouseOver or we wouldn't be here
             // but just to be sure the spot we're checking is within the bounds of the texture...
-            if (pixelPosition.X >= 0 && pixelPosition.X < Image.Width &&
-                pixelPosition.Y >= 0 && pixelPosition.Y < Image.Height)
+            if (pixelPosition.X >= 0 && pixelPosition.X < Width &&
+                pixelPosition.Y >= 0 && pixelPosition.Y < Image.Texture.Height)
             {
                 // Get the Texture Data within the Rectangle coords, in this case a 1 X 1 rectangle
                 // Store the data in pixelData Array
-                Image.GetData<uint>(0, new Rectangle((int)pixelPosition.X, (int)pixelPosition.Y, (1), (1)), PixelData, 0, 1);
+                Image.Texture.GetData<uint>(0, new Rectangle((int)pixelPosition.X, (int)pixelPosition.Y, 
+                    (1), (1)), PixelData, 0, 1);
 
                 // Check if pixel in Array is non Alpha, give or take 20
                 if (((PixelData[0] & 0xFF000000) >> 24) > 20)
@@ -150,9 +163,9 @@ namespace Gonzo
             }
             else
             {
-                if (Input.MousePosition.X > m_Position.X && Input.MousePosition.X <= (m_Position.X + Image.Width))
+                if (Input.MousePosition.X > m_Position.X && Input.MousePosition.X <= (m_Position.X + (Image.Texture.Width * m_Screen.Scale.X)))
                 {
-                    if (Input.MousePosition.Y > m_Position.Y && Input.MousePosition.Y <= (m_Position.Y + Image.Height))
+                    if (Input.MousePosition.Y > m_Position.Y && Input.MousePosition.Y <= (m_Position.Y + (Image.Texture.Height * m_Screen.Scale.Y)))
                         return true;
                 }
             }

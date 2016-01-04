@@ -22,7 +22,7 @@ namespace UIParser.Nodes
             foreach (ParseTreeNode Node in nodes)
                 AssignmentNodes.Add((AssignmentNode)Node.ChildNodes[0].AstNode);
 
-            AsString = "AssignmentBlockNode";
+            AsString = "AssignmentBlock";
         }
     }
 }

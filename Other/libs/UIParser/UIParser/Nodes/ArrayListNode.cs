@@ -24,7 +24,7 @@ namespace UIParser.Nodes
                     Numbers.Add((int)Node.Token.Value);
             }
 
-            AsString = "ArrayListNode";
+            AsString = "ArrayList";
         }
     }
 }

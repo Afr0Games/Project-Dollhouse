@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 
 namespace Gonzo
@@ -19,69 +20,56 @@ namespace Gonzo
         /// <returns>A string with the specified ID.</returns>
         public string this[int ID]
         {
-            get { return m_Strings[ID]; }
+            get { return (string)m_Strings[ID]; }
         }
 
         public CaretSeparatedText(string Path)
         {
-            int ID = 1, LoadedID = 0;
-            bool AppendString = false;
+            int ID = 1;
+            string UnfinishedString = "";
+            bool SplitString = false;
 
             foreach (string CaretString in File.ReadLines(Path))
             {
                 if (!CaretString.Contains("^")) //Comments
                     continue;
 
-                if (AppendString)
+                if(SplitString)
                 {
-                    m_Strings[ID - 1] += CaretString.Replace("^", "");
-                    AppendString = false;
+                    if (CaretString.EndsWith("^"))
+                    {
+                        m_Strings.Add(ID, SanitizeString(UnfinishedString + CaretString));
+                        ID++;
+
+                        SplitString = false;
+                    }
+                    else
+                        UnfinishedString += CaretString;
+
                     continue;
                 }
 
-                //Sometimes a string will end with /r/n and continue on the next line...
-                if (!CaretString.EndsWith("^", StringComparison.CurrentCultureIgnoreCase))
-                    AppendString = true;
-
-                string[] Strs = CaretString.Split(' ');
-                bool HasID = true;
-
-                try
+                if (CaretString.EndsWith("^", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    LoadedID = int.Parse(Strs[0]);
+                    m_Strings.Add(ID, SanitizeString(CaretString));
+                    ID++;
                 }
-                catch (Exception)
-                {
-                    HasID = false;
-                }
-
-                if (HasID)
-                    m_Strings.Add(LoadedID, BuildString(Strs));
                 else
-                    m_Strings.Add(ID, CaretString.Replace("^", ""));
-
-                ID++;
+                {
+                    UnfinishedString = SanitizeString(CaretString);
+                    SplitString = true;
+                }
             }
         }
 
-        /// <summary>
-        /// Builds a string with spaces from an array of strings split on spaces.
-        /// </summary>
-        /// <param name="SplitStr">An array of strings split on spaces.</param>
-        /// <returns>A string with spaces.</returns>
-        private string BuildString(string[] SplitStr)
+        private string SanitizeString(string Input)
         {
-            StringBuilder SBuilder = new StringBuilder();
+            MatchCollection MC = Regex.Matches(Input, @"[\d]{1,2} ");
 
-            for (int i = 0; i < SplitStr.Length; i++)
-            {
-                if (i < (SplitStr.Length - 1))
-                    SBuilder.Append(SplitStr[i].Replace("^", "") + " ");
-                else
-                    SBuilder.Append(SplitStr[i].Replace("^", ""));
-            }
-
-            return SBuilder.ToString();
+            if (MC.Count > 0)
+                return Input.Remove(0, MC[0].Length).Replace("^", "");
+            else
+                return Input.Replace("^", "");
         }
     }
 }

@@ -17,12 +17,13 @@ namespace Gonzo
         /// <param name="Path">Path to TSO directory.</param>
         /// <param name="StringDir">TSO's string directory.</param>
         /// <param name="Language">The language to use, without ".dir" extension.</param>
-        public void Initialize(string Path, string StringDir, string Language)
+        public static void Initialize(string Path, string StringDir, string Language)
         {
             foreach (string CSTPath in GetFileList("*.cst", Path + StringDir + "\\" + Language + ".dir"))
             {
                 CaretSeparatedText StringTable = new CaretSeparatedText(CSTPath);
-                int ID = int.Parse(System.IO.Path.GetFileName(CSTPath).Split('_')[0]);
+                int ID = int.Parse(System.IO.Path.GetFileName(CSTPath).Split("_".ToCharArray(),
+                    StringSplitOptions.RemoveEmptyEntries)[0]);
 
                 m_StringTables.Add(ID, StringTable);
             }

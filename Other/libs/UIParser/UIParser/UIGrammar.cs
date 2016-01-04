@@ -11,7 +11,7 @@ namespace UIParser
     [Language("TSO UIScript", "1.0", "TSO UIScript parser")]
     public class UIGrammar : Grammar
     {
-        public UIGrammar() : base(/*caseSensitive: false*/)
+        public UIGrammar() : base(caseSensitive: false)
         {
             LanguageFlags = LanguageFlags.CreateAst;
 

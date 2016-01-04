@@ -16,6 +16,8 @@ namespace UIParser.Nodes
         protected override void InitChildren(ParseTreeNodeList nodes)
         {
             InitChildrenAsList(nodes);
+
+            AsString = "AnyAssignment";
         }
     }
 }

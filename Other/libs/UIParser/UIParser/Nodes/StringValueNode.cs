@@ -18,7 +18,9 @@ namespace UIParser.Nodes
         public override void Init(AstContext context, ParseTreeNode treeNode)
         {
             base.Init(context, treeNode);
-            Text = AsString = treeNode.Token.Text;
+            Text = treeNode.Token.Text;
+
+            AsString = "StringValue";
         }
     }
 }

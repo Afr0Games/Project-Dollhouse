@@ -85,7 +85,7 @@ namespace UIParser.Nodes
         /// </summary>
         public int? Tracking;
 
-        public string Tooltip;
+        public string Tooltip = "";
         public AssignmentBlockNode AssignmentBlock { get; private set; }
 
         public override void Accept(IUIVisitor visitor)
@@ -154,7 +154,7 @@ namespace UIParser.Nodes
                 }
             }
 
-            AsString = "AddButtonNode";
+            AsString = "AddButton";
         }
     }
 }

@@ -30,21 +30,24 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Files">
+    <Reference Include="Files, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Files\Files\bin\Debug\Files.dll</HintPath>
     </Reference>
-    <Reference Include="Irony">
-      <HintPath>..\..\..\Other\libs\UIParser\UIParser\Irony_2013_12_12\Irony\bin\Debug\Irony.dll</HintPath>
+    <Reference Include="Irony, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <HintPath>..\packages\Irony.0.9.0\lib\net45\Irony.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Irony.Interpreter">
-      <HintPath>..\..\..\Other\libs\UIParser\UIParser\Irony_2013_12_12\Irony.Interpreter\bin\Debug\Irony.Interpreter.dll</HintPath>
+    <Reference Include="Irony.Interpreter, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <HintPath>..\packages\Irony.Interpreter.0.9.0\lib\net45\Irony.Interpreter.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="MonoGame.Framework, Version=3.4.0.459, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\MonoGame.Framework.dll</HintPath>
+    <Reference Include="MonoGame.Framework, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.3.0.0\lib\net40\MonoGame.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\OpenTK.dll</HintPath>
+      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.3.0.0\lib\net40\OpenTK.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -55,20 +58,28 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="Tao.Sdl, Version=1.2.13.0, Culture=neutral, PublicKeyToken=9c7a200e36c0094e, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.3.0.0\lib\net40\Tao.Sdl.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CaretSeparatedText.cs" />
+    <Compile Include="Elements\UIDialog.cs" />
     <Compile Include="InputHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RectangleF.cs" />
+    <Compile Include="ScreenManager.cs" />
     <Compile Include="StringManager.cs" />
     <Compile Include="TextureUtils.cs" />
-    <Compile Include="UIButton.cs" />
-    <Compile Include="UIElement.cs" />
-    <Compile Include="UIImage.cs" />
-    <Compile Include="UILabel.cs" />
+    <Compile Include="Elements\UIButton.cs" />
+    <Compile Include="Elements\UIControl.cs" />
+    <Compile Include="Elements\UIElement.cs" />
+    <Compile Include="Elements\UIImage.cs" />
+    <Compile Include="Elements\UILabel.cs" />
     <Compile Include="UIScreen.cs" />
-    <Compile Include="UISlider.cs" />
-    <Compile Include="UITextEdit.cs" />
+    <Compile Include="Elements\UISlider.cs" />
+    <Compile Include="Elements\UITextEdit.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Other\libs\UIParser\UIParser\UIParser.csproj">
@@ -78,6 +89,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SDL.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -19,6 +19,8 @@ namespace UIParser.Nodes
         {
             base.Init(context, treeNode);
             Text = AsString = treeNode.Token.Text;
+
+            AsString = "NumberValue";
         }
     }
 }

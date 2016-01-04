@@ -23,7 +23,8 @@ namespace UIParser.Nodes
             if (nodes[1].AstNode != null)
                 Name = nodes[1].Token.Text;
 
-            AssetID = nodes[2].ChildNodes[0].ChildNodes[0].ChildNodes[2].Token.Text;
+            AssetID = nodes[2].ChildNodes[0].ChildNodes[0].ChildNodes[2].Token.Text.Replace("\"", "");
+            AssetID = AssetID.Substring(2);
 
             AsString = "DefineImage";
         }

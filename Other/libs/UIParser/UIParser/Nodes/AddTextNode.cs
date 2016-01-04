@@ -6,6 +6,16 @@ using Irony.Parsing;
 
 namespace UIParser.Nodes
 {
+    public enum TextAlignment
+    {
+        Left_Top = 0,
+        Left_Center = 1,
+        Center_Top = 2,
+        Center_Center = 3,
+        Right_Top = 4,
+        Right_Center = 5
+    }
+
     public class AddTextNode : UINode
     {
         /// <summary>
@@ -51,7 +61,7 @@ namespace UIParser.Nodes
         /// <summary>
         /// Required. Defines the alignment of this text control.
         /// </summary>
-        public int? Alignment;
+        public TextAlignment Alignment;
 
         /// <summary>
         /// Required. Defines the opacity of this text control. 1 is opaque and 0 is transparent.
@@ -74,11 +84,6 @@ namespace UIParser.Nodes
             visitor.Visit(this);
         }
 
-        public override void Init(AstContext context, ParseTreeNode treeNode)
-        {
-            AsString = "AddText";
-        }
-
         protected override void InitChildren(ParseTreeNodeList nodes)
         {
             InitChildrenAsList(nodes);
@@ -88,9 +93,35 @@ namespace UIParser.Nodes
             if (nodes[2].AstNode != null)
                 AssignmentBlock = (AssignmentBlockNode)nodes[2].AstNode;
 
-            ID = (int)nodes[2].ChildNodes[0].ChildNodes[0].ChildNodes[2].Token.Value;
-            TextPosition = (ArrayListNode)nodes[3].ChildNodes[0].ChildNodes[0].ChildNodes[2].Token.Value;
-            Size = (ArrayListNode)nodes[4].ChildNodes[0].ChildNodes[0].ChildNodes[2].Token.Value;
+            foreach (AssignmentNode ANode in AssignmentBlock.ChildNodes[0].ChildNodes)
+            {
+                switch (ANode.TypeOfAssignment)
+                {
+                    case AssignmentType.IDAssignment:
+                        ID = ANode.NumberValue;
+                        break;
+                    case AssignmentType.PositionAssignment:
+                        TextPosition = ANode.Array;
+                        break;
+                    case AssignmentType.SizeAssignment:
+                        Size = ANode.Array;
+                        break;
+                    case AssignmentType.ColorAssignment:
+                        Color = ANode.Array;
+                        break;
+                    case AssignmentType.TextAssignment:
+                        Text = ANode.StrValue;
+                        break;
+                    case AssignmentType.AlignmentAssignment:
+                        Alignment = (TextAlignment)ANode.NumberValue;
+                        break;
+                    case AssignmentType.FontAssignment:
+                        Font = ANode.NumberValue;
+                        break;
+                }
+            }
+
+            AsString = "AddText";
         }
     }
 }

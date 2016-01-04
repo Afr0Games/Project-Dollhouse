@@ -16,7 +16,7 @@ namespace UIParser.Nodes
         public override void Init(AstContext context, ParseTreeNode treeNode)
         {
             base.Init(context, treeNode);
-            AsString = ",";
+            AsString = "Comma";
         }
     }
 }

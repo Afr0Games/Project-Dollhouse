@@ -22,7 +22,7 @@ namespace Parsertest
 
             StringBuilder SBuilder = new StringBuilder();
 
-            foreach (string Statement in File.ReadLines("C:\\Program Files (x86)\\Maxis\\The Sims Online\\TSOClient\\gamedata\\uiscripts\\personselectionedit.uis"))
+            foreach (string Statement in File.ReadLines("C:\\Program Files\\Maxis\\The Sims Online\\TSOClient\\gamedata\\uiscripts\\personselectionedit.uis"))
             {
                 SBuilder.Append(Statement + "\r\n");
             }

@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Linq;
+using System.Drawing;
+using System.Runtime.InteropServices;
 using Files.FAR3;
 using Files.FAR1;
 using Files.DBPF;
@@ -117,7 +119,39 @@ namespace Files.Manager
         /// <returns>A Texture2D instance.</returns>
         public static Texture2D GetTexture(ulong AssetID)
         {
-            return Texture2D.FromStream(m_Game.GraphicsDevice, GrabItem(AssetID));
+            Stream Data = GrabItem(AssetID);
+            Stream PNGStream = new MemoryStream();
+
+            if (IsBMP(Data))
+            {
+                Bitmap BMap = new Bitmap(Data);
+                BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
+                BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
+                BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
+                BMap.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                PNGStream.Seek(0, SeekOrigin.Begin);
+            }
+            else
+            {
+                Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
+                TGA.Image.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                PNGStream.Seek(0, SeekOrigin.Begin);
+            }
+
+            return Texture2D.FromStream(m_Game.GraphicsDevice, PNGStream);
+        }
+
+        /// <summary>
+        /// Checks if the supplied data is a BMP.
+        /// </summary>
+        /// <param name="Data">The data as a Stream.</param>
+        /// <returns>True if data was BMP, false otherwise.</returns>
+        private static bool IsBMP(Stream Data)
+        {
+            BinaryReader Reader = new BinaryReader(Data, Encoding.UTF8, true);
+            byte[] data = Reader.ReadBytes(2);
+            byte[] magic = new byte[] { (byte)'B', (byte)'M' };
+            return data.SequenceEqual(magic);
         }
 
         public static Outfit GetOutfit(ulong AssetID)
