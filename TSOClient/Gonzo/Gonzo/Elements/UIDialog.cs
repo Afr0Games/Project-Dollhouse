@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Files;
 using Files.Manager;
+using Microsoft.Xna.Framework.Input;
 
 namespace Gonzo.Elements
 {
@@ -12,12 +13,14 @@ namespace Gonzo.Elements
     {
         public UIButton CloseButton, OkCheckButton;
         private UIImage m_CloseBtnBack;
+
         private bool m_IsDraggable;
+        private bool m_DoDrag = false;
+        private Vector2 m_DragOffset;
 
         public UIDialog(UIScreen Screen, Vector2 Pos, bool IsTall, bool IsDraggable) : base(Screen)
         {
             Position = Pos;
-            Position *= m_Screen.Scale;
 
             m_IsDraggable = IsDraggable;
 
@@ -36,11 +39,24 @@ namespace Gonzo.Elements
 
             m_CloseBtnBack = new UIImage(CloseBtnBackground, Screen, this);
             m_CloseBtnBack.Position = new Vector2(((CloseBtnBackground.Width * m_Screen.Scale.X) * 2), 0);
-            m_CloseBtnBack.Position *= m_Screen.Scale;
 
             Texture2D CloseButtonTex = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
             CloseButton = new UIButton("CloseBtn", CloseButtonTex,
                 new Vector2((Tex.Width - (CloseButtonTex.Width / (4 * m_Screen.Scale.X))), 12), Screen, this);
+        }
+
+        public override void MouseEvents(InputHelper Helper)
+        {
+            switch(Helper.CurrentMouseState.LeftButton)
+            {
+                case ButtonState.Pressed:
+                    m_DragOffset = Helper.CurrentMouseState.Position.ToVector2();
+                    m_DoDrag = true;
+                    break;
+                case ButtonState.Released:
+                    m_DoDrag = false;
+                    break;
+            }
         }
 
         public override void Update(InputHelper Helper)
@@ -49,18 +65,22 @@ namespace Gonzo.Elements
 
             if(m_IsDraggable)
             {
+                if (m_DoDrag)
+                {
+                    Vector2 OffsetFromMouse = new Vector2(0, 0);
+                    Image.Position = (Helper.MousePosition - m_DragOffset);
+
+                    OffsetFromMouse = new Vector2(((m_CloseBtnBack.Texture.Width) * 2), 0);
+                    m_CloseBtnBack.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
+
+                    OffsetFromMouse = new Vector2(((m_CloseBtnBack.Texture.Width) * 4.25f), 112);
+                    CloseButton.Image.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
+                }
+
                 if (IsMouseOver(Helper))
                 {
-                    if (Helper.IsCurPress(MouseButtons.LeftButton) || Helper.IsOldPress(MouseButtons.LeftButton))
-                    {
-                        //Position = Helper.MousePosition - Position;
-                        Image.Position = Helper.MousePosition - Image.Position;
-                        Image.Slicer.Calculate();
-
-                        m_CloseBtnBack.Position = Helper.MousePosition - m_CloseBtnBack.Position;
-
-                        CloseButton.Image.Position = new Vector2(Helper.MousePosition.X - CloseButton.Image.Position.X, Helper.MousePosition.Y - CloseButton.Image.Position.Y);
-                    }
+                    if (Helper.IsCurPress(MouseButtons.LeftButton))
+                        this.MouseEvents(Helper);
                 }
             }
         }

@@ -34,9 +34,34 @@ namespace Gonzo.Elements
 
         public int Tracking, Trigger;
 
+        /// <summary>
+        /// Mouse interacted with this UIElement.
+        /// </summary>
+        /// <param name="Helper"></param>
+        public virtual void MouseEvents(InputHelper Helper) { }
+
+        /// <summary>
+        /// Handles update logic for this UIElement.
+        /// </summary>
+        /// <param name="Helper">InputHelper instance for input data.</param>
         public virtual void Update(InputHelper Helper) { }
+
+        /// <summary>
+        /// Handles drawing logic for this UIElement.
+        /// </summary>
+        /// <param name="SBatch">A SpriteBatch instance.</param>
         public virtual void Draw(SpriteBatch SBatch) { }
+
+        /// <summary>
+        /// Handles drawing logic for this UIElement.
+        /// </summary>
+        /// <param name="SBatch">A SpriteBatch instance.</param>
+        /// <param name="SourceRect">A source rectangle, for controlling which part of this elenent's texture is drawn.</param>
         public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect) { }
+
+        /// <summary>
+        /// Handles drawing logic for this UIElement.
+        /// </summary>
         public virtual void Draw() { }
 
         public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null)

@@ -47,7 +47,7 @@ namespace Gonzo.Elements
             {
                 Vector2 Pos = new Vector2(Position.X + SourceRect.Value.X, 
                     Position.Y + SourceRect.Value.Y);
-                Pos *= m_Screen.Scale;
+                //Pos *= m_Screen.Scale;
                 SBatch.Draw(Texture, Pos, SourceRect, Color.White, 0.0f,
                     new Vector2(0.0f, 0.0f), m_Screen.Scale, SpriteEffects.None, 0.0f);
             }
