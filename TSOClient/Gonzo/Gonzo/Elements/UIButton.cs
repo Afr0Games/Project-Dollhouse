@@ -59,6 +59,7 @@ namespace Gonzo.Elements
                 m_Size.Y = Image.Texture.Height;
 
                 Image.Position = new Vector2(Position.X, Position.Y);
+                m_Elements.Add("Background", Image);
             }
 
             if (Node.TextHighlighted != null)
@@ -171,6 +172,8 @@ namespace Gonzo.Elements
             Image = new UIImage(Tex, Screen, null);
             Image.Position = new Vector2(Pos.X, Pos.Y);
             m_SourcePosition = new Vector2((Tex.Width / (4 * Screen.Scale.X)) * 2, 0.0f);
+
+            m_Elements.Add("Background", Image);
 
             m_Size = new Vector2();
             m_Size.X = (Tex.Width * Screen.Scale.X) / (4 * Screen.Scale.X);

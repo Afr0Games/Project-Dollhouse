@@ -27,7 +27,7 @@ public class CreditsScreen : UIScreen
             MaxisButton = (UIButton)m_Elements["\"MaxisButton\""];
             MaxisButton.OnButtonClicked += MaxisButton_OnButtonClicked;
 
-            m_WillWrightDiag = new UIDialog(this, new Vector2(100, 100), true, true);
+            m_WillWrightDiag = new UIDialog(this, new Vector2(100, 100), true, true, true);
         }
 
         private void MaxisButton_OnButtonClicked(UIButton ClickedButton)

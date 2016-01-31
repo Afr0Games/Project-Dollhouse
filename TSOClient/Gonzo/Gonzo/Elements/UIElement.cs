@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
@@ -107,7 +108,25 @@ namespace Gonzo.Elements
                     m_Position.Y = value.Y;
 
                     if (m_Parent != null)
+                    {
                         m_Position += m_Parent.m_Position;
+
+                        if (Image != null)
+                        {
+                            Image.Position = m_Position;
+                            Image.Position += m_Parent.m_Position;
+                        }
+                    }
+                    else
+                    {
+                        if (Image != null)
+                            Image.Position = m_Position;
+                    }
+
+                    List<string> Keys = new List<string>(m_Elements.Keys);
+
+                    for (int i = 0; i < m_Elements.Count; i++)
+                        m_Elements[Keys[i]].Position += m_Position;
                 }
             }
         }

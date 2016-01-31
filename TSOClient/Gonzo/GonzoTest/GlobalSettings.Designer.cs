@@ -37,7 +37,7 @@ namespace GonzoTest {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1024")]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
         public int ScreenWidth {
             get {
                 return ((int)(this["ScreenWidth"]));
@@ -49,7 +49,7 @@ namespace GonzoTest {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("768")]
+        [global::System.Configuration.DefaultSettingValueAttribute("600")]
         public int ScreenHeight {
             get {
                 return ((int)(this["ScreenHeight"]));
