@@ -66,29 +66,44 @@ namespace Gonzo.Elements
         public Rectangle BLeft, BCenter, BRight;
         private int m_Width, m_Height;
 
-        public NineSlicer(Vector2 Position, int TextureWidth, int TextureHeight)
+        public NineSlicer(Vector2 Position, int TextureWidth, int TextureHeight, int LeftPadding, int RightPadding, 
+            int TopPadding, int BottomPadding)
         {
             m_Width = TextureWidth;
             m_Height = TextureHeight;
-            Calculate();
+            Calculate(Position.X, Position.Y, LeftPadding, RightPadding, TopPadding, BottomPadding);
         }
 
-        public void Calculate()
+        /// <summary>
+        /// Calculates 9 patches of texture (from: 
+        /// http://gamedev.stackexchange.com/questions/115684/monogame-scale-resizing-texture-without-stretching-the-borders)
+        /// </summary>
+        /// <param name="X">X-position of texture.</param>
+        /// <param name="Y">Y-position of texture.</param>
+        /// <param name="LeftPadding">Amount of padding for left side.</param>
+        /// <param name="RightPadding">Amount of padding for right side.</param>
+        /// <param name="TopPadding">Amount of padding for top.</param>
+        /// <param name="BottomPadding">Amount of padding for bottom.</param>
+        public void Calculate(float X, float Y, int LeftPadding, int RightPadding, int TopPadding, int BottomPadding)
         {
-            int TileWidth = (int)(m_Width / 3);
-            int TileHeight = (int)(m_Height / 3);
+            int MiddleWidth = m_Width - LeftPadding - RightPadding;
+            int MiddleHeight = m_Height - TopPadding - BottomPadding;
+            int BottomY = (int)(Y + m_Height - BottomPadding);
+            int RightX = (int)(X + m_Width - RightPadding);
+            int LeftX = (int)(X + LeftPadding);
+            int TopY = (int)(Y + TopPadding);
 
-            TLeft = new Rectangle(0, 0, TileWidth, TileHeight);
-            TCenter = new Rectangle(TLeft.Right, 0, TileWidth, TileHeight);
-            TRight = new Rectangle(TCenter.Right, 0, TileWidth, TileHeight);
+            TLeft = new Rectangle((int)X, (int)Y, LeftPadding, TopPadding);
+            TCenter = new Rectangle(LeftX, (int)Y, MiddleWidth, TopPadding);
+            TRight = new Rectangle(RightX, (int)Y, RightPadding, TopPadding);
 
-            CLeft = new Rectangle(0, TileHeight, TileWidth, TileHeight);
-            CCenter = new Rectangle(CLeft.Right, TileHeight, TileWidth, TileHeight);
-            CRight = new Rectangle(CCenter.Right, TileHeight, TileWidth, TileHeight);
+            CLeft = new Rectangle((int)X, TopY, LeftPadding, MiddleHeight);
+            CCenter = new Rectangle(LeftX, TopY, MiddleWidth, MiddleHeight);
+            CRight = new Rectangle(RightX, TopY, RightPadding, MiddleHeight);
 
-            BLeft = new Rectangle(0, (TileHeight * 2), TileWidth, TileHeight);
-            BCenter = new Rectangle(BLeft.Right, (TileHeight * 2), TileWidth, TileHeight);
-            BRight = new Rectangle(BCenter.Right, (TileHeight * 2), TileWidth, TileHeight);
+            BLeft = new Rectangle((int)X, BottomY, LeftPadding, BottomPadding);
+            BCenter = new Rectangle(LeftX, BottomY, MiddleWidth, BottomPadding);
+            BRight = new Rectangle(RightX, BottomY, RightPadding, BottomPadding);
         }
     }
 }

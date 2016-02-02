@@ -35,7 +35,12 @@ namespace Gonzo.Elements
                 FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
 
             Image = new UIImage(Tex, Screen, null);
-            Image.Slicer = new NineSlicer(Position, Tex.Width, Tex.Height);
+
+            if (IsTall != false)
+                Image.Slicer = new NineSlicer(Position, Tex.Width, Tex.Height, 41, 41, 66, 40);
+            else
+                Image.Slicer = new NineSlicer(Position, Tex.Width, Tex.Height, 41, 41, 60, 40);
+
             Image.Position = new Vector2(Pos.X, Pos.Y);
             m_Elements.Add("Background", Image);
 
