@@ -41,20 +41,29 @@ namespace Gonzo.Elements
         /// <param name="SourceRect">A rectangle controlling which part of the image is rendered. Can be null.
         ///                         If Slicer has been initialized, SourceRect will also be added to this image's
         ///                         position to calculate the final position.</param>
-        public override void Draw(SpriteBatch SBatch, Rectangle? SourceRect)
+        public override void Draw(SpriteBatch SBatch, Vector2? Scale, Rectangle? SourceRect)
         {
             if (Slicer != null)
             {
+                /*Vector2 Scl;
+
+                if (Scale != null)
+                    Scl = (Vector2)Scale;
+                else
+                    Scl = m_Screen.Scale;*/
+
                 Vector2 Pos = new Vector2(Position.X + SourceRect.Value.X, 
                     Position.Y + SourceRect.Value.Y);
-                //Pos *= m_Screen.Scale;
-                SBatch.Draw(Texture, Pos, SourceRect, Color.White, 0.0f,
-                    new Vector2(0.0f, 0.0f), m_Screen.Scale, SpriteEffects.None, 0.0f);
+
+                /*SBatch.Draw(Texture, Pos, SourceRect, Color.White, 0.0f,
+                    new Vector2(0.0f, 0.0f), Scl, SpriteEffects.None, 0.0f);*/
+                SBatch.Draw(Texture, Pos, SourceRect, Color.White);
             }
             else
             {
-                SBatch.Draw(Texture, Position, SourceRect, Color.White, 0.0f, 
-                    new Vector2(0.0f, 0.0f), m_Screen.Scale, SpriteEffects.None, 0.0f);
+                /*SBatch.Draw(Texture, Position, SourceRect, Color.White, 0.0f, 
+                    new Vector2(0.0f, 0.0f), m_Screen.Scale, SpriteEffects.None, 0.0f);*/
+                SBatch.Draw(Texture, Position, SourceRect, Color.White);
             }
         }
     }
@@ -64,7 +73,9 @@ namespace Gonzo.Elements
         public Rectangle TLeft, TCenter, TRight;
         public Rectangle CLeft, CCenter, CRight;
         public Rectangle BLeft, BCenter, BRight;
-        private int m_Width, m_Height;
+        private int m_Width, m_Height, m_LeftPadding, m_RightPadding, m_TopPadding, m_BottomPadding;
+
+        public Vector2 TCenter_Scale, CCenter_Scale, BCenter_Scale, CLeft_Scale, CRight_Scale;
 
         public NineSlicer(Vector2 Position, int TextureWidth, int TextureHeight, int LeftPadding, int RightPadding, 
             int TopPadding, int BottomPadding)
@@ -72,6 +83,7 @@ namespace Gonzo.Elements
             m_Width = TextureWidth;
             m_Height = TextureHeight;
             Calculate(Position.X, Position.Y, LeftPadding, RightPadding, TopPadding, BottomPadding);
+            CalculateScales(m_Width, m_Height);
         }
 
         /// <summary>
@@ -86,6 +98,11 @@ namespace Gonzo.Elements
         /// <param name="BottomPadding">Amount of padding for bottom.</param>
         public void Calculate(float X, float Y, int LeftPadding, int RightPadding, int TopPadding, int BottomPadding)
         {
+            m_LeftPadding = LeftPadding;
+            m_RightPadding = RightPadding;
+            m_TopPadding = TopPadding;
+            m_BottomPadding = BottomPadding;
+
             int MiddleWidth = m_Width - LeftPadding - RightPadding;
             int MiddleHeight = m_Height - TopPadding - BottomPadding;
             int BottomY = (int)(Y + m_Height - BottomPadding);
@@ -104,6 +121,20 @@ namespace Gonzo.Elements
             BLeft = new Rectangle((int)X, BottomY, LeftPadding, BottomPadding);
             BCenter = new Rectangle(LeftX, BottomY, MiddleWidth, BottomPadding);
             BRight = new Rectangle(RightX, BottomY, RightPadding, BottomPadding);
+        }
+
+        public void CalculateScales(float width, float height)
+        {
+            TCenter_Scale = new Vector2((width - (m_LeftPadding + m_RightPadding)) / (TCenter.Width), 1);
+            CCenter_Scale = new Vector2(
+                            (width - (m_LeftPadding + m_RightPadding)) / (CCenter.Width),
+                            (height - (m_TopPadding + m_BottomPadding)) / (CCenter.Height)
+                       );
+            BCenter_Scale = new Vector2((width - (m_LeftPadding + m_RightPadding)) / (BCenter.Width), 1);
+
+
+            CLeft_Scale = new Vector2(1, (height - (m_TopPadding + m_BottomPadding)) / (CLeft.Height));
+            CRight_Scale = new Vector2(1, (height - (m_TopPadding + m_BottomPadding)) / (CRight.Height));
         }
     }
 }

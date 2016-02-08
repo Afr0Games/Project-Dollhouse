@@ -64,6 +64,7 @@
     <Compile Include="Elements\UIDialog.cs" />
     <Compile Include="InputHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resolution.cs" />
     <Compile Include="ScreenManager.cs" />
     <Compile Include="StringManager.cs" />
     <Compile Include="TextureUtils.cs" />

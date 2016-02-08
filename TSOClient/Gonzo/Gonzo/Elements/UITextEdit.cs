@@ -69,7 +69,6 @@ namespace Gonzo.Elements
             m_Size = new Vector2();
             m_Size.X = Node.Size.Numbers[0];
             m_Size.Y = Node.Size.Numbers[1];
-            m_Size *= m_Screen.Scale;
 
             if (Node.Tooltip != "")
                 Tooltip = m_Screen.GetString(Node.Tooltip);
@@ -384,16 +383,15 @@ namespace Gonzo.Elements
         {
             int Height = (int)m_TextPosition.Y;
 
-            Image.Draw(SBatch, null);
+            Image.Draw(SBatch, null, null);
 
             if (m_ScrollbarImage != null)
                 SBatch.Draw(m_ScrollbarImage,new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f, 
-                    new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight * m_Screen.Scale.Y), SpriteEffects.None, 0.0f);
+                    new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight), SpriteEffects.None, 0.0f);
 
             foreach(StringBuilder SBuilder in m_Lines)
             {
-                SBatch.DrawString(m_Font, SBuilder.ToString(), new Vector2(m_TextPosition.X, Height), TextColor,
-                    0.0f, new Vector2(0.0f, 0.0f), m_Screen.Scale, SpriteEffects.None, 0);
+                SBatch.DrawString(m_Font, SBuilder.ToString(), new Vector2(m_TextPosition.X, Height), TextColor);
                 Height += m_Font.LineSpacing;
             }
 

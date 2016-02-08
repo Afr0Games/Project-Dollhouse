@@ -19,8 +19,8 @@ namespace Gonzo.Elements
             m_Name = Node.Name;
             m_ID = Node.ID;
             Position = new Vector2(Node.TextPosition.Numbers[0], Node.TextPosition.Numbers[1]) + Screen.Position;
-            Position *= m_Screen.Scale;
-            m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]) * m_Screen.Scale;
+
+            m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]);
             m_TextColor = Color.FromNonPremultiplied(Node.Color.Numbers[0], Node.Color.Numbers[1], 
                 Node.Color.Numbers[2], 255);
             m_Alignment = Node.Alignment;
@@ -94,9 +94,8 @@ namespace Gonzo.Elements
 
         public override void Draw(SpriteBatch SBatch)
         {
-            if(Caption != "")
-                SBatch.DrawString(m_Font, Caption, Position, m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 
-                    m_Screen.Scale, SpriteEffects.None, 0.0f);
+            if (Caption != "")
+                SBatch.DrawString(m_Font, Caption, Position, m_TextColor);
         }
     }
 }

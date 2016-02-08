@@ -22,6 +22,12 @@ namespace GonzoTest
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = GlobalSettings.Default.ScreenWidth;
             graphics.PreferredBackBufferHeight = GlobalSettings.Default.ScreenHeight;
+
+            Resolution.Init(ref graphics);
+            //TODO: Add Global parameter for fullscreen.
+            Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, false);
+            Resolution.SetVirtualResolution(800, 600);
+
             Content.RootDirectory = "Content";
         }
 
@@ -94,9 +100,10 @@ namespace GonzoTest
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            Resolution.BeginDraw();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, DepthStencilState.Default, 
-                RasterizerState.CullCounterClockwise, null, null);
+                RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
             m_ScrManager.Draw();
             spriteBatch.End();
 

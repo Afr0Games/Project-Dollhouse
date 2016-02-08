@@ -37,14 +37,13 @@ namespace Gonzo.Elements
 
             Position = new Vector2();
             Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
-            Position *= m_Screen.Scale;
+            //Position *= m_Screen.Scale;
 
             if (Node.ButtonSize != null)
             {
                 m_Size = new Vector2();
                 m_Size.X = Node.ButtonSize.Numbers[0];
                 m_Size.Y = Node.ButtonSize.Numbers[1];
-                m_Size *= m_Screen.Scale;
 
                 m_SourcePosition = new Vector2(m_Size.X * 2, 0.0f);
             }
@@ -52,10 +51,10 @@ namespace Gonzo.Elements
             if (Node.Image != null)
             {
                 Image = m_Screen.GetImage(Node.Image);
-                m_SourcePosition = new Vector2((Image.Texture.Width / (4 * Screen.Scale.X)) * 2, 0.0f);
+                m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
 
                 m_Size = new Vector2();
-                m_Size.X = (Image.Texture.Width * Screen.Scale.X) / (4 * Screen.Scale.X);
+                m_Size.X = (Image.Texture.Width) / (4);
                 m_Size.Y = Image.Texture.Height;
 
                 Image.Position = new Vector2(Position.X, Position.Y);
@@ -149,7 +148,7 @@ namespace Gonzo.Elements
                 {
                     Image = m_Screen.GetImage(State.Image);
                     Image.Position = new Vector2(Position.X, Position.Y);
-                    m_SourcePosition = new Vector2((Image.Texture.Width / (4 * Screen.Scale.X)) * 2, 0.0f);
+                    m_SourcePosition = new Vector2((Image.Texture.Width / (4 /** Screen.Scale.X*/)) * 2, 0.0f);
                 }
 
                 if (State.Tooltip != "")
@@ -171,12 +170,10 @@ namespace Gonzo.Elements
 
             Image = new UIImage(Tex, Screen, null);
             Image.Position = new Vector2(Pos.X, Pos.Y);
-            m_SourcePosition = new Vector2((Tex.Width / (4 * Screen.Scale.X)) * 2, 0.0f);
-
-            m_Elements.Add("Background", Image);
+            m_SourcePosition = new Vector2((Tex.Width / (4)) * 2, 0.0f);
 
             m_Size = new Vector2();
-            m_Size.X = (Tex.Width * Screen.Scale.X) / (4 * Screen.Scale.X);
+            m_Size.X = (Tex.Width) / (4);
             m_Size.Y = Tex.Height;
         }
 
@@ -189,6 +186,40 @@ namespace Gonzo.Elements
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Draws a border around this button, for debugging purposes.
+        /// </summary>
+        /// <param name="SBatch">A Spritebatch to draw with.</param>
+        /// <param name="rectangleToDraw">A rectangle that will make up the border.</param>
+        /// <param name="thicknessOfBorder">Thickness of border to be drawn.</param>
+        /// <param name="borderColor">Color of border.</param>
+        public void DrawBorder(SpriteBatch SBatch, Rectangle rectangleToDraw, int thicknessOfBorder, Color borderColor)
+        {
+            // At the top of your class:
+            Texture2D pixel;
+
+            // Somewhere in your LoadContent() method:
+            pixel = new Texture2D(m_Screen.Manager.Graphics, 1, 1, false, SurfaceFormat.Color);
+            pixel.SetData(new[] { Color.White }); // so that we can draw whatever color we want on top of it
+
+            // Draw top line
+            SBatch.Draw(pixel, new Rectangle(rectangleToDraw.X, rectangleToDraw.Y, rectangleToDraw.Width, thicknessOfBorder), borderColor);
+
+            // Draw left line
+            SBatch.Draw(pixel, new Rectangle(rectangleToDraw.X, rectangleToDraw.Y, thicknessOfBorder, rectangleToDraw.Height), borderColor);
+
+            // Draw right line
+            SBatch.Draw(pixel, new Rectangle((rectangleToDraw.X + rectangleToDraw.Width - thicknessOfBorder),
+                                            rectangleToDraw.Y,
+                                            thicknessOfBorder,
+                                            rectangleToDraw.Height), borderColor);
+            // Draw bottom line
+            SBatch.Draw(pixel, new Rectangle(rectangleToDraw.X,
+                                            rectangleToDraw.Y + rectangleToDraw.Height - thicknessOfBorder,
+                                            rectangleToDraw.Width,
+                                            thicknessOfBorder), borderColor);
         }
 
         public override void Update(InputHelper Input)
@@ -238,14 +269,13 @@ namespace Gonzo.Elements
         {
             if (Image != null && Image.Loaded)
             {
-                Image.Draw(SBatch, new Rectangle((int)m_SourcePosition.X, (int)m_SourcePosition.Y,
+                Image.Draw(SBatch, null, new Rectangle((int)m_SourcePosition.X, (int)m_SourcePosition.Y,
                     (int)m_Size.X, (int)m_Size.Y));
             }
 
             if (m_IsTextButton)
             {
-                SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextColor, 0.0f, new Vector2(0.0f, 0.0f),
-                    m_Screen.Scale, SpriteEffects.None, 0.0f);
+                SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextColor);
             }
         }
     }

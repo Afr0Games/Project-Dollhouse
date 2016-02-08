@@ -44,9 +44,9 @@ public class CreditsScreen : UIScreen
 
         public override void Draw()
         {
-            BackgroundImg.Draw(m_SBatch, null);
-            TSOLogoImage.Draw(m_SBatch, null);
-            BackButtonIndentImage.Draw(m_SBatch, null);
+            BackgroundImg.Draw(m_SBatch, null, null);
+            TSOLogoImage.Draw(m_SBatch, null, null);
+            BackButtonIndentImage.Draw(m_SBatch, null, null);
 
             if (m_DrawDiag)
                 m_WillWrightDiag.Draw(m_SBatch);

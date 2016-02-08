@@ -58,7 +58,7 @@ namespace Gonzo.Elements
         /// </summary>
         /// <param name="SBatch">A SpriteBatch instance.</param>
         /// <param name="SourceRect">A source rectangle, for controlling which part of this elenent's texture is drawn.</param>
-        public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect) { }
+        public virtual void Draw(SpriteBatch SBatch, Vector2? Scale, Rectangle? SourceRect) { }
 
         /// <summary>
         /// Handles drawing logic for this UIElement.
@@ -102,8 +102,8 @@ namespace Gonzo.Elements
             get { return m_Position; }
             set
             {
-                lock(m_PositionLock)
-                {
+                //lock(m_PositionLock)
+                //{
                     m_Position.X = value.X;
                     m_Position.Y = value.Y;
 
@@ -112,10 +112,7 @@ namespace Gonzo.Elements
                         m_Position += m_Parent.m_Position;
 
                         if (Image != null)
-                        {
                             Image.Position = m_Position;
-                            Image.Position += m_Parent.m_Position;
-                        }
                     }
                     else
                     {
@@ -127,7 +124,7 @@ namespace Gonzo.Elements
 
                     for (int i = 0; i < m_Elements.Count; i++)
                         m_Elements[Keys[i]].Position += m_Position;
-                }
+                //}
             }
         }
 
@@ -207,9 +204,9 @@ namespace Gonzo.Elements
             }
             else
             {
-                if (Input.MousePosition.X > m_Position.X && Input.MousePosition.X <= (m_Position.X + (Image.Texture.Width * m_Screen.Scale.X)))
+                if (Input.MousePosition.X > m_Position.X && Input.MousePosition.X <= (m_Position.X + Image.Texture.Width))
                 {
-                    if (Input.MousePosition.Y > m_Position.Y && Input.MousePosition.Y <= (m_Position.Y + (Image.Texture.Height * m_Screen.Scale.Y)))
+                    if (Input.MousePosition.Y > m_Position.Y && Input.MousePosition.Y <= (m_Position.Y + Image.Texture.Height))
                         return true;
                 }
             }

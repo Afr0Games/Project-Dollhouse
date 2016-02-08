@@ -16,9 +16,6 @@ namespace Gonzo
 {
     public class UIScreen
     {
-        private const int m_BASEWIDTH = 800;
-        private const int m_BASEHEIGHT = 600;
-
         private ScreenManager m_Manager;
 
         /// <summary>
@@ -35,7 +32,6 @@ namespace Gonzo
         
         public Vector2 Position;
         private Vector2 m_Size;
-        public Vector2 Scale;
         
         /// <summary>
         /// 10px font used to render text by this UIScreen instance.
@@ -65,8 +61,6 @@ namespace Gonzo
             m_SBatch = SBatch;
             Position = ScreenPosition;
             m_Size = ScreenSize;
-            Scale.X = ScreenSize.X / m_BASEWIDTH;
-            Scale.Y = ScreenSize.Y / m_BASEHEIGHT;
 
             if (UIScriptPath != "")
                 Initialize(UIScriptPath);
