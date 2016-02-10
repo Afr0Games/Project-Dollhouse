@@ -10,11 +10,11 @@ namespace GonzoTest
 {
 public class CreditsScreen : UIScreen
     {
-        private UIImage BackgroundImg, TSOLogoImage, BackButtonIndentImage;
+        private UIImage BackgroundImg, TSOLogoImage, BackButtonIndentImage, WillImage;
         private UIButton MaxisButton;
 
         private bool m_DrawDiag = false;
-        private UIDialog m_WillWrightDiag;
+        private WillWrightDiag m_WillWrightDiag;
 
         public CreditsScreen(ScreenManager Manager, SpriteBatch SBatch) : base(Manager, "Credits", SBatch, 
             new Vector2(0, 0), new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight), 
@@ -23,11 +23,12 @@ public class CreditsScreen : UIScreen
             BackgroundImg = (UIImage)m_Elements["\"BackgroundImage\""];
             TSOLogoImage = m_Controls["\"TSOLogoImage\""].Image;
             BackButtonIndentImage = m_Controls["\"BackButtonIndentImage\""].Image;
+            WillImage = (UIImage)m_Elements["\"WillImage\""];
 
             MaxisButton = (UIButton)m_Elements["\"MaxisButton\""];
             MaxisButton.OnButtonClicked += MaxisButton_OnButtonClicked;
 
-            m_WillWrightDiag = new UIDialog(this, new Vector2(100, 100), true, true, true);
+            m_WillWrightDiag = new WillWrightDiag(WillImage, this, new Vector2(100, 100));
         }
 
         private void MaxisButton_OnButtonClicked(UIButton ClickedButton)
@@ -44,9 +45,9 @@ public class CreditsScreen : UIScreen
 
         public override void Draw()
         {
-            BackgroundImg.Draw(m_SBatch, null, null);
-            TSOLogoImage.Draw(m_SBatch, null, null);
-            BackButtonIndentImage.Draw(m_SBatch, null, null);
+            BackgroundImg.Draw(m_SBatch, null);
+            TSOLogoImage.Draw(m_SBatch, null);
+            BackButtonIndentImage.Draw(m_SBatch, null);
 
             if (m_DrawDiag)
                 m_WillWrightDiag.Draw(m_SBatch);

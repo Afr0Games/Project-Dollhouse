@@ -16,12 +16,13 @@ namespace Gonzo.Elements
 
         private bool m_IsDraggable;
         private bool m_DoDrag = false;
-        private Vector2 m_DragOffset;
+        protected Vector2 m_DragOffset; //Offset from mouse cursor when dragging.
 
         private bool m_HasExitBtn = false;
 
         public UIDialog(UIScreen Screen, Vector2 Pos, bool IsTall, bool IsDraggable, bool HasExitButton) : base(Screen)
         {
+            Position = Pos;
             m_IsDraggable = IsDraggable;
             m_HasExitBtn = HasExitButton;
 
@@ -37,22 +38,18 @@ namespace Gonzo.Elements
             Image = new UIImage(Tex, Screen, null);
 
             if (IsTall != false)
-                Image.Slicer = new NineSlicer(Position, Tex.Width, Tex.Height, 41, 41, 66, 40);
+                Image.Slicer = new NineSlicer(new Vector2(0, 0), Tex.Width, Tex.Height, 41, 41, 66, 40);
             else
-                Image.Slicer = new NineSlicer(Position, Tex.Width, Tex.Height, 41, 41, 60, 40);
+                Image.Slicer = new NineSlicer(new Vector2(0, 0), Tex.Width, Tex.Height, 41, 41, 60, 40);
 
             Image.Position = new Vector2(Pos.X, Pos.Y);
-            m_Elements.Add("Background", Image);
 
-            //Not entirely sure why this needs to have a parent, but it works. :)
-            m_CloseBtnBack = new UIImage(CloseBtnBackground, Screen, this);
-            m_CloseBtnBack.Position = new Vector2(((CloseBtnBackground.Width) * 2), 0);
-            m_Elements.Add("CloseBtnBackground", m_CloseBtnBack);
+            m_CloseBtnBack = new UIImage(CloseBtnBackground, Screen, null);
+            m_CloseBtnBack.Position = Position + new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 0);
 
             Texture2D CloseButtonTex = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
             CloseButton = new UIButton("CloseBtn", CloseButtonTex,
-                new Vector2((Tex.Width - (CloseButtonTex.Width / 4)), 12), Screen, this);
-            m_Elements.Add("CloseBtn", CloseButton);
+                Position + new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, null);
         }
 
         public override void MouseEvents(InputHelper Helper)
@@ -72,6 +69,18 @@ namespace Gonzo.Elements
             }
         }
 
+        /// <summary>
+        /// Sets the size of this UIDialog instance.
+        /// </summary>
+        /// <param name="Width">The width to set it to.</param>
+        /// <param name="Height">The height to set it to.</param>
+        public void SetSize(int Width, int Height)
+        {
+            m_Size.X = Width;
+            m_Size.Y = Height;
+            Image.SetSize(Width, Height);
+        }
+
         public override void Update(InputHelper Helper)
         {
             if (m_IsDraggable)
@@ -82,10 +91,10 @@ namespace Gonzo.Elements
 
                     if (m_HasExitBtn)
                     {
-                        Vector2 OffsetFromMouse = new Vector2(((m_CloseBtnBack.Texture.Width) * 2), 0);
+                        Vector2 OffsetFromMouse = new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 0);
                         m_CloseBtnBack.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
 
-                        OffsetFromMouse = new Vector2((CloseButton.Image.Texture.Width) * 2.89f, 9f);
+                        OffsetFromMouse = new Vector2(Image.Slicer.Width - (CloseButton.Image.Texture.Width / 2.5f), 9f);
                         CloseButton.Position = (Helper.MousePosition + (OffsetFromMouse))  - m_DragOffset;
                     }
                 }
@@ -98,35 +107,56 @@ namespace Gonzo.Elements
 
         public override bool IsMouseOver(InputHelper Input)
         {
-            if (Input.MousePosition.X > Position.X && Input.MousePosition.X <= (Position.X + (Image.Texture.Width) /** 3*/))
+            if (Input.MousePosition.X > Position.X && Input.MousePosition.X <= (Position.X + (Image.Texture.Width)))
             {
-                if (Input.MousePosition.Y > Position.Y && Input.MousePosition.Y <= (Position.Y + (Image.Texture.Height) /** 3*/))
+                if (Input.MousePosition.Y > Position.Y && Input.MousePosition.Y <= (Position.Y + (Image.Texture.Height)))
                     return true;
             }
 
             return false;
         }
 
+        /// <summary>
+        /// Centers this dialog around a UIElement (UIImage, UILabel or similar).
+        /// </summary>
+        /// <param name="Element">The element to center around.</param>
+        /// <param name="OffsetX">Offset on the X-axis when centering.</param>
+        /// <param name="OffsetY">Offset on the Y-axis when centering.</param>
+        public void CenterAround(UIElement Element, int OffsetX, int OffsetY)
+        {
+            Vector2 TopLeft = Element.Position; 
+
+            this.Position = new Vector2(OffsetX + TopLeft.X + ((Element.Size.X - m_Size.X) / 2), 
+                OffsetY + TopLeft.Y + ((Element.Size.Y - m_Size.Y) / 2));
+
+            if(m_HasExitBtn)
+            {
+                m_CloseBtnBack.Position = Position + new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 0);
+                CloseButton.Position = Position + new Vector2(Image.Slicer.Width - (CloseButton.Image.Texture.Width / 2.5f), 9f);
+            }
+        }
+
         public override void Draw(SpriteBatch SBatch)
         {
-            Image.Draw(SBatch, null, Image.Slicer.TLeft);
-            Image.Draw(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter);
-            Image.Draw(SBatch, null, Image.Slicer.TRight);
+            Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero);
+            Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0));
+            Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0));
 
-            Image.Draw(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft);
-            Image.Draw(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter);
-            Image.Draw(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight);
+            Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + new Vector2(0, Image.Slicer.TopPadding));
+            Image.DrawTextureTo(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, Image.Slicer.TopPadding));
+            Image.DrawTextureTo(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, Image.Slicer.TopPadding));
 
-            Image.Draw(SBatch, null, Image.Slicer.BLeft);
-            Image.Draw(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter);
-            Image.Draw(SBatch, null, Image.Slicer.BRight);
+            int BottomY = Image.Slicer.Height - Image.Slicer.BottomPadding;
+            Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY));
+            Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY));
+            Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY));
 
             CloseButton.DrawBorder(SBatch, new Rectangle((int)CloseButton.Position.X, (int)CloseButton.Position.Y,
                 CloseButton.Image.Texture.Width / 3, CloseButton.Image.Texture.Height), 5, Color.Red);
 
             if (m_HasExitBtn)
             {
-                m_CloseBtnBack.Draw(SBatch, null, null);
+                m_CloseBtnBack.Draw(SBatch, null);
                 CloseButton.Draw(SBatch);
             }
         }

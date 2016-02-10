@@ -383,7 +383,7 @@ namespace Gonzo.Elements
         {
             int Height = (int)m_TextPosition.Y;
 
-            Image.Draw(SBatch, null, null);
+            Image.Draw(SBatch, null);
 
             if (m_ScrollbarImage != null)
                 SBatch.Draw(m_ScrollbarImage,new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f, 

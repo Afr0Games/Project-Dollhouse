@@ -269,14 +269,12 @@ namespace Gonzo.Elements
         {
             if (Image != null && Image.Loaded)
             {
-                Image.Draw(SBatch, null, new Rectangle((int)m_SourcePosition.X, (int)m_SourcePosition.Y,
-                    (int)m_Size.X, (int)m_Size.Y));
+                Image.Draw(SBatch, new Rectangle((int)m_SourcePosition.X, (int)m_SourcePosition.Y, (int)m_Size.X, 
+                    (int)m_Size.Y));
             }
 
             if (m_IsTextButton)
-            {
                 SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextColor);
-            }
         }
     }
 }

@@ -24,7 +24,6 @@ namespace Gonzo.Elements
         protected Vector2 m_Size;
 
         private Vector2 m_Position;
-        private readonly object m_PositionLock = new object();
 
         public Color TextColor, TextColorSelected, TextColorHighlighted, TextColorDisabled;
 
@@ -34,6 +33,8 @@ namespace Gonzo.Elements
         protected SpriteFont m_Font;
 
         public int Tracking, Trigger;
+
+        private Matrix m_Matrix;
 
         /// <summary>
         /// Mouse interacted with this UIElement.
@@ -58,7 +59,7 @@ namespace Gonzo.Elements
         /// </summary>
         /// <param name="SBatch">A SpriteBatch instance.</param>
         /// <param name="SourceRect">A source rectangle, for controlling which part of this elenent's texture is drawn.</param>
-        public virtual void Draw(SpriteBatch SBatch, Vector2? Scale, Rectangle? SourceRect) { }
+        public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect) { }
 
         /// <summary>
         /// Handles drawing logic for this UIElement.
@@ -70,6 +71,8 @@ namespace Gonzo.Elements
             m_Name = Name;
             m_Size = Size;
 
+            m_Matrix = Matrix.Identity;
+
             if (Parent != null)
             {
                 m_Parent = Parent;
@@ -79,6 +82,22 @@ namespace Gonzo.Elements
                 m_Position = Position;
 
             m_Screen = Screen;
+        }
+
+        public Matrix GetMatrix
+        {
+            get { return m_Matrix; }
+        }
+
+        protected void InitializeMatrix()
+        {
+            if (m_Parent != null)
+                m_Matrix = m_Parent.GetMatrix;
+            else
+                m_Matrix = Matrix.Identity;
+
+            m_Matrix += Matrix.CreateTranslation(m_Position.X, m_Position.Y, 0);
+            m_Matrix += Matrix.CreateScale(m_Size.X, m_Size.Y, 0);
         }
 
         /// <summary>
@@ -95,6 +114,14 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
+        /// Gets the size of this element (width and height).
+        /// </summary>
+        public Vector2 Size
+        {
+            get { return m_Size; }
+        }
+
+        /// <summary>
         /// Gets or sets the position for this UIElement.
         /// </summary>
         public Vector2 Position
@@ -102,44 +129,12 @@ namespace Gonzo.Elements
             get { return m_Position; }
             set
             {
-                //lock(m_PositionLock)
-                //{
                     m_Position.X = value.X;
                     m_Position.Y = value.Y;
 
-                    if (m_Parent != null)
-                    {
-                        m_Position += m_Parent.m_Position;
-
-                        if (Image != null)
-                            Image.Position = m_Position;
-                    }
-                    else
-                    {
-                        if (Image != null)
-                            Image.Position = m_Position;
-                    }
-
-                    List<string> Keys = new List<string>(m_Elements.Keys);
-
-                    for (int i = 0; i < m_Elements.Count; i++)
-                        m_Elements[Keys[i]].Position += m_Position;
-                //}
+                    if (Image != null)
+                        Image.Position = m_Position;
             }
-        }
-
-        /// <summary>
-        /// Sets the size for this UIElement.
-        /// </summary>
-        /// <param name="Width">The width of this UIElement.</param>
-        /// <param name="Height">THe height of this UIElement.</param>
-        public void SetSize(int Width, int Height)
-        {
-            m_Size.X = Width;
-            m_Size.Y = Height;
-
-            foreach (KeyValuePair<string, UIElement> KVP in m_Elements)
-                KVP.Value.SetSize(Width, Height);
         }
 
         /// <summary>

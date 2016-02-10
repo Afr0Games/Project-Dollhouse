@@ -31,7 +31,7 @@ namespace Gonzo.Elements
         public override void Draw(SpriteBatch SBatch)
         {
             if (Image != null)
-                Image.Draw(SBatch, null, null);
+                Image.Draw(SBatch, null);
         }
     }
 }
