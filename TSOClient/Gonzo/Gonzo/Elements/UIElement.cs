@@ -34,8 +34,6 @@ namespace Gonzo.Elements
 
         public int Tracking, Trigger;
 
-        private Matrix m_Matrix;
-
         /// <summary>
         /// Mouse interacted with this UIElement.
         /// </summary>
@@ -71,8 +69,6 @@ namespace Gonzo.Elements
             m_Name = Name;
             m_Size = Size;
 
-            m_Matrix = Matrix.Identity;
-
             if (Parent != null)
             {
                 m_Parent = Parent;
@@ -82,22 +78,6 @@ namespace Gonzo.Elements
                 m_Position = Position;
 
             m_Screen = Screen;
-        }
-
-        public Matrix GetMatrix
-        {
-            get { return m_Matrix; }
-        }
-
-        protected void InitializeMatrix()
-        {
-            if (m_Parent != null)
-                m_Matrix = m_Parent.GetMatrix;
-            else
-                m_Matrix = Matrix.Identity;
-
-            m_Matrix += Matrix.CreateTranslation(m_Position.X, m_Position.Y, 0);
-            m_Matrix += Matrix.CreateScale(m_Size.X, m_Size.Y, 0);
         }
 
         /// <summary>

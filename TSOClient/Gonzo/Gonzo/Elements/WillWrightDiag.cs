@@ -5,6 +5,7 @@ using Files;
 using Files.Manager;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Gonzo.Elements
 {
@@ -22,8 +23,14 @@ namespace Gonzo.Elements
 
         public override void Update(InputHelper Helper)
         {
-            CenterAround(m_WillWrightImg, 50, -50);
-            m_WillWrightImg.Position = (Helper.MousePosition - m_DragOffset);
+            if (IsDrawn)
+            {
+                CenterAround(m_WillWrightImg, 50, -50);
+
+                if (m_DoDrag)
+                    m_WillWrightImg.Position = (Helper.MousePosition - m_DragOffset);
+            }
+
             base.Update(Helper);
         }
 
@@ -31,7 +38,8 @@ namespace Gonzo.Elements
         {
             base.Draw(SBatch);
 
-            SBatch.Draw(m_WillWrightImg.Texture, Position, Color.White);
+            if(IsDrawn)
+                SBatch.Draw(m_WillWrightImg.Texture, Position, Color.White);
         }
     }
 }

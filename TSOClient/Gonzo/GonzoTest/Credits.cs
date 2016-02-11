@@ -13,7 +13,6 @@ public class CreditsScreen : UIScreen
         private UIImage BackgroundImg, TSOLogoImage, BackButtonIndentImage, WillImage;
         private UIButton MaxisButton;
 
-        private bool m_DrawDiag = false;
         private WillWrightDiag m_WillWrightDiag;
 
         public CreditsScreen(ScreenManager Manager, SpriteBatch SBatch) : base(Manager, "Credits", SBatch, 
@@ -29,11 +28,12 @@ public class CreditsScreen : UIScreen
             MaxisButton.OnButtonClicked += MaxisButton_OnButtonClicked;
 
             m_WillWrightDiag = new WillWrightDiag(WillImage, this, new Vector2(100, 100));
+            m_WillWrightDiag.IsDrawn = false;
         }
 
         private void MaxisButton_OnButtonClicked(UIButton ClickedButton)
         {
-            m_DrawDiag = true;
+            m_WillWrightDiag.IsDrawn = true;
         }
 
         public override void Update(InputHelper Input)
@@ -48,9 +48,7 @@ public class CreditsScreen : UIScreen
             BackgroundImg.Draw(m_SBatch, null);
             TSOLogoImage.Draw(m_SBatch, null);
             BackButtonIndentImage.Draw(m_SBatch, null);
-
-            if (m_DrawDiag)
-                m_WillWrightDiag.Draw(m_SBatch);
+            m_WillWrightDiag.Draw(m_SBatch);
 
             base.Draw();
         }
