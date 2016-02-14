@@ -12,6 +12,7 @@ namespace UIParser.Nodes
         public string Control { get; private set; }
         public string Image { get; private set; }
         public int[] PositionAssignment { get; private set; }
+        public ArrayListNode Size;
         public List<AssignmentNode> Assignments = new List<AssignmentNode>();
 
         public override void Accept(IUIVisitor visitor)
@@ -40,6 +41,9 @@ namespace UIParser.Nodes
                         PositionAssignment = new int[2];
                         PositionAssignment[0] = ANode.Array.Numbers[0];
                         PositionAssignment[1] = ANode.Array.Numbers[1];
+                        break;
+                    case AssignmentType.SizeAssignment:
+                        Size = ANode.Array;
                         break;
                 }
             }

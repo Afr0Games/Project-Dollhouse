@@ -71,7 +71,6 @@ namespace Files
 
             try
             {
-                //m_Reader = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.Read));
                 m_Reader = new BinaryReader(m_MemFile.CreateViewStream(0, 0, MemoryMappedFileAccess.Read));
             }
             catch(IOException Exception)

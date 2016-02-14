@@ -379,15 +379,21 @@ namespace Gonzo.Elements
             }
         }
 
-        public override void Draw(SpriteBatch SBatch)
+        public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
+            float Depth;
+            if (LayerDepth != null)
+                Depth = (float)LayerDepth;
+            else
+                Depth = 0.5f;
+
             int Height = (int)m_TextPosition.Y;
 
-            Image.Draw(SBatch, null);
+            Image.Draw(SBatch, null, Depth);
 
             if (m_ScrollbarImage != null)
                 SBatch.Draw(m_ScrollbarImage,new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f, 
-                    new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight), SpriteEffects.None, 0.0f);
+                    new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight), SpriteEffects.None, Depth);
 
             foreach(StringBuilder SBuilder in m_Lines)
             {

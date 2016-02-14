@@ -122,7 +122,7 @@ namespace Gonzo
             {
                 try
                 {
-                    KVP.Value.Draw(m_SBatch);
+                    KVP.Value.Draw(m_SBatch, 0.0f);
                 }
                 catch(Exception)
                 {

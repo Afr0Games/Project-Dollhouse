@@ -50,19 +50,16 @@ namespace Gonzo.Elements
         /// Handles drawing logic for this UIElement.
         /// </summary>
         /// <param name="SBatch">A SpriteBatch instance.</param>
-        public virtual void Draw(SpriteBatch SBatch) { }
+        /// <param name="LayerDepth">Depth at which to draw, may be null.</param>
+        public virtual void Draw(SpriteBatch SBatch, float? LayerDepth) { }
 
         /// <summary>
         /// Handles drawing logic for this UIElement.
         /// </summary>
         /// <param name="SBatch">A SpriteBatch instance.</param>
         /// <param name="SourceRect">A source rectangle, for controlling which part of this elenent's texture is drawn.</param>
-        public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect) { }
-
-        /// <summary>
-        /// Handles drawing logic for this UIElement.
-        /// </summary>
-        public virtual void Draw() { }
+        /// <param name="LayerDepth">Depth at which to draw, may be null.</param>
+        public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect, float? LayerDepth) { }
 
         public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null)
         {

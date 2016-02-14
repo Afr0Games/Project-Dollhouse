@@ -1,4 +1,16 @@
-﻿using System;
+﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at
+http://mozilla.org/MPL/2.0/.
+
+The Original Code is the SimsLib.
+
+The Initial Developer of the Original Code is
+Mats 'Afr0' Vederhus. All Rights Reserved.
+
+Contributor(s):
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -44,9 +56,25 @@ namespace Files.IFF
         public short Version = 0;
         private Dictionary<LanguageCodes, List<TranslatedString>> Strings = new Dictionary<LanguageCodes, List<TranslatedString>>();
 
+        /// <summary>
+        /// Gets a specific string for a specified language code.
+        /// </summary>
+        /// <param name="LangCode">The language code.</param>
+        /// <param name="Index">The index of the string to retrieve.</param>
+        /// <returns>A string.</returns>
         public string GetString(LanguageCodes LangCode, int Index)
         {
             return Strings[LangCode][Index].TranslatedStr;
+        }
+
+        /// <summary>
+        /// Returns a list of strings for a specified language code.
+        /// </summary>
+        /// <param name="LangCode">The language code to retrieve strings for.</param>
+        /// <returns>A list of strings for the specified language code.</returns>
+        public List<TranslatedString> GetStringList(LanguageCodes LangCode)
+        {
+            return Strings[LangCode];
         }
 
         public STR(IFFChunk BaseChunk) : base(BaseChunk)

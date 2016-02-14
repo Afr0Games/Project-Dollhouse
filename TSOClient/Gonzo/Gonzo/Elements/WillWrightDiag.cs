@@ -17,29 +17,35 @@ namespace Gonzo.Elements
         {
             //Texture2D WillWrightImg = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_will);
             m_WillWrightImg = Img; //new UIImage(WillWrightImg, Screen, null);
-            Image.SetSize(m_WillWrightImg.Texture.Width + 40, m_WillWrightImg.Texture.Height + 20);
-            CenterAround(m_WillWrightImg, 50, -50);
+            m_WillWrightImg.Position = Position;
+            Image.SetSize(m_WillWrightImg.Texture.Width + 50, m_WillWrightImg.Texture.Height + 55);
+            CenterAround(m_WillWrightImg, -22, -42);
         }
 
         public override void Update(InputHelper Helper)
         {
             if (IsDrawn)
             {
-                CenterAround(m_WillWrightImg, 50, -50);
-
                 if (m_DoDrag)
-                    m_WillWrightImg.Position = (Helper.MousePosition - m_DragOffset);
+                    m_WillWrightImg.Position = Position - new Vector2(-22, -42);
             }
 
             base.Update(Helper);
         }
 
-        public override void Draw(SpriteBatch SBatch)
+        public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
-            base.Draw(SBatch);
+            base.Draw(SBatch, LayerDepth);
 
-            if(IsDrawn)
-                SBatch.Draw(m_WillWrightImg.Texture, Position, Color.White);
+            float Depth;
+            if (LayerDepth != null)
+                Depth = (float)LayerDepth;
+            else
+                Depth = 0.10f;
+
+            if (IsDrawn)
+                SBatch.Draw(m_WillWrightImg.Texture, m_WillWrightImg.Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, null, 
+                    Color.White, SpriteEffects.None, Depth);
         }
     }
 }

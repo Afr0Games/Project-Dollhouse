@@ -92,10 +92,17 @@ namespace Gonzo.Elements
             }
         }
 
-        public override void Draw(SpriteBatch SBatch)
+        public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
+            float Depth;
+            if (LayerDepth != null)
+                Depth = (float)LayerDepth;
+            else
+                Depth = 0.0f;
+
             if (Caption != "")
-                SBatch.DrawString(m_Font, Caption, Position, m_TextColor);
+                SBatch.DrawString(m_Font, Caption, Position, m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 0.0f, 
+                    SpriteEffects.None, Depth);
         }
     }
 }

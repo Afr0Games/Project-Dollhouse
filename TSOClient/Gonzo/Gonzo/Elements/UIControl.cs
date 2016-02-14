@@ -26,12 +26,21 @@ namespace Gonzo.Elements
                 if(Image != null)
                     Image.Position = new Vector2(Position.X, Position.Y);
             }
+
+            if(Node.Size != null)
+                m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]);
         }
 
-        public override void Draw(SpriteBatch SBatch)
+        public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
+            float Depth;
+            if (LayerDepth != null)
+                Depth = (float)LayerDepth;
+            else
+                Depth = 0.0f;
+
             if (Image != null)
-                Image.Draw(SBatch, null);
+                Image.Draw(SBatch, null, Depth);
         }
     }
 }

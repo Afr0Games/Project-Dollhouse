@@ -1,7 +1,21 @@
-﻿using System;
+﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at
+http://mozilla.org/MPL/2.0/.
+
+The Original Code is the SimsLib.
+
+The Initial Developer of the Original Code is
+Mats 'Afr0' Vederhus. All Rights Reserved.
+
+Contributor(s):
+*/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Linq;
@@ -45,7 +59,11 @@ namespace Files.Manager
 
         private static IEnumerable<string> m_FAR3Paths;
         private static IEnumerable<string> m_FAR1Paths;
+        private static IEnumerable<string> m_IFFPaths;
         private static IEnumerable<string> m_DBPFPaths;
+
+        //Stores hashes of paths to IFFs outside of archives.
+        private static Dictionary<byte[], string> m_IFFHashes = new Dictionary<byte[], string>();
 
         private static Game m_Game;
 
@@ -64,7 +82,12 @@ namespace Files.Manager
 
             m_FAR3Paths = GetFileList("*.dat", StartupDir);
             m_FAR1Paths = GetFileList("*.far", StartupDir);
+            m_IFFPaths = GetFileList("*.iff", StartupDir);
             m_DBPFPaths = GetFileList("*.dat", StartupDir);
+
+            //Always precompute hashes...
+            foreach (string Fle in m_IFFPaths)
+                m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
 
             Task LoadTask = new Task(new Action(LoadAllArchives));
             LoadTask.Start();
@@ -385,8 +408,11 @@ namespace Files.Manager
         {
             byte[] Hash = GenerateHash(Filename);
 
-            if (m_FAR1Assets.ContainsKey(Hash))
-                return m_FAR1Assets[Hash].AssetData;
+            foreach (KeyValuePair<byte[], Asset> KVP in m_FAR1Assets)
+            {
+                if(KVP.Key.SequenceEqual(Hash))
+                    return m_FAR1Assets[Hash].AssetData;
+            }
 
             foreach (FAR1Archive Archive in m_FAR1Archives)
             {
@@ -395,6 +421,16 @@ namespace Files.Manager
                     Stream Data = Archive.GrabEntry(Filename);
                     AddItem(Filename, new Asset(Hash, Data));
                     return Archive.GrabEntry(Filename);
+                }
+            }
+
+            foreach (KeyValuePair<byte[], string> KVP in m_IFFHashes)
+            {
+                if (KVP.Key.SequenceEqual(Hash))
+                {
+                    Stream Data = File.Open(KVP.Value, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    AddItem(Path.GetFileName(KVP.Value), new Asset(Hash, Data));
+                    return Data;
                 }
             }
 
@@ -465,7 +501,7 @@ namespace Files.Manager
             byte[] tmpSource;
             byte[] Hash;
             //Create a byte array from source data.
-            tmpSource = ASCIIEncoding.ASCII.GetBytes(Filename);
+            tmpSource = Encoding.UTF8.GetBytes(Filename);
             Hash = new MD5CryptoServiceProvider().ComputeHash(tmpSource);
 
             return Hash;

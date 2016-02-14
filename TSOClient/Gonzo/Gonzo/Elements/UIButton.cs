@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Files;
 using Files.Manager;
 using UIParser;
 using UIParser.Nodes;
@@ -59,6 +60,16 @@ namespace Gonzo.Elements
 
                 Image.Position = new Vector2(Position.X, Position.Y);
                 m_Elements.Add("Background", Image);
+            }
+            else
+            {
+                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                Image.Position = new Vector2(Position.X, Position.Y);
+                m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+
+                m_Size = new Vector2();
+                m_Size.X = (Image.Texture.Width) / (4);
+                m_Size.Y = Image.Texture.Height;
             }
 
             if (Node.TextHighlighted != null)
@@ -148,7 +159,17 @@ namespace Gonzo.Elements
                 {
                     Image = m_Screen.GetImage(State.Image);
                     Image.Position = new Vector2(Position.X, Position.Y);
-                    m_SourcePosition = new Vector2((Image.Texture.Width / (4 /** Screen.Scale.X*/)) * 2, 0.0f);
+                    m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+                }
+                else
+                {
+                    Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                    Image.Position = new Vector2(Position.X, Position.Y);
+                    m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+
+                    m_Size = new Vector2();
+                    m_Size.X = (Image.Texture.Width) / (4);
+                    m_Size.Y = Image.Texture.Height;
                 }
 
                 if (State.Tooltip != "")
@@ -265,12 +286,18 @@ namespace Gonzo.Elements
             }
         }
 
-        public override void Draw(SpriteBatch SBatch)
+        public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
+            float Depth;
+            if (LayerDepth != null)
+                Depth = (float)LayerDepth;
+            else
+                Depth = 0.0f;
+
             if (Image != null && Image.Loaded)
             {
                 Image.Draw(SBatch, new Rectangle((int)m_SourcePosition.X, (int)m_SourcePosition.Y, (int)m_Size.X, 
-                    (int)m_Size.Y));
+                    (int)m_Size.Y), Depth);
             }
 
             if (m_IsTextButton)

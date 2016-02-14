@@ -11,7 +11,7 @@ namespace Gonzo.Elements
 {
     public class UIDialog : UIElement
     {
-        private UIButton m_CloseButton, m_OkCheckButton;
+        private UIButton m_CloseButton;
         private UIImage m_CloseBtnBack;
 
         /// <summary>
@@ -21,7 +21,8 @@ namespace Gonzo.Elements
 
         protected bool m_IsDraggable;
         protected bool m_DoDrag = false;
-        protected Vector2 m_DragOffset; //Offset from mouse cursor when dragging.
+        protected Vector2 m_DragOffset;   //Offset from mouse cursor when dragging.
+        protected int m_DragTolerance = 20; //How far off the screen a dialog can be dragged.
 
         private bool m_HasExitBtn = false;
 
@@ -100,7 +101,7 @@ namespace Gonzo.Elements
                 {
                     if (m_DoDrag)
                     {
-                        Position = (Helper.MousePosition - m_DragOffset);
+                       Position = (Helper.MousePosition - m_DragOffset);
 
                         if (m_HasExitBtn)
                         {
@@ -150,30 +151,33 @@ namespace Gonzo.Elements
             }
         }
 
-        public override void Draw(SpriteBatch SBatch)
+        public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
+            float Depth;
+            if (LayerDepth != null)
+                Depth = (float)LayerDepth;
+            else
+                Depth = 0.10f;
+
             if (IsDrawn)
             {
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero);
-                Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0));
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0));
+                Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
+                Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0), Depth);
+                Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
 
-                Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + new Vector2(0, Image.Slicer.TopPadding));
-                Image.DrawTextureTo(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, Image.Slicer.TopPadding));
-                Image.DrawTextureTo(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, Image.Slicer.TopPadding));
+                Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + new Vector2(0, Image.Slicer.TopPadding), null);
+                Image.DrawTextureTo(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, Image.Slicer.TopPadding), Depth);
+                Image.DrawTextureTo(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, Image.Slicer.TopPadding), Depth);
 
                 int BottomY = Image.Slicer.Height - Image.Slicer.BottomPadding;
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY));
-                Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY));
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY));
-
-                m_CloseButton.DrawBorder(SBatch, new Rectangle((int)m_CloseButton.Position.X, (int)m_CloseButton.Position.Y,
-                    m_CloseButton.Image.Texture.Width / 3, m_CloseButton.Image.Texture.Height), 5, Color.Red);
+                Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY), null);
+                Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY), Depth);
+                Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY), Depth);
 
                 if (m_HasExitBtn)
                 {
-                    m_CloseBtnBack.Draw(SBatch, null);
-                    m_CloseButton.Draw(SBatch);
+                    m_CloseBtnBack.Draw(SBatch, null, Depth);
+                    m_CloseButton.Draw(SBatch, Depth);
                 }
             }
         }

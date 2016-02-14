@@ -107,6 +107,11 @@ namespace Files.IFF
             return (PALT)m_PALTChunks[ID];
         }
 
+        public STR GetSTR(ushort ID)
+        {
+            return (STR)m_STRChunks[ID];
+        }
+
         public Iff(Stream Data, GraphicsDevice Device)
         {
             m_Device = Device;
