@@ -20,17 +20,35 @@ namespace Gonzo.Elements
             m_ID = Node.ID;
             Position = new Vector2(Node.TextPosition.Numbers[0], Node.TextPosition.Numbers[1]) + Screen.Position;
 
-            m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]);
-            m_TextColor = Color.FromNonPremultiplied(Node.Color.Numbers[0], Node.Color.Numbers[1], 
+            if (State.InSharedPropertiesGroup)
+                m_Size = State.Size;
+            else
+                m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]);
+
+            if (State.InSharedPropertiesGroup)
+                m_TextColor = State.Color;
+            else
+                m_TextColor = Color.FromNonPremultiplied(Node.Color.Numbers[0], Node.Color.Numbers[1], 
                 Node.Color.Numbers[2], 255);
+
             m_Alignment = Node.Alignment;
 
+            int Font = 0;
             if (Node.Font != null)
             {
-                switch (Node.Font)
-                {
+                if (Node.Font != 0)
+                    Font = (int)Node.Font;
+            }
+            else
+                Font = State.Font;
+
+            switch (Font)
+            {
                     case 7:
-                        m_Font = Screen.Font10px; //TODO Fixme.
+                        m_Font = Screen.Font10px; //TODO: Fixme.
+                    break;
+                    case 9:
+                    m_Font = Screen.Font10px; //TODO: Fixme.
                         break;
                     case 10:
                         m_Font = Screen.Font10px;
@@ -44,10 +62,7 @@ namespace Gonzo.Elements
                     case 16:
                         m_Font = Screen.Font16px;
                         break;
-                }
             }
-            else
-                m_Font = Screen.Font12px;
 
             if (Node.Text != "")
                 Caption = m_Screen.GetString(Node.Text);

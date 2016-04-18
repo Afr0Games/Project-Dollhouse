@@ -36,10 +36,6 @@ namespace Gonzo.Elements
             m_ID = Node.ID;
             m_Screen = Screen;
 
-            Position = new Vector2();
-            Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
-            //Position *= m_Screen.Scale;
-
             if (Node.ButtonSize != null)
             {
                 m_Size = new Vector2();
@@ -51,25 +47,25 @@ namespace Gonzo.Elements
 
             if (Node.Image != null)
             {
-                Image = m_Screen.GetImage(Node.Image);
+                Image = m_Screen.GetImage(Node.Image, true);
                 m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
 
                 m_Size = new Vector2();
                 m_Size.X = (Image.Texture.Width) / (4);
                 m_Size.Y = Image.Texture.Height;
 
-                Image.Position = new Vector2(Position.X, Position.Y);
-                m_Elements.Add("Background", Image);
+                Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
             }
             else
             {
                 Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
-                Image.Position = new Vector2(Position.X, Position.Y);
                 m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
                 m_Size = new Vector2();
                 m_Size.X = (Image.Texture.Width) / (4);
                 m_Size.Y = Image.Texture.Height;
+
+                Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
             }
 
             if (Node.TextHighlighted != null)
@@ -157,19 +153,25 @@ namespace Gonzo.Elements
             {
                 if (State.Image != "")
                 {
-                    Image = m_Screen.GetImage(State.Image);
-                    Image.Position = new Vector2(Position.X, Position.Y);
-                    m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
-                }
-                else
-                {
-                    Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
-                    Image.Position = new Vector2(Position.X, Position.Y);
+                    Image = m_Screen.GetImage(State.Image, true);
                     m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
                     m_Size = new Vector2();
                     m_Size.X = (Image.Texture.Width) / (4);
                     m_Size.Y = Image.Texture.Height;
+
+                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
+                }
+                else
+                {
+                    Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                    m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+
+                    m_Size = new Vector2();
+                    m_Size.X = (Image.Texture.Width) / (4);
+                    m_Size.Y = Image.Texture.Height;
+
+                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
                 }
 
                 if (State.Tooltip != "")

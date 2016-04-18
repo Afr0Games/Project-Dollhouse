@@ -23,7 +23,8 @@ namespace UIParser
             STRING.AstConfig.NodeType = typeof(StringValueNode);
             NUMBER.AstConfig.NodeType = typeof(NumberValueNode);
 
-            CommentTerminal LINE_COMMENT = new CommentTerminal("LINE_COMMENT", "#", "\n", "\r\n");
+            CommentTerminal LINE_COMMENT = new CommentTerminal("LINE_COMMENT", "#", "\n", "\r\n", "\u0009", "\u2028", 
+                "\u2028", "\r");
             NonGrammarTerminals.Add(LINE_COMMENT);
 
             NonTerminal BEGIN = new NonTerminal("BEGIN", typeof(BeginNode));
@@ -87,7 +88,7 @@ namespace UIParser
                 ToTerm("enableIME") + ToTerm("=") + NUMBER | ToTerm("highlighted") + ToTerm("=") + NUMBER |
                 ToTerm("minValue") + ToTerm("=") + NUMBER | ToTerm("maxValue") + ToTerm("=") + NUMBER |
                 ToTerm("pageSize") + ToTerm("=") + NUMBER | ToTerm("MouseTransparent") + ToTerm("=") + NUMBER |
-                ToTerm("backgroundColor") + ToTerm("=") + ARRAY + ToTerm("alignments") + ToTerm("=") + NUMBER |
+                ToTerm("backgroundColor") + ToTerm("=") + ARRAY | ToTerm("alignments") + ToTerm("=") + NUMBER |
                 ToTerm("visibleRows") + ToTerm("=") + NUMBER | ToTerm("columns") + ToTerm("=") + NUMBER |
                 ToTerm("rowHeight") + ToTerm("=") + NUMBER | ToTerm("fillColor") + ToTerm("=") + ARRAY |
                 ToTerm("selectionFillColor") + ToTerm("=") + ARRAY | ToTerm("cursor") + ToTerm("=") + NUMBER |

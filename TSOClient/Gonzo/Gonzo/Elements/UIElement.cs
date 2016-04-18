@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
@@ -106,11 +107,11 @@ namespace Gonzo.Elements
             get { return m_Position; }
             set
             {
-                    m_Position.X = value.X;
-                    m_Position.Y = value.Y;
+                m_Position.X = value.X;
+                m_Position.Y = value.Y;
 
-                    if (Image != null)
-                        Image.Position = m_Position;
+                if (Image != null)
+                    Image.Position = m_Position;
             }
         }
 

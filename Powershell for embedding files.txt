@@ -1,0 +1,3 @@
+PS C:\Users\Afr0> ([IO.File]::ReadAllBytes("C:\Project Dollhouse-dev\graphics\di
+alogs\dialog_textboxbackground.bmp") |% {"0x{0:X2}" -f $_}) -join "," |out-file
+C:\test.txt

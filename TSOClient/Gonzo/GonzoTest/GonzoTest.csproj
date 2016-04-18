@@ -52,12 +52,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SASScreen.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Files, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Files\Files\bin\Debug\Files.dll</HintPath>
-    </Reference>
     <Reference Include="MonoGame.Framework, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.3.0.0\lib\net40\MonoGame.Framework.dll</HintPath>
       <Private>True</Private>
@@ -82,6 +79,10 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Files\Files\Files.csproj">
+      <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
+      <Name>Files</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gonzo\Gonzo.csproj">
       <Project>{0db1f9a2-7c59-443f-ac56-4d395bd9d0f1}</Project>
       <Name>Gonzo</Name>

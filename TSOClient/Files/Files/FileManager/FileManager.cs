@@ -145,6 +145,12 @@ namespace Files.Manager
             Stream Data = GrabItem(AssetID);
             Stream PNGStream = new MemoryStream();
 
+            if (Data == null)
+            {
+                Debug.WriteLine("Tried to load null data! Stack: \r\n" + System.Environment.StackTrace);
+                return null;
+            }
+
             if (IsBMP(Data))
             {
                 Bitmap BMap = new Bitmap(Data);
@@ -156,9 +162,64 @@ namespace Files.Manager
             }
             else
             {
-                Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
-                TGA.Image.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                try
+                {
+                    try
+                    {
+                        Bitmap BMap = new Bitmap(Data);
+                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
+                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
+                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
+                        BMap.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                        PNGStream.Seek(0, SeekOrigin.Begin);
+                    }
+                    catch
+                    {
+                        return Texture2D.FromStream(m_Game.GraphicsDevice, Data);
+                    }
+                }
+                catch
+                {
+                    Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
+                    TGA.Image.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                    PNGStream.Seek(0, SeekOrigin.Begin);
+                }
+            }
+
+            return Texture2D.FromStream(m_Game.GraphicsDevice, PNGStream);
+        }
+
+        public static Texture2D GetTexture(Stream Data)
+        {
+            Stream PNGStream = new MemoryStream();
+
+            if (Data == null)
+            {
+                Debug.WriteLine("Tried to load null data! Stack: \r\n" + System.Environment.StackTrace);
+                return null;
+            }
+
+            if (IsBMP(Data))
+            {
+                Bitmap BMap = new Bitmap(Data);
+                BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
+                BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
+                BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
+                BMap.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
                 PNGStream.Seek(0, SeekOrigin.Begin);
+            }
+            else
+            {
+                try
+                {
+                    return Texture2D.FromStream(m_Game.GraphicsDevice, Data);
+                }
+                catch
+                {
+                    Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
+                    TGA.Image.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                    PNGStream.Seek(0, SeekOrigin.Begin);
+                }
             }
 
             return Texture2D.FromStream(m_Game.GraphicsDevice, PNGStream);
@@ -171,6 +232,9 @@ namespace Files.Manager
         /// <returns>True if data was BMP, false otherwise.</returns>
         private static bool IsBMP(Stream Data)
         {
+            if (Data == null)
+                return false;
+
             BinaryReader Reader = new BinaryReader(Data, Encoding.UTF8, true);
             byte[] data = Reader.ReadBytes(2);
             byte[] magic = new byte[] { (byte)'B', (byte)'M' };
@@ -304,8 +368,11 @@ namespace Files.Manager
         /// <returns>A Stream instance with data from the specified item.</returns>
         private static Stream GrabItem(uint ID)
         {
-            if (m_Assets.ContainsKey(ID))
-                return m_Assets[ID].AssetData;
+            lock (m_Assets)
+            {
+                if (m_Assets.ContainsKey(ID))
+                    return m_Assets[ID].AssetData;
+            }
 
             foreach (DBPFArchive Archive in m_DBPFArchives)
             {
@@ -383,8 +450,11 @@ namespace Files.Manager
         /// <returns>A Stream instance with data from the specified item.</returns>
         private static Stream GrabItem(ulong ID)
         {
-            if (m_Assets.ContainsKey(ID))
-                return m_Assets[ID].AssetData;
+            lock (m_Assets)
+            {
+                if (m_Assets.ContainsKey(ID))
+                    return m_Assets[ID].AssetData;
+            }
 
             foreach (FAR3Archive Archive in m_FAR3Archives)
             {

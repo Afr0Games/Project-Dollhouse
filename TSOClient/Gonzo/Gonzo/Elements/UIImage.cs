@@ -46,6 +46,18 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="Image">A UIImage instance to copy.</param>
+        public UIImage(UIImage Image) : base(Image.m_Screen)
+        {
+            m_Name = Image.m_Name;
+            Texture = Image.Texture;
+            Position = Image.Position;
+            m_Loaded = true;
+        }
+
+        /// <summary>
         /// Sets the size of this UIImage instance.
         /// </summary>
         /// <param name="Width">The width of this UIImage instance.</param>

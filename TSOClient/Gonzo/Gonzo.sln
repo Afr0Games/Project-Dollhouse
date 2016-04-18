@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIParser", "..\..\Other\lib
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GonzoTest", "GonzoTest\GonzoTest.csproj", "{A2FBAC52-F351-4DE6-A36F-F19E41EBE041}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Files", "..\Files\Files\Files.csproj", "{D455ECBE-A8DD-4261-A364-4A74DC5512A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,14 @@ Global
 		{A2FBAC52-F351-4DE6-A36F-F19E41EBE041}.Release|Any CPU.ActiveCfg = Release|x86
 		{A2FBAC52-F351-4DE6-A36F-F19E41EBE041}.Release|x86.ActiveCfg = Release|x86
 		{A2FBAC52-F351-4DE6-A36F-F19E41EBE041}.Release|x86.Build.0 = Release|x86
+		{D455ECBE-A8DD-4261-A364-4A74DC5512A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D455ECBE-A8DD-4261-A364-4A74DC5512A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D455ECBE-A8DD-4261-A364-4A74DC5512A4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D455ECBE-A8DD-4261-A364-4A74DC5512A4}.Debug|x86.Build.0 = Debug|Any CPU
+		{D455ECBE-A8DD-4261-A364-4A74DC5512A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D455ECBE-A8DD-4261-A364-4A74DC5512A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D455ECBE-A8DD-4261-A364-4A74DC5512A4}.Release|x86.ActiveCfg = Release|Any CPU
+		{D455ECBE-A8DD-4261-A364-4A74DC5512A4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

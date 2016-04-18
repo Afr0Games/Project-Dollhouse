@@ -12,20 +12,22 @@ namespace Gonzo.Elements
     /// </summary>
     public class UIControl : UIElement
     {
-        public UIControl(SetControlPropsNode Node, UIScreen Screen) : base(Screen)
+        public UIControl(SetControlPropsNode Node, UIScreen Screen, UIParser.ParserState State) : base(Screen)
         {
             m_Name = Node.Control;
 
-            if(Node.Image != "")
-                Image = m_Screen.GetImage(Node.Image);
+            if (!State.InSharedPropertiesGroup)
+            {
+                //TODO: Only copy image when necessary?
+                if (Node.Image != "")
+                    Image = m_Screen.GetImage(Node.Image, true);
+            }
+            else
+                //TODO: Only copy image when neccessary?
+                Image = m_Screen.GetImage(State.Image, true);
 
             if (Node.PositionAssignment != null)
-            {
                 Position = new Vector2(Node.PositionAssignment[0], Node.PositionAssignment[1]);
-
-                if(Image != null)
-                    Image.Position = new Vector2(Position.X, Position.Y);
-            }
 
             if(Node.Size != null)
                 m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]);

@@ -100,12 +100,18 @@ namespace Gonzo
             }
         }
 
-        public UIImage GetImage(string Name)
+        public UIImage GetImage(string Name, bool Copy = false)
         {
-            UIImage Value = (UIImage)m_Elements[Name];
-            m_Elements.Remove(Name);
-
-            return Value;
+            if (Copy)
+            {
+                UIImage Value = new UIImage((UIImage)m_Elements[Name]);
+                return Value;
+            }
+            else
+            {
+                UIImage Value = (UIImage)m_Elements[Name];
+                return Value;
+            }
         }
 
         public virtual void Update(InputHelper Input)
@@ -169,7 +175,7 @@ namespace Gonzo
                     break;
                 case NodeType.AddSlider:
                     AddSliderNode SliderNode = (AddSliderNode)UINode.GetNode(node);
-                    UISlider Slider = new UISlider(SliderNode, this);
+                    UISlider Slider = new UISlider(SliderNode, State, this);
                     m_Elements.Add(SliderNode.Name, Slider);
                     break;
                 case NodeType.SetSharedProperties: //Assigns a bunch of shared properties to declarations following the statement.
@@ -225,16 +231,32 @@ namespace Gonzo
                     if (SharedPropsNode.Text != "")
                         State.Caption = SharedPropsNode.Text;
 
+                    if (SharedPropsNode.Size != null)
+                        State.Size = new Vector2(SharedPropsNode.Size.Numbers[0], SharedPropsNode.Size.Numbers[1]);
+
+                    if (SharedPropsNode.Orientation != null)
+                        State.Orientation = (int)SharedPropsNode.Orientation;
+
+                    if (SharedPropsNode.Font != null)
+                        State.Font = (int)SharedPropsNode.Font;
+
                     break;
                 case NodeType.SetControlProperties: //Sets a bunch of properties to a specified control.
                     SetControlPropsNode ControlPropsNode = (SetControlPropsNode)UINode.GetNode(node);
 
-                    UIControl Ctrl = new UIControl(ControlPropsNode, this);
+                    UIControl Ctrl = new UIControl(ControlPropsNode, this, State);
                     m_Controls.Add(ControlPropsNode.Control, Ctrl);
 
                     if (State.InSharedPropertiesGroup)
                     {
-                        m_Elements[ControlPropsNode.Control].Image = m_Elements[State.Image].Image;
+                        UIElement Test = new UIElement(this, null);
+                        //Script implicitly created an object... :\
+                        if (!m_Elements.TryGetValue(ControlPropsNode.Control, out Test))
+                        {
+                            m_Elements.Add(ControlPropsNode.Control, new UIElement(this, null));
+                            m_Elements[ControlPropsNode.Control].Image = new UIImage(Ctrl.Image);
+                            m_Elements[ControlPropsNode.Control].Position = Ctrl.Position;
+                        }
                     }
 
                     break;

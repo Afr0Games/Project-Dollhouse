@@ -30,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Files, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Files\Files\bin\Debug\Files.dll</HintPath>
-    </Reference>
     <Reference Include="Irony, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
       <HintPath>..\packages\Irony.0.9.0\lib\net45\Irony.dll</HintPath>
       <Private>True</Private>
@@ -82,6 +78,10 @@
     <ProjectReference Include="..\..\..\Other\libs\UIParser\UIParser\UIParser.csproj">
       <Project>{c58d344e-cb5c-4a61-851b-3cdc9e3f6913}</Project>
       <Name>UIParser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Files\Files\Files.csproj">
+      <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
+      <Name>Files</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

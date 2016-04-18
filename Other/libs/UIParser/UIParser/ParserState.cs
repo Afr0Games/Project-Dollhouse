@@ -29,5 +29,10 @@ namespace UIParser
         public string Tooltip = "";
         public int CurrentStringTable = -1;
         public string Caption = "";
+        //Size of a control.
+        public Vector2 Size;
+        public int Orientation;
+        //Which font is used by a text edit control or label.
+        public int Font;
     }
 }

@@ -41,6 +41,8 @@ namespace Files.FAR3
             if (m_Reader == null)
                 m_Reader = new FileReader(m_Path, false);
 
+            //Debug.WriteLine("Opened: " + m_Path);
+
             lock(m_Reader)
             {
                 ASCIIEncoding Enc = new ASCIIEncoding();
@@ -61,6 +63,7 @@ namespace Files.FAR3
                 m_Reader.Seek((long)m_Reader.ReadUInt32());
 
                 uint NumFiles = m_Reader.ReadUInt32();
+                Debug.WriteLine("Number of files: " + NumFiles); 
 
                 for (int i = 0; i < NumFiles; i++)
                 {
@@ -68,15 +71,17 @@ namespace Files.FAR3
                     Entry.DecompressedDataSize = m_Reader.ReadUInt32();
                     byte[] Dummy = m_Reader.ReadBytes(3);
                     Entry.CompressedDataSize = (uint)((Dummy[0] << 0) | (Dummy[1] << 8) | (Dummy[2]) << 16);
-                    Entry.DataType = m_Reader.ReadByte();
+                    m_Reader.ReadByte(); //Unknown.
                     Entry.DataOffset = m_Reader.ReadUInt32();
                     Entry.Flags = m_Reader.ReadUShort();
                     Entry.FileNameLength = m_Reader.ReadUShort();
                     Entry.TypeID = m_Reader.ReadUInt32();
                     Entry.FileID = m_Reader.ReadUInt32();
                     Entry.Filename = Enc.GetString(m_Reader.ReadBytes(Entry.FileNameLength));
+                    //Debug.WriteLine("Filename: " + Entry.Filename);
 
                     UniqueFileID ID = new UniqueFileID(Entry.TypeID, Entry.FileID);
+                    //Debug.WriteLine("TypeID: " + ID.TypeID + " FileID " + Entry.FileID);
 
                     if(!m_Entries.ContainsKey(ID.UniqueID))
                         m_Entries.Add(ID.UniqueID, Entry);
@@ -102,9 +107,37 @@ namespace Files.FAR3
             if(m_Reader == null)
                 m_Reader = new FileReader(File.Open(m_Path, FileMode.Open, FileAccess.Read, FileShare.Read), false);
 
-            m_Reader.Seek((long)Entry.DataOffset);
+            lock(m_Reader)
+            {
+                m_Reader.Seek((long)Entry.DataOffset);
 
-            if (Entry.DecompressedDataSize > Entry.CompressedDataSize)
+                switch (Entry.TypeID)
+                {
+                    case 1: //BMP
+                    case 2: //TGA
+                    case 5: //SKEL
+                    case 7: //ANIM
+                    case 9: //MESH
+                    case 11: //BND
+                    case 12: //APR
+                    case 13: //OFT
+                    case 15: //PO
+                    case 16: //COL
+                    case 18: //HAG
+                    case 20: //JPG
+                    case 24: //PNG
+                        Debug.WriteLine("Decompressing: " + Entry.Filename);
+                        return Decompress(Entry);
+                    case 14: //PNG, uncompressed
+                    default:
+                        return new MemoryStream(m_Reader.ReadBytes((int)Entry.DecompressedDataSize));
+                }
+            }
+        }
+
+        private Stream Decompress(FAR3Entry Entry)
+        {
+            lock (m_Reader)
             {
                 m_Reader.ReadBytes(9);
                 uint CompressedSize = m_Reader.ReadUInt32();
@@ -123,9 +156,12 @@ namespace Files.FAR3
 
                     return new MemoryStream(DecompressedData);
                 }
+                else
+                {
+                    m_Reader.Seek(m_Reader.Position - 15);
+                    return new MemoryStream(m_Reader.ReadBytes((int)Entry.DecompressedDataSize));
+                }
             }
-
-            return new MemoryStream(m_Reader.ReadBytes((int)Entry.DecompressedDataSize));
         }
 
         /// <summary>

@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Threading.Tasks;
 using System.IO.MemoryMappedFiles;
 using System.Security.Principal;
 using System.Security.AccessControl;
@@ -87,10 +88,13 @@ namespace Files
         /// <returns>A ulong.</returns>
         public ulong ReadUInt64()
         {
-            if (Endian.IsBigEndian != m_IsBigEndian)
-                return Endian.SwapUInt64(m_Reader.ReadUInt64());
+            lock (m_Reader)
+            {
+                if (Endian.IsBigEndian != m_IsBigEndian)
+                    return Endian.SwapUInt64(m_Reader.ReadUInt64());
 
-            return m_Reader.ReadUInt64();
+                return m_Reader.ReadUInt64();
+            }
         }
 
         /// <summary>
@@ -99,10 +103,13 @@ namespace Files
         /// <returns>A uint.</returns>
         public uint ReadUInt32()
         {
-            if (Endian.IsBigEndian != m_IsBigEndian)
-                return Endian.SwapUInt32(m_Reader.ReadUInt32());
+            lock (m_Reader)
+            {
+                if (Endian.IsBigEndian != m_IsBigEndian)
+                    return Endian.SwapUInt32(m_Reader.ReadUInt32());
 
-            return m_Reader.ReadUInt32();
+                return m_Reader.ReadUInt32();
+            }
         }
 
         /// <summary>
@@ -111,10 +118,13 @@ namespace Files
         /// <returns>A ushort.</returns>
         public ushort ReadUShort()
         {
-            if (Endian.IsBigEndian != m_IsBigEndian)
-                return Endian.SwapUInt16(m_Reader.ReadUInt16());
+            lock (m_Reader)
+            {
+                if (Endian.IsBigEndian != m_IsBigEndian)
+                    return Endian.SwapUInt16(m_Reader.ReadUInt16());
 
-            return m_Reader.ReadUInt16();
+                return m_Reader.ReadUInt16();
+            }
         }
 
         /// <summary>
@@ -123,7 +133,8 @@ namespace Files
         /// <returns>A string.</returns>
         public string ReadString()
         {
-            return m_Reader.ReadString();
+            lock(m_Reader)
+                return m_Reader.ReadString();
         }
 
         /// <summary>
@@ -133,12 +144,15 @@ namespace Files
         /// <returns>A string.</returns>
         public string ReadString(int NumChars)
         {
-            string ReturnStr = "";
+            lock (m_Reader)
+            {
+                string ReturnStr = "";
 
-            for (int i = 0; i < NumChars; i++)
-                ReturnStr += m_Reader.ReadChar();
+                for (int i = 0; i < NumChars; i++)
+                    ReturnStr += m_Reader.ReadChar();
 
-            return ReturnStr;
+                return ReturnStr;
+            }
         }
 
         /// <summary>
@@ -147,16 +161,19 @@ namespace Files
         /// <returns>A string.</returns>
         public string ReadCString()
         {
-            string ReturnStr = "";
-            char InChr = '\r';
-
-            while (InChr != '\0')
+            lock (m_Reader)
             {
-                InChr = m_Reader.ReadChar();
-                ReturnStr += InChr;
-            }
+                string ReturnStr = "";
+                char InChr = '\r';
 
-            return ReturnStr.Replace("\0", "");
+                while (InChr != '\0')
+                {
+                    InChr = m_Reader.ReadChar();
+                    ReturnStr += InChr;
+                }
+
+                return ReturnStr.Replace("\0", "");
+            }
         }
 
         /// <summary>
@@ -165,16 +182,19 @@ namespace Files
         /// <returns>A string.</returns>
         public string ReadPaddedCString()
         {
-            string ReturnStr = "";
-            char InChr = '\r';
-
-            while (InChr != 0xA3)
+            lock (m_Reader)
             {
-                InChr = m_Reader.ReadChar();
-                ReturnStr += InChr;
-            }
+                string ReturnStr = "";
+                char InChr = '\r';
 
-            return ReturnStr;
+                while (InChr != 0xA3)
+                {
+                    InChr = m_Reader.ReadChar();
+                    ReturnStr += InChr;
+                }
+
+                return ReturnStr;
+            }
         }
 
         /// <summary>
@@ -195,10 +215,13 @@ namespace Files
         /// <returns>An int.</returns>
         public int ReadInt32()
         {
-            if (Endian.IsBigEndian != m_IsBigEndian)
-                return Endian.SwapInt32(m_Reader.ReadInt32());
+            lock (m_Reader)
+            {
+                if (Endian.IsBigEndian != m_IsBigEndian)
+                    return Endian.SwapInt32(m_Reader.ReadInt32());
 
-            return m_Reader.ReadInt32();
+                return m_Reader.ReadInt32();
+            }
         }
 
         /// <summary>
@@ -207,10 +230,13 @@ namespace Files
         /// <returns>A short.</returns>
         public short ReadInt16()
         {
-            if (Endian.IsBigEndian != m_IsBigEndian)
-                return Endian.SwapInt16(m_Reader.ReadInt16());
+            lock (m_Reader)
+            {
+                if (Endian.IsBigEndian != m_IsBigEndian)
+                    return Endian.SwapInt16(m_Reader.ReadInt16());
 
-            return m_Reader.ReadInt16();
+                return m_Reader.ReadInt16();
+            }
         }
 
         /// <summary>
@@ -220,14 +246,17 @@ namespace Files
         /// <returns>The data that was read, as an array of bytes.</returns>
         public byte[] ReadBytes(int Count)
         {
-            if (Endian.IsBigEndian != m_IsBigEndian)
+            lock (m_Reader)
             {
-                byte[] Data = m_Reader.ReadBytes(Count);
-                Array.Reverse(Data);
-                return Data;
-            }
+                if (Endian.IsBigEndian != m_IsBigEndian)
+                {
+                    byte[] Data = m_Reader.ReadBytes(Count);
+                    Array.Reverse(Data);
+                    return Data;
+                }
 
-            return m_Reader.ReadBytes(Count);
+                return m_Reader.ReadBytes(Count);
+            }
         }
 
         /// <summary>
@@ -236,14 +265,17 @@ namespace Files
         /// <returns>The data that was read, as an array of bytes.</returns>
         public byte[] ReadToEnd()
         {
-            if (Endian.IsBigEndian != m_IsBigEndian)
+            lock (m_Reader)
             {
-                byte[] Data = m_Reader.ReadBytes((int)(m_Reader.BaseStream.Length - m_Reader.BaseStream.Position));
-                Array.Reverse(Data);
-                return Data;
-            }
+                if (Endian.IsBigEndian != m_IsBigEndian)
+                {
+                    byte[] Data = m_Reader.ReadBytes((int)(m_Reader.BaseStream.Length - m_Reader.BaseStream.Position));
+                    Array.Reverse(Data);
+                    return Data;
+                }
 
-            return m_Reader.ReadBytes((int)(m_Reader.BaseStream.Length - m_Reader.BaseStream.Position));
+                return m_Reader.ReadBytes((int)(m_Reader.BaseStream.Length - m_Reader.BaseStream.Position));
+            }
         }
 
         /// <summary>
@@ -253,12 +285,18 @@ namespace Files
         /// <returns>A float.</returns>
         public float ReadFloat()
         {
-            return m_Reader.ReadSingle();
+            lock(m_Reader)
+                return m_Reader.ReadSingle();
         }
 
+        /// <summary>
+        /// Reads a byte from the underlying stream.
+        /// </summary>
+        /// <returns>A byte.</returns>
         public byte ReadByte()
         {
-            return m_Reader.ReadByte();
+            lock(m_Reader)
+                return m_Reader.ReadByte();
         }
 
         #endregion
@@ -271,7 +309,8 @@ namespace Files
         /// <param name="Offset">The offset to seek to.</param>
         public void Seek(long Offset)
         {
-            m_Reader.BaseStream.Seek(Offset, SeekOrigin.Begin);
+            lock(m_Reader)
+                m_Reader.BaseStream.Seek(Offset, SeekOrigin.Begin);
         }
 
         #endregion

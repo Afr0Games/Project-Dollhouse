@@ -17,15 +17,5 @@ namespace Files
 
             return Hash;
         }
-
-        /// <summary>
-        /// Converts a TypeID in an IFFChunk to a 32bit int.
-        /// </summary>
-        /// <param name="TypeID">TypeID obtained from an IFFChunk.</param>
-        /// <returns>The TypeID converted to a 32bit int.</returns>
-        /*public static int BE32(string TypeID)
-        {
-            return (((TypeID[0]) << 24 | ((TypeID[1]) << 16) | ((TypeID[2]) << 8) | TypeID[3]));
-        }*/
     }
 }

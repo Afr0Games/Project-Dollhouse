@@ -66,7 +66,8 @@ namespace GonzoTest
 
         private void FileManager_OnHundredPercentCompleted()
         {
-            m_ScrManager.AddScreen(new CreditsScreen(m_ScrManager, spriteBatch));
+            //m_ScrManager.AddScreen(new CreditsScreen(m_ScrManager, spriteBatch));
+            m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
         }
 
         /// <summary>

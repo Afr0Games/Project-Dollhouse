@@ -20,7 +20,10 @@ namespace UIParser.Nodes
             InitChildrenAsList(nodes);
 
             foreach (ParseTreeNode Node in nodes)
-                AssignmentNodes.Add((AssignmentNode)Node.ChildNodes[0].AstNode);
+            {
+                if(Node.ChildNodes.Count > 1)
+                    AssignmentNodes.Add((AssignmentNode)Node.ChildNodes[0].AstNode);
+            }
 
             AsString = "AssignmentBlock";
         }

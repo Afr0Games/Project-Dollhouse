@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
+using Files;
+using Files.Manager;
 using UIParser;
 using UIParser.Nodes;
 using Microsoft.Xna.Framework;
@@ -66,9 +69,14 @@ namespace Gonzo.Elements
             Position = new Vector2();
             Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]) + Screen.Position;
 
-            m_Size = new Vector2();
-            m_Size.X = Node.Size.Numbers[0];
-            m_Size.Y = Node.Size.Numbers[1];
+            if (State.InSharedPropertiesGroup)
+                m_Size = State.Size;
+            else
+            {
+                m_Size = new Vector2();
+                m_Size.X = Node.Size.Numbers[0];
+                m_Size.Y = Node.Size.Numbers[1];
+            }
 
             if (Node.Tooltip != "")
                 Tooltip = m_Screen.GetString(Node.Tooltip);
@@ -90,25 +98,32 @@ namespace Gonzo.Elements
             if (Node.FrameOnFocus != null)
                 m_FrameOnFocus = (Node.FrameOnFocus == 1) ? true : false;
 
-            TextColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
+            if (State.InSharedPropertiesGroup)
+                TextColor = State.Color;
+            else
+                TextColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
 
             if (Node.BackColor != null)
             {
                 m_BackColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
-                Image = new UIImage(TextureUtils.CreateRectangle(Screen.Manager.Graphics, 
-                    (int)m_Size.X, (int)m_Size.Y, m_BackColor), m_Screen);
+                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
+                Image.Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]);
+                Image.Slicer = new NineSlicer(new Vector2(0, 0), Image.Texture.Width, Image.Texture.Height, 20, 20, 20, 20);
+                Image.SetSize((int)Size.X, (int)Size.Y);
             }
             else
             {
                 m_BackColor = new Color(57, 81, 110, 255);
-                Image = new UIImage(TextureUtils.CreateRectangle(Screen.Manager.Graphics,
-                    (int)m_Size.X, (int)m_Size.Y, m_BackColor), m_Screen);
+                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
+                Image.Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]);
+                Image.Slicer = new NineSlicer(new Vector2(0, 0), Image.Texture.Width, Image.Texture.Height, 20, 20, 20, 20);
+                Image.SetSize((int)Size.X, (int)Size.Y);
             }
 
             if (Node.Mode != null)
                 m_Mode = (Node.Mode == "kInsert") ? TextEditMode.Insert : TextEditMode.ReadOnly;
 
-            if (Node.ScrollbarImage != null)
+            if (Node.ScrollbarImage != string.Empty)
                 m_ScrollbarImage = m_Screen.GetImage(Node.ScrollbarImage).Image.Texture;
 
             if (Node.ScrollbarGutter != null)
@@ -129,7 +144,13 @@ namespace Gonzo.Elements
             if (Node.FrameColor != null)
                 m_FrameColor = new Color(Node.FrameColor.Numbers[0], Node.FrameColor.Numbers[1], Node.FrameColor.Numbers[2]);
 
-            switch(Node.Font)
+            int Font = 0;
+            if (Node.Font != 0)
+                Font = Node.Font;
+            else
+                Font = State.Font;
+            
+            switch(Font)
             {
                 case 10:
                     m_Font = Screen.Font10px;
@@ -154,7 +175,10 @@ namespace Gonzo.Elements
                 if (State.CursorColor != null)
                     m_CursorColor = State.CursorColor;
                 if (State.Position != null)
-                    Position = new Vector2(State.Position[0], State.Position[1]);
+                {
+                    if(Position.X == 0 && Position.Y == 0)
+                        Position = new Vector2(State.Position[0], State.Position[1]);
+                }
                 if (State.Tooltip != "")
                     Tooltip = State.Tooltip;
             }
@@ -177,35 +201,38 @@ namespace Gonzo.Elements
 
         public override void Update(InputHelper Input)
         {
-            if(IsMouseOver(Input))
+            if (m_Mode == TextEditMode.Insert)
             {
-                if (Input.IsCurPress(MouseButtons.LeftButton))
-                    m_HasFocus = true;
-            }
-
-            if (m_NumLines > 0)
-            {
-                //Check that text doesn't go beyond width of control...
-                if (m_Font.MeasureString(m_SBuilder.ToString()).X >= m_Size.X)
+                if (IsMouseOver(Input))
                 {
-                    if ((m_Lines.Count <= m_NumLines) && (m_Lines.Count < m_Size.Y))
+                    if (Input.IsCurPress(MouseButtons.LeftButton))
+                        m_HasFocus = true;
+                }
+
+                if (m_NumLines > 0)
+                {
+                    //Check that text doesn't go beyond width of control...
+                    if (m_Font.MeasureString(m_SBuilder.ToString()).X >= m_Size.X)
                     {
-                        m_Lines.Add(m_SBuilder);
-                        m_SBuilder = new StringBuilder();
-                        m_TextPosition.Y += m_Font.LineSpacing;
-                    }
-                    else //Text went beyond the borders of the control...
-                    {
-                        m_Lines.Add(m_SBuilder);
-                        m_SBuilder = new StringBuilder();
-                        m_TextPosition.Y += m_Font.LineSpacing;
-                        m_ScrollbarHeight += m_Font.LineSpacing;
+                        if ((m_Lines.Count <= m_NumLines) && (m_Lines.Count < m_Size.Y))
+                        {
+                            m_Lines.Add(m_SBuilder);
+                            m_SBuilder = new StringBuilder();
+                            m_TextPosition.Y += m_Font.LineSpacing;
+                        }
+                        else //Text went beyond the borders of the control...
+                        {
+                            m_Lines.Add(m_SBuilder);
+                            m_SBuilder = new StringBuilder();
+                            m_TextPosition.Y += m_Font.LineSpacing;
+                            m_ScrollbarHeight += m_Font.LineSpacing;
+                        }
                     }
                 }
-            }
-            else
-            {
-                //TODO: Scroll text backwards...
+                else
+                {
+                    //TODO: Scroll text backwards...
+                }
             }
 
             if(m_HasFocus)
@@ -389,10 +416,21 @@ namespace Gonzo.Elements
 
             int Height = (int)m_TextPosition.Y;
 
-            Image.Draw(SBatch, null, Depth);
+            Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
+            Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0), Depth);
+            Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
+
+            Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + new Vector2(0, Image.Slicer.TopPadding), null);
+            Image.DrawTextureTo(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, Image.Slicer.TopPadding), Depth);
+            Image.DrawTextureTo(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, Image.Slicer.TopPadding), Depth);
+
+            int BottomY = Image.Slicer.Height - Image.Slicer.BottomPadding;
+            Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY), null);
+            Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY), Depth);
+            Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY), Depth);
 
             if (m_ScrollbarImage != null)
-                SBatch.Draw(m_ScrollbarImage,new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f, 
+                SBatch.Draw(m_ScrollbarImage, new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f, 
                     new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight), SpriteEffects.None, Depth);
 
             foreach(StringBuilder SBuilder in m_Lines)

@@ -22,7 +22,6 @@ namespace Files.FAR3
     {
         public uint DecompressedDataSize;
         public uint CompressedDataSize;
-        public byte DataType;
         public uint DataOffset;
         public ushort Flags;
         public ushort FileNameLength;

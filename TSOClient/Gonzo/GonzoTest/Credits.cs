@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GonzoTest
 {
-public class CreditsScreen : UIScreen
+    public class CreditsScreen : UIScreen
     {
         private UIImage BackgroundImg, TSOLogoImage, BackButtonIndentImage, WillImage;
         private UIButton MaxisButton;

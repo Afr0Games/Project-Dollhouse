@@ -20,6 +20,9 @@ namespace UIParser.Nodes
         public string Image = "";
         public string Tooltip = "";
         public string Text = "";
+        public int? Orientation;
+        public ArrayListNode Size;
+        public int? Font;
 
         public override void Accept(IUIVisitor visitor)
         {
@@ -69,6 +72,15 @@ namespace UIParser.Nodes
                         break;
                     case AssignmentType.TextAssignment:
                         Text = ANode.StrValue;
+                        break;
+                    case AssignmentType.SizeAssignment:
+                        Size = ANode.Array;
+                        break;
+                    case AssignmentType.OrientationAssignment:
+                        Orientation = ANode.NumberValue;
+                        break;
+                    case AssignmentType.FontAssignment:
+                        Font = ANode.NumberValue;
                         break;
                 }
             }
