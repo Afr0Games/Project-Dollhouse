@@ -28,7 +28,7 @@ namespace Files.AudioFiles
     /// Represents a *.xa file.
     /// It is used to store compressed wav data.
     /// </summary>
-    public class XAFile
+    public class XAFile : ISoundCodec
     {
         private int m_CurSampleLeft = 0;
         private int m_PrevSampleLeft = 0;
@@ -52,12 +52,21 @@ namespace Files.AudioFiles
         private ushort m_Bits;           //resolution of the file (8 (8-bit), 16 (16-bit), etc.).
 
         /// <summary>
+        /// Returns the bitrate for the wav data that makes up this sound.
+        /// </summary>
+        /// <returns>A ushort denoting the bitrate of the wav data that makes up this sound.</returns>
+        public ushort GetBitrate()
+        {
+            return m_Bits;
+        }
+
+        /// <summary>
         /// The decompressed wave data as a byte array.
         /// Will not contain any data unless DecompressFile() has been called!
         /// </summary>
-        public byte[] DecompressedData
+        public byte[] DecompressedWav()
         {
-            get { return m_DecompressedStream.ToArray(); }
+            return m_DecompressedStream.ToArray();
         }
 
         /// <summary>

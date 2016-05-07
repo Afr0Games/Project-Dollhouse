@@ -21,7 +21,7 @@ namespace Files.AudioFiles
     /// Represents a *.UTK file.
     /// It is used to store compressed wav data.
     /// </summary>
-    public class UTKFile2
+    public class UTKFile2 : ISoundCodec
     {
         public float[] UTKCosine = {
             0.0f, -.99677598476409912109375f, -.99032700061798095703125f, -.983879029750823974609375f, -.977430999279022216796875f,
@@ -115,21 +115,30 @@ namespace Files.AudioFiles
         private float[] m_DecompressedFrame = new float[756];
 
         /// <summary>
+        /// Returns the bitrate for the wav data that makes up this sound.
+        /// </summary>
+        /// <returns>A ushort denoting the bitrate of the wav data that makes up this sound.</returns>
+        public ushort GetBitrate()
+        {
+            return m_BitsPerSample;
+        }
+
+        /// <summary>
         /// Returns a decompressed wav stream.
         /// </summary>
-        public byte[] DecompressedWav
+        public byte[] DecompressedWav()
         {
-            get { return m_DecompressedStream.ToArray(); }
+            return m_DecompressedStream.ToArray();
         }
 
         /// <summary>
         /// Creates a new UTKFile2 instance.
         /// </summary>
         /// <param name="FileData">The file data to read from.</param>
-        public UTKFile2(byte[] FileData)
+        public UTKFile2(Stream FileData)
         {
             m_DecompressedStream = new MemoryStream();
-            m_Reader = new FileReader(new MemoryStream(FileData), false);
+            m_Reader = new FileReader(FileData, false);
 
             ReadHeader();
         }

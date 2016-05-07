@@ -29,7 +29,20 @@ namespace Files.DBPF
         HitLists = 0x9dbdbf74,
         HitListsTemp = 0xc9c6c9b3,
         EP2 = 0xdde8f5c6,
-        EP5Samps = 0x8a6fcc30
+        EP5Samps = 0x8a6fcc30,
+        Stings = 0xDDBDBF8C,
+        //=== Radio/TV stations ===
+        Horror = 0x0A3C55C7,
+        OldWorld = 0x0A3C55CE,
+        SciFi = 0x0A3C55D3,
+        Country = 0x9DF26DAD,
+        CountryD = 0x9DF26DAE,
+        Latin = 0x9DF26DB1,
+        Rap = 0x9DF26DB3,
+        Rock = 0x9DF26DB6,
+        Beach = 0xDDF26DA9,
+        Rave = 0xDDF26DB4,
+        Classica = 0xFDF26DAB
     }
 
     public enum TypeIDs : uint
@@ -66,7 +79,7 @@ namespace Files.DBPF
                 {
                     m_Reader = new FileReader(m_Path, false);
                 }
-                //This will be thrown because of file access priviledges or because an archive is being tentatively opened twice.
+                //This will be thrown because of file access privileges or because an archive is being tentatively opened twice.
                 catch (Exception e)
                 {
                     if (ThrowException)
@@ -152,6 +165,19 @@ namespace Files.DBPF
             foreach(KeyValuePair<UniqueFileID, DBPFEntry> Entry in m_Entries)
             {
                 if (Entry.Key.TypeID == TypeID)
+                    ReturnedEntries.Add(Entry.Value);
+            }
+
+            return ReturnedEntries;
+        }
+
+        public List<DBPFEntry> GrabEntriesForGroupID(uint GroupID)
+        {
+            List<DBPFEntry> ReturnedEntries = new List<DBPFEntry>();
+
+            foreach (KeyValuePair<UniqueFileID, DBPFEntry> Entry in m_Entries)
+            {
+                if (Entry.Key.GroupID == GroupID)
                     ReturnedEntries.Add(Entry.Value);
             }
 

@@ -81,5 +81,28 @@ namespace Files
             m_FileID = InstanceID;
             m_GroupID = GroupID;
         }
+
+        public override int GetHashCode()
+        {
+            //return base.GetHashCode();
+            return TypeID.GetHashCode() ^ GroupID.GetHashCode() ^ FileID.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            //return base.Equals(obj);
+            try
+            {
+                UniqueFileID OtherID = (UniqueFileID)obj;
+                if (OtherID.FileID == FileID && OtherID.GroupID == GroupID && OtherID.TypeID == TypeID)
+                    return true;
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

@@ -20,8 +20,9 @@ namespace Files.AudioLogic
     public class Hit
     {
         private FileReader m_Reader;
-        public SymbolTable SymTable;
-        private MemoryStream SymbolData;
+
+        public ExportTable ExTable;
+        public byte[] InstructionData;
 
         public Hit(Stream Data)
         {
@@ -40,21 +41,11 @@ namespace Files.AudioLogic
             if (!Trax.Equals("TRAX", StringComparison.InvariantCultureIgnoreCase))
                 throw new HitException("Invalid TRAX header - Hit.cs!");
 
-            SymbolData = new MemoryStream(m_Reader.ReadToEnd());
-            m_Reader = new FileReader(SymbolData, false);
-
-            m_Reader.Seek(SearchForSymTable(m_Reader));
-            SymTable = new SymbolTable(m_Reader, this);
+            ExTable = new ExportTable(Data);
+            m_Reader.Seek(0);
+            InstructionData = m_Reader.ReadBytes((int)m_Reader.StreamLength);
 
             m_Reader.Close();
-        }
-
-        private int SearchForSymTable(FileReader Reader)
-        {
-            ASCIIEncoding Enc = new ASCIIEncoding();
-            //TODO: This might be horribly inefficient?
-            string DataStr = Enc.GetString(SymbolData.ToArray());
-            return DataStr.IndexOf("ENTP");
         }
     }
 }

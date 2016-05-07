@@ -41,8 +41,6 @@ namespace Files.FAR3
             if (m_Reader == null)
                 m_Reader = new FileReader(m_Path, false);
 
-            //Debug.WriteLine("Opened: " + m_Path);
-
             lock(m_Reader)
             {
                 ASCIIEncoding Enc = new ASCIIEncoding();
@@ -62,8 +60,7 @@ namespace Files.FAR3
                 m_Reader.ReadUInt32(); //Version.
                 m_Reader.Seek((long)m_Reader.ReadUInt32());
 
-                uint NumFiles = m_Reader.ReadUInt32();
-                Debug.WriteLine("Number of files: " + NumFiles); 
+                uint NumFiles = m_Reader.ReadUInt32(); 
 
                 for (int i = 0; i < NumFiles; i++)
                 {
@@ -78,10 +75,8 @@ namespace Files.FAR3
                     Entry.TypeID = m_Reader.ReadUInt32();
                     Entry.FileID = m_Reader.ReadUInt32();
                     Entry.Filename = Enc.GetString(m_Reader.ReadBytes(Entry.FileNameLength));
-                    //Debug.WriteLine("Filename: " + Entry.Filename);
 
                     UniqueFileID ID = new UniqueFileID(Entry.TypeID, Entry.FileID);
-                    //Debug.WriteLine("TypeID: " + ID.TypeID + " FileID " + Entry.FileID);
 
                     if(!m_Entries.ContainsKey(ID.UniqueID))
                         m_Entries.Add(ID.UniqueID, Entry);
@@ -126,7 +121,6 @@ namespace Files.FAR3
                     case 18: //HAG
                     case 20: //JPG
                     case 24: //PNG
-                        Debug.WriteLine("Decompressing: " + Entry.Filename);
                         return Decompress(Entry);
                     case 14: //PNG, uncompressed
                     default:

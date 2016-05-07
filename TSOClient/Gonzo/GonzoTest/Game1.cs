@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Gonzo;
 using Files.Manager;
+using Files.AudioLogic;
 
 namespace GonzoTest
 {
@@ -13,6 +14,7 @@ namespace GonzoTest
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        private HitVM SoundManager;
         private ScreenManager m_ScrManager;
         private SpriteFont[] m_Fonts = new SpriteFont[4];
         private InputHelper m_Input = new InputHelper();
@@ -66,6 +68,7 @@ namespace GonzoTest
 
         private void FileManager_OnHundredPercentCompleted()
         {
+            SoundManager = new HitVM(GlobalSettings.Default.StartupPath);
             //m_ScrManager.AddScreen(new CreditsScreen(m_ScrManager, spriteBatch));
             m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
         }
@@ -107,6 +110,8 @@ namespace GonzoTest
                 RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
             m_ScrManager.Draw();
             spriteBatch.End();
+
+            HitVM.Step();
 
             base.Draw(gameTime);
         }

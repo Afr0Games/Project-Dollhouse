@@ -7,6 +7,12 @@ using System.Globalization;
 
 namespace Files.AudioLogic
 {
+    /// <summary>
+    /// HLS refers to two binary formats that both define a list of IDs, known as a hitlist.
+    /// One format is a Pascal string with a 4-byte, little-endian length, representing a 
+    /// comma-seperated list of decimal values, or decimal ranges (e.g. "1025-1035"), succeeded 
+    /// by a single LF newline.
+    /// </summary>
     public class HLS
     {
         private FileReader m_Reader;
@@ -18,26 +24,26 @@ namespace Files.AudioLogic
 
             uint Unknown = m_Reader.ReadUInt32();
 
-            if(Unknown == 1) //First format
-            {
-                if ((m_Reader.StreamLength - m_Reader.Position) > 4) //... because sometimes it will just end here D:
+            /*try
+            {*/
+                if (Unknown == 1) //First format
                 {
-                    uint Count = m_Reader.ReadUInt32();
-
-                    for (int i = 0; i < Count; i++)
-                        SoundsAndHitlists.Add(m_Reader.ReadUInt32());
-                }
-            }
-            else
-            {
-                ASCIIEncoding Enc = new ASCIIEncoding();
-                string[] StrData = Enc.GetString(m_Reader.ReadBytes((int)Unknown)).Split(',');
-
-                foreach(string Entry in StrData)
-                {
-                    if (Entry.Length != 0)
+                    if ((m_Reader.StreamLength - m_Reader.Position) > 4) //... because sometimes it will just end here D:
                     {
-                        try
+                        uint Count = m_Reader.ReadUInt32();
+
+                        for (int i = 0; i < Count; i++)
+                            SoundsAndHitlists.Add(m_Reader.ReadUInt32());
+                    }
+                }
+                else
+                {
+                    ASCIIEncoding Enc = new ASCIIEncoding();
+                    string[] StrData = Enc.GetString(m_Reader.ReadBytes((int)Unknown)).Split(',');
+
+                    foreach (string Entry in StrData)
+                    {
+                        if (Entry.Length != 0)
                         {
                             if (!Entry.Contains("-"))
                                 SoundsAndHitlists.Add(uint.Parse(Entry.Replace("0x", ""), NumberStyles.HexNumber));
@@ -51,13 +57,15 @@ namespace Files.AudioLogic
                                 SoundsAndHitlists.Add(uint.Parse(Range[1].Replace("0x", ""), NumberStyles.HexNumber));
                             }
                         }
-                        catch(Exception)
-                        {
-                            throw new HLSException("Unknown HLS format!");
-                        }
                     }
                 }
-            }
+            /*}
+            catch
+            {
+                m_Reader.Seek(4);
+                for (int i = 0; i < Unknown; i++)
+                    SoundsAndHitlists.Add(m_Reader.ReadUInt32());
+            }*/
 
             m_Reader.Close();
         }

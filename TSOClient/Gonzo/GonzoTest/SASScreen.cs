@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Gonzo;
 using Gonzo.Elements;
 using Files.Manager;
+using Files.AudioLogic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -109,36 +110,42 @@ namespace GonzoTest
         {
             m_InDescriptionTab3 = true;
             m_InEnterTab3 = false;
+            HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
         private void DescriptionTabBtn2_OnButtonClicked(UIButton ClickedButton)
         {
             m_InDescriptionTab2 = true;
             m_InEnterTab2 = false;
+            HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
         private void DescriptionTabBtn1_OnButtonClicked(UIButton ClickedButton)
         {
             m_InDescriptionTab1 = true;
             m_InEnterTab1 = false;
+            HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
         private void EnterTabBtn3_OnButtonClicked(UIButton ClickedButton)
         {
             m_InEnterTab3 = true;
             m_InDescriptionTab3 = false;
+            HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
         private void EnterTabBtn2_OnButtonClicked(UIButton ClickedButton)
         {
             m_InEnterTab2 = true;
             m_InDescriptionTab2 = false;
+            HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
         private void EnterTabBtn1_OnButtonClicked(UIButton ClickedButton)
         {
             m_InEnterTab1 = true;
             m_InDescriptionTab1 = false;
+            HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
         #endregion
