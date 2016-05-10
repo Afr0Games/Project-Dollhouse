@@ -36,36 +36,63 @@ namespace Gonzo.Elements
             m_ID = Node.ID;
             m_Screen = Screen;
 
-            if (Node.ButtonSize != null)
+            if (!State.InSharedPropertiesGroup)
             {
-                m_Size = new Vector2();
-                m_Size.X = Node.ButtonSize.Numbers[0];
-                m_Size.Y = Node.ButtonSize.Numbers[1];
+                if (Node.Image != null)
+                {
+                    Image = m_Screen.GetImage(Node.Image, false);
+                    m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
 
-                m_SourcePosition = new Vector2(m_Size.X * 2, 0.0f);
-            }
+                    m_Size = new Vector2();
+                    m_Size.X = (Image.Texture.Width) / (4);
+                    m_Size.Y = Image.Texture.Height;
 
-            if (Node.Image != null)
-            {
-                Image = m_Screen.GetImage(Node.Image, true);
-                m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
+                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
+                }
+                else
+                {
+                    Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                    m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
-                m_Size = new Vector2();
-                m_Size.X = (Image.Texture.Width) / (4);
-                m_Size.Y = Image.Texture.Height;
+                    m_Size = new Vector2();
+                    m_Size.X = (Image.Texture.Width) / (4);
+                    m_Size.Y = Image.Texture.Height;
 
-                Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
+                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
+                }
             }
             else
             {
-                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
-                m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+                if (State.Image != "")
+                {
+                    Image = m_Screen.GetImage(State.Image, true);
+                    m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
-                m_Size = new Vector2();
-                m_Size.X = (Image.Texture.Width) / (4);
-                m_Size.Y = Image.Texture.Height;
+                    m_Size = new Vector2();
+                    m_Size.X = (Image.Texture.Width) / (4);
+                    m_Size.Y = Image.Texture.Height;
 
-                Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
+                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
+                }
+                else
+                {
+                    if (State.TextButton)
+                    {
+                        m_Text = State.Caption;
+                        //Text buttons always use this image.
+                        Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                        m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+
+                        m_Size = new Vector2();
+                        m_Size.X = (Image.Texture.Width) / (4);
+                        m_Size.Y = Image.Texture.Height;
+                    }
+
+                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
+                }
+
+                if (State.Tooltip != "")
+                    Tooltip = m_Screen.GetString(State.Tooltip);
             }
 
             if (Node.TextHighlighted != null)
@@ -148,35 +175,6 @@ namespace Gonzo.Elements
 
             if (Node.Tracking != null)
                 Tracking = (int)Node.Tracking;
-
-            if(State.InSharedPropertiesGroup)
-            {
-                if (State.Image != "")
-                {
-                    Image = m_Screen.GetImage(State.Image, true);
-                    m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
-
-                    m_Size = new Vector2();
-                    m_Size.X = (Image.Texture.Width) / (4);
-                    m_Size.Y = Image.Texture.Height;
-
-                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
-                }
-                else
-                {
-                    Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
-                    m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
-
-                    m_Size = new Vector2();
-                    m_Size.X = (Image.Texture.Width) / (4);
-                    m_Size.Y = Image.Texture.Height;
-
-                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
-                }
-
-                if (State.Tooltip != "")
-                    Tooltip = m_Screen.GetString(State.Tooltip);
-            }
         }
 
         /// <summary>
@@ -209,6 +207,22 @@ namespace Gonzo.Elements
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Adds an image to this button, because (you guessed it) sometimes
+        /// buttons will be defined without images...
+        /// </summary>
+        /// <param name="Img">The image to add.</param>
+        public void AddImage(UIImage Img)
+        {
+            Image = Img;
+            Image.Position = Position;
+            m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+
+            m_Size = new Vector2();
+            m_Size.X = (Image.Texture.Width) / (4);
+            m_Size.Y = Image.Texture.Height;
         }
 
         /// <summary>

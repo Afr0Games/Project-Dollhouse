@@ -213,6 +213,9 @@ namespace Gonzo
                             SharedPropsNode.CursorColor.Numbers[1], SharedPropsNode.CursorColor.Numbers[2]));
                     }
 
+                    if (SharedPropsNode.TextButton)
+                        State.TextButton = true;
+
                     if (SharedPropsNode.Opaque != null)
                         State.IsOpaque = (SharedPropsNode.Opaque == 1) ? true : false;
 
@@ -254,7 +257,10 @@ namespace Gonzo
                         if (!m_Elements.TryGetValue(ControlPropsNode.Control, out Test))
                         {
                             m_Elements.Add(ControlPropsNode.Control, new UIElement(this, null));
-                            m_Elements[ControlPropsNode.Control].Image = new UIImage(Ctrl.Image);
+
+                            if(Ctrl.Image != null)
+                                m_Elements[ControlPropsNode.Control].Image = new UIImage(Ctrl.Image);
+
                             m_Elements[ControlPropsNode.Control].Position = Ctrl.Position;
                         }
                     }
@@ -262,6 +268,8 @@ namespace Gonzo
                     break;
                 case NodeType.End:
                     State.InSharedPropertiesGroup = false;
+                    State.Image = ""; //Reset
+                    //TODO: Reset more?
                     break;
             }
 

@@ -148,6 +148,7 @@ namespace Files.Manager
             if (Data == null)
             {
                 Debug.WriteLine("Tried to load null data! Stack: \r\n" + System.Environment.StackTrace);
+                PNGStream.Dispose();
                 return null;
             }
 
@@ -158,6 +159,7 @@ namespace Files.Manager
                 BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
                 BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
                 BMap.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                BMap.Dispose();
                 PNGStream.Seek(0, SeekOrigin.Begin);
             }
             else
@@ -171,6 +173,7 @@ namespace Files.Manager
                         BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
                         BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
                         BMap.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                        BMap.Dispose();
                         PNGStream.Seek(0, SeekOrigin.Begin);
                     }
                     catch
@@ -182,6 +185,7 @@ namespace Files.Manager
                 {
                     Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
                     TGA.Image.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
+                    TGA.Dispose();
                     PNGStream.Seek(0, SeekOrigin.Begin);
                 }
             }
@@ -201,6 +205,7 @@ namespace Files.Manager
 
             BinaryReader Reader = new BinaryReader(Data, Encoding.UTF8, true);
             byte[] data = Reader.ReadBytes(2);
+            Reader.Dispose();
             byte[] magic = new byte[] { (byte)'B', (byte)'M' };
             return data.SequenceEqual(magic);
         }
@@ -312,6 +317,7 @@ namespace Files.Manager
 
             BinaryReader Reader = new BinaryReader(Data, Encoding.UTF8, true);
             byte[] data = Reader.ReadBytes(4);
+            Reader.Dispose();
             byte[] magic = new byte[] { (byte)'U', (byte)'T', (byte)'M', (byte)'0' };
             return data.SequenceEqual(magic);
         }

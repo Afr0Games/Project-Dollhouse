@@ -21,6 +21,7 @@ namespace UIParser
         //Text colors.
         public Color Color = Color.AliceBlue, BackColor = Color.AliceBlue, CursorColor = Color.AliceBlue;
         //Text properties.
+        public bool TextButton = false;
         public bool IsOpaque = false, IsTransparent = false;
         public int Alignment;
         //Image to apply to a bunch of controls/images.

@@ -68,7 +68,6 @@ namespace Files.FAR1
                     Entry.DecompressedDataSize = m_Reader.ReadUInt32();
                     Entry.DataOffset = m_Reader.ReadUInt32();
                     Entry.FilenameLength = m_Reader.ReadUShort();
-                    //Debug.WriteLine(m_Reader.ReadString(Entry.FilenameLength));
                     Entry.FilenameHash = FileUtilities.GenerateHash(Enc.GetString(m_Reader.ReadBytes(Entry.FilenameLength)));
 
                     m_Entries.Add(Entry);

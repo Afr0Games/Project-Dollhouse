@@ -15,8 +15,7 @@ namespace Gonzo.Elements
 
         public WillWrightDiag(UIImage Img, UIScreen Screen, Vector2 Position) : base(Screen, Position, true, true, true)
         {
-            //Texture2D WillWrightImg = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_will);
-            m_WillWrightImg = Img; //new UIImage(WillWrightImg, Screen, null);
+            m_WillWrightImg = Img;
             m_WillWrightImg.Position = Position;
             Image.SetSize(m_WillWrightImg.Texture.Width + 50, m_WillWrightImg.Texture.Height + 55);
             CenterAround(m_WillWrightImg, -22, -42);

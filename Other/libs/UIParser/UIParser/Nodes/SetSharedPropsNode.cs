@@ -23,6 +23,7 @@ namespace UIParser.Nodes
         public int? Orientation;
         public ArrayListNode Size;
         public int? Font;
+        public bool TextButton = false;
 
         public override void Accept(IUIVisitor visitor)
         {
@@ -81,6 +82,9 @@ namespace UIParser.Nodes
                         break;
                     case AssignmentType.FontAssignment:
                         Font = ANode.NumberValue;
+                        break;
+                    case AssignmentType.TextButtonAssignment:
+                        TextButton = (ANode.NumberValue == 1 ? true : false);
                         break;
                 }
             }

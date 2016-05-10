@@ -18,13 +18,15 @@ namespace Gonzo.Elements
 
             if (!State.InSharedPropertiesGroup)
             {
-                //TODO: Only copy image when necessary?
                 if (Node.Image != "")
-                    Image = m_Screen.GetImage(Node.Image, true);
+                    Image = m_Screen.GetImage(Node.Image, false);
+
             }
             else
-                //TODO: Only copy image when neccessary?
-                Image = m_Screen.GetImage(State.Image, true);
+            {
+                if(State.Image != "")
+                    Image = m_Screen.GetImage(State.Image, true);
+            }
 
             if (Node.PositionAssignment != null)
                 Position = new Vector2(Node.PositionAssignment[0], Node.PositionAssignment[1]);

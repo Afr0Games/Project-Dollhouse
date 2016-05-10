@@ -76,6 +76,7 @@ namespace Files
             }
             catch(IOException Exception)
             {
+                this.Close();
                 throw new ReadingException("Couldn't open file - FileReader.cs\r\n" + Exception.ToString());
             }
         }
@@ -320,7 +321,7 @@ namespace Files
         /// </summary>
         public void Close()
         {
-            m_Reader.Close();
+            m_Reader.Dispose();
         }
     }
 }

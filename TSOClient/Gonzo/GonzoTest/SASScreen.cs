@@ -14,7 +14,8 @@ namespace GonzoTest
     public class SASScreen : UIScreen
     {
         private UIImage BackgroundImg, TabBackgroundImg1, TabBackgroundImg2, TabBackgroundImg3, DescriptionTabBackgroundImg1, DescriptionTabBackgroundImg2, DescriptionTabBackgroundImg3, 
-            DescriptionTabImage1, DescriptionTabImage2, DescriptionTabImage3, EnterTabImage1, EnterTabImage2, EnterTabImage3, EnterTabBackgroundImage1, EnterTabBackgroundImage2, EnterTabBackgroundImage3, /*DefaultHouseImg,*/ CreditsBackgroundImg/*, CityThumbnailBusyImg*/;
+            DescriptionTabImage1, DescriptionTabImage2, DescriptionTabImage3, EnterTabImage1, EnterTabImage2, EnterTabImage3, EnterTabBackgroundImage1, EnterTabBackgroundImage2, EnterTabBackgroundImage3, /*DefaultHouseImg,*/ CreditsBackgroundImg,/*, CityThumbnailBusyImg*/
+            CityButtonTemplateImage;
         private UIButton m_ExitButton, m_EnterTabBtn1, m_EnterTabBtn2, m_EnterTabBtn3, m_DescriptionTabBtn1, 
             m_DescriptionTabBtn2, m_DescriptionTabBtn3, m_AvatarButton1, m_AvatarButton2, m_AvatarButton3, m_CityButton1, 
             m_CityButton2, m_CityButton3, m_HouseButton1, m_HouseButton2, m_HouseButton3, m_NewAvatarButton1, m_NewAvatarButton2,
@@ -57,6 +58,8 @@ namespace GonzoTest
             CreditsBackgroundImg = m_Controls["\"CreditsButtonBackgroundImage\""].Image;
             //CityThumbnailBusyImg = m_Controls["\"CityThumbnailBusyImage\""].Image; //Not used??
 
+            CityButtonTemplateImage = (UIImage)m_Elements["\"CityButtonTemplateImage\""];
+
             m_ExitButton = (UIButton)m_Elements["\"ExitButton\""];
 
             m_EnterTabBtn1 = (UIButton)m_Elements["\"EnterTabButton1\""];
@@ -78,12 +81,18 @@ namespace GonzoTest
             m_AvatarButton3 = (UIButton)m_Elements["\"AvatarButton3\""];
 
             m_CityButton1 = (UIButton)m_Elements["\"CityButton1\""];
+            m_CityButton1.AddImage(this.GetImage("\"CityButtonTemplateImage\"", true));
             m_CityButton2 = (UIButton)m_Elements["\"CityButton2\""];
+            m_CityButton2.AddImage(this.GetImage("\"CityButtonTemplateImage\"", true));
             m_CityButton3 = (UIButton)m_Elements["\"CityButton3\""];
+            m_CityButton3.AddImage(this.GetImage("\"CityButtonTemplateImage\"", true));
 
             m_HouseButton1 = (UIButton)m_Elements["\"HouseButton1\""];
+            m_HouseButton1.AddImage(this.GetImage("\"HouseButtonTemplateImage\"", true));
             m_HouseButton2 = (UIButton)m_Elements["\"HouseButton2\""];
+            m_HouseButton2.AddImage(this.GetImage("\"HouseButtonTemplateImage\"", true));
             m_HouseButton3 = (UIButton)m_Elements["\"HouseButton3\""];
+            m_HouseButton3.AddImage(this.GetImage("\"HouseButtonTemplateImage\"", true));
 
             m_NewAvatarButton1 = (UIButton)m_Elements["\"NewAvatarButton1\""];
             m_NewAvatarButton2 = (UIButton)m_Elements["\"NewAvatarButton2\""];
