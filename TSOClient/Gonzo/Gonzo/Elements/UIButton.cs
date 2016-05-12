@@ -304,20 +304,24 @@ namespace Gonzo.Elements
 
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
-            float Depth;
-            if (LayerDepth != null)
-                Depth = (float)LayerDepth;
-            else
-                Depth = 0.0f;
-
-            if (Image != null && Image.Loaded)
+            if (Visible)
             {
-                Image.Draw(SBatch, new Rectangle((int)m_SourcePosition.X, (int)m_SourcePosition.Y, (int)m_Size.X, 
-                    (int)m_Size.Y), Depth);
-            }
 
-            if (m_IsTextButton)
-                SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextColor);
+                float Depth;
+                if (LayerDepth != null)
+                    Depth = (float)LayerDepth;
+                else
+                    Depth = 0.0f;
+
+                if (Image != null && Image.Loaded)
+                {
+                    Image.Draw(SBatch, new Rectangle((int)m_SourcePosition.X, (int)m_SourcePosition.Y, (int)m_Size.X,
+                        (int)m_Size.Y), Depth);
+                }
+
+                if (m_IsTextButton)
+                    SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextColor);
+            }
         }
     }
 }

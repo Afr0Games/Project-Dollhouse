@@ -35,6 +35,8 @@ namespace Gonzo.Elements
 
         public int Tracking, Trigger;
 
+        public bool Visible = true;
+
         /// <summary>
         /// Mouse interacted with this UIElement.
         /// </summary>

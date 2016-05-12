@@ -373,16 +373,9 @@ namespace Files.Manager
             {
                 List<DBPFEntry> Entries = Arch.GrabEntriesForTypeID((uint)TypeIDs.HLS);
 
-                foreach (DBPFEntry Ent in Entries)
+                for(int i = 0; i < Entries.Count; i++)
                 {
-                    try
-                    {
-                        GiantList.Add(GetHLS(Ent.InstanceID));
-                    }
-                    catch
-                    {
-                        continue;
-                    }
+                    GiantList.Add(GetHLS(Entries[i].InstanceID));
                 }
             }
 

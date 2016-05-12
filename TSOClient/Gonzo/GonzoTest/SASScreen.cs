@@ -82,17 +82,23 @@ namespace GonzoTest
 
             m_CityButton1 = (UIButton)m_Elements["\"CityButton1\""];
             m_CityButton1.AddImage(this.GetImage("\"CityButtonTemplateImage\"", true));
+            m_CityButton1.Visible = false;
             m_CityButton2 = (UIButton)m_Elements["\"CityButton2\""];
             m_CityButton2.AddImage(this.GetImage("\"CityButtonTemplateImage\"", true));
+            m_CityButton2.Visible = false;
             m_CityButton3 = (UIButton)m_Elements["\"CityButton3\""];
             m_CityButton3.AddImage(this.GetImage("\"CityButtonTemplateImage\"", true));
+            m_CityButton3.Visible = false;
 
             m_HouseButton1 = (UIButton)m_Elements["\"HouseButton1\""];
             m_HouseButton1.AddImage(this.GetImage("\"HouseButtonTemplateImage\"", true));
+            m_HouseButton1.Visible = false;
             m_HouseButton2 = (UIButton)m_Elements["\"HouseButton2\""];
             m_HouseButton2.AddImage(this.GetImage("\"HouseButtonTemplateImage\"", true));
+            m_HouseButton2.Visible = false;
             m_HouseButton3 = (UIButton)m_Elements["\"HouseButton3\""];
             m_HouseButton3.AddImage(this.GetImage("\"HouseButtonTemplateImage\"", true));
+            m_HouseButton3.Visible = false;
 
             m_NewAvatarButton1 = (UIButton)m_Elements["\"NewAvatarButton1\""];
             m_NewAvatarButton2 = (UIButton)m_Elements["\"NewAvatarButton2\""];
@@ -119,6 +125,10 @@ namespace GonzoTest
         {
             m_InDescriptionTab3 = true;
             m_InEnterTab3 = false;
+
+            m_HouseButton3.Visible = false;
+            m_CityButton3.Visible = false;
+
             HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
@@ -126,6 +136,10 @@ namespace GonzoTest
         {
             m_InDescriptionTab2 = true;
             m_InEnterTab2 = false;
+
+            m_HouseButton2.Visible = false;
+            m_CityButton2.Visible = false;
+
             HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
@@ -133,6 +147,10 @@ namespace GonzoTest
         {
             m_InDescriptionTab1 = true;
             m_InEnterTab1 = false;
+
+            m_HouseButton1.Visible = false;
+            m_CityButton1.Visible = false;
+
             HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
@@ -140,6 +158,10 @@ namespace GonzoTest
         {
             m_InEnterTab3 = true;
             m_InDescriptionTab3 = false;
+
+            m_HouseButton3.Visible = true;
+            m_CityButton3.Visible = true;
+
             HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
@@ -147,6 +169,10 @@ namespace GonzoTest
         {
             m_InEnterTab2 = true;
             m_InDescriptionTab2 = false;
+
+            m_HouseButton2.Visible = true;
+            m_CityButton2.Visible = true;
+
             HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
@@ -154,6 +180,10 @@ namespace GonzoTest
         {
             m_InEnterTab1 = true;
             m_InDescriptionTab1 = false;
+
+            m_HouseButton1.Visible = true;
+            m_CityButton1.Visible = true;
+
             HitVM.PlayEvent("bull_getup_hi_voxg");
         }
 
