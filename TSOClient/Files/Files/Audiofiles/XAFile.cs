@@ -52,12 +52,12 @@ namespace Files.AudioFiles
         private ushort m_Bits;           //resolution of the file (8 (8-bit), 16 (16-bit), etc.).
 
         /// <summary>
-        /// Returns the bitrate for the wav data that makes up this sound.
+        /// Returns the sample rate for the wav data that makes up this sound.
         /// </summary>
-        /// <returns>A ushort denoting the bitrate of the wav data that makes up this sound.</returns>
-        public ushort GetBitrate()
+        /// <returns>A uint denoting the sample rate of the wav data that makes up this sound.</returns>
+        public uint GetSampleRate()
         {
-            return m_Bits;
+            return m_SampleRate;
         }
 
         /// <summary>
@@ -176,6 +176,8 @@ namespace Files.AudioFiles
                     DecompressStereo(m_Reader.ReadBytes(0x1E));
                 }
             }
+
+            m_Reader.Close();
         }
 
         /// <summary>

@@ -20,6 +20,18 @@ using System.Diagnostics;
 
 namespace Files.AudioLogic
 {
+    public class HITNoteEntry
+    {
+        public uint SoundID;
+        public ISoundCodec Sound;
+
+        public HITNoteEntry(uint ID, ISoundCodec Snd)
+        {
+            SoundID = ID;
+            Sound = Snd;
+        }
+    }
+
     public class SubRoutine : Coroutine
     {
         public Hit HitParent;
@@ -34,14 +46,16 @@ namespace Files.AudioLogic
 
         private Dictionary<byte, int> m_Registers = new Dictionary<byte, int>();
         private Dictionary<byte, int> m_LocalVars = new Dictionary<byte, int>();
-        private Dictionary<short, int> m_ObjectVars = new Dictionary<short, int>();
+        private Dictionary<int, int> m_ObjectVars = new Dictionary<int, int>();
         private Dictionary<byte, uint> m_Args = new Dictionary<byte, uint>();
         private bool m_ZeroFlag = false, m_SignFlag = false;
 
         private Random m_Rand = new Random(); //Used by rand and smart_choose.
 
         private HLS m_Hitlist;
-        private ISoundCodec m_CurrentSound; //Sound currently being played by this thread.
+        private TRK m_Track;
+        private List<HITNoteEntry> m_Notes = new List<HITNoteEntry>();
+        private uint m_SoundID = 0;
 
         /// <summary>
         /// Creates a new SubRoutine instance.
@@ -59,8 +73,8 @@ namespace Files.AudioLogic
                 m_InstCounter = Address;
             else
             {
-                TRK Track = FileManager.GetTRK(TrackID);
-                m_CurrentSound = FileManager.GetSound(Track.SoundID);
+                m_Track = FileManager.GetTRK(TrackID);
+                m_SoundID = m_Track.SoundID;
                 SimpleMode = true;
             }
 
@@ -229,9 +243,13 @@ namespace Files.AudioLogic
                 SetLocal(Location, Value);
                 m_LocalVars[(byte)(Location - 0x10)] = Value;
             }
+            else if(Location < 88)
+            {
+                HitVM.SetGlobalVar(Location - 0x64, Value);
+            }
             else if(Location < 2736)
             {
-                m_ObjectVars[Location] = Value;
+                m_ObjectVars[Location - 0x271a] = Value;
             }
         }
 
@@ -245,9 +263,23 @@ namespace Files.AudioLogic
             switch (Location)
             {
                 case 0x12:
-                    TrackID = (uint)Value;
+                    m_SoundID = (uint)Value;
                     break;
             }
+        }
+
+        /// <summary>
+        /// Sets a track for this Subroutine.
+        /// </summary>
+        /// <param name="Index">The ID of a Hitlist to load.</param>
+        /// <returns>The ID of the track that was set.</returns>
+        private uint SetTrack(uint Index)
+        {
+            m_Hitlist = FileManager.GetHLS(Index);
+            m_Track = FileManager.GetTRK(m_Hitlist.SoundsAndHitlists[(int)Index]);
+            m_SoundID = m_Track.SoundID;
+
+            return m_Hitlist.SoundsAndHitlists[(int)Index];
         }
 
         #endregion
@@ -274,8 +306,20 @@ namespace Files.AudioLogic
                         case 0x2: //note_on - play a note, whose ID resides in the specified variable.
                             Dest = ReadByte();
 
-                            m_CurrentSound = FileManager.GetSound((uint)m_Registers[Dest]);
-                            SoundPlayer.PlaySound(m_CurrentSound.DecompressedWav(), m_CurrentSound.GetBitrate());
+                            if (m_SoundID == 0)
+                                m_SoundID = m_Track.SoundID;
+
+                            ISoundCodec Snd = FileManager.GetSound(m_SoundID);
+
+                            if (Snd != null)
+                            {
+                                m_Notes.Add(new HITNoteEntry(m_SoundID, Snd));
+
+                                SetVariable(Dest, m_Notes.Count - 1);
+                                SoundPlayer.PlaySound(Snd.DecompressedWav(), Snd.GetSampleRate());
+                            }
+                            else
+                                Debug.WriteLine("SubRoutine.cs: Couldn't find sound " + m_SoundID);
 
                             break;
                         case 0x4: //loadb - sign-extend a 1-byte constant to 4 bytes and write to a variable.
@@ -296,7 +340,7 @@ namespace Files.AudioLogic
                             break;
                         case 0x6: //set/settt - copy the contents of one variable into another.
                             Dest = ReadByte();
-                            Src = ReadByte();
+                            Src = GetVariable(ReadByte());
 
                             SetVariable(Dest, Src);
                             m_ZeroFlag = (Dest == 0);
@@ -310,6 +354,7 @@ namespace Files.AudioLogic
                             break;
                         case 0x8: //return - kill this thread.
                             YieldComplete();
+                            yield return false;
                             break;
                         case 0x9: //wait - wait for a length of time in milliseconds, specified by a variable.
                             Src = ReadByte();
@@ -332,6 +377,7 @@ namespace Files.AudioLogic
                             break;
                         case 0xc: //end - return from this function; pop the instruction pointer from the stack and jump.
                             YieldComplete(); //Not sure if this is correct?
+                            yield return true;
                             break;
                         case 0xd: //jump - jump to a given address.
                             byte JmpAddress = ReadByte();
@@ -406,6 +452,7 @@ namespace Files.AudioLogic
                         case 0x27: //smart_choose - Set the specified variable to a random entry from the selected hitlist.
                             Dest = ReadByte();
                             int Max = m_Hitlist.SoundsAndHitlists.Count;
+
                             SetVariable(Dest, (int)m_Hitlist.SoundsAndHitlists[m_Rand.Next(Max)]);
 
                             break;
@@ -491,7 +538,7 @@ namespace Files.AudioLogic
                             Src = ReadByte();
 
                             if (Src != 0)
-                                m_Hitlist = HitVM.GlobalHitlists[Src]; //Assumes the VM has been initialized.
+                                m_Hitlist = FileManager.GetHLS((uint)GetVariable(Src));
                             else
                             {
                                 uint SoundID = FileManager.GetTRK(TrackID).SoundID;
@@ -589,15 +636,20 @@ namespace Files.AudioLogic
                             Dest = ReadByte();
                             byte Index = ReadByte();
 
-                            SetVariable(Dest, (int)HitVM.GlobalHitlists[Dest].SoundsAndHitlists[Index]);
+                            uint HitlistID = (uint)GetVariable(Index);
+                            uint TRKID = SetTrack(HitlistID);
+                            SetVariable(Dest, (int)TRKID);
 
                             break;
                         case 0x60: //note_on_loop - play a note, whose ID resides in the specified variable, and immediately loop
                                    //it indefinitely.
                             Dest = ReadByte();
 
-                            m_CurrentSound = FileManager.GetSound((uint)GetVariable(Dest));
-                            SoundPlayer.PlaySound(m_CurrentSound.DecompressedWav(), m_CurrentSound.GetBitrate(), true);
+                            HITNoteEntry Note = new HITNoteEntry(m_SoundID, FileManager.GetSound(m_SoundID));
+                            m_Notes.Add(Note);
+
+                            SetVariable(Dest, m_Notes.Count - 1);
+                            SoundPlayer.PlaySound(Note.Sound.DecompressedWav(), Note.Sound.GetSampleRate(), true);
 
                             break;
                     }
@@ -605,7 +657,8 @@ namespace Files.AudioLogic
             }
             else
             {
-                SoundPlayer.PlaySound(m_CurrentSound.DecompressedWav(), m_CurrentSound.GetBitrate(), false);
+                ISoundCodec Snd = FileManager.GetSound(m_SoundID);
+                SoundPlayer.PlaySound(Snd.DecompressedWav(), Snd.GetSampleRate(), false);
                 yield return true;
             }
         }

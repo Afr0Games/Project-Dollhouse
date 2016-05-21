@@ -58,7 +58,7 @@ namespace Files
 
         /// <summary>
         /// Constructs a new instance of UniqueFileID.
-        /// Used by FAR3 archives.
+        /// Used by FAR3 and DBPF archives.
         /// </summary>
         /// <param name="TypeID">TypeID of entry.</param>
         /// <param name="FileID">FileID of entry.</param>
@@ -84,17 +84,21 @@ namespace Files
 
         public override int GetHashCode()
         {
-            //return base.GetHashCode();
-            return TypeID.GetHashCode() ^ GroupID.GetHashCode() ^ FileID.GetHashCode();
+            if (GroupID != 0)
+                return TypeID.GetHashCode() ^ GroupID.GetHashCode() ^ FileID.GetHashCode();
+            else
+                return TypeID.GetHashCode() ^ FileID.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            //return base.Equals(obj);
             try
             {
                 UniqueFileID OtherID = (UniqueFileID)obj;
                 if (OtherID.FileID == FileID && OtherID.GroupID == GroupID && OtherID.TypeID == TypeID)
+                    return true;
+
+                if (OtherID.FileID == FileID && OtherID.TypeID == TypeID)
                     return true;
 
                 return false;

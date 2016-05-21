@@ -12,6 +12,7 @@ Contributor(s):
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.IO;
 
@@ -23,9 +24,10 @@ namespace Files.Manager
     public class Asset
     {
         public DateTime LastAccessed = DateTime.Now, Cached = DateTime.Now;
+        private uint m_Size;
         private ulong m_AssetID = 0;
         private byte[] m_AssetFilename;
-        private Stream m_AssetData;
+        private object m_AssetData;
 
         /// <summary>
         /// Get the ID of this asset. May be null.
@@ -44,9 +46,17 @@ namespace Files.Manager
         }
 
         /// <summary>
+        /// Gets the size of this asset in bytes.
+        /// </summary>
+        public uint Size
+        {
+            get { return m_Size; }
+        }
+
+        /// <summary>
         /// Gets the data of this asset.
         /// </summary>
-        public Stream AssetData
+        public object AssetData
         {
             get
             {
@@ -60,10 +70,11 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">ID of this asset.</param>
         /// <param name="Data">Data of asset.</param>
-        public Asset(ulong AssetID, Stream Data)
+        public Asset(ulong AssetID, uint Size, object Data)
         {
             m_AssetID = AssetID;
             m_AssetData = Data;
+            m_Size = Size;
             LastAccessed = DateTime.Now;
         }
 
@@ -72,10 +83,11 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">Hash of this asset's filename.</param>
         /// <param name="Data">Data of asset.</param>
-        public Asset(byte[] AssetID, Stream Data)
+        public Asset(byte[] AssetID, uint Size, object Data)
         {
             m_AssetFilename = AssetID;
             m_AssetData = Data;
+            m_Size = Size;
             LastAccessed = DateTime.Now;
         }
     }

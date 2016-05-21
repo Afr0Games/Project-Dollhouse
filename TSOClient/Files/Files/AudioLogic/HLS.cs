@@ -20,12 +20,18 @@ namespace Files.AudioLogic
 
         public HLS(Stream Data)
         {
-            m_Reader = new FileReader(Data, false);
+            if (Data != null)
+            {
+                m_Reader = new FileReader(Data, false);
+                m_Reader.Seek(0);
+            }
+            else
+                return;
 
             uint Unknown = m_Reader.ReadUInt32();
 
-            /*try
-            {*/
+            try
+            {
                 if (Unknown == 1) //First format
                 {
                     if ((m_Reader.StreamLength - m_Reader.Position) > 4) //... because sometimes it will just end here D:
@@ -38,34 +44,34 @@ namespace Files.AudioLogic
                 }
                 else
                 {
-                    ASCIIEncoding Enc = new ASCIIEncoding();
-                    string[] StrData = Enc.GetString(m_Reader.ReadBytes((int)Unknown)).Split(',');
+                    string Str = m_Reader.ReadString((int)Unknown).Replace("\n", "");
+                    string[] SplitByComma = Str.Split(',');
 
-                    foreach (string Entry in StrData)
+                    for(int i = 0; i < SplitByComma.Length; i++)
                     {
-                        if (Entry.Length != 0)
+                        string[] SplitByDash = SplitByComma[i].Split('-');
+
+                        if(SplitByDash.Length > 1)
                         {
-                            if (!Entry.Contains("-"))
-                                SoundsAndHitlists.Add(uint.Parse(Entry.Replace("0x", ""), NumberStyles.HexNumber));
-                            else
-                            {
-                                string[] Range = Entry.Split('-');
+                            uint Min = Convert.ToUInt32(SplitByDash[0]);
+                            uint Max = Convert.ToUInt32(SplitByDash[1]);
 
-                                for (uint i = uint.Parse(Range[0].Replace("0x", "")); i < uint.Parse(Range[1].Replace("0x", ""), NumberStyles.HexNumber); i++)
-                                    SoundsAndHitlists.Add(i);
-
-                                SoundsAndHitlists.Add(uint.Parse(Range[1].Replace("0x", ""), NumberStyles.HexNumber));
-                            }
+                            for(uint j = Min; j <= Max; j++)
+                                SoundsAndHitlists.Add(j);
                         }
+                        else
+                            SoundsAndHitlists.Add(Convert.ToUInt32(SplitByComma[i]));
                     }
                 }
-            /*}
+            }
             catch
             {
                 m_Reader.Seek(4);
                 for (int i = 0; i < Unknown; i++)
                     SoundsAndHitlists.Add(m_Reader.ReadUInt32());
-            }*/
+
+                m_Reader.Close();
+            }
 
             m_Reader.Close();
         }

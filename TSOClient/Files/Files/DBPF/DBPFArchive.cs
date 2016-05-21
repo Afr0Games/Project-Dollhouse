@@ -47,10 +47,13 @@ namespace Files.DBPF
 
     public enum TypeIDs : uint
     {
-        HLS = 0x7b1acfcd,
-        TLO = 0x9d796db4,
-        TRK = 0x5d73a611,
-        Sounds = 0x2026960b //WAV, UTK and XA
+        XA = 0x1d07eb4b,
+        UTK = 0x1b6b9806,
+        WAV = 0xbb7051f5,
+        MP3 = 0x3cec2b47,
+        TRK = 0x5D73A611,
+        HIT = 0x7b1acfcd,
+        SoundFX = 0x2026960b,
     }
 
     public class DBPFArchive
@@ -154,17 +157,24 @@ namespace Files.DBPF
             m_Reader.Seek(Entry.FileOffset);
 
             MemoryStream Data = new MemoryStream(m_Reader.ReadBytes((int)Entry.FileSize));
+            Data.Position = 0;
 
             return Data;
         }
 
-        public List<DBPFEntry> GrabEntriesForTypeID(uint TypeID)
+        /// <summary>
+        /// Graps all the entries with the specified TypeID in a particular group, specified by GroupID.
+        /// </summary>
+        /// <param name="TypeID">Return entries with this TypeID.</param>
+        /// <param name="GroupID">The group to look in.</param>
+        /// <returns>All entries with the specified TypeID in the specified group.</returns>
+        public List<DBPFEntry> GrabEntriesForTypeID(uint TypeID, uint GroupID)
         {
             List<DBPFEntry> ReturnedEntries = new List<DBPFEntry>();
 
             foreach(KeyValuePair<UniqueFileID, DBPFEntry> Entry in m_Entries)
             {
-                if (Entry.Key.TypeID == TypeID)
+                if (Entry.Key.TypeID == TypeID && Entry.Key.GroupID == GroupID)
                     ReturnedEntries.Add(Entry.Value);
             }
 

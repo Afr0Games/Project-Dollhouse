@@ -7,7 +7,6 @@ namespace Files.AudioLogic
 {
     public class HitVM
     {
-        public static List<HLS> GlobalHitlists = new List<HLS>();
         private static List<SubRoutine> m_CurrentlyPlayingTracks = new List<SubRoutine>();
 
         private static Dictionary<int, int> m_GlobalVars = new Dictionary<int, int>();
@@ -42,8 +41,6 @@ namespace Files.AudioLogic
 
         public HitVM(string StartupDir)
         {
-            GlobalHitlists = FileManager.GetAllHitlists();
-
            Rsc_newmain = new HitResourcegroup(StartupDir + "sounddata\\newmain.hit", 
                 StartupDir + "sounddata\\eventlist.txt", StartupDir + "sounddata\\newmain.hsm");
             Rsc_relationships = new HitResourcegroup(StartupDir + "sounddata\\relationships.hit", 

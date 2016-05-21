@@ -18,6 +18,24 @@ using System.Threading.Tasks;
 
 namespace Files.FAR3
 {
+    public enum FAR3TypeIDs
+    {
+        BMP = 1,
+        TGA = 2,
+        SKEL = 5,
+        ANIM = 7,
+        MESH = 9,
+        BND = 11,
+        APR = 12,
+        OFT = 13,
+        PNG = 14,
+        PO = 15,
+        COL = 16,
+        HAG = 18,
+        JPG = 20,
+        PackedPNG = 24 //Compressed
+    }
+
     public class FAR3Entry
     {
         public uint DecompressedDataSize;

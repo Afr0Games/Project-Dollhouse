@@ -115,12 +115,12 @@ namespace Files.AudioFiles
         private float[] m_DecompressedFrame = new float[756];
 
         /// <summary>
-        /// Returns the bitrate for the wav data that makes up this sound.
+        /// Returns the sample rate for the wav data that makes up this sound.
         /// </summary>
-        /// <returns>A ushort denoting the bitrate of the wav data that makes up this sound.</returns>
-        public ushort GetBitrate()
+        /// <returns>A uint denoting the sample rate of the wav data that makes up this sound.</returns>
+        public uint GetSampleRate()
         {
-            return m_BitsPerSample;
+            return m_SamplesPerSec;
         }
 
         /// <summary>

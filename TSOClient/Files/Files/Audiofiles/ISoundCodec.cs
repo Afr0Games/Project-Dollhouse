@@ -7,10 +7,10 @@ namespace Files.AudioFiles
     public interface ISoundCodec
     {
         /// <summary>
-        /// Returns the bitrate for the wav data that makes up this sound.
+        /// Returns the sample rate for the wav data that makes up this sound.
         /// </summary>
-        /// <returns>A ushort denoting the bitrate of the wav data that makes up this sound.</returns>
-        ushort GetBitrate();
+        /// <returns>A uint denoting the sample rate of the wav data that makes up this sound.</returns>
+        uint GetSampleRate();
 
         /// <summary>
         /// Gets the decompressed wav data for this sound codec.

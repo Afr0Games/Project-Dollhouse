@@ -129,7 +129,8 @@ namespace GonzoTest
             m_HouseButton3.Visible = false;
             m_CityButton3.Visible = false;
 
-            HitVM.PlayEvent("bull_getup_hi_voxg");
+            //HitVM.PlayEvent("ui_nhood_click");
+            HitVM.PlayEvent("vox_flirtee_giggle");
         }
 
         private void DescriptionTabBtn2_OnButtonClicked(UIButton ClickedButton)
@@ -140,7 +141,8 @@ namespace GonzoTest
             m_HouseButton2.Visible = false;
             m_CityButton2.Visible = false;
 
-            HitVM.PlayEvent("bull_getup_hi_voxg");
+            //HitVM.PlayEvent("ui_nhood_click");
+            HitVM.PlayEvent("vox_flirtee_giggle");
         }
 
         private void DescriptionTabBtn1_OnButtonClicked(UIButton ClickedButton)
@@ -151,7 +153,8 @@ namespace GonzoTest
             m_HouseButton1.Visible = false;
             m_CityButton1.Visible = false;
 
-            HitVM.PlayEvent("bull_getup_hi_voxg");
+            //HitVM.PlayEvent("ui_nhood_click");
+            HitVM.PlayEvent("vox_flirtee_giggle");
         }
 
         private void EnterTabBtn3_OnButtonClicked(UIButton ClickedButton)
@@ -162,7 +165,8 @@ namespace GonzoTest
             m_HouseButton3.Visible = true;
             m_CityButton3.Visible = true;
 
-            HitVM.PlayEvent("bull_getup_hi_voxg");
+            //HitVM.PlayEvent("ui_nhood_click");
+            HitVM.PlayEvent("vox_flirtee_giggle");
         }
 
         private void EnterTabBtn2_OnButtonClicked(UIButton ClickedButton)
@@ -173,7 +177,8 @@ namespace GonzoTest
             m_HouseButton2.Visible = true;
             m_CityButton2.Visible = true;
 
-            HitVM.PlayEvent("bull_getup_hi_voxg");
+            //HitVM.PlayEvent("ui_nhood_click");
+            HitVM.PlayEvent("vox_flirtee_giggle");
         }
 
         private void EnterTabBtn1_OnButtonClicked(UIButton ClickedButton)
@@ -184,7 +189,8 @@ namespace GonzoTest
             m_HouseButton1.Visible = true;
             m_CityButton1.Visible = true;
 
-            HitVM.PlayEvent("bull_getup_hi_voxg");
+            //HitVM.PlayEvent("ui_nhood_click");
+            HitVM.PlayEvent("vox_flirtee_giggle");
         }
 
         #endregion

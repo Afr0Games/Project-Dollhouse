@@ -142,7 +142,15 @@ namespace Files.Manager
         /// <returns>A Texture2D instance.</returns>
         public static Texture2D GetTexture(ulong AssetID)
         {
-            Stream Data = GrabItem(AssetID);
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.JPG);
+
+            if (Data == null)
+                Data = GrabItem(AssetID, FAR3TypeIDs.BMP);
+            if (Data == null)
+                Data = GrabItem(AssetID, FAR3TypeIDs.PNG);
+            if (Data == null)
+                Data = GrabItem(AssetID, FAR3TypeIDs.PackedPNG);
+
             Stream PNGStream = new MemoryStream();
 
             if (Data == null)
@@ -190,7 +198,11 @@ namespace Files.Manager
                 }
             }
 
-            return Texture2D.FromStream(m_Game.GraphicsDevice, PNGStream);
+            if (!m_Assets.ContainsKey(AssetID))
+                AddItem(AssetID, new Asset(AssetID, (uint)PNGStream.Length, 
+                    Texture2D.FromStream(m_Game.GraphicsDevice, PNGStream)));
+
+            return (Texture2D)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
@@ -210,9 +222,19 @@ namespace Files.Manager
             return data.SequenceEqual(magic);
         }
 
+        /// <summary>
+        /// Gets an Outfit instance from the FileManager.
+        /// </summary>
+        /// <param name="AssetID">ID of the outfit to get.</param>
+        /// <returns>An Outfit instance.</returns>
         public static Outfit GetOutfit(ulong AssetID)
         {
-            return new Outfit(GrabItem(AssetID));
+            if (m_Assets.ContainsKey(AssetID))
+                return (Outfit)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.OFT);
+
+            return (Outfit)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
@@ -222,7 +244,12 @@ namespace Files.Manager
         /// <returns>A Skeleton instance.</returns>
         public static Skeleton GetSkeleton(ulong AssetID)
         {
-            return new Skeleton(GrabItem(AssetID));
+            if (m_Assets.ContainsKey(AssetID))
+                return (Skeleton)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.SKEL);
+
+            return (Skeleton)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
@@ -232,7 +259,12 @@ namespace Files.Manager
         /// <returns>A Handgroup instance.</returns>
         public static HandGroup GetHandgroup(ulong AssetID)
         {
-            return new HandGroup(GrabItem(AssetID));
+            if (m_Assets.ContainsKey(AssetID))
+                return (HandGroup)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.HAG);
+
+            return (HandGroup)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
@@ -242,7 +274,12 @@ namespace Files.Manager
         /// <returns>An Appearance instance.</returns>
         public static Appearance GetAppearance(ulong AssetID)
         {
-            return new Appearance(GrabItem(AssetID));
+            if (m_Assets.ContainsKey(AssetID))
+                return (Appearance)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.APR);
+
+            return (Appearance)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
@@ -252,7 +289,12 @@ namespace Files.Manager
         /// <returns>An Binding instance.</returns>
         public static Binding GetBinding(ulong AssetID)
         {
-            return new Binding(GrabItem(AssetID));
+            if (m_Assets.ContainsKey(AssetID))
+                return (Binding)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.BND);
+
+            return (Binding)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
@@ -277,7 +319,12 @@ namespace Files.Manager
         /// <returns>A Mesh instance.</returns>
         public static Mesh GetMesh(ulong AssetID)
         {
-            return new Mesh(GrabItem(AssetID));
+            if (m_Assets.ContainsKey(AssetID))
+                return (Mesh)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.MESH);
+
+            return (Mesh)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
@@ -287,22 +334,44 @@ namespace Files.Manager
         /// <returns>A Anim instance.</returns>
         public static Anim GetAnimation(ulong AssetID)
         {
-            return new Anim(GrabItem(AssetID));
+            if (m_Assets.ContainsKey(AssetID))
+                return (Anim)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.ANIM);
+
+            return (Anim)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
-        /// Gets an sound (XA or UTK) from the FileManager.
+        /// Gets a sound (XA or UTK) from the FileManager.
         /// </summary>
         /// <param name="ID">The FileID/InstanceID of the sound to get.</param>
         /// <returns>A new ISoundCodec instance.</returns>
         public static ISoundCodec GetSound(uint ID)
         {
-            Stream Data = GrabItem(ID);
+            UniqueFileID UID = new UniqueFileID((uint)TypeIDs.UTK, ID);
 
-            if (IsUTK(Data))
-                return new UTKFile2(Data);
-            else
-                return new XAFile(Data);
+            if (m_Assets.ContainsKey(UID.UniqueID))
+                return (ISoundCodec)m_Assets[UID.UniqueID].AssetData;
+
+            UID = new UniqueFileID((uint)TypeIDs.XA, ID);
+
+            if (m_Assets.ContainsKey(UID.UniqueID))
+                return (ISoundCodec)m_Assets[UID.UniqueID].AssetData;
+
+            UID = new UniqueFileID((uint)TypeIDs.SoundFX, ID);
+
+            if (m_Assets.ContainsKey(UID.UniqueID))
+                return (ISoundCodec)m_Assets[UID.UniqueID].AssetData;
+
+            ISoundCodec Data = (ISoundCodec)GrabItem(ID, TypeIDs.UTK);
+
+            if (Data == null)
+                Data = (ISoundCodec)GrabItem(ID, TypeIDs.XA);
+            if(Data == null)
+                Data = (ISoundCodec)GrabItem(ID, TypeIDs.SoundFX);
+
+            return Data;
         }
 
         /// <summary>
@@ -329,7 +398,14 @@ namespace Files.Manager
         /// <returns>A new TRK instance.</returns>
         public static TRK GetTRK(uint ID)
         {
-            return new TRK(GrabItem(ID));
+            UniqueFileID UID = new UniqueFileID((uint)TypeIDs.TRK, ID);
+
+            if(m_Assets.ContainsKey(UID.UniqueID))
+                return (TRK)m_Assets[UID.UniqueID].AssetData;
+
+            //return new TRK(GrabItem(ID, TypeIDs.TRK));
+
+            return (TRK)GrabItem(UID.FileID, TypeIDs.TRK);
         }
 
         /// <summary>
@@ -339,16 +415,15 @@ namespace Files.Manager
         /// <returns>True if found, false otherwise.</returns>
         public static bool TrackExists(uint ID)
         {
-            try
+            //TRK Track = new TRK(GrabItem(ID, TypeIDs.TRK));
+            TRK Track = GetTRK(ID);
+
+            if (Track != null)
             {
-                TRK Track = new TRK(GrabItem(ID));
                 return true;
             }
-            catch(Exception)
-            {
-                Debug.WriteLine("Unable to find track: " + ID + " - FileManager.cs");
+            else
                 return false;
-            }
         }
 
         /// <summary>
@@ -358,28 +433,14 @@ namespace Files.Manager
         /// <returns>A new HLS instance.</returns>
         public static HLS GetHLS(uint ID)
         {
-            return new HLS(GrabItem(ID));
-        }
+            UniqueFileID UID = new UniqueFileID((uint)TypeIDs.HIT, ID);
 
-        /// <summary>
-        /// Loads every hitlist in the entire game.
-        /// </summary>
-        /// <returns>A list containing all the hitlists found in every DBPF.</returns>
-        public static List<HLS> GetAllHitlists()
-        {
-            List<HLS> GiantList = new List<HLS>();
+            if (m_Assets.ContainsKey(UID.UniqueID))
+                return (HLS)m_Assets[UID.UniqueID].AssetData;
 
-            foreach (DBPFArchive Arch in m_DBPFArchives)
-            {
-                List<DBPFEntry> Entries = Arch.GrabEntriesForTypeID((uint)TypeIDs.HLS);
+            //return new HLS(GrabItem(ID, TypeIDs.HIT));
 
-                for(int i = 0; i < Entries.Count; i++)
-                {
-                    GiantList.Add(GetHLS(Entries[i].InstanceID));
-                }
-            }
-
-            return GiantList;
+            return (HLS)GrabItem(ID, TypeIDs.HIT);
         }
 
         /// <summary>
@@ -396,213 +457,182 @@ namespace Files.Manager
         /// Returns a Stream instance with data from the specified item.
         /// </summary>
         /// <param name="ID">ID of the item to grab.</param>
-        /// <returns>A Stream instance with data from the specified item.</returns>
-        private static Stream GrabItem(uint ID)
+        /// <param name="TypeID">TypeID of the the item to grab.</param>
+        /// <returns>An object that can be casted to the instance corresponding to the TypeID.</returns>
+        private static object GrabItem(uint ID, TypeIDs TypeID)
         {
-            lock (m_Assets)
-            {
-                if (m_Assets.ContainsKey(ID))
-                    return m_Assets[ID].AssetData;
-            }
+            Stream Data;
 
             foreach (DBPFArchive Archive in m_DBPFArchives)
             {
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Custom)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Custom)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Custom);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Custom);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                    {
+                        if (IsUTK(Data))
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
+                        else
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                    }
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.tsov2)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.CustomTrks)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.tsov2);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.CustomTrks);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, Data));
-                    return Data;
+                    Data = Archive.GrabEntry(UniqueID);
+
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                        AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new TRK(Data)));
+
+                    return Archive.GrabEntry(UniqueID);
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Samples)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.EP2)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Samples);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.EP2);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, Data));
-                    return Data;
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                    {
+                        if (IsUTK(Data))
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
+                        else
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                    }
+
+                    return Archive.GrabEntry(UniqueID);
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.EP2)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.EP5Samps)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.EP2);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.EP5Samps);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, Data));
-                    return Data;
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                    {
+                        if (IsUTK(Data))
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
+                        else
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                    }
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.EP5Samps)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.HitLists)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.EP5Samps);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.HitLists);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, Data));
-                    return Data;
+                    Data = Archive.GrabEntry(UniqueID);
+
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                        AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new HLS(Data)));
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Stings)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.HitListsTemp)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Stings);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.HitListsTemp);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
+                    Data = Archive.GrabEntry(UniqueID);
+
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                        AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new HLS(Data)));
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Horror)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Multiplayer)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Horror);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Multiplayer);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                    {
+                        if (IsUTK(Data))
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
+                        else
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                    }
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Latin)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Samples)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Latin);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Samples);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                    {
+                        if (IsUTK(Data))
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
+                        else
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                    }
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Multiplayer)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.TrackDefs)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Multiplayer);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.TrackDefs);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                        AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new TRK(Data)));
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.OldWorld)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Tracks)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.OldWorld);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Tracks);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                        AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new TRK(Data)));
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Rap)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.tsov2)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Rap);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.tsov2);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                    {
+                        if (IsUTK(Data))
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
+                        else
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                    }
+
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Rave)))
+                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Stings)))
                 {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Rave);
+                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeID, ID, (uint)GroupIDs.Stings);
+                    Data = Archive.GrabEntry(UniqueID);
 
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
-                }
+                    if (!m_Assets.ContainsKey(UniqueID.UniqueID))
+                    {
+                        if (IsUTK(Data))
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
+                        else
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                    }
 
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Rock)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Rock);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.SciFi)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.SciFi);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Beach)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Beach);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Classica)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Classica);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Country)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.Country);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.CountryD)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.Sounds, ID, (uint)GroupIDs.CountryD);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.TRK, ID, (uint)GroupIDs.Tracks)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.TRK, ID, (uint)GroupIDs.Tracks);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.TRK, ID, (uint)GroupIDs.CustomTrks)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.TRK, ID, (uint)GroupIDs.CustomTrks);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.HLS, ID, (uint)GroupIDs.HitLists)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.HLS, ID, (uint)GroupIDs.HitLists);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, Data));
-                    return Data;
-                }
-
-                if (Archive.ContainsEntry(new UniqueFileID((uint)TypeIDs.HLS, ID, (uint)GroupIDs.HitListsTemp)))
-                {
-                    UniqueFileID UniqueID = new UniqueFileID((uint)TypeIDs.HLS, ID, (uint)GroupIDs.HitListsTemp);
-
-                    Stream Data = Archive.GrabEntry(UniqueID);
-                    AddItem(ID, new Asset(ID, Data));
-                    return Data;
+                    return m_Assets[UniqueID.UniqueID].AssetData;
                 }
             }
 
@@ -614,20 +644,42 @@ namespace Files.Manager
         /// </summary>
         /// <param name="ID">ID of the item to grab.</param>
         /// <returns>A Stream instance with data from the specified item.</returns>
-        private static Stream GrabItem(ulong ID)
+        private static Stream GrabItem(ulong ID, FAR3TypeIDs TypeID)
         {
-            lock (m_Assets)
-            {
-                if (m_Assets.ContainsKey(ID))
-                    return m_Assets[ID].AssetData;
-            }
-
             foreach (FAR3Archive Archive in m_FAR3Archives)
             {
                 if (Archive.ContainsEntry(ID))
                 {
                     Stream Data = Archive.GrabEntry(ID);
-                    AddItem(ID, new Asset(ID, Data));
+
+                    if (!m_Assets.ContainsKey(ID))
+                    {
+                        switch(TypeID)
+                        {
+                            case FAR3TypeIDs.ANIM:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new Anim(Data)));
+                                break;
+                            case FAR3TypeIDs.APR:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new Appearance(Data)));
+                                break;
+                            case FAR3TypeIDs.BND:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new Binding(Data)));
+                                break;
+                            case FAR3TypeIDs.COL:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new Collection(Data)));
+                                break;
+                            case FAR3TypeIDs.HAG:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new HandGroup(Data)));
+                                break;
+                            case FAR3TypeIDs.MESH:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new Mesh(Data)));
+                                break;
+                            case FAR3TypeIDs.OFT:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new Outfit(Data)));
+                                break;
+                        }
+                    }
+
                     return Data;
                 }
             }
@@ -644,18 +696,18 @@ namespace Files.Manager
         {
             byte[] Hash = GenerateHash(Filename);
 
-            foreach (KeyValuePair<byte[], Asset> KVP in m_FAR1Assets)
+            /*foreach (KeyValuePair<byte[], Asset> KVP in m_FAR1Assets)
             {
                 if(KVP.Key.SequenceEqual(Hash))
                     return m_FAR1Assets[Hash].AssetData;
-            }
+            }*/
 
             foreach (FAR1Archive Archive in m_FAR1Archives)
             {
                 if (Archive.ContainsEntry(Filename))
                 {
                     Stream Data = Archive.GrabEntry(Filename);
-                    AddItem(Filename, new Asset(Hash, Data));
+                    //AddItem(Filename, new Asset(Hash, Archive.GrabEntry(Filename)));
                     return Archive.GrabEntry(Filename);
                 }
             }
@@ -665,7 +717,7 @@ namespace Files.Manager
                 if (KVP.Key.SequenceEqual(Hash))
                 {
                     Stream Data = File.Open(KVP.Value, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    AddItem(Path.GetFileName(KVP.Value), new Asset(Hash, Data));
+                    //AddItem(Path.GetFileName(KVP.Value), new Asset(Hash, File.Open(KVP.Value, FileMode.Open, FileAccess.Read, FileShare.Read)));
                     return Data;
                 }
             }
@@ -679,10 +731,10 @@ namespace Files.Manager
 
         private static void AddItem(ulong ID, Asset Item)
         {
-            if ((m_BytesLoaded + Item.AssetData.Length) < CACHE_SIZE)
+            if ((m_BytesLoaded + Item.Size) < CACHE_SIZE)
             {
                 m_Assets.Add(ID, Item);
-                m_BytesLoaded += (uint)Item.AssetData.Length;
+                m_BytesLoaded += (uint)Item.Size;
             }
             else //Remove oldest and add new entry.
             {
@@ -695,10 +747,10 @@ namespace Files.Manager
 
         private static void AddItem(string Filename, Asset Item)
         {
-            if((m_BytesLoaded + Item.AssetData.Length) < CACHE_SIZE)
+            if((m_BytesLoaded + Item.Size) < CACHE_SIZE)
             {
                 m_FAR1Assets.Add(GenerateHash(Filename), Item);
-                m_BytesLoaded += (uint)Item.AssetData.Length;
+                m_BytesLoaded += (uint)Item.Size;
             }
             else //Remove oldest and add new entry.
             {
