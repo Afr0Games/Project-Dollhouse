@@ -139,8 +139,10 @@ namespace Files.AudioFiles
         {
             m_DecompressedStream = new MemoryStream();
             m_Reader = new FileReader(FileData, false);
+            m_Reader.Seek(0);
 
             ReadHeader();
+            UTKDecode();
         }
 
         /// <summary>
@@ -151,8 +153,10 @@ namespace Files.AudioFiles
         {
             m_DecompressedStream = new MemoryStream();
             m_Reader = new FileReader(File.Open(Filepath, FileMode.Open, FileAccess.Read, FileShare.Read), false);
+            m_Reader.Seek(0);
 
             ReadHeader();
+            UTKDecode();
         }
 
         /// <summary>

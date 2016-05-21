@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework.Audio;
+using System.IO;
 
 namespace Files.AudioLogic
 {
@@ -18,7 +19,7 @@ namespace Files.AudioLogic
         /// <param name="LoopIt">Wether or not to loop the sound.</param>
         public static void PlaySound(byte[] WavData, uint SampleRate, bool LoopIt = false)
         {
-            SoundEffect Efx = new SoundEffect(WavData, (int)SampleRate, AudioChannels.Stereo);
+            SoundEffect Efx = new SoundEffect(WavData, (int)SampleRate / 2, AudioChannels.Stereo);
             SoundEffectInstance Inst = Efx.CreateInstance();
 
             if (LoopIt)

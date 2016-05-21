@@ -130,7 +130,7 @@ namespace GonzoTest
             m_CityButton3.Visible = false;
 
             //HitVM.PlayEvent("ui_nhood_click");
-            HitVM.PlayEvent("vox_flirtee_giggle");
+            HitVM.PlayEvent("vox_teasee_giggle");
         }
 
         private void DescriptionTabBtn2_OnButtonClicked(UIButton ClickedButton)
@@ -142,7 +142,7 @@ namespace GonzoTest
             m_CityButton2.Visible = false;
 
             //HitVM.PlayEvent("ui_nhood_click");
-            HitVM.PlayEvent("vox_flirtee_giggle");
+            HitVM.PlayEvent("vox_teasee_giggle");
         }
 
         private void DescriptionTabBtn1_OnButtonClicked(UIButton ClickedButton)
@@ -154,7 +154,7 @@ namespace GonzoTest
             m_CityButton1.Visible = false;
 
             //HitVM.PlayEvent("ui_nhood_click");
-            HitVM.PlayEvent("vox_flirtee_giggle");
+            HitVM.PlayEvent("vox_teasee_giggle");
         }
 
         private void EnterTabBtn3_OnButtonClicked(UIButton ClickedButton)
@@ -166,7 +166,7 @@ namespace GonzoTest
             m_CityButton3.Visible = true;
 
             //HitVM.PlayEvent("ui_nhood_click");
-            HitVM.PlayEvent("vox_flirtee_giggle");
+            HitVM.PlayEvent("vox_teasee_giggle");
         }
 
         private void EnterTabBtn2_OnButtonClicked(UIButton ClickedButton)
@@ -178,7 +178,7 @@ namespace GonzoTest
             m_CityButton2.Visible = true;
 
             //HitVM.PlayEvent("ui_nhood_click");
-            HitVM.PlayEvent("vox_flirtee_giggle");
+            HitVM.PlayEvent("vox_teasee_giggle");
         }
 
         private void EnterTabBtn1_OnButtonClicked(UIButton ClickedButton)
@@ -190,7 +190,7 @@ namespace GonzoTest
             m_CityButton1.Visible = true;
 
             //HitVM.PlayEvent("ui_nhood_click");
-            HitVM.PlayEvent("vox_flirtee_giggle");
+            HitVM.PlayEvent("vox_teasee_giggle");
         }
 
         #endregion
