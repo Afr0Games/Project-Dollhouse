@@ -6,6 +6,7 @@ using Gonzo;
 using Gonzo.Elements;
 using Files.Manager;
 using Files.AudioLogic;
+using Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -19,13 +20,16 @@ namespace GonzoTest
         private UIButton m_ExitButton, m_EnterTabBtn1, m_EnterTabBtn2, m_EnterTabBtn3, m_DescriptionTabBtn1, 
             m_DescriptionTabBtn2, m_DescriptionTabBtn3, m_AvatarButton1, m_AvatarButton2, m_AvatarButton3, m_CityButton1, 
             m_CityButton2, m_CityButton3, m_HouseButton1, m_HouseButton2, m_HouseButton3, m_NewAvatarButton1, m_NewAvatarButton2,
-            m_NewAvatarButton3, m_DeleteAvatarButton1, m_DeleteAvatarButton2, m_DeleteAvatarButton3, 
-            m_PersonDescriptionScrollUpBtn1, m_PersonDescriptionScrollUpBtn2, m_PersonDescriptionScrollUpBtn3, 
-            m_PersonDescriptionScrollDownBtn1, m_PersonDescriptionScrollDownBtn2, m_PersonDescriptionScrollDownBtn3, 
-            m_CreditsButton;
+            m_NewAvatarButton3, m_DeleteAvatarButton1, m_DeleteAvatarButton2, m_DeleteAvatarButton3, m_PersonDescriptionScrollUpBtn1, 
+            m_PersonDescriptionScrollUpBtn2, m_PersonDescriptionScrollUpBtn3, m_PersonDescriptionScrollDownBtn1, 
+            m_PersonDescriptionScrollDownBtn2, m_PersonDescriptionScrollDownBtn3, m_CreditsButton;
+
+        private UITextEdit m_PersonDescriptionText1, m_PersonDescriptionText2, m_PersonDescriptionText3;
 
         private bool m_InDescriptionTab1 = true, m_InDescriptionTab2 = true, m_InDescriptionTab3 = true,
             m_InEnterTab1 = false, m_InEnterTab2 = false, m_InEnterTab3 = false;
+
+        private List<Avatar> m_Avatars = new List<Avatar>();
 
         public SASScreen(ScreenManager Manager, SpriteBatch SBatch) : base(Manager, "SAS", SBatch,
             new Vector2(0, 0), new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight),
@@ -101,12 +105,22 @@ namespace GonzoTest
             m_HouseButton3.Visible = false;
 
             m_NewAvatarButton1 = (UIButton)m_Elements["\"NewAvatarButton1\""];
+            m_NewAvatarButton1.Visible = m_Avatars.Count >= 1 ? false : true;
             m_NewAvatarButton2 = (UIButton)m_Elements["\"NewAvatarButton2\""];
+            m_NewAvatarButton1.Visible = m_Avatars.Count >= 2 ? false : true;
             m_NewAvatarButton3 = (UIButton)m_Elements["\"NewAvatarButton3\""];
+            m_NewAvatarButton1.Visible = m_Avatars.Count == 3 ? false : true;
 
             m_DeleteAvatarButton1 = (UIButton)m_Elements["\"DeleteAvatarButton1\""];
+            m_DeleteAvatarButton1.Visible = m_Avatars.Count >= 1 ? true : false;
             m_DeleteAvatarButton2 = (UIButton)m_Elements["\"DeleteAvatarButton2\""];
+            m_DeleteAvatarButton2.Visible = m_Avatars.Count >= 2 ? true : false;
             m_DeleteAvatarButton3 = (UIButton)m_Elements["\"DeleteAvatarButton3\""];
+            m_DeleteAvatarButton3.Visible = m_Avatars.Count == 3 ? true : false;
+
+            m_PersonDescriptionText1 = (UITextEdit)m_Elements["\"PersonDescriptionText1\""];
+            m_PersonDescriptionText2 = (UITextEdit)m_Elements["\"PersonDescriptionText2\""];
+            m_PersonDescriptionText3 = (UITextEdit)m_Elements["\"PersonDescriptionText3\""];
 
             m_PersonDescriptionScrollUpBtn1 = (UIButton)m_Elements["\"PersonDescriptionScrollUpButton1\""];
             m_PersonDescriptionScrollUpBtn2 = (UIButton)m_Elements["\"PersonDescriptionScrollUpButton2\""];
@@ -128,6 +142,7 @@ namespace GonzoTest
 
             m_HouseButton3.Visible = false;
             m_CityButton3.Visible = false;
+            m_PersonDescriptionText3.Visible = true;
 
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
@@ -140,6 +155,7 @@ namespace GonzoTest
 
             m_HouseButton2.Visible = false;
             m_CityButton2.Visible = false;
+            m_PersonDescriptionText2.Visible = true;
 
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
@@ -152,6 +168,7 @@ namespace GonzoTest
 
             m_HouseButton1.Visible = false;
             m_CityButton1.Visible = false;
+            m_PersonDescriptionText1.Visible = true;
 
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
@@ -164,6 +181,7 @@ namespace GonzoTest
 
             m_HouseButton3.Visible = true;
             m_CityButton3.Visible = true;
+            m_PersonDescriptionText3.Visible = false;
 
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
@@ -176,6 +194,7 @@ namespace GonzoTest
 
             m_HouseButton2.Visible = true;
             m_CityButton2.Visible = true;
+            m_PersonDescriptionText2.Visible = false;
 
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
@@ -188,6 +207,7 @@ namespace GonzoTest
 
             m_HouseButton1.Visible = true;
             m_CityButton1.Visible = true;
+            m_PersonDescriptionText1.Visible = false;
 
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
