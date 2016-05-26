@@ -86,15 +86,18 @@ namespace Gonzo.Elements
             else
                 Depth = 0.0f;
 
-            if (SourceRect != null)
+            if (Visible)
             {
-                SBatch.Draw(Texture, Position, null, SourceRect, new Vector2(0.0f, 0.0f), 0.0f, null, Color.White,
-                    SpriteEffects.None, Depth);
-            }
-            else
-            {
-                SBatch.Draw(Texture, Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, null, Color.White,
-                    SpriteEffects.None, Depth);
+                if (SourceRect != null)
+                {
+                    SBatch.Draw(Texture, Position, null, SourceRect, new Vector2(0.0f, 0.0f), 0.0f, null, Color.White,
+                        SpriteEffects.None, Depth);
+                }
+                else
+                {
+                    SBatch.Draw(Texture, Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, null, Color.White,
+                        SpriteEffects.None, Depth);
+                }
             }
         }
 
@@ -116,6 +119,8 @@ namespace Gonzo.Elements
             else
                 Depth = 0.10f;
 
+            //NOTE: Whether or not this is drawn should probably be checked on the UIDialog-level,
+            //      so don't bother to check the visible property here for now.
             if (Scale != null)
                 SBatch.Draw(Texture, To, null, From, new Vector2(0.0f, 0.0f), 0.0f, Scale, Color.White, SpriteEffects.None, Depth);
             else
