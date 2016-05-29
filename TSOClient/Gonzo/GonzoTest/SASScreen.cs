@@ -72,17 +72,23 @@ namespace GonzoTest
 
             m_EnterTabBtn1 = (UIButton)m_Elements["\"EnterTabButton1\""];
             m_EnterTabBtn1.OnButtonClicked += EnterTabBtn1_OnButtonClicked;
+            m_EnterTabBtn1.Enabled = (m_Avatars.Count > 0) ? true : false;
             m_EnterTabBtn2 = (UIButton)m_Elements["\"EnterTabButton2\""];
             m_EnterTabBtn2.OnButtonClicked += EnterTabBtn2_OnButtonClicked;
+            m_EnterTabBtn2.Enabled = (m_Avatars.Count > 0) ? true : false;
             m_EnterTabBtn3 = (UIButton)m_Elements["\"EnterTabButton3\""];
             m_EnterTabBtn3.OnButtonClicked += EnterTabBtn3_OnButtonClicked;
+            m_EnterTabBtn3.Enabled = (m_Avatars.Count > 0) ? true : false;
 
             m_DescriptionTabBtn1 = (UIButton)m_Elements["\"DescriptionTabButton1\""];
             m_DescriptionTabBtn1.OnButtonClicked += DescriptionTabBtn1_OnButtonClicked;
+            m_DescriptionTabBtn1.Enabled = (m_Avatars.Count > 0) ? true : false; 
             m_DescriptionTabBtn2 = (UIButton)m_Elements["\"DescriptionTabButton2\""];
             m_DescriptionTabBtn2.OnButtonClicked += DescriptionTabBtn2_OnButtonClicked;
+            m_DescriptionTabBtn2.Enabled = (m_Avatars.Count >= 2) ? true : false;
             m_DescriptionTabBtn3 = (UIButton)m_Elements["\"DescriptionTabButton3\""];
             m_DescriptionTabBtn3.OnButtonClicked += DescriptionTabBtn3_OnButtonClicked;
+            m_DescriptionTabBtn3.Enabled = (m_Avatars.Count == 3) ? true : false;
 
             m_AvatarButton1 = (UIButton)m_Elements["\"AvatarButton1\""];
             m_AvatarButton2 = (UIButton)m_Elements["\"AvatarButton2\""];

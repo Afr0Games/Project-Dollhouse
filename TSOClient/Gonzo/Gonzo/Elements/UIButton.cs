@@ -27,6 +27,11 @@ namespace Gonzo.Elements
         private string m_Text;
         private Vector2 m_TextPosition;
 
+        /// <summary>
+        /// Is this button enabled (I.E not greyed out?)
+        /// </summary>
+        public bool Enabled = true;
+
         public bool m_IsButtonClicked = false;
         public event ButtonClickDelegate OnButtonClicked;
 
@@ -265,7 +270,7 @@ namespace Gonzo.Elements
             {
                 if (Input.IsNewPress(MouseButtons.LeftButton))
                 {
-                    if (!m_IsButtonClicked)
+                    if (!m_IsButtonClicked && Enabled)
                     {
                         TextColor = TextColorSelected;
                         m_SourcePosition.X += m_Size.X;
@@ -275,6 +280,8 @@ namespace Gonzo.Elements
 
                         m_IsButtonClicked = true;
                     }
+                    else if(Enabled == false)
+                        m_SourcePosition.X = m_Size.X * 3;
                 }
                 else
                 {
@@ -287,7 +294,7 @@ namespace Gonzo.Elements
                     m_IsButtonClicked = false;
                 }
 
-                if (!m_IsMouseHovering)
+                if (!m_IsMouseHovering && Enabled)
                 {
                     TextColor = TextColorSelected;
                     m_SourcePosition.X -= m_Size.X;
@@ -296,9 +303,14 @@ namespace Gonzo.Elements
             }
             else
             {
-                TextColor = Color.Wheat;
-                m_SourcePosition.X = (m_Size.X * 2);
-                m_IsMouseHovering = false;
+                if (Enabled)
+                {
+                    TextColor = Color.Wheat;
+                    m_SourcePosition.X = (m_Size.X * 2);
+                    m_IsMouseHovering = false;
+                }
+                else
+                    m_SourcePosition.X = (m_Size.X * 3);
             }
         }
 
