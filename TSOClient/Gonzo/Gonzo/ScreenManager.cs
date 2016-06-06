@@ -17,6 +17,11 @@ namespace Gonzo
         private SpriteFont[] m_Fonts;
 
         /// <summary>
+        /// Matrices used by VitaboyScreen to render 3D stuff.
+        /// </summary>
+        public Matrix WorldMatrix, ViewMatrix, ProjectionMatrix;
+
+        /// <summary>
         /// Gets this ScreenManager's GraphicsDevice instance.
         /// </summary>
         public GraphicsDevice Graphics { get { return m_Graphics; } }

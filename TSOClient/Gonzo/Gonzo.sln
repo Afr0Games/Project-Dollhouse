@@ -11,7 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GonzoTest", "GonzoTest\Gonz
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Files", "..\Files\Files\Files.csproj", "{D455ECBE-A8DD-4261-A364-4A74DC5512A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "..\Shared\Shared.csproj", "{E838507C-3CAC-494E-9C23-D3A1C2BDF6A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{E838507C-3CAC-494E-9C23-D3A1C2BDF6A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vitaboy", "..\Vitaboy\Vitaboy\Vitaboy.csproj", "{21AF42A0-012A-4265-B7DF-1CF7588437F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,14 @@ Global
 		{E838507C-3CAC-494E-9C23-D3A1C2BDF6A9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E838507C-3CAC-494E-9C23-D3A1C2BDF6A9}.Release|x86.ActiveCfg = Release|Any CPU
 		{E838507C-3CAC-494E-9C23-D3A1C2BDF6A9}.Release|x86.Build.0 = Release|Any CPU
+		{21AF42A0-012A-4265-B7DF-1CF7588437F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21AF42A0-012A-4265-B7DF-1CF7588437F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21AF42A0-012A-4265-B7DF-1CF7588437F3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{21AF42A0-012A-4265-B7DF-1CF7588437F3}.Debug|x86.Build.0 = Debug|Any CPU
+		{21AF42A0-012A-4265-B7DF-1CF7588437F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21AF42A0-012A-4265-B7DF-1CF7588437F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21AF42A0-012A-4265-B7DF-1CF7588437F3}.Release|x86.ActiveCfg = Release|Any CPU
+		{21AF42A0-012A-4265-B7DF-1CF7588437F3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

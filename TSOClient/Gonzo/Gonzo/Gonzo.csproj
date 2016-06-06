@@ -60,6 +60,7 @@
     <Compile Include="Elements\UIDialog.cs" />
     <Compile Include="Elements\WillWrightDiag.cs" />
     <Compile Include="InputHelper.cs" />
+    <Compile Include="IUIScreen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resolution.cs" />
     <Compile Include="ScreenManager.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="UIScreen.cs" />
     <Compile Include="Elements\UISlider.cs" />
     <Compile Include="Elements\UITextEdit.cs" />
+    <Compile Include="VitaboyScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Other\libs\UIParser\UIParser\UIParser.csproj">
@@ -82,6 +84,10 @@
     <ProjectReference Include="..\..\Files\Files\Files.csproj">
       <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
       <Name>Files</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{e838507c-3cac-494e-9c23-d3a1c2bdf6a9}</Project>
+      <Name>Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

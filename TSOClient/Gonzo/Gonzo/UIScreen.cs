@@ -14,7 +14,11 @@ using Gonzo.Elements;
 
 namespace Gonzo
 {
-    public class UIScreen
+    /// <summary>
+    /// The most basic component of Gonzo. Responsible for drawing, updating and creating UI components.
+    /// UI components are created from UI scripts (*.uis).
+    /// </summary>
+    public class UIScreen : IUIScreen
     {
         private ScreenManager m_Manager;
 
@@ -53,6 +57,15 @@ namespace Gonzo
         /// </summary>
         public SpriteFont Font16px { get { return m_Manager.Font16px; } }
 
+        /// <summary>
+        /// Creates a new UIScreen instance.
+        /// </summary>
+        /// <param name="Manager">A ScreenManager instance.</param>
+        /// <param name="Name">The name of this UIScreen instance.</param>
+        /// <param name="SBatch">A SpriteBatch instance.</param>
+        /// <param name="ScreenPosition">Position of this UIScreen instance.</param>
+        /// <param name="ScreenSize">Size of this UIScreen instance.</param>
+        /// <param name="UIScriptPath">Path of script (*.uis) from which to create UI elements.</param>
         public UIScreen(ScreenManager Manager, string Name, SpriteBatch SBatch, Vector2 ScreenPosition, 
             Vector2 ScreenSize, string UIScriptPath = "")
         {
@@ -100,6 +113,12 @@ namespace Gonzo
             }
         }
 
+        /// <summary>
+        /// Gets a UIImage instance.
+        /// </summary>
+        /// <param name="Name">Name of the UIImage instance to get.</param>
+        /// <param name="Copy">Should this element be deep copied?</param>
+        /// <returns>A shallow or deep copy of the specified UIImage instance.</returns>
         public UIImage GetImage(string Name, bool Copy = false)
         {
             if (Copy)
