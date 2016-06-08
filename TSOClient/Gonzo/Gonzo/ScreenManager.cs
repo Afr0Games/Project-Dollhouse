@@ -16,6 +16,11 @@ namespace Gonzo
         private InputHelper m_Input;
         private SpriteFont[] m_Fonts;
 
+        public GraphicsDevice Device
+        {
+            get { return m_Graphics; }
+        }
+
         /// <summary>
         /// Matrices used by VitaboyScreen to render 3D stuff.
         /// </summary>

@@ -677,6 +677,9 @@ namespace Files.Manager
                             case FAR3TypeIDs.OFT:
                                 AddItem(ID, new Asset(ID, (uint)Data.Length, new Outfit(Data)));
                                 break;
+                            case FAR3TypeIDs.SKEL:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new Skeleton(Data)));
+                                break;
                         }
                     }
 
