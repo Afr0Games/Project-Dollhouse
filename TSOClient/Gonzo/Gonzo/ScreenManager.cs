@@ -68,21 +68,32 @@ namespace Gonzo
 
         public void Update()
         {
-            foreach (UIScreen Screen in m_Screens)
-                Screen.Update(m_Input);
+            for(int i = 0; i < m_Screens.Count; i++)
+                m_Screens[i].Update(m_Input);
         }
 
+        /// <summary>
+        /// Draws 2D scenes.
+        /// </summary>
         public void Draw()
         {
-            foreach (UIScreen Screen in m_Screens)
+            for(int i = 0; i < m_Screens.Count; i++)
             {
-                if(!Screen.IsVitaboyScreen)
-                    Screen.Draw();
+                if(!m_Screens[i].IsVitaboyScreen)
+                    m_Screens[i].Draw();
             }
+        }
 
-            //Vitaboy screens must always be drawn on top!
-            foreach (UIScreen Screen in m_Screens)
-                Screen.Draw();
+        /// <summary>
+        /// Draws Vitaboy scenes (3D).
+        /// </summary>
+        public void Draw3D()
+        {
+            for (int i = 0; i < m_Screens.Count; i++)
+            {
+                if (m_Screens[i].IsVitaboyScreen)
+                    m_Screens[i].Draw();
+            }
         }
     }
 }

@@ -111,6 +111,13 @@ namespace GonzoTest
             m_ScrManager.Draw();
             spriteBatch.End();
 
+            //Reset device to defaults before rendering...
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            m_ScrManager.Draw3D();
+
             HitVM.Step();
 
             base.Draw(gameTime);
