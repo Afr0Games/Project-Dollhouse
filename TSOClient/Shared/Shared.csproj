@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sim.cs" />
+    <Compile Include="UICamera.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Files\Files\Files.csproj">

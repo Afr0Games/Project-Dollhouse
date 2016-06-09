@@ -22,11 +22,6 @@ namespace Gonzo
         }
 
         /// <summary>
-        /// Matrices used by VitaboyScreen to render 3D stuff.
-        /// </summary>
-        public Matrix WorldMatrix, ViewMatrix, ProjectionMatrix;
-
-        /// <summary>
         /// Gets this ScreenManager's GraphicsDevice instance.
         /// </summary>
         public GraphicsDevice Graphics { get { return m_Graphics; } }
@@ -79,6 +74,13 @@ namespace Gonzo
 
         public void Draw()
         {
+            foreach (UIScreen Screen in m_Screens)
+            {
+                if(!Screen.IsVitaboyScreen)
+                    Screen.Draw();
+            }
+
+            //Vitaboy screens must always be drawn on top!
             foreach (UIScreen Screen in m_Screens)
                 Screen.Draw();
         }

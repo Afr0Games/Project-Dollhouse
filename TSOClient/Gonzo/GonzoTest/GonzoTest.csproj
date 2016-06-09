@@ -87,6 +87,10 @@
       <Project>{e838507c-3cac-494e-9c23-d3a1c2bdf6a9}</Project>
       <Name>Shared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Vitaboy\Vitaboy\Vitaboy.csproj">
+      <Project>{21af42a0-012a-4265-b7df-1cf7588437f3}</Project>
+      <Name>Vitaboy</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gonzo\Gonzo.csproj">
       <Project>{0db1f9a2-7c59-443f-ac56-4d395bd9d0f1}</Project>
       <Name>Gonzo</Name>

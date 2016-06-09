@@ -18,7 +18,7 @@ namespace Gonzo
     /// The most basic component of Gonzo. Responsible for drawing, updating and creating UI components.
     /// UI components are created from UI scripts (*.uis).
     /// </summary>
-    public class UIScreen : IUIScreen
+    public class UIScreen
     {
         private ScreenManager m_Manager;
 
@@ -36,6 +36,8 @@ namespace Gonzo
         
         public Vector2 Position;
         private Vector2 m_Size;
+
+        public bool IsVitaboyScreen = false;
         
         /// <summary>
         /// 10px font used to render text by this UIScreen instance.
@@ -66,8 +68,8 @@ namespace Gonzo
         /// <param name="ScreenPosition">Position of this UIScreen instance.</param>
         /// <param name="ScreenSize">Size of this UIScreen instance.</param>
         /// <param name="UIScriptPath">Path of script (*.uis) from which to create UI elements.</param>
-        public UIScreen(ScreenManager Manager, string Name, SpriteBatch SBatch, Vector2 ScreenPosition, 
-            Vector2 ScreenSize, string UIScriptPath = "")
+        public UIScreen(ScreenManager Manager, string Name, SpriteBatch SBatch, 
+            Vector2 ScreenPosition, Vector2 ScreenSize, string UIScriptPath = "")
         {
             m_Manager = Manager;
 

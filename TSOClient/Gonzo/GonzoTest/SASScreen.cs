@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Shared;
 using Gonzo;
 using Gonzo.Elements;
+using Files;
 using Files.Manager;
 using Files.AudioLogic;
+using Vitaboy;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -34,6 +36,17 @@ namespace GonzoTest
             GlobalSettings.Default.StartupPath + "\\" + "gamedata\\uiscripts\\personselection.uis")
         {
             BackgroundImg = (UIImage)m_Elements["\"BackgroundImage\""];
+
+            AdultAvatar Avatar = new AdultAvatar(Manager.Device);
+            m_Avatars.Add(new Sim(Manager.Device, Avatar));
+            m_Avatars[0].ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
+            m_Avatars[0].Head(FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2));
+
+            VitaboyScreen VScreen = new VitaboyScreen(Manager, new Vector2(0, 0),
+                new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight));
+            VScreen.AddSim(m_Avatars[0]);
+
+            Manager.AddScreen(VScreen);
 
             TabBackgroundImg1 = m_Elements["\"TabBackgroundImage1\""].Image;
             TabBackgroundImg2 = m_Elements["\"TabBackgroundImage2\""].Image;
@@ -72,17 +85,23 @@ namespace GonzoTest
 
             m_EnterTabBtn1 = (UIButton)m_Elements["\"EnterTabButton1\""];
             m_EnterTabBtn1.OnButtonClicked += EnterTabBtn1_OnButtonClicked;
+            m_EnterTabBtn1.Enabled = m_Avatars.Count >= 1 ? true : false;
             m_EnterTabBtn2 = (UIButton)m_Elements["\"EnterTabButton2\""];
             m_EnterTabBtn2.OnButtonClicked += EnterTabBtn2_OnButtonClicked;
+            m_EnterTabBtn2.Enabled = m_Avatars.Count >= 2 ? true : false;
             m_EnterTabBtn3 = (UIButton)m_Elements["\"EnterTabButton3\""];
             m_EnterTabBtn3.OnButtonClicked += EnterTabBtn3_OnButtonClicked;
+            m_EnterTabBtn3.Enabled = m_Avatars.Count == 3 ? true : false;
 
             m_DescriptionTabBtn1 = (UIButton)m_Elements["\"DescriptionTabButton1\""];
             m_DescriptionTabBtn1.OnButtonClicked += DescriptionTabBtn1_OnButtonClicked;
+            m_DescriptionTabBtn1.Enabled = m_Avatars.Count >= 1 ? true : false;
             m_DescriptionTabBtn2 = (UIButton)m_Elements["\"DescriptionTabButton2\""];
             m_DescriptionTabBtn2.OnButtonClicked += DescriptionTabBtn2_OnButtonClicked;
+            m_DescriptionTabBtn2.Enabled = m_Avatars.Count >= 2 ? true : false;
             m_DescriptionTabBtn3 = (UIButton)m_Elements["\"DescriptionTabButton3\""];
             m_DescriptionTabBtn3.OnButtonClicked += DescriptionTabBtn3_OnButtonClicked;
+            m_DescriptionTabBtn3.Enabled = m_Avatars.Count == 3 ? true : false;
 
             m_AvatarButton1 = (UIButton)m_Elements["\"AvatarButton1\""];
             m_AvatarButton2 = (UIButton)m_Elements["\"AvatarButton2\""];
@@ -111,9 +130,9 @@ namespace GonzoTest
             m_NewAvatarButton1 = (UIButton)m_Elements["\"NewAvatarButton1\""];
             m_NewAvatarButton1.Visible = m_Avatars.Count >= 1 ? false : true;
             m_NewAvatarButton2 = (UIButton)m_Elements["\"NewAvatarButton2\""];
-            m_NewAvatarButton1.Visible = m_Avatars.Count >= 2 ? false : true;
+            m_NewAvatarButton2.Visible = m_Avatars.Count >= 2 ? false : true;
             m_NewAvatarButton3 = (UIButton)m_Elements["\"NewAvatarButton3\""];
-            m_NewAvatarButton1.Visible = m_Avatars.Count == 3 ? false : true;
+            m_NewAvatarButton3.Visible = m_Avatars.Count == 3 ? false : true;
 
             m_DeleteAvatarButton1 = (UIButton)m_Elements["\"DeleteAvatarButton1\""];
             m_DeleteAvatarButton1.Visible = m_Avatars.Count >= 1 ? true : false;
@@ -123,16 +142,25 @@ namespace GonzoTest
             m_DeleteAvatarButton3.Visible = m_Avatars.Count == 3 ? true : false;
 
             m_PersonDescriptionText1 = (UITextEdit)m_Elements["\"PersonDescriptionText1\""];
+            m_PersonDescriptionText1.Visible = m_Avatars.Count >= 1 ? true : false;
             m_PersonDescriptionText2 = (UITextEdit)m_Elements["\"PersonDescriptionText2\""];
+            m_PersonDescriptionText2.Visible = m_Avatars.Count >= 2 ? true : false;
             m_PersonDescriptionText3 = (UITextEdit)m_Elements["\"PersonDescriptionText3\""];
+            m_PersonDescriptionText3.Visible = m_Avatars.Count == 3 ? true : false;
 
             m_PersonDescriptionScrollUpBtn1 = (UIButton)m_Elements["\"PersonDescriptionScrollUpButton1\""];
+            m_PersonDescriptionScrollUpBtn1.Visible = m_PersonDescriptionText1.Visible ? true : false;
             m_PersonDescriptionScrollUpBtn2 = (UIButton)m_Elements["\"PersonDescriptionScrollUpButton2\""];
+            m_PersonDescriptionScrollUpBtn2.Visible = m_PersonDescriptionText2.Visible ? true : false;
             m_PersonDescriptionScrollUpBtn3 = (UIButton)m_Elements["\"PersonDescriptionScrollUpButton3\""];
+            m_PersonDescriptionScrollUpBtn3.Visible = m_PersonDescriptionText3.Visible ? true : false;
 
             m_PersonDescriptionScrollDownBtn1 = (UIButton)m_Elements["\"PersonDescriptionScrollDownButton1\""];
+            m_PersonDescriptionScrollDownBtn1.Visible = m_PersonDescriptionText1.Visible ? true : false;
             m_PersonDescriptionScrollDownBtn2 = (UIButton)m_Elements["\"PersonDescriptionScrollDownButton2\""];
+            m_PersonDescriptionScrollDownBtn2.Visible = m_PersonDescriptionText2.Visible ? true : false;
             m_PersonDescriptionScrollDownBtn3 = (UIButton)m_Elements["\"PersonDescriptionScrollDownButton3\""];
+            m_PersonDescriptionScrollDownBtn3.Visible = m_PersonDescriptionText3.Visible ? true : false;
 
             m_CreditsButton = (UIButton)m_Elements["\"CreditsButton\""];
         }
