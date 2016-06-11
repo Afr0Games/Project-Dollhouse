@@ -87,7 +87,11 @@ namespace Files.Manager
 
             //Always precompute hashes...
             foreach (string Fle in m_IFFPaths)
+				#if LINUX
+				m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("//", "/"));
+				#else
                 m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
+				#endif
 
             Task LoadTask = new Task(new Action(LoadAllArchives));
             LoadTask.Start();

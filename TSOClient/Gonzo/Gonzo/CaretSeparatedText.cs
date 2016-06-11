@@ -67,9 +67,17 @@ namespace Gonzo
             MatchCollection MC = Regex.Matches(Input, @"[\d]{1,2} ");
 
             if (MC.Count > 0)
+				#if LINUX //Linux font doesn't like special chars...
+				return Input.Remove(0, MC[0].Length).Replace("^", "").Replace("™", "");
+				#else
                 return Input.Remove(0, MC[0].Length).Replace("^", "");
+				#endif
             else
+				#if LINUX
+				return Input.Replace("^", "").Replace("™", "");
+				#else
                 return Input.Replace("^", "");
+				#endif
         }
     }
 }
