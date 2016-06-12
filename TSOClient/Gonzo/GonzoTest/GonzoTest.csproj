@@ -1,10 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A2FBAC52-F351-4DE6-A36F-F19E41EBE041}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -77,24 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Files\Files\Files.csproj">
-      <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
-      <Name>Files</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Shared\Shared.csproj">
-      <Project>{e838507c-3cac-494e-9c23-d3a1c2bdf6a9}</Project>
-      <Name>Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Vitaboy\Vitaboy\Vitaboy.csproj">
-      <Project>{21af42a0-012a-4265-b7df-1cf7588437f3}</Project>
-      <Name>Vitaboy</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Gonzo\Gonzo.csproj">
-      <Project>{0db1f9a2-7c59-443f-ac56-4d395bd9d0f1}</Project>
-      <Name>Gonzo</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

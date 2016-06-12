@@ -87,15 +87,29 @@ namespace Files.Manager
 
             //Always precompute hashes...
             foreach (string Fle in m_IFFPaths)
-				#if LINUX
-				m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("//", "/"));
-				#else
-                m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
-				#endif
+			{
+				if(IsLinux)
+					m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("//", "/"));
+				else
+                	m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
+			}
 
             Task LoadTask = new Task(new Action(LoadAllArchives));
             LoadTask.Start();
         }
+
+		/// <summary>
+		/// Gets a value indicating if platform is linux.
+		/// </summary>
+		/// <value><c>true</c> if is linux; otherwise, <c>false</c>.</value>
+		private static bool IsLinux
+		{
+			get
+			{
+				int p = (int) Environment.OSVersion.Platform;
+				return (p == 4) || (p == 6) || (p == 128);
+			}
+		}
 
         /// <summary>
         /// Loads all archives into memory.

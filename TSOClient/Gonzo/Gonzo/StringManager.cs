@@ -19,14 +19,26 @@ namespace Gonzo
         /// <param name="Language">The language to use, without ".dir" extension.</param>
         public static void Initialize(string Path, string StringDir, string Language)
         {
-            foreach (string CSTPath in GetFileList("*.cst", Path + StringDir + "\\" + Language + ".dir"))
-            {
-                CaretSeparatedText StringTable = new CaretSeparatedText(CSTPath);
-                int ID = int.Parse(System.IO.Path.GetFileName(CSTPath).Split("_".ToCharArray(),
-                    StringSplitOptions.RemoveEmptyEntries)[0]);
+			if (IsLinux)
+			{
+				foreach (string CSTPath in GetFileList("*.cst", Path + StringDir + "/" + Language + ".dir")) {
+					CaretSeparatedText StringTable = new CaretSeparatedText (CSTPath);
+					int ID = int.Parse (System.IO.Path.GetFileName (CSTPath).Split ("_".ToCharArray (),
+						         StringSplitOptions.RemoveEmptyEntries) [0]);
 
-                m_StringTables.Add(ID, StringTable);
-            }
+					m_StringTables.Add (ID, StringTable);
+				}
+			} 
+			else
+			{
+				foreach (string CSTPath in GetFileList("*.cst", Path + StringDir + "\\" + Language + ".dir")) {
+					CaretSeparatedText StringTable = new CaretSeparatedText (CSTPath);
+					int ID = int.Parse (System.IO.Path.GetFileName (CSTPath).Split ("_".ToCharArray (),
+						                    StringSplitOptions.RemoveEmptyEntries) [0]);
+
+					m_StringTables.Add (ID, StringTable);
+				}
+			}
         }
 
         private static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)
@@ -49,5 +61,18 @@ namespace Gonzo
                 }
             }
         }
+
+		/// <summary>
+		/// Gets a value indicating if platform is linux.
+		/// </summary>
+		/// <value><c>true</c> if is linux; otherwise, <c>false</c>.</value>
+		private static bool IsLinux
+		{
+			get
+			{
+				int p = (int) Environment.OSVersion.Platform;
+				return (p == 4) || (p == 6) || (p == 128);
+			}
+		}
     }
 }

@@ -66,18 +66,33 @@ namespace Gonzo
         {
             MatchCollection MC = Regex.Matches(Input, @"[\d]{1,2} ");
 
-            if (MC.Count > 0)
-				#if LINUX //Linux font doesn't like special chars...
-				return Input.Remove(0, MC[0].Length).Replace("^", "").Replace("™", "");
-				#else
-                return Input.Remove(0, MC[0].Length).Replace("^", "");
-				#endif
+			if (MC.Count > 0) 
+			{
+				if(IsLinux) //Linux font doesn't like special chars...
+					return Input.Remove(0, MC[0].Length).Replace("^", "").Replace("™", "");
+				else
+					return Input.Remove (0, MC [0].Length).Replace ("^", "");
+			}
             else
-				#if LINUX
-				return Input.Replace("^", "").Replace("™", "");
-				#else
-                return Input.Replace("^", "");
-				#endif
+			{
+				if(IsLinux)
+					return Input.Replace("^", "").Replace("™", "");
+				else
+                	return Input.Replace("^", "");
+			}
         }
+
+		/// <summary>
+		/// Gets a value indicating if platform is linux.
+		/// </summary>
+		/// <value><c>true</c> if is linux; otherwise, <c>false</c>.</value>
+		private static bool IsLinux
+		{
+			get
+			{
+				int p = (int) Environment.OSVersion.Platform;
+				return (p == 4) || (p == 6) || (p == 128);
+			}
+		}
     }
 }

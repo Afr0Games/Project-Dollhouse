@@ -39,5 +39,54 @@
       <Project>{58FD7FA9-B21B-4E75-BB81-E83CE56EB8FA}</Project>
       <Name>GonzoLinux</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\LinuxShared\LinuxShared.csproj">
+      <Project>{6FC412E7-20FB-48CC-A633-521125DC370E}</Project>
+      <Name>LinuxShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Other\libs\LinuxUIParser\LinuxUIParser.csproj">
+      <Project>{3994A3DE-6AC7-4902-A209-A6E5B5F8E35A}</Project>
+      <Name>LinuxUIParser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LinuxVitaboy\LinuxVitaboy.csproj">
+      <Project>{D8E66EE9-52CC-4126-88E3-9DDC9346B17D}</Project>
+      <Name>LinuxVitaboy</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Game1.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="CreditsScreen.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis">
+      <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\NVorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\OpenTK.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Content\ProjectDollhouse_10px.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\ProjectDollhouse_12px.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\ProjectDollhouse_14px.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\ProjectDollhouse_16px.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\" />
   </ItemGroup>
 </Project>

@@ -109,5 +109,17 @@
       <Project>{D81BC9A3-0A58-404E-8295-A88B0862A57D}</Project>
       <Name>LinuxFiles</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Other\libs\LinuxUIParser\LinuxUIParser.csproj">
+      <Project>{3994A3DE-6AC7-4902-A209-A6E5B5F8E35A}</Project>
+      <Name>LinuxUIParser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LinuxVitaboy\LinuxVitaboy.csproj">
+      <Project>{D8E66EE9-52CC-4126-88E3-9DDC9346B17D}</Project>
+      <Name>LinuxVitaboy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LinuxShared\LinuxShared.csproj">
+      <Project>{6FC412E7-20FB-48CC-A633-521125DC370E}</Project>
+      <Name>LinuxShared</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

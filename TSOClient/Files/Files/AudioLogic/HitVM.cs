@@ -41,33 +41,36 @@ namespace Files.AudioLogic
 
         public HitVM(string StartupDir)
         {
-			#if LINUX
-			Rsc_newmain = new HitResourcegroup(StartupDir + "sounddata/newmain.hit", 
-			StartupDir + "sounddata/eventlist.txt", StartupDir + "sounddata/newmain.hsm");
-			Rsc_relationships = new HitResourcegroup(StartupDir + "sounddata/relationships.hit", 
-			StartupDir + "sounddata/relationships.evt", StartupDir + "sounddata/relationships.hsm");
-			Rsc_tsoep5 = new HitResourcegroup(StartupDir + "sounddata/tsoep5.hit", 
-			StartupDir + "sounddata/tsoep5.evt", StartupDir + "sounddata/tsoep5.hsm");
-			Rsc_tsov2 = new HitResourcegroup(StartupDir + "sounddata/tsov2.hit", 
-			StartupDir + "sounddata/tsov2.evt", "");
-			Rsc_tsov3 = new HitResourcegroup(StartupDir + "sounddata/tsov3.hit",
-			StartupDir + "sounddata/tsov3.evt", StartupDir + "sounddata/tsov3.hsm");
-			Rsc_turkey = new HitResourcegroup(StartupDir + "sounddata/turkey.hit", 
-			StartupDir + "sounddata/turkey.evt", StartupDir + "sounddata/turkey.hsm");
-			#else
-           Rsc_newmain = new HitResourcegroup(StartupDir + "sounddata\\newmain.hit", 
-                StartupDir + "sounddata\\eventlist.txt", StartupDir + "sounddata\\newmain.hsm");
-            Rsc_relationships = new HitResourcegroup(StartupDir + "sounddata\\relationships.hit", 
-                StartupDir + "sounddata\\relationships.evt", StartupDir + "sounddata\\relationships.hsm");
-            Rsc_tsoep5 = new HitResourcegroup(StartupDir + "sounddata\\tsoep5.hit", 
-                StartupDir + "sounddata\\tsoep5.evt", StartupDir + "sounddata\\tsoep5.hsm");
-            Rsc_tsov2 = new HitResourcegroup(StartupDir + "sounddata\\tsov2.hit", 
-                StartupDir + "sounddata\\tsov2.evt", "");
-            Rsc_tsov3 = new HitResourcegroup(StartupDir + "sounddata\\tsov3.hit",
-                StartupDir + "sounddata\\tsov3.evt", StartupDir + "sounddata\\tsov3.hsm");
-            Rsc_turkey = new HitResourcegroup(StartupDir + "sounddata\\turkey.hit", 
-                StartupDir + "sounddata\\turkey.evt", StartupDir + "sounddata\\turkey.hsm");
-			#endif
+			if (IsLinux)
+			{
+				Rsc_newmain = new HitResourcegroup (StartupDir + "sounddata/newmain.hit", 
+					StartupDir + "sounddata/eventlist.txt", StartupDir + "sounddata/newmain.hsm");
+				Rsc_relationships = new HitResourcegroup (StartupDir + "sounddata/relationships.hit", 
+					StartupDir + "sounddata/relationships.evt", StartupDir + "sounddata/relationships.hsm");
+				Rsc_tsoep5 = new HitResourcegroup (StartupDir + "sounddata/tsoep5.hit", 
+					StartupDir + "sounddata/tsoep5.evt", StartupDir + "sounddata/tsoep5.hsm");
+				Rsc_tsov2 = new HitResourcegroup (StartupDir + "sounddata/tsov2.hit", 
+					StartupDir + "sounddata/tsov2.evt", "");
+				Rsc_tsov3 = new HitResourcegroup (StartupDir + "sounddata/tsov3.hit",
+					StartupDir + "sounddata/tsov3.evt", StartupDir + "sounddata/tsov3.hsm");
+				Rsc_turkey = new HitResourcegroup (StartupDir + "sounddata/turkey.hit", 
+					StartupDir + "sounddata/turkey.evt", StartupDir + "sounddata/turkey.hsm");
+			} 
+			else
+			{
+				Rsc_newmain = new HitResourcegroup (StartupDir + "sounddata\\newmain.hit", 
+					StartupDir + "sounddata\\eventlist.txt", StartupDir + "sounddata\\newmain.hsm");
+				Rsc_relationships = new HitResourcegroup (StartupDir + "sounddata\\relationships.hit", 
+					StartupDir + "sounddata\\relationships.evt", StartupDir + "sounddata\\relationships.hsm");
+				Rsc_tsoep5 = new HitResourcegroup (StartupDir + "sounddata\\tsoep5.hit", 
+					StartupDir + "sounddata\\tsoep5.evt", StartupDir + "sounddata\\tsoep5.hsm");
+				Rsc_tsov2 = new HitResourcegroup (StartupDir + "sounddata\\tsov2.hit", 
+					StartupDir + "sounddata\\tsov2.evt", "");
+				Rsc_tsov3 = new HitResourcegroup (StartupDir + "sounddata\\tsov3.hit",
+					StartupDir + "sounddata\\tsov3.evt", StartupDir + "sounddata\\tsov3.hsm");
+				Rsc_turkey = new HitResourcegroup (StartupDir + "sounddata\\turkey.hit", 
+					StartupDir + "sounddata\\turkey.evt", StartupDir + "sounddata\\turkey.hsm");
+			}
 
             RegisterEvent(Rsc_newmain);
             RegisterEvent(Rsc_relationships);
@@ -205,5 +208,18 @@ namespace Files.AudioLogic
                     m_CurrentlyPlayingTracks.Remove(m_CurrentlyPlayingTracks[i]);
             }
         }
+
+		/// <summary>
+		/// Gets a value indicating if platform is linux.
+		/// </summary>
+		/// <value><c>true</c> if is linux; otherwise, <c>false</c>.</value>
+		private static bool IsLinux
+		{
+			get
+			{
+				int p = (int) Environment.OSVersion.Platform;
+				return (p == 4) || (p == 6) || (p == 128);
+			}
+		}
     }
 }
