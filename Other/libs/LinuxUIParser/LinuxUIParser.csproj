@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{3994A3DE-6AC7-4902-A209-A6E5B5F8E35A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>LinuxUIParser</RootNamespace>
+    <AssemblyName>LinuxUIParser</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="..\UIParser\UIParser\ParserState.cs">
+      <Link>ParserState.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\UIGrammar.cs">
+      <Link>UIGrammar.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AddButtonNode.cs">
+      <Link>Nodes\AddButtonNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AddFormatedTextNode.cs">
+      <Link>Nodes\AddFormatedTextNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AddListboxNode.cs">
+      <Link>Nodes\AddListboxNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AddProgressBarNode.cs">
+      <Link>Nodes\AddProgressBarNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AddSliderNode.cs">
+      <Link>Nodes\AddSliderNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AddTextEditNode.cs">
+      <Link>Nodes\AddTextEditNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AddTextNode.cs">
+      <Link>Nodes\AddTextNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AnyAssignment.cs">
+      <Link>Nodes\AnyAssignment.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\ArrayListNode.cs">
+      <Link>Nodes\ArrayListNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\ArrayNode.cs">
+      <Link>Nodes\ArrayNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AssignmentBlockNode.cs">
+      <Link>Nodes\AssignmentBlockNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\AssignmentNode.cs">
+      <Link>Nodes\AssignmentNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\BeginNode.cs">
+      <Link>Nodes\BeginNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\BeginStatementNode.cs">
+      <Link>Nodes\BeginStatementNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\CommaNode.cs">
+      <Link>Nodes\CommaNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\DefineImageNode.cs">
+      <Link>Nodes\DefineImageNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\DefineStringNode.cs">
+      <Link>Nodes\DefineStringNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\EndNode.cs">
+      <Link>Nodes\EndNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\LineContentNode.cs">
+      <Link>Nodes\LineContentNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\NumberValueNode.cs">
+      <Link>Nodes\NumberValueNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\SetControlPropsNode.cs">
+      <Link>Nodes\SetControlPropsNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\SetSharedPropsNode.cs">
+      <Link>Nodes\SetSharedPropsNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\StartStatementNode.cs">
+      <Link>Nodes\StartStatementNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\StringValueNode.cs">
+      <Link>Nodes\StringValueNode.cs</Link>
+    </Compile>
+    <Compile Include="..\UIParser\UIParser\Nodes\UINode.cs">
+      <Link>Nodes\UINode.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Irony">
+      <HintPath>..\..\..\TSOClient\Gonzo\GonzoLinuxTest\packages\Irony.0.9.1\lib\net40\Irony.dll</HintPath>
+    </Reference>
+    <Reference Include="Irony.Interpreter">
+      <HintPath>..\..\..\TSOClient\Gonzo\GonzoLinuxTest\packages\Irony.Interpreter.0.9.1\lib\net40\Irony.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\TSOClient\Gonzo\GonzoLinuxTest\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis">
+      <HintPath>..\..\..\TSOClient\Gonzo\GonzoLinuxTest\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\NVorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>..\..\..\TSOClient\Gonzo\GonzoLinuxTest\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
