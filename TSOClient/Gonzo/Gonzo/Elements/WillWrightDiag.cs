@@ -34,8 +34,6 @@ namespace Gonzo.Elements
 
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
-            base.Draw(SBatch, LayerDepth);
-
             float Depth;
             if (LayerDepth != null)
                 Depth = (float)LayerDepth;
@@ -45,6 +43,8 @@ namespace Gonzo.Elements
             if (IsDrawn)
                 SBatch.Draw(m_WillWrightImg.Texture, m_WillWrightImg.Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, null, 
                     Color.White, SpriteEffects.None, Depth);
+
+            base.Draw(SBatch, LayerDepth);
         }
     }
 }

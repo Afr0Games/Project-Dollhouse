@@ -39,6 +39,7 @@ namespace GonzoTest
 
             m_WillWrightDiag = new WillWrightDiag(WillImage, this, new Vector2(100, 100));
             m_WillWrightDiag.IsDrawn = false;
+            m_Elements.Add("WillWrightDiag", m_WillWrightDiag);
 
             m_Credits = FileManager.GetIFF("credits.iff");
             m_CreditsArea = (UIControl)m_Controls["\"CreditsArea\""];
@@ -77,7 +78,6 @@ namespace GonzoTest
             BackgroundImg.Draw(m_SBatch, null, 0.0f);
             TSOLogoImage.Draw(m_SBatch, null, 0.0f);
             BackButtonIndentImage.Draw(m_SBatch, null, 0.0f);
-            m_WillWrightDiag.Draw(m_SBatch, 0.10f);
 
             float Separation = 1.0f;
 

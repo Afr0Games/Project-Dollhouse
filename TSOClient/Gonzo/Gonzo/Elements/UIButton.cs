@@ -323,7 +323,7 @@ namespace Gonzo.Elements
                 if (LayerDepth != null)
                     Depth = (float)LayerDepth;
                 else
-                    Depth = 0.0f;
+                    Depth = 0.9f; //Buttons are always drawn on top.
 
                 if (Image != null && Image.Loaded)
                 {

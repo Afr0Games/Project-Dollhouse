@@ -9,6 +9,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gonzo.Elements
 {
+    public enum LayerDepth
+    {
+        Default,
+        ImageLayer,
+        ButtonLayer,
+        DialogLayer
+    }
+
     /// <summary>
     /// UIElement is the base class for all UI related elements (UIButton, UIControl, 
     /// UIDialog, UIImage, UILabel, UISlider, UITextEdit).
@@ -63,6 +71,28 @@ namespace Gonzo.Elements
         /// <param name="SourceRect">A source rectangle, for controlling which part of this elenent's texture is drawn.</param>
         /// <param name="LayerDepth">Depth at which to draw, may be null.</param>
         public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect, float? LayerDepth) { }
+
+        /// <summary>
+        /// Gets the value of the corresponding layer depth.
+        /// </summary>
+        /// <param name="Depth">The depth for which to retrieve a value.</param>
+        /// <returns>The value of the specified depth.</returns>
+        public static float GetLayerDepth(LayerDepth Depth)
+        {
+            switch(Depth)
+            {
+                case LayerDepth.Default:
+                    return 0.0f;
+                case LayerDepth.ImageLayer:
+                    return 0.8f;
+                case LayerDepth.ButtonLayer:
+                    return 0.9f;
+                case LayerDepth.DialogLayer:
+                    return 0.10f;
+                default:
+                    return 0.0f;
+            }
+        }
 
         public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null)
         {

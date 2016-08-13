@@ -53,12 +53,18 @@ namespace GonzoTest
             TabBackgroundImg3 = m_Elements["\"TabBackgroundImage3\""].Image;
 
             DescriptionTabBackgroundImg1 = m_Elements["\"DescriptionTabBackgroundImage1\""].Image;
+            DescriptionTabBackgroundImg1.Visible = m_Avatars.Count >= 1 ? true : false;
             DescriptionTabBackgroundImg2 = m_Elements["\"DescriptionTabBackgroundImage2\""].Image;
+            DescriptionTabBackgroundImg2.Visible = m_Avatars.Count >= 2 ? true : false;
             DescriptionTabBackgroundImg3 = m_Elements["\"DescriptionTabBackgroundImage3\""].Image;
+            DescriptionTabBackgroundImg3.Visible = m_Avatars.Count == 3 ? true : false;
 
             DescriptionTabImage1 = m_Elements["\"DescriptionTabImage1\""].Image;
+            DescriptionTabImage1.Visible = m_Avatars.Count >= 1 ? true : false;
             DescriptionTabImage2 = m_Elements["\"DescriptionTabImage2\""].Image;
+            DescriptionTabImage2.Visible = m_Avatars.Count >= 2 ? true : false;
             DescriptionTabImage3 = m_Elements["\"DescriptionTabImage3\""].Image;
+            DescriptionTabImage3.Visible = m_Avatars.Count == 3 ? true : false;
 
             EnterTabImage1 = m_Elements["\"EnterTabImage1\""].Image;
             EnterTabImage1.Visible = false;
@@ -257,8 +263,8 @@ namespace GonzoTest
         {
             if (m_Avatars.Count < 2)
             {
-                m_HouseButton3.Visible = false;
-                m_CityButton3.Visible = false;
+                m_HouseButton2.Visible = false;
+                m_CityButton2.Visible = false;
             }
             else
             {

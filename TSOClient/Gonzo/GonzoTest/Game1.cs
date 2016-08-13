@@ -103,10 +103,9 @@ namespace GonzoTest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
             Resolution.BeginDraw();
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, DepthStencilState.Default, 
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
                 RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
             m_ScrManager.Draw();
             spriteBatch.End();
@@ -116,6 +115,8 @@ namespace GonzoTest
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            GraphicsDevice.Viewport = new Viewport(0, 0, GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight);
+            GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 0.5f, 1);
             m_ScrManager.Draw3D();
 
             HitVM.Step();

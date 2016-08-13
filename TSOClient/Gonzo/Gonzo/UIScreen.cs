@@ -149,7 +149,14 @@ namespace Gonzo
             {
                 try
                 {
-                    KVP.Value.Draw(m_SBatch, 0.0f);
+                    if (KVP.Value is UIDialog || KVP.Value is WillWrightDiag)
+                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.DialogLayer));
+                    else if (KVP.Value is UIButton)
+                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ButtonLayer));
+                    else if (KVP.Value is UIImage)
+                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ImageLayer));
+                    else
+                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.Default));
                 }
                 catch(Exception)
                 {
