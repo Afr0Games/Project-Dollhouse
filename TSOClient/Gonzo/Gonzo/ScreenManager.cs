@@ -27,24 +27,29 @@ namespace Gonzo
         public GraphicsDevice Graphics { get { return m_Graphics; } }
 
         /// <summary>
+        /// The 9px by 9px font for this ScreenManager instance.
+        /// </summary>
+        public SpriteFont Font9px { get { return m_Fonts[0]; } }
+
+        /// <summary>
         /// The 10px by 10px font for this ScreenManager instance.
         /// </summary>
-        public SpriteFont Font10px { get { return m_Fonts[0]; } }
+        public SpriteFont Font10px { get { return m_Fonts[1]; } }
 
         /// <summary>
         /// The 12px by 12px font for this ScreenManager instance.
         /// </summary>
-        public SpriteFont Font12px { get { return m_Fonts[1]; } }
+        public SpriteFont Font12px { get { return m_Fonts[2]; } }
 
         /// <summary>
         /// The 14px by 14px font for this ScreenManager instance.
         /// </summary>
-        public SpriteFont Font14px { get { return m_Fonts[2]; } }
+        public SpriteFont Font14px { get { return m_Fonts[3]; } }
 
         /// <summary>
         /// The 16px by 16px font for this ScreenManager instance.
         /// </summary>
-        public SpriteFont Font16px { get { return m_Fonts[3]; } }
+        public SpriteFont Font16px { get { return m_Fonts[4]; } }
 
         /// <summary>
         /// Constructs a new ScreenManager instance.

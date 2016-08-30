@@ -64,7 +64,6 @@
     <Compile Include="Resolution.cs" />
     <Compile Include="ScreenManager.cs" />
     <Compile Include="StringManager.cs" />
-    <Compile Include="TextureUtils.cs" />
     <Compile Include="Elements\UIButton.cs" />
     <Compile Include="Elements\UIControl.cs" />
     <Compile Include="Elements\UIElement.cs" />

@@ -38,7 +38,12 @@ namespace Gonzo
         private Vector2 m_Size;
 
         public bool IsVitaboyScreen = false;
-        
+
+        /// <summary>
+        /// 9px font used to render text by this UIScreen instance.
+        /// </summary>
+        public SpriteFont Font9px { get { return m_Manager.Font9px; } }
+
         /// <summary>
         /// 10px font used to render text by this UIScreen instance.
         /// </summary>
@@ -297,6 +302,7 @@ namespace Gonzo
                 case NodeType.End:
                     State.InSharedPropertiesGroup = false;
                     State.Image = ""; //Reset
+                    State.TextButton = false; //Reset 
                     //TODO: Reset more?
                     break;
             }

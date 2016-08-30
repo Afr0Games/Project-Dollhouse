@@ -16,7 +16,7 @@ namespace GonzoTest
         SpriteBatch spriteBatch;
         private HitVM SoundManager;
         private ScreenManager m_ScrManager;
-        private SpriteFont[] m_Fonts = new SpriteFont[4];
+        private SpriteFont[] m_Fonts = new SpriteFont[5];
         private InputHelper m_Input = new InputHelper();
 
         public Game1()
@@ -59,10 +59,11 @@ namespace GonzoTest
             FileManager.OnHundredPercentCompleted += FileManager_OnHundredPercentCompleted;
             FileManager.Initialize(this, GlobalSettings.Default.StartupPath);
 
-            m_Fonts[0] = Content.Load<SpriteFont>("ProjectDollhouse_10px");
-            m_Fonts[1] = Content.Load<SpriteFont>("ProjectDollhouse_12px");
-            m_Fonts[2] = Content.Load<SpriteFont>("ProjectDollhouse_14px");
-            m_Fonts[3] = Content.Load<SpriteFont>("ProjectDollhouse_16px");
+            m_Fonts[0] = Content.Load<SpriteFont>("ProjectDollhouse_9px");
+            m_Fonts[1] = Content.Load<SpriteFont>("ProjectDollhouse_10px");
+            m_Fonts[2] = Content.Load<SpriteFont>("ProjectDollhouse_12px");
+            m_Fonts[3] = Content.Load<SpriteFont>("ProjectDollhouse_14px");
+            m_Fonts[4] = Content.Load<SpriteFont>("ProjectDollhouse_16px");
             m_ScrManager = new ScreenManager(GraphicsDevice, m_Fonts, m_Input);
         }
 

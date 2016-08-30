@@ -21,7 +21,7 @@ using System.Security.AccessControl;
 
 namespace Files
 {
-    public class FileReader
+    public class FileReader : IDisposable
     {
         private BinaryReader m_Reader;
         private bool m_IsBigEndian = false;
@@ -320,6 +320,11 @@ namespace Files
         /// Closes this FileReader instance.
         /// </summary>
         public void Close()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
         {
             m_Reader.Dispose();
         }

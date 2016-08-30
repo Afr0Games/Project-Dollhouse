@@ -90,6 +90,9 @@
     <None Include="Content\ProjectDollhouse_16px.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\ProjectDollhouse_9px.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="GlobalSettings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>GlobalSettings.Designer.cs</LastGenOutput>

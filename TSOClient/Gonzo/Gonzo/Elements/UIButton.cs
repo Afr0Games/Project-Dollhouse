@@ -26,6 +26,7 @@ namespace Gonzo.Elements
         private bool m_IsTextButton = false;
         private string m_Text;
         private Vector2 m_TextPosition;
+        private float m_XScale = 1.0f; //Used to scale buttons to fit text.
 
         /// <summary>
         /// Is this button enabled (I.E not greyed out?)
@@ -46,6 +47,7 @@ namespace Gonzo.Elements
                 if (Node.Image != null)
                 {
                     Image = m_Screen.GetImage(Node.Image, false);
+                    //Initialize to second frame in the image.
                     m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
 
                     m_Size = new Vector2();
@@ -57,6 +59,7 @@ namespace Gonzo.Elements
                 else
                 {
                     Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                    //Initialize to second frame in the image.
                     m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
                     m_Size = new Vector2();
@@ -71,10 +74,11 @@ namespace Gonzo.Elements
                 if (State.Image != "")
                 {
                     Image = m_Screen.GetImage(State.Image, true);
+                    //Initialize to second frame in the image.
                     m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
                     m_Size = new Vector2();
-                    m_Size.X = (Image.Texture.Width) / (4);
+                    m_Size.X = Image.Texture.Width / 4;
                     m_Size.Y = Image.Texture.Height;
 
                     Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
@@ -86,10 +90,11 @@ namespace Gonzo.Elements
                         m_Text = State.Caption;
                         //Text buttons always use this image.
                         Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                        //Initialize to second frame in the image.
                         m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
                         m_Size = new Vector2();
-                        m_Size.X = (Image.Texture.Width) / (4);
+                        m_Size.X = Image.Texture.Width / 4;
                         m_Size.Y = Image.Texture.Height;
                     }
 
@@ -109,6 +114,9 @@ namespace Gonzo.Elements
 
                 switch (FontSize)
                 {
+                    case 9:
+                        m_Font = Screen.Font9px;
+                        break;
                     case 10:
                         m_Font = Screen.Font10px;
                         break;
@@ -123,8 +131,30 @@ namespace Gonzo.Elements
                         break;
                 }
             }
-            else
-                m_Font = Screen.Font12px;
+            else if(State.Font != 0)
+            {
+                switch (State.Font)
+                {
+                    case 9:
+                        m_Font = Screen.Font9px;
+                        break;
+                    case 10:
+                        m_Font = Screen.Font10px;
+                        break;
+                    case 12:
+                        m_Font = Screen.Font12px;
+                        break;
+                    case 14:
+                        m_Font = Screen.Font14px;
+                        break;
+                    case 16:
+                        m_Font = Screen.Font16px;
+                        break;
+                    default:
+                        m_Font = Screen.Font12px;
+                        break;
+                }
+            }
 
             if (Node.TextColor != null)
             {
@@ -160,19 +190,23 @@ namespace Gonzo.Elements
                 TextColor.B = (byte)Node.TextColorDisabled.Numbers[2];
             }
 
-            if(Node.TextButton != null)
+            if (Node.TextButton != null)
                 m_IsTextButton = (Node.TextButton == 1) ? true : false;
+            else
+                m_IsTextButton = m_IsTextButton = State.TextButton;
+
 
             if (m_IsTextButton)
             {
-                m_Text = m_Screen.GetString(Node.Text);
+                if (Node.Text != string.Empty)
+                    m_Text = m_Screen.GetString(Node.Text);
+                else
+                    m_Text = m_Screen.GetString(State.Caption);
+
                 m_TextPosition = Position;
 
                 if (m_Size.X != 0)
-                {
-                    m_TextPosition.X += (m_Size.X / 2) - (m_Font.MeasureString(m_Text).X / 2);
-                    m_TextPosition.Y += (m_Size.Y / 2) - (m_Font.MeasureString(m_Text).Y / 2);
-                }
+                    ScaleToText();
             }
 
             if (Node.Tooltip != "")
@@ -180,6 +214,23 @@ namespace Gonzo.Elements
 
             if (Node.Tracking != null)
                 Tracking = (int)Node.Tracking;
+        }
+
+        /// <summary>
+        /// Scales a button to the size of the button's text.
+        /// Also repositions a button's text according to the new size.
+        /// </summary>
+        private void ScaleToText()
+        {
+            if (m_Font.MeasureString(m_Text).X > m_Size.X)
+                m_XScale = m_Font.MeasureString(m_Text).X / m_Size.X;
+            else if(m_Font.MeasureString(m_Text).X <= m_Size.X)
+                m_XScale = m_Size.X / m_Font.MeasureString(m_Text).X;
+
+            m_XScale += 0.5f; //Text margin.
+
+            m_TextPosition.X += ((m_Size.X / 2) * m_XScale) - (m_Font.MeasureString(m_Text).X / 2);
+            m_TextPosition.Y += (m_Size.Y / 2) - (m_Font.MeasureString(m_Text).Y / 2);
         }
 
         /// <summary>
@@ -196,16 +247,17 @@ namespace Gonzo.Elements
 
             Image = new UIImage(Tex, Screen, null);
             Image.Position = new Vector2(Pos.X, Pos.Y);
-            m_SourcePosition = new Vector2((Tex.Width / (4)) * 2, 0.0f);
+            //Initialize to second frame in the image.
+            m_SourcePosition = new Vector2((Tex.Width / 4) * 2, 0.0f);
 
             m_Size = new Vector2();
-            m_Size.X = (Tex.Width) / (4);
+            m_Size.X = Tex.Width / 4;
             m_Size.Y = Tex.Height;
         }
 
         public override bool IsMouseOver(InputHelper Input)
         {
-            if (Input.MousePosition.X > Position.X && Input.MousePosition.X <= (Position.X + m_Size.X))
+            if (Input.MousePosition.X > Position.X && Input.MousePosition.X <= (Position.X + (m_Size.X * m_XScale)))
             {
                 if (Input.MousePosition.Y > Position.Y && Input.MousePosition.Y <= (Position.Y + m_Size.Y))
                     return true;
@@ -223,11 +275,16 @@ namespace Gonzo.Elements
         {
             Image = Img;
             Image.Position = Position;
-            m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
             m_Size = new Vector2();
-            m_Size.X = (Image.Texture.Width) / (4);
+            m_Size.X = Image.Texture.Width / 4;
             m_Size.Y = Image.Texture.Height;
+
+            //Initialize to second frame in the image.
+            m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+
+            if (m_Text != null)
+                ScaleToText();
         }
 
         /// <summary>
@@ -318,7 +375,6 @@ namespace Gonzo.Elements
         {
             if (Visible)
             {
-
                 float Depth;
                 if (LayerDepth != null)
                     Depth = (float)LayerDepth;
@@ -327,12 +383,16 @@ namespace Gonzo.Elements
 
                 if (Image != null && Image.Loaded)
                 {
-                    Image.Draw(SBatch, new Rectangle((int)m_SourcePosition.X, (int)m_SourcePosition.Y, (int)m_Size.X,
-                        (int)m_Size.Y), Depth);
+                    Image.Draw(SBatch, new Rectangle((int)m_SourcePosition.X, 
+                        (int)m_SourcePosition.Y, (int)m_Size.X, (int)m_Size.Y), 
+                        Depth, new Vector2(m_XScale, 1.0f));
                 }
 
                 if (m_IsTextButton)
-                    SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextColor);
+                {
+                    SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextColor, 0.0f,
+                        new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
+                }
             }
         }
     }

@@ -90,13 +90,49 @@ namespace Gonzo.Elements
             {
                 if (SourceRect != null)
                 {
-                    SBatch.Draw(Texture, Position, null, SourceRect, new Vector2(0.0f, 0.0f), 0.0f, null, Color.White,
-                        SpriteEffects.None, Depth);
+                    SBatch.Draw(Texture, Position, null, SourceRect, new Vector2(0.0f, 0.0f), 0.0f, 
+                        null,  Color.White, SpriteEffects.None, Depth);
                 }
                 else
                 {
-                    SBatch.Draw(Texture, Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, null, Color.White,
-                        SpriteEffects.None, Depth);
+                    SBatch.Draw(Texture, Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, 
+                        null, Color.White, SpriteEffects.None, Depth);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draws this UIImage to the screen.
+        /// </summary>
+        /// <param name="SBatch">A SpriteBatch instance to draw with.</param>
+        /// <param name="SourceRect">A rectangle controlling which part of the image to draw. May be null.</param>
+        /// <param name="LayerDepth">Depth at which to draw, may be null.</param>
+        /// <param name="ScaleFactor">Scale at which to draw, may be null.</param>
+        public override void Draw(SpriteBatch SBatch, Rectangle? SourceRect, float? LayerDepth, Vector2? ScaleFactor)
+        {
+            float Depth;
+            if (LayerDepth != null)
+                Depth = (float)LayerDepth;
+            else
+                Depth = 0.0f;
+
+            Vector2 Scale;
+            if (ScaleFactor != null)
+                Scale = (Vector2)ScaleFactor;
+            else
+                Scale = new Vector2(1.0f, 1.0f);
+
+            if (Visible)
+            {
+                if (SourceRect != null)
+                {
+                    SBatch.Draw(Texture, Position, null, SourceRect, new Vector2(0.0f, 0.0f), 0.0f,
+                        Scale, Color.White, SpriteEffects.None, Depth);
+                }
+                else
+                {
+                    SBatch.Draw(Texture, Position, null, null, new Vector2(0.0f, 0.0f), 0.0f,
+                        Scale, Color.White, SpriteEffects.None, Depth);
                 }
             }
         }

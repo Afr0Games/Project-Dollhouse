@@ -73,6 +73,15 @@ namespace Gonzo.Elements
         public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect, float? LayerDepth) { }
 
         /// <summary>
+        /// Handles drawing logic for this UIElement.
+        /// </summary>
+        /// <param name="SBatch">A SpriteBatch instance.</param>
+        /// <param name="SourceRect">A source rectangle, for controlling which part of this elenent's texture is drawn.</param>
+        /// <param name="LayerDepth">Depth at which to draw, may be null.</param>
+        /// <param name="ScaleFactor">Scale at which to draw, may be null.</param>
+        public virtual void Draw(SpriteBatch SBatch, Rectangle? SourceRect, float? LayerDepth, Vector2? ScaleFactor) { }
+
+        /// <summary>
         /// Gets the value of the corresponding layer depth.
         /// </summary>
         /// <param name="Depth">The depth for which to retrieve a value.</param>
