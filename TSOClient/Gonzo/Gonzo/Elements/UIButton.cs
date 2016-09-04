@@ -164,31 +164,37 @@ namespace Gonzo.Elements
                 TextColor.B = (byte)Node.TextColor.Numbers[2];
             }
             else
-                TextColor = Color.White;
+                TextColor = State.TextColor;
 
             if (Node.TextColorSelected != null)
             {
-                TextColor = new Color();
+                TextColorSelected = new Color();
                 TextColorSelected.R = (byte)Node.TextColorSelected.Numbers[0];
                 TextColorSelected.G = (byte)Node.TextColorSelected.Numbers[1];
                 TextColorSelected.B = (byte)Node.TextColorSelected.Numbers[2];
             }
+            else
+                TextColorSelected = State.TextColorSelected;
 
             if (Node.TextColorHighlighted != null)
             {
-                TextColor = new Color();
+                TextColorHighlighted = new Color();
                 TextColorHighlighted.R = (byte)Node.TextColorHighlighted.Numbers[0];
                 TextColorHighlighted.G = (byte)Node.TextColorHighlighted.Numbers[1];
                 TextColorHighlighted.B = (byte)Node.TextColorHighlighted.Numbers[2];
             }
+            else
+                TextColorHighlighted = State.TextColorHighlighted;
 
             if (Node.TextColorDisabled != null)
             {
-                TextColor = new Color();
-                TextColor.R = (byte)Node.TextColorDisabled.Numbers[0];
-                TextColor.G = (byte)Node.TextColorDisabled.Numbers[1];
-                TextColor.B = (byte)Node.TextColorDisabled.Numbers[2];
+                TextColorDisabled = new Color();
+                TextColorDisabled.R = (byte)Node.TextColorDisabled.Numbers[0];
+                TextColorDisabled.G = (byte)Node.TextColorDisabled.Numbers[1];
+                TextColorDisabled.B = (byte)Node.TextColorDisabled.Numbers[2];
             }
+            else
+                TextColorDisabled = State.TextColorDisabled;
 
             if (Node.TextButton != null)
                 m_IsTextButton = (Node.TextButton == 1) ? true : false;
@@ -329,7 +335,7 @@ namespace Gonzo.Elements
                 {
                     if (!m_IsButtonClicked && Enabled)
                     {
-                        TextColor = TextColorSelected;
+                        TextDrawingColor = TextColorHighlighted;
                         m_SourcePosition.X += m_Size.X;
 
                         if (OnButtonClicked != null)
@@ -344,7 +350,7 @@ namespace Gonzo.Elements
                 {
                     if (m_IsButtonClicked)
                     {
-                        TextColor = TextColorHighlighted;
+                        TextDrawingColor = TextColorSelected;
                         m_SourcePosition.X -= m_Size.X;
                     }
 
@@ -353,7 +359,7 @@ namespace Gonzo.Elements
 
                 if (!m_IsMouseHovering && Enabled)
                 {
-                    TextColor = TextColorSelected;
+                    TextDrawingColor = TextColorSelected;
                     m_SourcePosition.X -= m_Size.X;
                     m_IsMouseHovering = true;
                 }
@@ -362,7 +368,7 @@ namespace Gonzo.Elements
             {
                 if (Enabled)
                 {
-                    TextColor = Color.Wheat;
+                    TextDrawingColor = TextColor;
                     m_SourcePosition.X = (m_Size.X * 2);
                     m_IsMouseHovering = false;
                 }
@@ -390,7 +396,7 @@ namespace Gonzo.Elements
 
                 if (m_IsTextButton)
                 {
-                    SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextColor, 0.0f,
+                    SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextDrawingColor, 0.0f,
                         new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
                 }
             }

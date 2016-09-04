@@ -162,6 +162,10 @@ namespace UIParser.Nodes
                     TypeOfAssignment = AssignmentType.TextColorSelectedAssignment;
                     Value = (ArrayListNode)nodes[2].ChildNodes[1].AstNode;
                     break;
+                case "textColorHighlighted":
+                    TypeOfAssignment = AssignmentType.TextColorHighlightedAssignment;
+                    Value = (ArrayListNode)nodes[2].ChildNodes[1].AstNode;
+                    break;
                 case "textColorDisabled":
                     TypeOfAssignment = AssignmentType.TextColorDisabledAssignment;
                     Value = (ArrayListNode)nodes[2].ChildNodes[1].AstNode;

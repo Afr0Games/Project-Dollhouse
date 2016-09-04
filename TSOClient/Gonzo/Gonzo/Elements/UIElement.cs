@@ -34,7 +34,9 @@ namespace Gonzo.Elements
 
         private Vector2 m_Position;
 
-        public Color TextColor, TextColorSelected, TextColorHighlighted, TextColorDisabled;
+        //TextDrawingColor stores the color used for drawing (can be any of the following values).
+        public Color TextDrawingColor, TextColor, TextColorSelected, TextColorHighlighted, 
+            TextColorDisabled;
 
         public string Tooltip { get; set; }
         public UIImage Image;

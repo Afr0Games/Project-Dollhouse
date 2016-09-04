@@ -234,6 +234,30 @@ namespace Gonzo
                             SharedPropsNode.Color.Numbers[2]));
                     }
 
+                    if(SharedPropsNode.TextColor != null)
+                    {
+                        State.TextColor = new Color(new Vector3(SharedPropsNode.TextColor.Numbers[0], SharedPropsNode.TextColor.Numbers[1],
+                            SharedPropsNode.TextColor.Numbers[2]));
+                    }
+
+                    if (SharedPropsNode.TextColorSelected != null)
+                    {
+                        State.TextColorSelected = new Color(new Vector3(SharedPropsNode.TextColorSelected.Numbers[0], SharedPropsNode.TextColorSelected.Numbers[1],
+                            SharedPropsNode.TextColorSelected.Numbers[2]));
+                    }
+
+                    if (SharedPropsNode.TextColorHighlighted != null)
+                    {
+                        State.TextColorHighlighted = new Color(new Vector3(SharedPropsNode.TextColorHighlighted.Numbers[0], SharedPropsNode.TextColorHighlighted.Numbers[1],
+                            SharedPropsNode.TextColorHighlighted.Numbers[2]));
+                    }
+
+                    if (SharedPropsNode.TextColorDisabled != null)
+                    {
+                        State.TextColorDisabled = new Color(new Vector3(SharedPropsNode.TextColorDisabled.Numbers[0], SharedPropsNode.TextColorDisabled.Numbers[1],
+                            SharedPropsNode.TextColorDisabled.Numbers[2]));
+                    }
+
                     if (SharedPropsNode.BackColor != null)
                     {
                         State.BackColor = new Color(new Vector3(SharedPropsNode.BackColor.Numbers[0],

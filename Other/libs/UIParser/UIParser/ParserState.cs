@@ -19,6 +19,7 @@ namespace UIParser
         public bool InSharedPropertiesGroup = false;
         public int[] Position = new int[2];
         //Text colors.
+        public Color TextColor, TextColorSelected, TextColorHighlighted, TextColorDisabled;
         public Color Color = Color.AliceBlue, BackColor = Color.AliceBlue, CursorColor = Color.AliceBlue;
         //Text properties.
         public bool TextButton = false;

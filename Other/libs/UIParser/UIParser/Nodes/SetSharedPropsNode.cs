@@ -12,6 +12,10 @@ namespace UIParser.Nodes
         public int? StringTable;
         public ArrayListNode ControlPosition;
         public ArrayListNode Color;
+        public ArrayListNode TextColor;
+        public ArrayListNode TextColorSelected;
+        public ArrayListNode TextColorHighlighted;
+        public ArrayListNode TextColorDisabled;
         public ArrayListNode BackColor;
         public ArrayListNode CursorColor;
         public int? Opaque;
@@ -49,6 +53,18 @@ namespace UIParser.Nodes
                         break;
                     case AssignmentType.ColorAssignment:
                         Color = ANode.Array;
+                        break;
+                    case AssignmentType.TextColorAssignment:
+                        TextColor = ANode.Array;
+                        break;
+                    case AssignmentType.TextColorSelectedAssignment:
+                        TextColorSelected = ANode.Array;
+                        break;
+                    case AssignmentType.TextColorHighlightedAssignment:
+                        TextColorHighlighted = ANode.Array;
+                        break;
+                    case AssignmentType.TextColorDisabledAssignment:
+                        TextColorDisabled = ANode.Array;
                         break;
                     case AssignmentType.BackColorAssignment:
                         BackColor = ANode.Array;
