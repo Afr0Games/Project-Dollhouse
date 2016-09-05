@@ -18,7 +18,8 @@ namespace Shared
 
         private float m_Zoom = 1.0f;
         private Vector3 m_Position = new Vector3(0.0f, 7.0f, -17.0f);
-        private Vector3 m_UpVector = Vector3.Up;
+        //This needs to be down for the camera to be rotated correctly in UI. Not really sure why.
+        private Vector3 m_UpVector = Vector3.Down;
         private Vector3 m_Target = Vector3.Zero;
         private Vector3 m_Translation = Vector3.Zero;
 
@@ -38,7 +39,7 @@ namespace Shared
         }
 
         /// <summary>
-        /// The position used when rendering Vitaboy elements.
+        /// The position of elements in 3D space.
         /// </summary>
         public Vector3 Position
         {
@@ -46,6 +47,20 @@ namespace Shared
             set
             {
                 m_Position = value;
+                CalculateProjection();
+                CalculateView();
+            }
+        }
+
+        /// <summary>
+        /// Camera's rendering origin.
+        /// </summary>
+        public Vector2 Origin
+        {
+            get { return m_ProjectionOrigin; }
+            set
+            {
+                m_ProjectionOrigin = value;
                 CalculateProjection();
                 CalculateView();
             }

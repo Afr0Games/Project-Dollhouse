@@ -117,7 +117,8 @@ namespace GonzoTest
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.Viewport = new Viewport(0, 0, GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight);
-            GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 0.5f, 1);
+            //Note: Depth is the depth at which to render...
+            GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 1.0f, 1);
             m_ScrManager.Draw3D();
 
             HitVM.Step();

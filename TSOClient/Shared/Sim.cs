@@ -15,7 +15,7 @@ namespace Shared
     /// </summary>
     public class Sim
     {
-        private UICamera m_UICamera;
+        public UICamera Camera;
         private AvatarBase m_Avatar;
         public bool HasHouse = false;
         public bool IsChild = false;
@@ -31,7 +31,8 @@ namespace Shared
             IsChild = Child;
             m_Avatar = Avatar;
 
-            m_UICamera = new UICamera(Devc);
+            Camera = new UICamera(Devc);
+            Camera.Position = new Vector3(0.0f, -2.0f, 17.0f);
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Shared
 
         public void Draw()
         {
-            m_Avatar.Render(m_UICamera.View, Matrix.Identity, m_UICamera.Projection);
+            m_Avatar.Render(Camera.View, Matrix.Identity, Camera.Projection);
         }
     }
 }

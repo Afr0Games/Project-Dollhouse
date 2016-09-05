@@ -38,9 +38,9 @@ namespace GonzoTest
             BackgroundImg = (UIImage)m_Elements["\"BackgroundImage\""];
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device);
-            m_Avatars.Add(new Sim(Manager.Device, Avatar));
-            m_Avatars[0].ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
-            m_Avatars[0].Head(FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2));
+            Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
+            Avatar.Head = FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2);
+            AddAvatar(Avatar, 1);
 
             VitaboyScreen VScreen = new VitaboyScreen(Manager, new Vector2(0, 0),
                 new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight));
@@ -169,6 +169,28 @@ namespace GonzoTest
             m_PersonDescriptionScrollDownBtn3.Visible = m_PersonDescriptionText3.Visible ? true : false;
 
             m_CreditsButton = (UIButton)m_Elements["\"CreditsButton\""];
+        }
+
+        /// <summary>
+        /// Adds an avatar to this instance of SASScreen.
+        /// </summary>
+        /// <param name="Avatar">An instance of AdultAvatar. 
+        /// Assumed to already have a head and outfit.</param>
+        /// <param name="ID">ID from 1 - 3, indicates which "box" this avatar will be rendered in.</param>
+        public void AddAvatar(AdultAvatar Avatar, int ID)
+        {
+            switch(ID)
+            {
+                case 1:
+                    if (m_Avatars.Count != 0)
+                        m_Avatars[0] = new Sim(Manager.Device, Avatar);
+                    else
+                        m_Avatars.Add(new Sim(Manager.Device, Avatar));
+
+                    m_Avatars[0].Camera.Origin = new Vector2(175, 100);
+                    m_Avatars[0].Camera.Zoom = 0.7f;
+                    break;
+            }
         }
 
         #region Eventhandlers
