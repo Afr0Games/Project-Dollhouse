@@ -57,7 +57,7 @@ namespace Gonzo.Elements
         /// Handles update logic for this UIElement.
         /// </summary>
         /// <param name="Helper">InputHelper instance for input data.</param>
-        public virtual void Update(InputHelper Helper) { }
+        public virtual void Update(InputHelper Helper, GameTime GTime) { }
 
         /// <summary>
         /// Handles drawing logic for this UIElement.

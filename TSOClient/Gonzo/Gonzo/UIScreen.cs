@@ -140,12 +140,12 @@ namespace Gonzo
             }
         }
 
-        public virtual void Update(InputHelper Input)
+        public virtual void Update(InputHelper Input, GameTime GTime)
         {
             Input.Update();
 
             foreach (KeyValuePair<string, UIElement> KVP in m_Elements)
-                KVP.Value.Update(Input);
+                KVP.Value.Update(Input, GTime);
         }
 
         public virtual void Draw()

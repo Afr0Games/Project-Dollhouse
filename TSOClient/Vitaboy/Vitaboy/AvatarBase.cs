@@ -24,6 +24,10 @@ namespace Vitaboy
         RHand = 3
     }
 
+    /// <summary>
+    /// Class for drawing and updating the meshes that make up an avatar.
+    /// Also responsible for animating an avatar.
+    /// </summary>
     public class AvatarBase
     {
         protected GraphicsDevice m_Devc;
@@ -33,6 +37,52 @@ namespace Vitaboy
         public Texture2D LeftHandTexture, RightHandTexture, BodyTexture, HeadTexture;
         public Anim Animation;
         private float m_AnimationTime = 0.0f;
+
+        public float RotationStartAngle = 0.0f;
+        public float RotationSpeed = new TimeSpan(0, 0, 10).Ticks;
+        public float RotationRange = 40.0f;
+
+        /// <summary>
+        /// Should this avatar be rotated when rendered?
+        /// Used for rendering in UI.
+        /// </summary>
+        public bool ShouldRotate = false;
+
+        private bool m_WorldIsDirty = false;
+        private Matrix m_World;
+        private float m_RotateX = 0.0f, m_RotateY = 0.0f, m_RotateZ = 0.0f;
+        private float m_Scale = 1.0f;
+        private Vector3 m_Position = new Vector3(0.0f, 0.0f, 0.0f);
+
+        /// <summary>
+        /// This avatar's world matrix. Used for rendering.
+        /// </summary>
+        public Matrix WorldMatrix
+        {
+            get
+            {
+                if (m_WorldIsDirty)
+                {
+                    m_World = Matrix.CreateRotationX(m_RotateX) * Matrix.CreateRotationY(m_RotateY) * Matrix.CreateRotationZ(m_RotateZ) * Matrix.CreateScale(m_Scale) * Matrix.CreateTranslation(m_Position);
+                    m_WorldIsDirty = false;
+                }
+
+                return m_World;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the angle (in degrees) of the rotation axis for this Avatar.
+        /// </summary>
+        public float RotationY
+        {
+            get { return m_RotateY; }
+            set
+            {
+                m_RotateY = value;
+                m_WorldIsDirty = true;
+            }
+        }
 
         /// <summary>
         /// Changes this avatar's outfit.
@@ -133,6 +183,9 @@ namespace Vitaboy
             }
         }
 
+        /// <summary>
+        /// Sets this avatar's head appearance.
+        /// </summary>
         public Appearance Head
         {
             set
@@ -144,6 +197,11 @@ namespace Vitaboy
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of AvatarBase.
+        /// </summary>
+        /// <param name="Devc">A GraphicsDevice instance.</param>
+        /// <param name="Skel">A Skeleton instance.</param>
         public AvatarBase(GraphicsDevice Devc, Skeleton Skel)
         {
             m_Devc = Devc;
@@ -154,6 +212,39 @@ namespace Vitaboy
             m_LeftHandEffect = new BasicEffect(Devc);
         }
 
+        /// <summary>
+        /// Converts an angle given in degrees to radians.
+        /// </summary>
+        /// <param name="Angle">The angle to convert.</param>
+        /// <returns>The angle in radians.</returns>
+        private double DegreesToRadians(double Angle)
+        {
+            return (Math.PI / 180) * Angle;
+        }
+
+        /// <summary>
+        /// Updates this avatar's rotation.
+        /// </summary>
+        /// <param name="GTime">A GameTime instance.</param>
+        public void Update(GameTime GTime)
+        {
+            if (ShouldRotate)
+            {
+                float Time = GTime.TotalGameTime.Ticks;
+                float Phase = (Time % RotationSpeed) / RotationSpeed;
+                double Multiplier = Math.Sin((Math.PI * 2) * Phase);
+                double NewAngle = RotationStartAngle + (RotationRange * Multiplier);
+
+                RotationY = (float)DegreesToRadians(NewAngle);
+            }
+        }
+
+        /// <summary>
+        /// Renders the different meshes making up this avatar.
+        /// </summary>
+        /// <param name="ViewMatrix">A view matrix.</param>
+        /// <param name="WorldMatrix">A world matrix.</param>
+        /// <param name="ProjectionMatrix">A projection matrix.</param>
         public void Render(Matrix ViewMatrix, Matrix WorldMatrix, Matrix ProjectionMatrix)
         {
             //This sets DepthBufferEnable and DepthBufferWriteEnable.

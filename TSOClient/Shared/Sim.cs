@@ -36,6 +36,16 @@ namespace Shared
         }
 
         /// <summary>
+        /// Should this sim be rotated when rendered?
+        /// Used for rendering in UI.
+        /// </summary>
+        public bool ShouldRotate
+        {
+            get{ return m_Avatar.ShouldRotate; }
+            set { m_Avatar.ShouldRotate = value; }
+        }
+
+        /// <summary>
         /// Sets the animation for this Sim.
         /// </summary>
         /// <param name="Animation">The animation to play.</param>
@@ -63,18 +73,24 @@ namespace Shared
             m_Avatar.Head = Head;
         }
 
-        public void Update()
+        /// <summary>
+        /// Updates this Sim, which includes advancing the current animation frame, 
+        /// computing bone positions and updating the avatar's position.
+        /// </summary>
+        /// <param name="GTime">A GameTime instance.</param>
+        public void Update(GameTime GTime)
         {
             if(m_Avatar.Animation != null)
                 m_Avatar.AdvanceFrame(m_Avatar.Animation, 0.03f);
 
-            //TODO: Change from Matrix.Identity??
-            m_Avatar.ComputeBonePositions(m_Avatar.Skel.RootBone, Matrix.Identity);
+            m_Avatar.ComputeBonePositions(m_Avatar.Skel.RootBone, m_Avatar.WorldMatrix);
+
+            m_Avatar.Update(GTime);
         }
 
         public void Draw()
         {
-            m_Avatar.Render(Camera.View, Matrix.Identity, Camera.Projection);
+            m_Avatar.Render(Camera.View, m_Avatar.WorldMatrix, Camera.Projection);
         }
     }
 }

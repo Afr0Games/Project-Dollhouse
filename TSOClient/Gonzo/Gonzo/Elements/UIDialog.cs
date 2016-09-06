@@ -93,7 +93,7 @@ namespace Gonzo.Elements
             Image.SetSize(Width, Height);
         }
 
-        public override void Update(InputHelper Helper)
+        public override void Update(InputHelper Helper, GameTime GTime)
         {
             if (IsDrawn)
             {
@@ -116,7 +116,7 @@ namespace Gonzo.Elements
                     this.MouseEvents(Helper);
                 }
 
-                m_CloseButton.Update(Helper);
+                m_CloseButton.Update(Helper, GTime);
             }
         }
 

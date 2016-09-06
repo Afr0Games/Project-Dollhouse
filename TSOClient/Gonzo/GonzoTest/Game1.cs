@@ -93,7 +93,7 @@ namespace GonzoTest
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            m_ScrManager.Update();
+            m_ScrManager.Update(gameTime);
 
             base.Update(gameTime);
         }

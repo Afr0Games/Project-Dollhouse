@@ -21,7 +21,7 @@ namespace Gonzo.Elements
             CenterAround(m_WillWrightImg, -22, -42);
         }
 
-        public override void Update(InputHelper Helper)
+        public override void Update(InputHelper Helper, GameTime GTime)
         {
             if (IsDrawn)
             {
@@ -29,7 +29,7 @@ namespace Gonzo.Elements
                     m_WillWrightImg.Position = Position - new Vector2(-22, -42);
             }
 
-            base.Update(Helper);
+            base.Update(Helper, GTime);
         }
 
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)

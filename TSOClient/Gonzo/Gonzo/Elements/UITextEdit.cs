@@ -199,7 +199,7 @@ namespace Gonzo.Elements
             }
         }
 
-        public override void Update(InputHelper Input)
+        public override void Update(InputHelper Input, GameTime GTime)
         {
             if (m_Mode == TextEditMode.Insert)
             {

@@ -46,10 +46,10 @@ namespace Gonzo
         /// Updates all the Vitaboy elements in this VitaboyScreen instance.
         /// </summary>
         /// <param name="Input"></param>
-        public override void Update(InputHelper Input)
+        public override void Update(InputHelper Input, GameTime GTime)
         {
             foreach (Sim S in m_Avatars)
-                S.Update();
+                S.Update(GTime);
         }
 
         /// <summary>

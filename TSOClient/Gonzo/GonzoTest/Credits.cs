@@ -66,11 +66,11 @@ namespace GonzoTest
             m_WillWrightDiag.IsDrawn = true;
         }
 
-        public override void Update(InputHelper Input)
+        public override void Update(InputHelper Input, GameTime GTime)
         {
-            m_WillWrightDiag.Update(Input);
+            m_WillWrightDiag.Update(Input, GTime);
 
-            base.Update(Input);
+            base.Update(Input, GTime);
         }
 
         public override void Draw()

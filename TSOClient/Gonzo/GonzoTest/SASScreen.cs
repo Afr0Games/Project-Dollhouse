@@ -187,6 +187,7 @@ namespace GonzoTest
                     else
                         m_Avatars.Add(new Sim(Manager.Device, Avatar));
 
+                    m_Avatars[0].ShouldRotate = true;
                     m_Avatars[0].Camera.Origin = new Vector2(175, 100);
                     m_Avatars[0].Camera.Zoom = 0.7f;
                     break;
@@ -341,9 +342,9 @@ namespace GonzoTest
 
         #endregion
 
-        public override void Update(InputHelper Input)
+        public override void Update(InputHelper Input, GameTime GTime)
         {
-            base.Update(Input);
+            base.Update(Input, GTime);
         }
 
         public override void Draw()

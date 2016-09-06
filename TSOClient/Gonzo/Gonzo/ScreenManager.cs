@@ -71,10 +71,10 @@ namespace Gonzo
             m_Screens.Add(Screen);
         }
 
-        public void Update()
+        public void Update(GameTime GTime)
         {
             for(int i = 0; i < m_Screens.Count; i++)
-                m_Screens[i].Update(m_Input);
+                m_Screens[i].Update(m_Input, GTime);
         }
 
         /// <summary>

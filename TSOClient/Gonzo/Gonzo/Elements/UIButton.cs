@@ -327,7 +327,7 @@ namespace Gonzo.Elements
                                             thicknessOfBorder), borderColor);
         }
 
-        public override void Update(InputHelper Input)
+        public override void Update(InputHelper Input, GameTime GTime)
         {
             if(IsMouseOver(Input) || PixelCheck(Input, (int)m_Size.X))
             {
