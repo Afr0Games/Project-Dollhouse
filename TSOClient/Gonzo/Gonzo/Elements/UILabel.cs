@@ -20,18 +20,29 @@ namespace Gonzo.Elements
             m_ID = Node.ID;
             Position = new Vector2(Node.TextPosition.Numbers[0], Node.TextPosition.Numbers[1]) + Screen.Position;
 
-            if (State.InSharedPropertiesGroup)
-                m_Size = State.Size;
-            else
+            if (Node.Size != null)
                 m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]);
-
-            if (State.InSharedPropertiesGroup)
-                m_TextColor = State.Color;
             else
-                m_TextColor = Color.FromNonPremultiplied(Node.Color.Numbers[0], Node.Color.Numbers[1], 
-                Node.Color.Numbers[2], 255);
+                m_Size = State.Size;
 
-            m_Alignment = Node.Alignment;
+            if (Node.Color != null)
+            {
+                m_TextColor = new Color();
+                m_TextColor.A = 255; //Ignore opacity, The Sims Online doesn't support transparent text.
+                m_TextColor.R = (byte)Node.Color.Numbers[0];
+                m_TextColor.G = (byte)Node.Color.Numbers[1];
+                m_TextColor.B = (byte)Node.Color.Numbers[2];
+            }
+            else
+            {
+                m_TextColor = State.Color;
+                m_TextColor.A = 255; //Ignore opacity, The Sims Online doesn't support transparent text.
+            }
+
+            if (Node.Alignment != 0)
+                m_Alignment = Node.Alignment;
+            else
+                m_Alignment = (TextAlignment)State.Alignment;
 
             int Font = 0;
             if (Node.Font != null)
@@ -48,7 +59,7 @@ namespace Gonzo.Elements
                         m_Font = Screen.Font10px; //TODO: Fixme.
                     break;
                     case 9:
-                    m_Font = Screen.Font10px; //TODO: Fixme.
+                    m_Font = Screen.Font9px;
                         break;
                     case 10:
                         m_Font = Screen.Font10px;
@@ -67,7 +78,12 @@ namespace Gonzo.Elements
             if (Node.Text != "")
                 Caption = m_Screen.GetString(Node.Text);
             else
-                Caption = State.Caption;
+            {
+                if(State.Caption != "") 
+                    //Sometimes labels will not have pre-defined text, as they will hold text
+                    //generated in-game.
+                    Caption = m_Screen.GetString(State.Caption);
+            }
 
             AlignText();
         }
@@ -113,11 +129,16 @@ namespace Gonzo.Elements
             if (LayerDepth != null)
                 Depth = (float)LayerDepth;
             else
-                Depth = 0.0f;
+                Depth = 1.0f;
 
             if (Caption != "")
-                SBatch.DrawString(m_Font, Caption, Position, m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 0.0f, 
-                    SpriteEffects.None, Depth);
+            {
+                if (Visible)
+                {
+                    SBatch.DrawString(m_Font, Caption, Position, m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f,
+                        SpriteEffects.None, Depth);
+                }
+            }
         }
     }
 }

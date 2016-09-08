@@ -160,6 +160,8 @@ namespace Gonzo
                         KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ButtonLayer));
                     else if (KVP.Value is UIImage)
                         KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ImageLayer));
+                    else if (KVP.Value is UILabel)
+                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.TextLayer));
                     else
                         KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.Default));
                 }
@@ -230,44 +232,58 @@ namespace Gonzo
 
                     if (SharedPropsNode.Color != null)
                     {
-                        State.Color = new Color(new Vector3(SharedPropsNode.Color.Numbers[0], SharedPropsNode.Color.Numbers[1],
-                            SharedPropsNode.Color.Numbers[2]));
+                        State.Color = new Color();
+                        State.Color.R = (byte)SharedPropsNode.Color.Numbers[0];
+                        State.Color.G = (byte)SharedPropsNode.Color.Numbers[1];
+                        State.Color.B = (byte)SharedPropsNode.Color.Numbers[2];
                     }
 
                     if(SharedPropsNode.TextColor != null)
                     {
-                        State.TextColor = new Color(new Vector3(SharedPropsNode.TextColor.Numbers[0], SharedPropsNode.TextColor.Numbers[1],
-                            SharedPropsNode.TextColor.Numbers[2]));
+                        State.TextColor = new Color();
+                        State.TextColor.R = (byte)SharedPropsNode.TextColor.Numbers[0];
+                        State.TextColor.G = (byte)SharedPropsNode.TextColor.Numbers[1];
+                        State.TextColor.B = (byte)SharedPropsNode.TextColor.Numbers[2];
                     }
 
                     if (SharedPropsNode.TextColorSelected != null)
                     {
-                        State.TextColorSelected = new Color(new Vector3(SharedPropsNode.TextColorSelected.Numbers[0], SharedPropsNode.TextColorSelected.Numbers[1],
-                            SharedPropsNode.TextColorSelected.Numbers[2]));
+                        State.TextColorSelected = new Color();
+                        State.TextColorSelected.R = (byte)SharedPropsNode.TextColorSelected.Numbers[0];
+                        State.TextColorSelected.G = (byte)SharedPropsNode.TextColorSelected.Numbers[1];
+                        State.TextColorSelected.B = (byte)SharedPropsNode.TextColorSelected.Numbers[2];
                     }
 
                     if (SharedPropsNode.TextColorHighlighted != null)
                     {
-                        State.TextColorHighlighted = new Color(new Vector3(SharedPropsNode.TextColorHighlighted.Numbers[0], SharedPropsNode.TextColorHighlighted.Numbers[1],
-                            SharedPropsNode.TextColorHighlighted.Numbers[2]));
+                        State.TextColorHighlighted = new Color();
+                        State.TextColorHighlighted.R = (byte)SharedPropsNode.TextColorHighlighted.Numbers[0];
+                        State.TextColorHighlighted.G = (byte)SharedPropsNode.TextColorHighlighted.Numbers[1];
+                        State.TextColorHighlighted.B = (byte)SharedPropsNode.TextColorHighlighted.Numbers[2];
                     }
 
                     if (SharedPropsNode.TextColorDisabled != null)
                     {
-                        State.TextColorDisabled = new Color(new Vector3(SharedPropsNode.TextColorDisabled.Numbers[0], SharedPropsNode.TextColorDisabled.Numbers[1],
-                            SharedPropsNode.TextColorDisabled.Numbers[2]));
+                        State.TextColorDisabled = new Color();
+                        State.TextColorDisabled.R = (byte)SharedPropsNode.TextColorDisabled.Numbers[0];
+                        State.TextColorDisabled.G = (byte)SharedPropsNode.TextColorDisabled.Numbers[1];
+                        State.TextColorDisabled.B = (byte)SharedPropsNode.TextColorDisabled.Numbers[2];
                     }
 
                     if (SharedPropsNode.BackColor != null)
                     {
-                        State.BackColor = new Color(new Vector3(SharedPropsNode.BackColor.Numbers[0],
-                            SharedPropsNode.BackColor.Numbers[1], SharedPropsNode.BackColor.Numbers[2]));
+                        State.BackColor = new Color();
+                        State.BackColor.R = (byte)SharedPropsNode.BackColor.Numbers[0];
+                        State.BackColor.G = (byte)SharedPropsNode.BackColor.Numbers[1];
+                        State.BackColor.B = (byte)SharedPropsNode.BackColor.Numbers[2];
                     }
 
                     if (SharedPropsNode.CursorColor != null)
                     {
-                        State.CursorColor = new Color(new Vector3(SharedPropsNode.CursorColor.Numbers[0],
-                            SharedPropsNode.CursorColor.Numbers[1], SharedPropsNode.CursorColor.Numbers[2]));
+                        State.CursorColor = new Color();
+                        State.CursorColor.R = (byte)SharedPropsNode.CursorColor.Numbers[0];
+                        State.CursorColor.G = (byte)SharedPropsNode.CursorColor.Numbers[1];
+                        State.CursorColor.B = (byte)SharedPropsNode.CursorColor.Numbers[2];
                     }
 
                     if (SharedPropsNode.TextButton)
@@ -300,6 +316,9 @@ namespace Gonzo
                     if (SharedPropsNode.Font != null)
                         State.Font = (int)SharedPropsNode.Font;
 
+                    if (SharedPropsNode.Opaque != null)
+                        State.Opaque = (int)SharedPropsNode.Opaque;
+
                     break;
                 case NodeType.SetControlProperties: //Sets a bunch of properties to a specified control.
                     SetControlPropsNode ControlPropsNode = (SetControlPropsNode)UINode.GetNode(node);
@@ -327,6 +346,8 @@ namespace Gonzo
                     State.InSharedPropertiesGroup = false;
                     State.Image = ""; //Reset
                     State.TextButton = false; //Reset 
+                    State.Color = new Color();
+                    State.Caption = "";
                     //TODO: Reset more?
                     break;
             }

@@ -14,7 +14,8 @@ namespace Gonzo.Elements
         Default,
         ImageLayer,
         ButtonLayer,
-        DialogLayer
+        DialogLayer,
+        TextLayer
     }
 
     /// <summary>
@@ -100,6 +101,8 @@ namespace Gonzo.Elements
                     return 0.9f;
                 case LayerDepth.DialogLayer:
                     return 0.10f;
+                case LayerDepth.TextLayer:
+                    return 0.11f;
                 default:
                     return 0.0f;
             }

@@ -118,6 +118,9 @@ namespace UIParser.Nodes
                     case AssignmentType.FontAssignment:
                         Font = ANode.NumberValue;
                         break;
+                    case AssignmentType.OpaqueAssignment:
+                        Opaque = ANode.NumberValue;
+                        break;
                 }
             }
 

@@ -159,42 +159,58 @@ namespace Gonzo.Elements
             if (Node.TextColor != null)
             {
                 TextColor = new Color();
+                TextColor.A = 255;
                 TextColor.R = (byte)Node.TextColor.Numbers[0];
                 TextColor.G = (byte)Node.TextColor.Numbers[1];
                 TextColor.B = (byte)Node.TextColor.Numbers[2];
             }
             else
+            {
                 TextColor = State.TextColor;
+                TextColor.A = 255;
+            }
 
             if (Node.TextColorSelected != null)
             {
                 TextColorSelected = new Color();
+                TextColorSelected.A = 255;
                 TextColorSelected.R = (byte)Node.TextColorSelected.Numbers[0];
                 TextColorSelected.G = (byte)Node.TextColorSelected.Numbers[1];
                 TextColorSelected.B = (byte)Node.TextColorSelected.Numbers[2];
             }
             else
+            {
                 TextColorSelected = State.TextColorSelected;
+                TextColorSelected.A = 255;
+            }
 
             if (Node.TextColorHighlighted != null)
             {
                 TextColorHighlighted = new Color();
+                TextColorHighlighted.A = 255;
                 TextColorHighlighted.R = (byte)Node.TextColorHighlighted.Numbers[0];
                 TextColorHighlighted.G = (byte)Node.TextColorHighlighted.Numbers[1];
                 TextColorHighlighted.B = (byte)Node.TextColorHighlighted.Numbers[2];
             }
             else
+            {
                 TextColorHighlighted = State.TextColorHighlighted;
+                TextColorHighlighted.A = 255;
+            }
 
             if (Node.TextColorDisabled != null)
             {
                 TextColorDisabled = new Color();
+                TextColorDisabled.A = 255;
                 TextColorDisabled.R = (byte)Node.TextColorDisabled.Numbers[0];
                 TextColorDisabled.G = (byte)Node.TextColorDisabled.Numbers[1];
                 TextColorDisabled.B = (byte)Node.TextColorDisabled.Numbers[2];
             }
             else
+            {
                 TextColorDisabled = State.TextColorDisabled;
+                TextColorDisabled.A = 255;
+            }
 
             if (Node.TextButton != null)
                 m_IsTextButton = (Node.TextButton == 1) ? true : false;

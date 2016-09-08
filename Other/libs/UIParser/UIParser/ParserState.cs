@@ -20,7 +20,7 @@ namespace UIParser
         public int[] Position = new int[2];
         //Text colors.
         public Color TextColor, TextColorSelected, TextColorHighlighted, TextColorDisabled;
-        public Color Color = Color.AliceBlue, BackColor = Color.AliceBlue, CursorColor = Color.AliceBlue;
+        public Color Color, BackColor, CursorColor;
         //Text properties.
         public bool TextButton = false;
         public bool IsOpaque = false, IsTransparent = false;
@@ -36,5 +36,7 @@ namespace UIParser
         public int Orientation;
         //Which font is used by a text edit control or label.
         public int Font;
+        //Wether or not a font is opaque (I.E non-translucent).
+        public int Opaque;
     }
 }

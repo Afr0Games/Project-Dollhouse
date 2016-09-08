@@ -28,6 +28,9 @@ namespace GonzoTest
 
         private UITextEdit m_PersonDescriptionText1, m_PersonDescriptionText2, m_PersonDescriptionText3;
 
+        private UILabel m_CityNameText1, m_CityNameText2, m_CityNameText3, 
+            m_HouseNameText1, m_HouseNameText2, m_HouseNameText3;
+
         //TODO: Move this to GameFacade...
         private List<Sim> m_Avatars = new List<Sim>();
 
@@ -167,6 +170,18 @@ namespace GonzoTest
             m_PersonDescriptionScrollDownBtn2.Visible = m_PersonDescriptionText2.Visible ? true : false;
             m_PersonDescriptionScrollDownBtn3 = (UIButton)m_Elements["\"PersonDescriptionScrollDownButton3\""];
             m_PersonDescriptionScrollDownBtn3.Visible = m_PersonDescriptionText3.Visible ? true : false;
+
+            m_CityNameText1 = (UILabel)m_Elements["\"CityNameText1\""];
+            m_CityNameText1.Visible = m_Avatars.Count >= 1 ? true : false;
+            m_CityNameText2 = (UILabel)m_Elements["\"CityNameText2\""];
+            m_CityNameText2.Visible = m_Avatars.Count >= 2 ? true : false;
+            m_CityNameText3 = (UILabel)m_Elements["\"CityNameText3\""];
+            m_CityNameText3.Visible = m_Avatars.Count == 3 ? true : false;
+
+            //TODO: Assign captions to these if a sim has a house...
+            m_HouseNameText1 = (UILabel)m_Elements["\"HouseNameText1\""];
+            m_HouseNameText2 = (UILabel)m_Elements["\"HouseNameText2\""];
+            m_HouseNameText3 = (UILabel)m_Elements["\"HouseNameText3\""];
 
             m_CreditsButton = (UIButton)m_Elements["\"CreditsButton\""];
         }
