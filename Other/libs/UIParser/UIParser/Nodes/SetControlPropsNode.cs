@@ -13,6 +13,11 @@ namespace UIParser.Nodes
         public string Image { get; private set; }
         public int[] PositionAssignment { get; private set; }
         public ArrayListNode Size;
+        public ArrayListNode ThumbSize;
+        public ArrayListNode ThumbMargins;
+        public ArrayListNode ThumbImageSize;
+        public ArrayListNode ThumbImageOffsets;
+        public string ThumbButtonImage;
         public List<AssignmentNode> Assignments = new List<AssignmentNode>();
 
         public override void Accept(IUIVisitor visitor)
@@ -44,6 +49,21 @@ namespace UIParser.Nodes
                         break;
                     case AssignmentType.SizeAssignment:
                         Size = ANode.Array;
+                        break;
+                    case AssignmentType.ThumbSizeAssignment:
+                        ThumbSize = ANode.Array;
+                        break;
+                    case AssignmentType.ThumbMarginsAssignment:
+                        ThumbMargins = ANode.Array;
+                        break;
+                    case AssignmentType.ThumbImageSizeAssignment:
+                        ThumbImageSize = ANode.Array;
+                        break;
+                    case AssignmentType.ThumbImageOffsetsAssignment:
+                        ThumbImageOffsets = ANode.Array;
+                        break;
+                    case AssignmentType.ThumbButtonImageAssignment:
+                        ThumbButtonImage = ANode.StrValue;
                         break;
                 }
             }

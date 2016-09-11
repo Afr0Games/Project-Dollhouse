@@ -38,5 +38,7 @@ namespace UIParser
         public int Font;
         //Wether or not a font is opaque (I.E non-translucent).
         public int Opaque;
+        //Images for navigating a browser control.
+        public string LeftArrowImage, RightArrowImage;
     }
 }

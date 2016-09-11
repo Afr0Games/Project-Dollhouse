@@ -172,11 +172,11 @@ namespace GonzoTest
             m_PersonDescriptionScrollDownBtn3.Visible = m_PersonDescriptionText3.Visible ? true : false;
 
             m_CityNameText1 = (UILabel)m_Elements["\"CityNameText1\""];
-            m_CityNameText1.Visible = m_Avatars.Count >= 1 ? true : false;
+            m_CityNameText1.Visible = false;
             m_CityNameText2 = (UILabel)m_Elements["\"CityNameText2\""];
-            m_CityNameText2.Visible = m_Avatars.Count >= 2 ? true : false;
+            m_CityNameText2.Visible = false;
             m_CityNameText3 = (UILabel)m_Elements["\"CityNameText3\""];
-            m_CityNameText3.Visible = m_Avatars.Count == 3 ? true : false;
+            m_CityNameText3.Visible = false;
 
             //TODO: Assign captions to these if a sim has a house...
             m_HouseNameText1 = (UILabel)m_Elements["\"HouseNameText1\""];
@@ -226,6 +226,8 @@ namespace GonzoTest
             EnterTabImage3.Visible = false;
             EnterTabBackgroundImage3.Visible = false;
 
+            m_CityNameText3.Visible = false;
+
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
         }
@@ -244,6 +246,8 @@ namespace GonzoTest
 
             EnterTabImage2.Visible = false;
             EnterTabBackgroundImage2.Visible = false;
+
+            m_CityNameText2.Visible = false;
 
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
@@ -264,6 +268,8 @@ namespace GonzoTest
             EnterTabImage1.Visible = false;
             EnterTabBackgroundImage1.Visible = false;
 
+            m_CityNameText1.Visible = false;
+
             //HitVM.PlayEvent("ui_nhood_click");
             HitVM.PlayEvent("vox_teasee_giggle");
         }
@@ -281,6 +287,7 @@ namespace GonzoTest
                     m_HouseButton3.Visible = true;
 
                 m_CityButton3.Visible = true;
+                m_CityNameText3.Visible = true;
             }
 
             m_PersonDescriptionText3.Visible = false;
@@ -310,6 +317,7 @@ namespace GonzoTest
                     m_HouseButton2.Visible = true;
 
                 m_CityButton2.Visible = true;
+                m_CityNameText2.Visible = true;
             }
 
             m_PersonDescriptionText2.Visible = false;
@@ -339,6 +347,7 @@ namespace GonzoTest
                     m_HouseButton1.Visible = true;
 
                 m_CityButton1.Visible = true;
+                m_CityNameText1.Visible = true;
             }
 
             m_PersonDescriptionText1.Visible = false;

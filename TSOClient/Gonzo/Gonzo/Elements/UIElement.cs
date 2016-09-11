@@ -51,7 +51,7 @@ namespace Gonzo.Elements
         /// <summary>
         /// Mouse interacted with this UIElement.
         /// </summary>
-        /// <param name="Helper"></param>
+        /// <param name="Helper">InputHelper instance for input data.</param>
         public virtual void MouseEvents(InputHelper Helper) { }
 
         /// <summary>
