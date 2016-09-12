@@ -256,6 +256,21 @@ namespace Files.Manager
         }
 
         /// <summary>
+        /// Gets an PurchasableOutfit instance from the FileManager.
+        /// </summary>
+        /// <param name="AssetID">ID of the outfit to get.</param>
+        /// <returns>An PurchasableOutfit instance.</returns>
+        public static PurchasableOutfit GetPurchasableOutfit(ulong AssetID)
+        {
+            if (m_Assets.ContainsKey(AssetID))
+                return (PurchasableOutfit)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.PO);
+
+            return (PurchasableOutfit)m_Assets[AssetID].AssetData;
+        }
+
+        /// <summary>
         /// Gets an Skeleton instance from the FileManager.
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the skeleton to get.</param>
@@ -328,6 +343,21 @@ namespace Files.Manager
                 Bindings[i] = GetBinding(BindingIDs[i].UniqueID);
 
             return Bindings;
+        }
+
+        /// <summary>
+        /// Gets an Collection instance from the FileManager.
+        /// </summary>
+        /// <param name="AssetID">The FileID/InstanceID of the Collection to get.</param>
+        /// <returns>An Collection instance.</returns>
+        public static Collection GetCollection(ulong AssetID)
+        {
+            if (m_Assets.ContainsKey(AssetID))
+                return (Collection)m_Assets[AssetID].AssetData;
+
+            Stream Data = GrabItem(AssetID, FAR3TypeIDs.COL);
+
+            return (Collection)m_Assets[AssetID].AssetData;
         }
 
         /// <summary>
@@ -694,6 +724,9 @@ namespace Files.Manager
                                 break;
                             case FAR3TypeIDs.OFT:
                                 AddItem(ID, new Asset(ID, (uint)Data.Length, new Outfit(Data)));
+                                break;
+                            case FAR3TypeIDs.PO:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, new PurchasableOutfit(Data)));
                                 break;
                             case FAR3TypeIDs.SKEL:
                                 AddItem(ID, new Asset(ID, (uint)Data.Length, new Skeleton(Data)));

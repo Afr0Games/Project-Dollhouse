@@ -40,6 +40,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CASScreen.cs" />
     <Compile Include="Credits.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GlobalSettings.Designer.cs">

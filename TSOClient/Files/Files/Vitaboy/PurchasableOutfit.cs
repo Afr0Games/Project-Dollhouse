@@ -39,7 +39,9 @@ namespace Files.Vitaboy
             {
                 //A 4-byte unsigned integer specifying the type of data that follows; should be 0xA96F6D42 for cAssetKey
                 m_Reader.ReadUInt32();
-                OutfitID = new UniqueFileID(m_Reader.ReadUInt32(), m_Reader.ReadUInt32());
+                uint FileID = m_Reader.ReadUInt32();
+                uint TypeID = m_Reader.ReadUInt32();
+                OutfitID = new UniqueFileID(TypeID, FileID);
             }
 
             m_Reader.ReadUInt32(); //Unknown.
