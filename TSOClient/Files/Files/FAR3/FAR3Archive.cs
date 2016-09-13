@@ -14,7 +14,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Files.FAR3
 {
@@ -23,9 +25,10 @@ namespace Files.FAR3
     /// </summary>
     public class FAR3Archive
     {
-        private Dictionary<ulong, FAR3Entry> m_Entries = new Dictionary<ulong, FAR3Entry>();
+        private ConcurrentDictionary<ulong, FAR3Entry> m_Entries = new ConcurrentDictionary<ulong, FAR3Entry>();
         private string m_Path;
         private FileReader m_Reader;
+        private ManualResetEvent m_FinishedReading = new ManualResetEvent(false);
 
         public FAR3Archive(string Path)
         {
@@ -38,6 +41,8 @@ namespace Files.FAR3
         /// <param name="ThrowException">Wether or not to throw an exception if the archive was not a FAR3. If false, function will return.</param>
         public bool ReadArchive(bool ThrowException)
         {
+            m_FinishedReading.Reset();
+
             if (m_Reader == null)
                 m_Reader = new FileReader(m_Path, false);
 
@@ -79,9 +84,11 @@ namespace Files.FAR3
                     UniqueFileID ID = new UniqueFileID(Entry.TypeID, Entry.FileID);
 
                     if(!m_Entries.ContainsKey(ID.UniqueID))
-                        m_Entries.Add(ID.UniqueID, Entry);
+                        m_Entries.AddOrUpdate(ID.UniqueID, Entry, (Key, ExistingValue) => ExistingValue = Entry);
                 }
             }
+
+            m_FinishedReading.Set();
 
             return true;
         }
@@ -94,13 +101,12 @@ namespace Files.FAR3
         /// <returns>The entry's data as a Stream instance.</returns>
         public Stream GrabEntry(ulong ID)
         {
+            m_FinishedReading.WaitOne();
+
             if (!ContainsEntry(ID))
                 throw new FAR3Exception("Couldn't find entry - FAR3Archive.cs!");
 
             FAR3Entry Entry = m_Entries[ID];
-
-            if(m_Reader == null)
-                m_Reader = new FileReader(File.Open(m_Path, FileMode.Open, FileAccess.Read, FileShare.Read), false);
 
             lock(m_Reader)
             {
@@ -131,46 +137,28 @@ namespace Files.FAR3
 
         private Stream Decompress(FAR3Entry Entry)
         {
-            lock (m_Reader)
+            m_Reader.ReadBytes(9);
+            uint CompressedSize = m_Reader.ReadUInt32();
+            ushort CompressionID = m_Reader.ReadUShort();
+
+            if (CompressionID == 0xFB10)
             {
-                m_Reader.ReadBytes(9);
-                uint CompressedSize = m_Reader.ReadUInt32();
-                ushort CompressionID = m_Reader.ReadUShort();
+                byte[] Dummy = m_Reader.ReadBytes(3);
+                uint DecompressedSize = (uint)((Dummy[0] << 0x10) | (Dummy[1] << 0x08) | +Dummy[2]);
 
-                if (CompressionID == 0xFB10)
-                {
-                    byte[] Dummy = m_Reader.ReadBytes(3);
-                    uint DecompressedSize = (uint)((Dummy[0] << 0x10) | (Dummy[1] << 0x08) | +Dummy[2]);
+                Decompresser Dec = new Decompresser();
+                Dec.CompressedSize = CompressedSize;
+                Dec.DecompressedSize = DecompressedSize;
 
-                    Decompresser Dec = new Decompresser();
-                    Dec.CompressedSize = CompressedSize;
-                    Dec.DecompressedSize = DecompressedSize;
+                byte[] DecompressedData = Dec.Decompress(m_Reader.ReadBytes((int)CompressedSize));
 
-                    byte[] DecompressedData = Dec.Decompress(m_Reader.ReadBytes((int)CompressedSize));
-
-                    return new MemoryStream(DecompressedData);
-                }
-                else
-                {
-                    m_Reader.Seek(m_Reader.Position - 15);
-                    return new MemoryStream(m_Reader.ReadBytes((int)Entry.DecompressedDataSize));
-                }
+                return new MemoryStream(DecompressedData);
             }
-        }
-
-        /// <summary>
-        /// Returns all entries.
-        /// Throws a FAR3Exception if an entry wasn't found.
-        /// </summary>
-        /// <returns>The entries as a List of FAR3Entries.</returns>
-        public List<FAR3Entry> GrabAllEntries()
-        {
-            List<FAR3Entry> GrabbedEntries = new List<FAR3Entry>();
-
-            foreach (KeyValuePair<ulong, FAR3Entry> KVP in m_Entries)
-                GrabbedEntries.Add(KVP.Value);
-
-            return GrabbedEntries;
+            else
+            {
+                m_Reader.Seek(m_Reader.Position - 15);
+                return new MemoryStream(m_Reader.ReadBytes((int)Entry.DecompressedDataSize));
+            }
         }
 
         /// <summary>

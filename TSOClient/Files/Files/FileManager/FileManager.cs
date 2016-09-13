@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Collections.Concurrent;
 using System.Text;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -46,8 +47,8 @@ namespace Files.Manager
         public const uint CACHE_SIZE = 350000000; //~350mb
         private static uint m_BytesLoaded = 0;
 
-        private static Dictionary<ulong, Asset> m_Assets = new Dictionary<ulong, Asset>();
-        private static Dictionary<byte[], Asset> m_FAR1Assets = new Dictionary<byte[], Asset>();
+        private static ConcurrentDictionary<ulong, Asset> m_Assets = new ConcurrentDictionary<ulong, Asset>();
+        private static ConcurrentDictionary<byte[], Asset> m_FAR1Assets = new ConcurrentDictionary<byte[], Asset>();
 
         public static event ThirtyThreePercentCompletedDelegate OnThirtyThreePercentCompleted;
         public static event SixtysixPercentCompletedDelegate OnSixtysixPercentCompleted;
@@ -63,7 +64,7 @@ namespace Files.Manager
         private static IEnumerable<string> m_DBPFPaths;
 
         //Stores hashes of paths to IFFs outside of archives.
-        private static Dictionary<byte[], string> m_IFFHashes = new Dictionary<byte[], string>();
+        private static ConcurrentDictionary<byte[], string> m_IFFHashes = new ConcurrentDictionary<byte[], string>();
 
         private static Game m_Game;
 
@@ -89,9 +90,9 @@ namespace Files.Manager
             foreach (string Fle in m_IFFPaths)
 			{
 				if(IsLinux)
-					m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("//", "/"));
+					m_IFFHashes.TryAdd(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("//", "/"));
 				else
-                	m_IFFHashes.Add(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
+                	m_IFFHashes.TryAdd(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
 			}
 
             Task LoadTask = new Task(new Action(LoadAllArchives));
@@ -168,6 +169,8 @@ namespace Files.Manager
                 Data = GrabItem(AssetID, FAR3TypeIDs.PNG);
             if (Data == null)
                 Data = GrabItem(AssetID, FAR3TypeIDs.PackedPNG);
+            if (Data == null)
+                Data = GrabItem(AssetID, FAR3TypeIDs.TGA);
 
             Stream PNGStream = new MemoryStream();
 
@@ -216,6 +219,7 @@ namespace Files.Manager
                 }
             }
 
+            //Just make sure that the asset has in fact been added to the cache...
             if (!m_Assets.ContainsKey(AssetID))
                 AddItem(AssetID, new Asset(AssetID, (uint)PNGStream.Length, 
                     Texture2D.FromStream(m_Game.GraphicsDevice, PNGStream)));
@@ -787,15 +791,16 @@ namespace Files.Manager
         {
             if ((m_BytesLoaded + Item.Size) < CACHE_SIZE)
             {
-                m_Assets.Add(ID, Item);
+                m_Assets.AddOrUpdate(ID, Item, (Key, ExistingValue) => ExistingValue = Item);
                 m_BytesLoaded += (uint)Item.Size;
             }
             else //Remove oldest and add new entry.
             {
                 List<Asset> Assets = m_Assets.Values.ToList();
                 Assets.Sort((x, y) => DateTime.Compare(x.LastAccessed, y.LastAccessed));
-                m_Assets.Remove(Assets[0].AssetID);
-                m_Assets.Add(ID, Item);
+                Asset Oldest = Assets[0];
+                m_Assets.TryRemove(Oldest.AssetID, out Oldest);
+                m_Assets.AddOrUpdate(Assets[0].AssetID, Item, (Key, ExistingValue) => ExistingValue = Item);
             }
         }
 
@@ -803,15 +808,16 @@ namespace Files.Manager
         {
             if((m_BytesLoaded + Item.Size) < CACHE_SIZE)
             {
-                m_FAR1Assets.Add(GenerateHash(Filename), Item);
+                m_FAR1Assets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
                 m_BytesLoaded += (uint)Item.Size;
             }
             else //Remove oldest and add new entry.
             {
                 List<Asset> Assets = m_FAR1Assets.Values.ToList();
                 Assets.Sort((x, y) => DateTime.Compare(x.LastAccessed, y.LastAccessed));
-                m_FAR1Assets.Remove(Assets[0].FilenameHash);
-                m_FAR1Assets.Add(GenerateHash(Filename), Item);
+                Asset Oldest = Assets[0];
+                m_FAR1Assets.TryRemove(Oldest.FilenameHash, out Oldest);
+                m_FAR1Assets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
             }
         }
 
