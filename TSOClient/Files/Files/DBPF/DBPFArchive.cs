@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Threading;
 
 namespace Files.DBPF
 {
@@ -65,6 +66,8 @@ namespace Files.DBPF
         public uint IndexOffset;
         public uint IndexSize;
 
+        private ManualResetEvent m_FinishedReading = new ManualResetEvent(false);
+
         public DBPFArchive(string Path)
         {
             m_Path = Path;
@@ -76,6 +79,8 @@ namespace Files.DBPF
         /// <param name="ThrowException">Wether or not to throw an exception if the archive was not a DBPF. If false, function will return.</param>
         public bool ReadArchive(bool ThrowException)
         {
+            m_FinishedReading.Reset();
+
             if (m_Reader == null)
             {
                 try
@@ -135,6 +140,8 @@ namespace Files.DBPF
                 }
             }
 
+            m_FinishedReading.Set();
+
             return true;
         }
 
@@ -146,13 +153,12 @@ namespace Files.DBPF
         /// <returns>The entry's data as a Stream instance.</returns>
         public Stream GrabEntry(UniqueFileID ID)
         {
+            m_FinishedReading.WaitOne();
+
             if (!ContainsEntry(ID))
                 throw new DBPFException("Couldn't find entry - DBPFArchive.cs!");
 
             DBPFEntry Entry = m_Entries[ID];
-
-            if(m_Reader == null)
-                m_Reader = new FileReader(File.Open(m_Path, FileMode.Open, FileAccess.Read, FileShare.Read), false);
 
             m_Reader.Seek(Entry.FileOffset);
 
@@ -170,6 +176,8 @@ namespace Files.DBPF
         /// <returns>All entries with the specified TypeID in the specified group.</returns>
         public List<DBPFEntry> GrabEntriesForTypeID(uint TypeID, uint GroupID)
         {
+            m_FinishedReading.WaitOne();
+
             List<DBPFEntry> ReturnedEntries = new List<DBPFEntry>();
 
             foreach(KeyValuePair<UniqueFileID, DBPFEntry> Entry in m_Entries)
@@ -183,6 +191,8 @@ namespace Files.DBPF
 
         public List<DBPFEntry> GrabEntriesForGroupID(uint GroupID)
         {
+            m_FinishedReading.WaitOne();
+
             List<DBPFEntry> ReturnedEntries = new List<DBPFEntry>();
 
             foreach (KeyValuePair<UniqueFileID, DBPFEntry> Entry in m_Entries)

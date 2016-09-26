@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the SimsLib.
+The Original Code is the Files.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.IO;
+using System.Threading;
 
 namespace Files.Manager
 {
@@ -23,11 +24,21 @@ namespace Files.Manager
     /// </summary>
     public class Asset
     {
-        public DateTime LastAccessed = DateTime.Now, Cached = DateTime.Now;
+        private DateTime m_LastAccessed = DateTime.Now;
+        private ManualResetEvent m_LastAccessedLock = new ManualResetEvent(false);
         private uint m_Size;
         private ulong m_AssetID = 0;
         private byte[] m_AssetFilename;
         private object m_AssetData;
+
+        public DateTime LastAccessed
+        {
+            get
+            {
+                m_LastAccessedLock.WaitOne();
+                return m_LastAccessed;
+            }
+        }
 
         /// <summary>
         /// Get the ID of this asset. May be null.
@@ -60,7 +71,10 @@ namespace Files.Manager
         {
             get
             {
-                LastAccessed = DateTime.Now;
+                m_LastAccessedLock.Reset();
+                m_LastAccessed = DateTime.Now;
+                m_LastAccessedLock.Set();
+
                 return m_AssetData;
             }
         }
@@ -75,7 +89,10 @@ namespace Files.Manager
             m_AssetID = AssetID;
             m_AssetData = Data;
             m_Size = Size;
-            LastAccessed = DateTime.Now;
+
+            m_LastAccessedLock.Reset();
+            m_LastAccessed = DateTime.Now;
+            m_LastAccessedLock.Set();
         }
 
         /// <summary>
@@ -88,7 +105,10 @@ namespace Files.Manager
             m_AssetFilename = AssetID;
             m_AssetData = Data;
             m_Size = Size;
-            LastAccessed = DateTime.Now;
+
+            m_LastAccessedLock.Reset();
+            m_LastAccessed = DateTime.Now;
+            m_LastAccessedLock.Set();
         }
     }
 }

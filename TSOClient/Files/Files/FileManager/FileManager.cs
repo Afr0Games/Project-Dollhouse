@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the SimsLib.
+The Original Code is the Files.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -17,6 +17,7 @@ using System.IO.MemoryMappedFiles;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Linq;
@@ -48,15 +49,19 @@ namespace Files.Manager
         private static uint m_BytesLoaded = 0;
 
         private static ConcurrentDictionary<ulong, Asset> m_Assets = new ConcurrentDictionary<ulong, Asset>();
+        private static ManualResetEvent m_AssetsResetEvent = new ManualResetEvent(false);
         private static ConcurrentDictionary<byte[], Asset> m_FAR1Assets = new ConcurrentDictionary<byte[], Asset>();
+        private static ManualResetEvent m_FAR1AssetsResetEvent = new ManualResetEvent(false);
 
         public static event ThirtyThreePercentCompletedDelegate OnThirtyThreePercentCompleted;
         public static event SixtysixPercentCompletedDelegate OnSixtysixPercentCompleted;
         public static event HundredPercentCompletedDelegate OnHundredPercentCompleted;
 
-        private static List<FAR3Archive> m_FAR3Archives = new List<FAR3Archive>();
-        private static List<FAR1Archive> m_FAR1Archives = new List<FAR1Archive>();
-        private static List<DBPFArchive> m_DBPFArchives = new List<DBPFArchive>();
+        private static ManualResetEvent m_StillLoading = new ManualResetEvent(false);
+
+        private static ConcurrentBag<FAR3Archive> m_FAR3Archives = new ConcurrentBag<FAR3Archive>();
+        private static ConcurrentBag<FAR1Archive> m_FAR1Archives = new ConcurrentBag<FAR1Archive>();
+        private static ConcurrentBag<DBPFArchive> m_DBPFArchives = new ConcurrentBag<DBPFArchive>();
 
         private static IEnumerable<string> m_FAR3Paths;
         private static IEnumerable<string> m_FAR1Paths;
@@ -117,6 +122,8 @@ namespace Files.Manager
         /// </summary>
         private static void LoadAllArchives()
         {
+            m_StillLoading.Reset();
+
             foreach (string Path in m_FAR3Paths)
             {
                 //This should be ignored.
@@ -148,7 +155,9 @@ namespace Files.Manager
                     m_DBPFArchives.Add(Archive);
             }
 
-            if(OnHundredPercentCompleted != null)
+            m_StillLoading.Set();
+
+            if (OnHundredPercentCompleted != null)
                 OnHundredPercentCompleted();
         }
 
@@ -161,7 +170,7 @@ namespace Files.Manager
         /// <returns>A Texture2D instance.</returns>
         public static Texture2D GetTexture(ulong AssetID)
         {
-            Stream Data = GrabItem(AssetID, FAR3TypeIDs.JPG);
+            Stream Data = (Stream)GrabItem(AssetID, FAR3TypeIDs.JPG);
 
             if (Data == null)
                 Data = GrabItem(AssetID, FAR3TypeIDs.BMP);
@@ -171,7 +180,6 @@ namespace Files.Manager
                 Data = GrabItem(AssetID, FAR3TypeIDs.PackedPNG);
             if (Data == null)
                 Data = GrabItem(AssetID, FAR3TypeIDs.TGA);
-
             Stream PNGStream = new MemoryStream();
 
             if (Data == null)
@@ -181,49 +189,7 @@ namespace Files.Manager
                 return null;
             }
 
-            if (IsBMP(Data))
-            {
-                Bitmap BMap = new Bitmap(Data);
-                BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
-                BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
-                BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
-                BMap.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
-                BMap.Dispose();
-                PNGStream.Seek(0, SeekOrigin.Begin);
-            }
-            else
-            {
-                try
-                {
-                    try
-                    {
-                        Bitmap BMap = new Bitmap(Data);
-                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
-                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
-                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
-                        BMap.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
-                        BMap.Dispose();
-                        PNGStream.Seek(0, SeekOrigin.Begin);
-                    }
-                    catch
-                    {
-                        return Texture2D.FromStream(m_Game.GraphicsDevice, Data);
-                    }
-                }
-                catch
-                {
-                    Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
-                    TGA.Image.Save(PNGStream, System.Drawing.Imaging.ImageFormat.Png);
-                    TGA.Dispose();
-                    PNGStream.Seek(0, SeekOrigin.Begin);
-                }
-            }
-
-            //Just make sure that the asset has in fact been added to the cache...
-            if (!m_Assets.ContainsKey(AssetID))
-                AddItem(AssetID, new Asset(AssetID, (uint)PNGStream.Length, 
-                    Texture2D.FromStream(m_Game.GraphicsDevice, PNGStream)));
-
+            m_AssetsResetEvent.WaitOne();
             return (Texture2D)m_Assets[AssetID].AssetData;
         }
 
@@ -252,10 +218,14 @@ namespace Files.Manager
         public static Outfit GetOutfit(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (Outfit)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.OFT);
 
+            m_AssetsResetEvent.WaitOne();
             return (Outfit)m_Assets[AssetID].AssetData;
         }
 
@@ -267,10 +237,14 @@ namespace Files.Manager
         public static PurchasableOutfit GetPurchasableOutfit(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (PurchasableOutfit)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.PO);
 
+            m_AssetsResetEvent.WaitOne();
             return (PurchasableOutfit)m_Assets[AssetID].AssetData;
         }
 
@@ -282,10 +256,14 @@ namespace Files.Manager
         public static Skeleton GetSkeleton(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (Skeleton)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.SKEL);
 
+            m_AssetsResetEvent.WaitOne();
             return (Skeleton)m_Assets[AssetID].AssetData;
         }
 
@@ -297,10 +275,14 @@ namespace Files.Manager
         public static HandGroup GetHandgroup(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (HandGroup)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.HAG);
 
+            m_AssetsResetEvent.WaitOne();
             return (HandGroup)m_Assets[AssetID].AssetData;
         }
 
@@ -312,10 +294,14 @@ namespace Files.Manager
         public static Appearance GetAppearance(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (Appearance)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.APR);
 
+            m_AssetsResetEvent.WaitOne();
             return (Appearance)m_Assets[AssetID].AssetData;
         }
 
@@ -327,11 +313,14 @@ namespace Files.Manager
         public static Binding GetBinding(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (Binding)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.BND);
 
-            return (Binding)m_Assets[AssetID].AssetData;
+            return new Binding(GrabItem(AssetID, FAR3TypeIDs.BND));
         }
 
         /// <summary>
@@ -357,10 +346,14 @@ namespace Files.Manager
         public static Collection GetCollection(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (Collection)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.COL);
 
+            m_AssetsResetEvent.WaitOne();
             return (Collection)m_Assets[AssetID].AssetData;
         }
 
@@ -372,10 +365,14 @@ namespace Files.Manager
         public static Mesh GetMesh(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (Mesh)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.MESH);
 
+            m_AssetsResetEvent.WaitOne();
             return (Mesh)m_Assets[AssetID].AssetData;
         }
 
@@ -387,10 +384,14 @@ namespace Files.Manager
         public static Anim GetAnimation(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (Anim)m_Assets[AssetID].AssetData;
+            }
 
             Stream Data = GrabItem(AssetID, FAR3TypeIDs.ANIM);
 
+            m_AssetsResetEvent.WaitOne();
             return (Anim)m_Assets[AssetID].AssetData;
         }
 
@@ -404,17 +405,26 @@ namespace Files.Manager
             UniqueFileID UID = new UniqueFileID((uint)TypeIDs.UTK, ID);
 
             if (m_Assets.ContainsKey(UID.UniqueID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (ISoundCodec)m_Assets[UID.UniqueID].AssetData;
+            }
 
             UID = new UniqueFileID((uint)TypeIDs.XA, ID);
 
             if (m_Assets.ContainsKey(UID.UniqueID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (ISoundCodec)m_Assets[UID.UniqueID].AssetData;
+            }
 
             UID = new UniqueFileID((uint)TypeIDs.SoundFX, ID);
 
             if (m_Assets.ContainsKey(UID.UniqueID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (ISoundCodec)m_Assets[UID.UniqueID].AssetData;
+            }
 
             ISoundCodec Data = (ISoundCodec)GrabItem(ID, TypeIDs.UTK);
 
@@ -452,10 +462,11 @@ namespace Files.Manager
         {
             UniqueFileID UID = new UniqueFileID((uint)TypeIDs.TRK, ID);
 
-            if(m_Assets.ContainsKey(UID.UniqueID))
+            if (m_Assets.ContainsKey(UID.UniqueID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (TRK)m_Assets[UID.UniqueID].AssetData;
-
-            //return new TRK(GrabItem(ID, TypeIDs.TRK));
+            }
 
             return (TRK)GrabItem(UID.FileID, TypeIDs.TRK);
         }
@@ -467,7 +478,6 @@ namespace Files.Manager
         /// <returns>True if found, false otherwise.</returns>
         public static bool TrackExists(uint ID)
         {
-            //TRK Track = new TRK(GrabItem(ID, TypeIDs.TRK));
             TRK Track = GetTRK(ID);
 
             if (Track != null)
@@ -488,9 +498,10 @@ namespace Files.Manager
             UniqueFileID UID = new UniqueFileID((uint)TypeIDs.HIT, ID);
 
             if (m_Assets.ContainsKey(UID.UniqueID))
+            {
+                m_AssetsResetEvent.WaitOne();
                 return (HLS)m_Assets[UID.UniqueID].AssetData;
-
-            //return new HLS(GrabItem(ID, TypeIDs.HIT));
+            }
 
             return (HLS)GrabItem(ID, TypeIDs.HIT);
         }
@@ -514,6 +525,8 @@ namespace Files.Manager
         private static object GrabItem(uint ID, TypeIDs TypeID)
         {
             Stream Data;
+
+            m_StillLoading.WaitOne();
 
             foreach (DBPFArchive Archive in m_DBPFArchives)
             {
@@ -698,6 +711,11 @@ namespace Files.Manager
         /// <returns>A Stream instance with data from the specified item.</returns>
         private static Stream GrabItem(ulong ID, FAR3TypeIDs TypeID)
         {
+            MemoryStream MemStream = new MemoryStream();
+            Bitmap BMap;
+
+            m_StillLoading.WaitOne();
+
             foreach (FAR3Archive Archive in m_FAR3Archives)
             {
                 if (Archive.ContainsEntry(ID))
@@ -735,6 +753,69 @@ namespace Files.Manager
                             case FAR3TypeIDs.SKEL:
                                 AddItem(ID, new Asset(ID, (uint)Data.Length, new Skeleton(Data)));
                                 break;
+                            case FAR3TypeIDs.TGA:
+                                lock (MemStream)
+                                {
+                                    Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
+                                    TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                    TGA.Dispose();
+                                    MemStream.Seek(0, SeekOrigin.Begin);
+                                    AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                        Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                }
+                                break;
+                            case FAR3TypeIDs.PNG:
+                            case FAR3TypeIDs.PackedPNG:
+                                AddItem(ID, new Asset(ID, (uint)Data.Length, 
+                                    Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
+                                break;
+                            case FAR3TypeIDs.JPG:
+                                lock (MemStream)
+                                {
+                                    BMap = new Bitmap(Data);
+                                    BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
+                                    BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
+                                    BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
+                                    BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                    BMap.Dispose();
+                                    MemStream.Seek(0, SeekOrigin.Begin);
+
+                                    try
+                                    {
+                                        AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                            Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                    }
+                                    catch
+                                    {
+                                        MemStream.Dispose();
+                                        AddItem(ID, new Asset(ID, (uint)Data.Length, 
+                                            Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
+                                    }
+                                }
+                                break;
+                            case FAR3TypeIDs.BMP:
+                                if (IsBMP(Data))
+                                {
+                                    lock (MemStream)
+                                    {
+                                        BMap = new Bitmap(Data);
+                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
+                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
+                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
+                                        BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                        BMap.Dispose();
+                                        MemStream.Seek(0, SeekOrigin.Begin);
+
+                                        AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                            Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                    }
+                                }
+                                else
+                                {
+                                    AddItem(ID, new Asset(ID, (uint)Data.Length, 
+                                        Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
+                                }
+                                break;
                         }
                     }
 
@@ -754,6 +835,8 @@ namespace Files.Manager
         {
             byte[] Hash = GenerateHash(Filename);
 
+            m_StillLoading.WaitOne();
+
             /*foreach (KeyValuePair<byte[], Asset> KVP in m_FAR1Assets)
             {
                 if(KVP.Key.SequenceEqual(Hash))
@@ -765,7 +848,7 @@ namespace Files.Manager
                 if (Archive.ContainsEntry(Filename))
                 {
                     Stream Data = Archive.GrabEntry(Filename);
-                    //AddItem(Filename, new Asset(Hash, Archive.GrabEntry(Filename)));
+                    AddItem(Filename, new Asset(Hash, (uint)Data.Length, Data));
                     return Archive.GrabEntry(Filename);
                 }
             }
@@ -775,7 +858,7 @@ namespace Files.Manager
                 if (KVP.Key.SequenceEqual(Hash))
                 {
                     Stream Data = File.Open(KVP.Value, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    //AddItem(Path.GetFileName(KVP.Value), new Asset(Hash, File.Open(KVP.Value, FileMode.Open, FileAccess.Read, FileShare.Read)));
+                    AddItem(Path.GetFileName(KVP.Value), new Asset(Hash, (uint)Data.Length, Data));
                     return Data;
                 }
             }
@@ -789,6 +872,8 @@ namespace Files.Manager
 
         private static void AddItem(ulong ID, Asset Item)
         {
+            m_AssetsResetEvent.Reset();
+
             if ((m_BytesLoaded + Item.Size) < CACHE_SIZE)
             {
                 m_Assets.AddOrUpdate(ID, Item, (Key, ExistingValue) => ExistingValue = Item);
@@ -802,10 +887,20 @@ namespace Files.Manager
                 m_Assets.TryRemove(Oldest.AssetID, out Oldest);
                 m_Assets.AddOrUpdate(Assets[0].AssetID, Item, (Key, ExistingValue) => ExistingValue = Item);
             }
+
+            m_AssetsResetEvent.Set();
         }
 
+        /// <summary>
+        /// Adds an asset to the FileManager's cache.
+        /// This method should not be used directly.
+        /// </summary>
+        /// <param name="Filename">The filename of the asset to add.</param>
+        /// <param name="Item">The asset to add.</param>
         private static void AddItem(string Filename, Asset Item)
         {
+            m_FAR1AssetsResetEvent.Reset();
+
             if((m_BytesLoaded + Item.Size) < CACHE_SIZE)
             {
                 m_FAR1Assets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
@@ -819,6 +914,8 @@ namespace Files.Manager
                 m_FAR1Assets.TryRemove(Oldest.FilenameHash, out Oldest);
                 m_FAR1Assets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
             }
+
+            m_FAR1AssetsResetEvent.Set();
         }
 
         #endregion

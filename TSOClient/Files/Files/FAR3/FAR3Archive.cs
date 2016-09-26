@@ -130,7 +130,9 @@ namespace Files.FAR3
                         return Decompress(Entry);
                     case 14: //PNG, uncompressed
                     default:
-                        return new MemoryStream(m_Reader.ReadBytes((int)Entry.DecompressedDataSize));
+                        MemoryStream MemStream = new MemoryStream(m_Reader.ReadBytes((int)Entry.DecompressedDataSize));
+                        MemStream.Seek(0, SeekOrigin.Begin);
+                        return MemStream;
                 }
             }
         }
@@ -152,7 +154,10 @@ namespace Files.FAR3
 
                 byte[] DecompressedData = Dec.Decompress(m_Reader.ReadBytes((int)CompressedSize));
 
-                return new MemoryStream(DecompressedData);
+                MemoryStream MemStream = new MemoryStream(DecompressedData);
+                MemStream.Seek(0, SeekOrigin.Begin);
+
+                return MemStream;
             }
             else
             {
@@ -168,6 +173,8 @@ namespace Files.FAR3
         /// <returns>True if entry was found, false otherwise.</returns>
         public bool ContainsEntry(ulong ID)
         {
+            m_FinishedReading.WaitOne();
+
             return m_Entries.ContainsKey(ID);
         }
     }

@@ -34,7 +34,8 @@ namespace Files
         {
             get
             {
-                return m_Reader.BaseStream.Length;
+                lock(m_Reader)
+                    return m_Reader.BaseStream.Length;
             }
         }
 
@@ -45,7 +46,8 @@ namespace Files
         {
             get
             {
-                return m_Reader.BaseStream.Position;
+                lock(m_Reader)
+                    return m_Reader.BaseStream.Position;
             }
         }
 
@@ -204,10 +206,13 @@ namespace Files
         /// <returns>A string.</returns>
         public string ReadPascalString()
         {
-            byte Length = m_Reader.ReadByte();
-            ASCIIEncoding Encoding = new ASCIIEncoding();
+            lock (m_Reader)
+            {
+                byte Length = m_Reader.ReadByte();
+                ASCIIEncoding Encoding = new ASCIIEncoding();
 
-            return Encoding.GetString(m_Reader.ReadBytes(Length));
+                return Encoding.GetString(m_Reader.ReadBytes(Length));
+            }
         }
 
         /// <summary>
