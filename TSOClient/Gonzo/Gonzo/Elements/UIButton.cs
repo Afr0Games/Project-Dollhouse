@@ -239,23 +239,6 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
-        /// Scales a button to the size of the button's text.
-        /// Also repositions a button's text according to the new size.
-        /// </summary>
-        private void ScaleToText()
-        {
-            if (m_Font.MeasureString(m_Text).X > m_Size.X)
-                m_XScale = m_Font.MeasureString(m_Text).X / m_Size.X;
-            else if(m_Font.MeasureString(m_Text).X <= m_Size.X)
-                m_XScale = m_Size.X / m_Font.MeasureString(m_Text).X;
-
-            m_XScale += 0.5f; //Text margin.
-
-            m_TextPosition.X += ((m_Size.X / 2) * m_XScale) - (m_Font.MeasureString(m_Text).X / 2);
-            m_TextPosition.Y += (m_Size.Y / 2) - (m_Font.MeasureString(m_Text).Y / 2);
-        }
-
-        /// <summary>
         /// Constructs a new UIButton instance.
         /// </summary>
         /// <param name="Name">Name of button.</param>
@@ -275,6 +258,23 @@ namespace Gonzo.Elements
             m_Size = new Vector2();
             m_Size.X = Tex.Width / 4;
             m_Size.Y = Tex.Height;
+        }
+
+        /// <summary>
+        /// Scales a button to the size of the button's text.
+        /// Also repositions a button's text according to the new size.
+        /// </summary>
+        private void ScaleToText()
+        {
+            if (m_Font.MeasureString(m_Text).X > m_Size.X)
+                m_XScale = m_Font.MeasureString(m_Text).X / m_Size.X;
+            else if(m_Font.MeasureString(m_Text).X <= m_Size.X)
+                m_XScale = m_Size.X / m_Font.MeasureString(m_Text).X;
+
+            m_XScale += 0.5f; //Text margin.
+
+            m_TextPosition.X += ((m_Size.X / 2) * m_XScale) - (m_Font.MeasureString(m_Text).X / 2);
+            m_TextPosition.Y += (m_Size.Y / 2) - (m_Font.MeasureString(m_Text).Y / 2);
         }
 
         public override bool IsMouseOver(InputHelper Input)

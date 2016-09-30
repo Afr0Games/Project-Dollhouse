@@ -39,8 +39,8 @@ namespace GonzoTest
 
             m_DescriptionTextEdit = (UITextEdit)m_Elements["\"DescriptionTextEdit\""];
 
-            m_HeadSkinBrowser = new UISkinBrowser(this, m_Controls["\"HeadSkinBrowser\""], true);
-            m_BodySkinBrowser = new UISkinBrowser(this, m_Controls["\"BodySkinBrowser\""], false);
+            m_HeadSkinBrowser = new UISkinBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1, true);
+            m_BodySkinBrowser = new UISkinBrowser(this, m_Controls["\"BodySkinBrowser\""], 1, false);
         }
 
         public override void Update(InputHelper Input, GameTime GTime)
@@ -51,6 +51,8 @@ namespace GonzoTest
         public override void Draw()
         {
             m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
+            m_HeadSkinBrowser.Draw(m_SBatch, 0.9f);
+            m_BodySkinBrowser.Draw(m_SBatch, 0.9f);
 
             base.Draw();
         }
