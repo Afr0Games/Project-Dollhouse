@@ -76,6 +76,8 @@ namespace Gonzo.Elements
 
         public event UISkinButtonClicked OnButtonClicked;
 
+        private UIButton m_SkinBrowserArrowLeft, m_SkinBrowserArrowRight;
+
         /// <summary>
         /// Sets the skintype currently visible in this UISkinBrowser.
         /// 0 = light, 1 = medium, 2 = dark.
@@ -118,6 +120,8 @@ namespace Gonzo.Elements
         /// <param name="HeadBrowser">Is this browser supposed to browse head skins?</param>
         public UISkinBrowser(UIScreen Screen, UIControl Ctrl, int SkinType, bool HeadBrowser) : base(Ctrl, Screen)
         {
+            Position = Position + Screen.Position;
+
             m_EditHeadSkinBtnTex = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_headskinbtn);
             m_EditBodySkinBtnTex = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_bodyskinbtn);
 
@@ -127,6 +131,15 @@ namespace Gonzo.Elements
             m_ButtonSize = new Vector2();
             m_ButtonSize.X = m_EditHeadSkinBtnTex.Width / 4;
             m_ButtonSize.Y = m_EditBodySkinBtnTex.Height;
+
+            m_SkinBrowserArrowLeft = new UIButton("SkinBrowserArrowLeft",
+                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft),
+                Position + new Vector2(-35, Size.Y - 80), Screen);
+            m_SkinBrowserArrowLeft.OnButtonClicked += M_SkinBrowserArrowLeft_OnButtonClicked;
+            m_SkinBrowserArrowRight = new UIButton("SkinBrowserArrowRight", 
+                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright), 
+                Position + new Vector2(Size.X - 35, Size.Y - 80), Screen);
+            m_SkinBrowserArrowRight.OnButtonClicked += M_SkinBrowserArrowRight_OnButtonClicked;
 
             if (HeadBrowser)
             {
@@ -235,6 +248,17 @@ namespace Gonzo.Elements
             }
         }
 
+        private void M_SkinBrowserArrowLeft_OnButtonClicked(UIButton ClickedButton)
+        {
+            m_Index++;
+        }
+
+        private void M_SkinBrowserArrowRight_OnButtonClicked(UIButton ClickedButton)
+        {
+            if(Index >= 1)
+                m_Index--;
+        }
+
         private Texture2D m_Thumb;
         private int m_Counter = 0, m_Index = 0, NumberOfSkinsToDisplay = 21;
         float Depth = 0.0f;
@@ -332,6 +356,9 @@ namespace Gonzo.Elements
                         m_Counter++;
                 }
             }
+
+            m_SkinBrowserArrowLeft.Update(Helper, GTime);
+            m_SkinBrowserArrowRight.Update(Helper, GTime);
 
             base.Update(Helper, GTime);
         }
@@ -441,6 +468,9 @@ namespace Gonzo.Elements
 
                     break;
             }
+
+            m_SkinBrowserArrowLeft.Draw(SBatch, Depth);
+            m_SkinBrowserArrowRight.Draw(SBatch, Depth);
 
             base.Draw(SBatch, LayerDepth);
         }
