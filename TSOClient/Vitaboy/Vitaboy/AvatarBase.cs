@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using Files.Vitaboy;
 using Files.Manager;
@@ -178,6 +176,10 @@ namespace Vitaboy
                     case "PELVIS":
                         BodyMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
                         BodyTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                        break;
+                    case "HEAD":
+                        HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
+                        HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
                         break;
                 }
             }

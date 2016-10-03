@@ -57,7 +57,7 @@ namespace Shared
         /// <summary>
         /// Change the outfit for this Sim.
         /// </summary>
-        /// <param name="Oft">THe outfit to change into.</param>
+        /// <param name="Oft">The outfit to change into.</param>
         /// <param name="Skin">The sim's skin type.</param>
         public void ChangeOutfit(Outfit Oft, SkinType Skin)
         {

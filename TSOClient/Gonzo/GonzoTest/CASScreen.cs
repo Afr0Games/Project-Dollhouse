@@ -1,6 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Vitaboy;
+using Shared;
+using Files;
+using Files.Manager;
+using Files.Vitaboy;
 using Gonzo;
 using Gonzo.Elements;
 using Microsoft.Xna.Framework;
@@ -18,6 +20,9 @@ namespace GonzoTest
             m_ExitBtn, m_FemaleBtn, m_MaleBtn, m_SkinLightBtn, m_SkinMediumBtn, m_SkinDarkBtn;
         private UITextEdit m_DescriptionTextEdit;
         private UISkinBrowser m_HeadSkinBrowser, m_BodySkinBrowser;
+
+        private Sim m_Avatar;
+        VitaboyScreen m_VitaboyScreen;
 
         public CASScreen(ScreenManager Manager, SpriteBatch SBatch) : base(Manager, "CAS", SBatch, 
             new Vector2(0, 0), 
@@ -40,11 +45,41 @@ namespace GonzoTest
             m_DescriptionTextEdit = (UITextEdit)m_Elements["\"DescriptionTextEdit\""];
 
             m_HeadSkinBrowser = new UISkinBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1, true);
+            m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
             m_BodySkinBrowser = new UISkinBrowser(this, m_Controls["\"BodySkinBrowser\""], 1, false);
+            m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
+
+            AdultAvatar Avatar = new AdultAvatar(Manager.Device);
+            Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
+            Avatar.Head = FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2);
+            Avatar.ShouldRotate = true;
+
+            m_Avatar = new Sim(Manager.Device, Avatar);
+            m_Avatar.Camera.Origin = new Vector2(175, 100);
+            m_Avatar.Camera.Zoom = 0.7f;
+
+            m_VitaboyScreen = new VitaboyScreen(Manager, new Vector2(0, 0), 
+                new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight));
+            m_VitaboyScreen.AddSim(m_Avatar);
+
+            Manager.AddScreen(m_VitaboyScreen);
+        }
+
+        private void M_HeadSkinBrowser_OnButtonClicked(int SkinType, Outfit SelectedOutfit)
+        {
+            m_Avatar.ChangeOutfit(SelectedOutfit, (SkinType)SkinType);
+        }
+
+        private void M_BodySkinBrowser_OnButtonClicked(int SkinType, Outfit SelectedOutfit)
+        {
+            m_Avatar.ChangeOutfit(SelectedOutfit, (SkinType)SkinType);
         }
 
         public override void Update(InputHelper Input, GameTime GTime)
         {
+            m_HeadSkinBrowser.Update(Input, GTime);
+            m_BodySkinBrowser.Update(Input, GTime);
+
             base.Update(Input, GTime);
         }
 
