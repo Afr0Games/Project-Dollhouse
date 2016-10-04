@@ -385,9 +385,9 @@ namespace Gonzo.Elements
                             int BtnHeight = m_SkinBtns[m_Counter + Y].BtnTex.Height;
 
                             Vector2 TexturePosition = m_HeadBrowser == true ? 
-                                new Vector2(X * (HeadTileSize.X), Y * (HeadTileSize.Y)) :
-                                 new Vector2(X * (BodyTileSize.X), Y * (BodyTileSize.Y));
-                            Vector2 ButtonPosition = new Vector2(TexturePosition.X - 3, TexturePosition.Y - 5);
+                                new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y)) :
+                                 new Vector2(X * (BodyTileSize.X + 10), Y * (BodyTileSize.Y));
+                            Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X + 
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), BtnWidth, BtnHeight),
@@ -416,9 +416,9 @@ namespace Gonzo.Elements
                             int BtnHeight = m_SkinBtns[m_Counter + Y].BtnTex.Height;
 
                             Vector2 TexturePosition = m_HeadBrowser == true ?
-                                new Vector2(X * (HeadTileSize.X), Y * (HeadTileSize.Y)) :
-                                 new Vector2(X * (BodyTileSize.X), Y * (BodyTileSize.Y));
-                            Vector2 ButtonPosition = new Vector2(TexturePosition.X - 3, TexturePosition.Y - 5);
+                                new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y)) :
+                                 new Vector2(X * (BodyTileSize.X + 10), Y * (BodyTileSize.Y));
+                            Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), BtnWidth, BtnHeight),
@@ -447,9 +447,9 @@ namespace Gonzo.Elements
                             int BtnHeight = m_SkinBtns[m_Counter + Y].BtnTex.Height;
 
                             Vector2 TexturePosition = m_HeadBrowser == true ?
-                                new Vector2(X * (HeadTileSize.X), Y * (HeadTileSize.Y)) :
-                                 new Vector2(X * (BodyTileSize.X), Y * (BodyTileSize.Y));
-                            Vector2 ButtonPosition = new Vector2(TexturePosition.X - 3, TexturePosition.Y - 5);
+                                new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y)) :
+                                 new Vector2(X * (BodyTileSize.X + 10), Y * (BodyTileSize.Y));
+                            Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), BtnWidth, BtnHeight),

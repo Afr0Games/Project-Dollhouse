@@ -124,10 +124,6 @@ namespace Vitaboy
                             LeftHandMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
                             LeftHandTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
                             break;
-                        case "R_HAND":
-                            RightHandMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                            RightHandTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
-                            break;
                     }
                 }
 
@@ -137,10 +133,6 @@ namespace Vitaboy
                 {
                     switch (Bnd.Bone)
                     {
-                        case "L_HAND":
-                            LeftHandMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                            LeftHandTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
-                            break;
                         case "R_HAND":
                             RightHandMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
                             RightHandTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
@@ -178,6 +170,7 @@ namespace Vitaboy
                         BodyTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
                         break;
                     case "HEAD":
+                        //TODO: Deal with accessories.
                         HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
                         HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
                         break;
