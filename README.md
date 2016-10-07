@@ -3,9 +3,9 @@
 A project aiming to rebuild TSO (The Sims Online) from the ground up. Inspired by [CorsixTH](https://github.com/CorsixTH).
 
 # Contributing
-You can contribute to Project Dollhouse by testing cutting edge features in the latest releases, filing bugs, and joining in the discussion on [our forums](http://forum.afr0games.com)!
+You can contribute to Project Dollhouse by testing cutting edge features in the latest releases, filing bugs, and joining in the discussion!
 
-* [Compiling client](http://forum.afr0games.com/index.php?threads/compiling-project-dollhouse-for-noobies.575/)
+* [Compiling client](https://github.com/Afr0Games/Project-Dollhouse/wiki/Compiling-Project-Dollhouse)
 * [Getting Started](https://github.com/Afr0Games/Project-Dollhouse/wiki)
 * [Coding Standards](https://github.com/Afr0Games/Project-Dollhouse/wiki/Coding-standards)
 * [Pull Requests](https://github.com/Afr0Games/Project-Dollhouse/pulls): [Open](https://github.com/Afr0Games/Project-Dollhouse/pulls)/[Closed](https://github.com/Afr0Games/Project-Dollhouse/issues?q=is%3Apr+is%3Aclosed)
