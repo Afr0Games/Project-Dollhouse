@@ -39,7 +39,7 @@ namespace GonzoTest
             BackgroundImg = (UIImage)m_Elements["\"BackgroundImage\""];
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device);
-            Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
+            Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
             Avatar.Head = FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2);
             AddAvatar(Avatar, 1);
 

@@ -57,7 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CaretSeparatedText.cs" />
+    <Compile Include="Elements\UIBodyBrowser.cs" />
     <Compile Include="Elements\UIDialog.cs" />
+    <Compile Include="Elements\UIHeadBrowser.cs" />
     <Compile Include="Elements\UISkinBrowser.cs" />
     <Compile Include="Elements\WillWrightDiag.cs" />
     <Compile Include="InputHelper.cs" />

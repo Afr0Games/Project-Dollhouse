@@ -19,7 +19,8 @@ namespace GonzoTest
         private UIButton m_CancelBtn, m_AcceptBtn, m_DescriptionScrollUpBtn, m_DescriptionScrollDownBtn,
             m_ExitBtn, m_FemaleBtn, m_MaleBtn, m_SkinLightBtn, m_SkinMediumBtn, m_SkinDarkBtn;
         private UITextEdit m_DescriptionTextEdit;
-        private UISkinBrowser m_HeadSkinBrowser, m_BodySkinBrowser;
+        private UIHeadBrowser m_HeadSkinBrowser;
+        private UIBodyBrowser m_BodySkinBrowser;
 
         private Sim m_Avatar;
         VitaboyScreen m_VitaboyScreen;
@@ -44,13 +45,13 @@ namespace GonzoTest
 
             m_DescriptionTextEdit = (UITextEdit)m_Elements["\"DescriptionTextEdit\""];
 
-            m_HeadSkinBrowser = new UISkinBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1, true);
+            m_HeadSkinBrowser = new UIHeadBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1);
             m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
-            m_BodySkinBrowser = new UISkinBrowser(this, m_Controls["\"BodySkinBrowser\""], 1, false);
+            m_BodySkinBrowser = new UIBodyBrowser(this, m_Controls["\"BodySkinBrowser\""], 1);
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device);
-            Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
+            Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
             Avatar.Head = FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2);
             Avatar.ShouldRotate = true;
 
@@ -67,12 +68,12 @@ namespace GonzoTest
 
         private void M_HeadSkinBrowser_OnButtonClicked(int SkinType, Outfit SelectedOutfit)
         {
-            m_Avatar.ChangeOutfit(SelectedOutfit, (SkinType)SkinType);
+            m_Avatar.ChangeOutfit(SelectedOutfit, (Vitaboy.SkinType)SkinType);
         }
 
         private void M_BodySkinBrowser_OnButtonClicked(int SkinType, Outfit SelectedOutfit)
         {
-            m_Avatar.ChangeOutfit(SelectedOutfit, (SkinType)SkinType);
+            m_Avatar.ChangeOutfit(SelectedOutfit, (Vitaboy.SkinType)SkinType);
         }
 
         public override void Update(InputHelper Input, GameTime GTime)
