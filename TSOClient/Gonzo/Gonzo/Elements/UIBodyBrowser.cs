@@ -41,59 +41,41 @@ namespace Gonzo.Elements
                     OftContainer = new OutfitContainer(FileManager.GetOutfit(
                         FileManager.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
 
-                    switch (m_SelectedSkintype)
-                    {
-                        case Elements.SkinType.Light:
-                            if (OftContainer.LightAppearance != null) m_LightAppearances.Add(OftContainer);
-                            break;
-                        case Elements.SkinType.Medium:
-                            if (OftContainer.MediumAppearance != null) m_MediumAppearances.Add(OftContainer);
-                            break;
-                        case Elements.SkinType.Dark:
-                            if (OftContainer.DarkAppearance != null) m_DarkAppearances.Add(OftContainer);
-                            break;
-                    }
+                    //Load all appearances where available, if the player wishes to switch skin type (see CASScreen.cs)
+                    if (OftContainer.LightAppearance != null) m_LightAppearances.Add(OftContainer);
+                    if (OftContainer.MediumAppearance != null) m_MediumAppearances.Add(OftContainer);
+                    if (OftContainer.DarkAppearance != null) m_DarkAppearances.Add(OftContainer);
                 }
             }
 
-            switch (m_SelectedSkintype)
+            foreach (OutfitContainer Ctr in m_LightAppearances)
             {
-                case Elements.SkinType.Light:
-                    foreach (OutfitContainer Ctr in m_LightAppearances)
-                    {
-                        SkinBtnContainer Container = new SkinBtnContainer();
-                        Container.BtnTex = m_EditBodySkinBtnTex;
-                        Container.SourcePosition = 
-                            //Initialize to second frame in image.
-                            new Vector2((m_EditBodySkinBtnTex.Width / (4)) * 2, 0.0f);
-                        m_SkinBtns.Add(Container);
-                    }
+                SkinBtnContainer Container = new SkinBtnContainer();
+                Container.BtnTex = m_EditBodySkinBtnTex;
+                Container.SourcePosition = 
+                    //Initialize to second frame in image.
+                    new Vector2((m_EditBodySkinBtnTex.Width / (4)) * 2, 0.0f);
+                m_SkinBtns.Add(Container);
+            }
 
-                    break;
-                case Elements.SkinType.Medium:
-                    foreach (OutfitContainer Ctr in m_MediumAppearances)
-                    {
-                        SkinBtnContainer Container = new SkinBtnContainer();
-                        Container.BtnTex = m_EditBodySkinBtnTex;
-                        Container.SourcePosition = 
-                            //Initialize to second frame in image.
-                            new Vector2((m_EditBodySkinBtnTex.Width / (4)) * 2, 0.0f);
-                        m_SkinBtns.Add(Container);
-                    }
+            foreach (OutfitContainer Ctr in m_MediumAppearances)
+            {
+                SkinBtnContainer Container = new SkinBtnContainer();
+                Container.BtnTex = m_EditBodySkinBtnTex;
+                Container.SourcePosition = 
+                    //Initialize to second frame in image.
+                    new Vector2((m_EditBodySkinBtnTex.Width / (4)) * 2, 0.0f);
+                m_SkinBtns.Add(Container);
+            }
 
-                    break;
-                case Elements.SkinType.Dark:
-                    foreach (OutfitContainer Ctr in m_DarkAppearances)
-                    {
-                        SkinBtnContainer Container = new SkinBtnContainer();
-                        Container.BtnTex = m_EditBodySkinBtnTex;
-                        Container.SourcePosition =
-                            //Initialize to second frame in image.
-                            new Vector2((m_EditBodySkinBtnTex.Width / (4)) * 2, 0.0f);
-                        m_SkinBtns.Add(Container);
-                    }
-
-                    break;
+            foreach (OutfitContainer Ctr in m_DarkAppearances)
+            {
+                SkinBtnContainer Container = new SkinBtnContainer();
+                Container.BtnTex = m_EditBodySkinBtnTex;
+                Container.SourcePosition =
+                    //Initialize to second frame in image.
+                    new Vector2((m_EditBodySkinBtnTex.Width / (4)) * 2, 0.0f);
+                m_SkinBtns.Add(Container);
             }
         }
 
@@ -185,7 +167,7 @@ namespace Gonzo.Elements
                     {
                         for (int Y = 0; Y <= m_Map.GetUpperBound(0); Y++)
                         {
-                            m_Thumb = FileManager.GetTexture(m_LightAppearances[Y + m_Counter].LightAppearance.
+                            m_Thumb = FileManager.GetTexture(m_LightAppearances[(X * Y) + m_Counter].LightAppearance.
                                 ThumbnailID.UniqueID);
                             int BtnWidth = m_SkinBtns[m_Counter + Y].BtnTex.Width / 4;
                             int BtnHeight = m_SkinBtns[m_Counter + Y].BtnTex.Height;
@@ -193,7 +175,7 @@ namespace Gonzo.Elements
                             Vector2 TexturePosition = new Vector2(X * (BodyTileSize.X + 16), Y * (BodyTileSize.Y));
                             Vector2 ButtonPosition = new Vector2(TexturePosition.X - 3, TexturePosition.Y - 5);
 
-                            SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
+                            SBatch.Draw(m_SkinBtns[(X * Y) + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), BtnWidth, BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
                                 (int)m_SkinBtns[m_Counter + Y].SourcePosition.Y, BtnWidth, BtnHeight),
@@ -214,7 +196,7 @@ namespace Gonzo.Elements
                     {
                         for (int Y = 0; Y <= m_Map.GetUpperBound(0); Y++)
                         {
-                            m_Thumb = FileManager.GetTexture(m_MediumAppearances[Y + m_Counter].MediumAppearance.
+                            m_Thumb = FileManager.GetTexture(m_MediumAppearances[(X * Y) + m_Counter].MediumAppearance.
                                 ThumbnailID.UniqueID);
                             int BtnWidth = m_SkinBtns[m_Counter + Y].BtnTex.Width / 4;
                             int BtnHeight = m_SkinBtns[m_Counter + Y].BtnTex.Height;
@@ -222,7 +204,7 @@ namespace Gonzo.Elements
                             Vector2 TexturePosition = new Vector2(X * (BodyTileSize.X + 16), Y * (BodyTileSize.Y));
                             Vector2 ButtonPosition = new Vector2(TexturePosition.X - 3, TexturePosition.Y - 5);
 
-                            SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
+                            SBatch.Draw(m_SkinBtns[(X * Y) + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), BtnWidth, BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
                                 (int)m_SkinBtns[m_Counter + Y].SourcePosition.Y, BtnWidth, BtnHeight),

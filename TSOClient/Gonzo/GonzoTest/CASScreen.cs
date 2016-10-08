@@ -40,8 +40,13 @@ namespace GonzoTest
             m_FemaleBtn = (UIButton)m_Elements["\"FemaleButton\""];
             m_MaleBtn = (UIButton)m_Elements["\"MaleButton\""];
             m_SkinLightBtn = (UIButton)m_Elements["\"SkinLightButton\""];
+            m_SkinLightBtn.OnButtonClicked += M_SkinLightBtn_OnButtonClicked;
+
             m_SkinMediumBtn = (UIButton)m_Elements["\"SkinMediumButton\""];
+            m_SkinMediumBtn.OnButtonClicked += M_SkinMediumBtn_OnButtonClicked;
+
             m_SkinDarkBtn = (UIButton)m_Elements["\"SkinDarkButton\""];
+            m_SkinDarkBtn.OnButtonClicked += M_SkinDarkBtn_OnButtonClicked;
 
             m_DescriptionTextEdit = (UITextEdit)m_Elements["\"DescriptionTextEdit\""];
 
@@ -64,6 +69,36 @@ namespace GonzoTest
             m_VitaboyScreen.AddSim(m_Avatar);
 
             Manager.AddScreen(m_VitaboyScreen);
+        }
+
+        /// <summary>
+        /// The player clicked the SkinLightButton.
+        /// This causes the browsers' skin type to change to light.
+        /// </summary>
+        private void M_SkinLightBtn_OnButtonClicked(UIButton ClickedButton)
+        {
+            m_HeadSkinBrowser.SkinType = 0;
+            m_BodySkinBrowser.SkinType = 0;
+        }
+
+        /// <summary>
+        /// The player clicked the SkinMediumButton.
+        /// This causes the browsers' skin type to change to medium.
+        /// </summary>
+        private void M_SkinMediumBtn_OnButtonClicked(UIButton ClickedButton)
+        {
+            m_HeadSkinBrowser.SkinType = 1;
+            m_BodySkinBrowser.SkinType = 1;
+        }
+
+        /// <summary>
+        /// The player clicked the SkinDarkButton.
+        /// This causes the browsers' skin type to change to dark.
+        /// </summary>
+        private void M_SkinDarkBtn_OnButtonClicked(UIButton ClickedButton)
+        {
+            m_HeadSkinBrowser.SkinType = 2;
+            m_BodySkinBrowser.SkinType = 2;
         }
 
         private void M_HeadSkinBrowser_OnButtonClicked(int SkinType, Outfit SelectedOutfit)

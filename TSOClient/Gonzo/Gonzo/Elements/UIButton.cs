@@ -97,6 +97,18 @@ namespace Gonzo.Elements
                         m_Size.X = Image.Texture.Width / 4;
                         m_Size.Y = Image.Texture.Height;
                     }
+                    else
+                    {
+                        Image = m_Screen.GetImage(Node.Image, false);
+                        //Initialize to second frame in the image.
+                        m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
+
+                        m_Size = new Vector2();
+                        m_Size.X = (Image.Texture.Width) / (4);
+                        m_Size.Y = Image.Texture.Height;
+
+                        Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
+                    }
 
                     Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
                 }
