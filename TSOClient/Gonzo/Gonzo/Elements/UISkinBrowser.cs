@@ -14,6 +14,12 @@ namespace Gonzo.Elements
         Dark = 0x2
     }
 
+    public enum AvatarSex
+    {
+        Male = 0x0,
+        Female = 0x1
+    }
+
     public class OutfitContainer
     {
         /// <summary>
@@ -64,15 +70,20 @@ namespace Gonzo.Elements
     public class UISkinBrowser : UIControl
     {
         protected SkinType m_SelectedSkintype;
+        protected AvatarSex m_Sex;
 
         protected List<OutfitContainer> m_LightAppearances = new List<OutfitContainer>();
+        protected List<OutfitContainer> m_LightFemaleAppearances = new List<OutfitContainer>();
         protected List<OutfitContainer> m_MediumAppearances = new List<OutfitContainer>();
+        protected List<OutfitContainer> m_MediumFemaleAppearances = new List<OutfitContainer>();
         protected List<OutfitContainer> m_DarkAppearances = new List<OutfitContainer>();
-        protected List<Collection> m_Collections = new List<Collection>();
+        protected List<OutfitContainer> m_DarkFemaleAppearances = new List<OutfitContainer>();
+        protected List<Collection> m_Collections = new List<Collection>(), m_FemaleCollections = new List<Collection>();
 
         protected List<SkinBtnContainer> m_SkinBtns = new List<SkinBtnContainer>();
 
         protected UIButton m_SkinBrowserArrowLeft, m_SkinBrowserArrowRight;
+        protected int m_BtnWidth, m_BtnHeight; //Width and height of a button in the browser.
 
         /// <summary>
         /// Sets the skintype currently visible in this UISkinBrowser.
@@ -98,6 +109,17 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
+        /// Sets the sex of the skins shown by this SkinBrowser.
+        /// </summary>
+        public AvatarSex Sex
+        {
+            set
+            {
+                m_Sex = value;
+            }
+        }
+
+        /// <summary>
         /// Index which controls which rows of skins are visible.
         /// </summary>
         public int Index
@@ -113,11 +135,12 @@ namespace Gonzo.Elements
         /// <param name="Screen">A UIScreen instance that this UISkinBrowser belongs to.</param>
         /// <param name="Ctrl">A UIControl instance that this UISkinBrowser should be created from.</param>
         /// <param name="SkinType">The type of skin initially displayed by this UISkinBrowser. 0 = light, 1 = medium, 2 = dark.</param>
-        public UISkinBrowser(UIScreen Screen, UIControl Ctrl, int SkinType) : base(Ctrl, Screen)
+        public UISkinBrowser(UIScreen Screen, UIControl Ctrl, int SkinType, AvatarSex Sex) : base(Ctrl, Screen)
         {
             Position = Position + Screen.Position;
 
             m_SelectedSkintype = (Elements.SkinType)SkinType;
+            m_Sex = Sex;
 
             m_SkinBrowserArrowLeft = new UIButton("SkinBrowserArrowLeft",
                 FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft),

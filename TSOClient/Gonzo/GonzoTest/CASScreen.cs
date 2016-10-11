@@ -37,8 +37,13 @@ namespace GonzoTest
             m_DescriptionScrollUpBtn = (UIButton)m_Elements["\"DescriptionScrollUpButton\""];
             m_DescriptionScrollDownBtn = (UIButton)m_Elements["\"DescriptionScrollDownButton\""];
             m_ExitBtn = (UIButton)m_Elements["\"ExitButton\""];
+
             m_FemaleBtn = (UIButton)m_Elements["\"FemaleButton\""];
+            m_FemaleBtn.OnButtonClicked += M_FemaleBtn_OnButtonClicked;
+
             m_MaleBtn = (UIButton)m_Elements["\"MaleButton\""];
+            m_MaleBtn.OnButtonClicked += M_MaleBtn_OnButtonClicked;
+
             m_SkinLightBtn = (UIButton)m_Elements["\"SkinLightButton\""];
             m_SkinLightBtn.OnButtonClicked += M_SkinLightBtn_OnButtonClicked;
 
@@ -50,9 +55,9 @@ namespace GonzoTest
 
             m_DescriptionTextEdit = (UITextEdit)m_Elements["\"DescriptionTextEdit\""];
 
-            m_HeadSkinBrowser = new UIHeadBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1);
+            m_HeadSkinBrowser = new UIHeadBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Male);
             m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
-            m_BodySkinBrowser = new UIBodyBrowser(this, m_Controls["\"BodySkinBrowser\""], 1);
+            m_BodySkinBrowser = new UIBodyBrowser(this, m_Controls["\"BodySkinBrowser\""], 1, AvatarSex.Male);
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device);
@@ -69,6 +74,18 @@ namespace GonzoTest
             m_VitaboyScreen.AddSim(m_Avatar);
 
             Manager.AddScreen(m_VitaboyScreen);
+        }
+
+        private void M_MaleBtn_OnButtonClicked(UIButton ClickedButton)
+        {
+            m_HeadSkinBrowser.Sex = AvatarSex.Male;
+            m_BodySkinBrowser.Sex = AvatarSex.Male;
+        }
+
+        private void M_FemaleBtn_OnButtonClicked(UIButton ClickedButton)
+        {
+            m_HeadSkinBrowser.Sex = AvatarSex.Female;
+            m_BodySkinBrowser.Sex = AvatarSex.Female;
         }
 
         /// <summary>
