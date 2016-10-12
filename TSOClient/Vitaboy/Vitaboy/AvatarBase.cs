@@ -30,9 +30,9 @@ namespace Vitaboy
     {
         protected GraphicsDevice m_Devc;
         public Skeleton Skel;
-        protected BasicEffect m_BodyEffect, m_HeadEffect, m_LeftHandEffect, RightHandEffect;
-        public Mesh HeadMesh, BodyMesh, LeftHandMesh, RightHandMesh;
-        public Texture2D LeftHandTexture, RightHandTexture, BodyTexture, HeadTexture;
+        protected BasicEffect m_BodyEffect, m_HeadEffect, m_AccessoryEffect, m_LeftHandEffect, RightHandEffect;
+        public Mesh HeadMesh, AccessoryMesh, BodyMesh, LeftHandMesh, RightHandMesh;
+        public Texture2D LeftHandTexture, RightHandTexture, BodyTexture, HeadTexture, AccessoryTexture;
         public Anim Animation;
         private float m_AnimationTime = 0.0f;
 
@@ -88,6 +88,9 @@ namespace Vitaboy
         public void ChangeOutfit(Outfit Oft, SkinType Type)
         {
             Binding[] Bindings;
+
+            AccessoryMesh = null;
+            AccessoryTexture = null;
 
             if (Oft.HandgroupID.FileID != 0)
             {
@@ -160,6 +163,7 @@ namespace Vitaboy
             }
 
             Bindings = FileManager.GetBindings(Apr.BindingIDs);
+            HeadMesh = null; //IMPORTANT: Reset the head mesh before loading a new one.
 
             foreach (Binding Bnd in Bindings)
             {
@@ -170,9 +174,16 @@ namespace Vitaboy
                         BodyTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
                         break;
                     case "HEAD":
-                        //TODO: Deal with accessories.
-                        HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                        HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                        if (HeadMesh == null)
+                        {
+                            HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
+                            HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                        }
+                        else
+                        {
+                            AccessoryMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
+                            AccessoryTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                        }
                         break;
                 }
             }
@@ -185,10 +196,17 @@ namespace Vitaboy
         {
             set
             {
+                AccessoryMesh = null;
+                AccessoryTexture = null;
+
+                //I think that heads are always 0...
                 Binding Bnd = FileManager.GetBinding(value.BindingIDs[0].UniqueID);
 
                 HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
                 HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+
+                if(value.BindingIDs.Count > 1) //This head has accessories.
+                    Bnd = FileManager.GetBinding(value.BindingIDs[1].UniqueID);
             }
         }
 
@@ -203,6 +221,7 @@ namespace Vitaboy
             this.Skel = Skel;
 
             m_HeadEffect = new BasicEffect(Devc);
+            m_AccessoryEffect = new BasicEffect(Devc);
             m_BodyEffect = new BasicEffect(Devc);
             m_LeftHandEffect = new BasicEffect(Devc);
         }
@@ -259,6 +278,17 @@ namespace Vitaboy
                 m_HeadEffect.TextureEnabled = true;
             }
 
+            m_AccessoryEffect.World = WorldMatrix;
+            m_AccessoryEffect.View = ViewMatrix;
+            m_AccessoryEffect.Projection = ProjectionMatrix;
+            m_AccessoryEffect.EnableDefaultLighting();
+
+            if (AccessoryTexture != null)
+            {
+                m_AccessoryEffect.Texture = AccessoryTexture;
+                m_AccessoryEffect.TextureEnabled = true;
+            }
+
             m_BodyEffect.World = WorldMatrix;
             m_BodyEffect.View = ViewMatrix;
             m_BodyEffect.Projection = ProjectionMatrix;
@@ -308,6 +338,35 @@ namespace Vitaboy
                     }
 
                     TransformVertices(HeadMesh, null, MeshType.Head);
+                }
+            }
+
+            if (AccessoryMesh != null)
+            {
+                foreach (EffectPass Pass in m_AccessoryEffect.CurrentTechnique.Passes)
+                {
+                    Pass.Apply();
+
+                    foreach (Vector3 Fce in AccessoryMesh.Faces)
+                    {
+                        // Draw
+                        VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
+                        Vertex[0] = AccessoryMesh.TransformedVertices[(int)Fce.X];
+                        Vertex[1] = AccessoryMesh.TransformedVertices[(int)Fce.Y];
+                        Vertex[2] = AccessoryMesh.TransformedVertices[(int)Fce.Z];
+
+                        Vertex[0].TextureCoordinate = AccessoryMesh.TransformedVertices[(int)Fce.X].TextureCoordinate;
+                        Vertex[1].TextureCoordinate = AccessoryMesh.TransformedVertices[(int)Fce.Y].TextureCoordinate;
+                        Vertex[2].TextureCoordinate = AccessoryMesh.TransformedVertices[(int)Fce.Z].TextureCoordinate;
+
+                        Vertex[0].Normal = AccessoryMesh.TransformedVertices[(int)Fce.X].Normal;
+                        Vertex[1].Normal = AccessoryMesh.TransformedVertices[(int)Fce.Y].Normal;
+                        Vertex[2].Normal = AccessoryMesh.TransformedVertices[(int)Fce.Z].Normal;
+
+                        m_Devc.DrawUserPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, Vertex, 0, 1);
+                    }
+
+                    TransformVertices(AccessoryMesh, null, MeshType.Head);
                 }
             }
 

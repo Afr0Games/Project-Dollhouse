@@ -34,6 +34,12 @@ namespace Gonzo.Elements
         Scrollbar = 1
     }
 
+    internal class RenderableText
+    {
+        public StringBuilder SBuilder = new StringBuilder();
+        public Vector2 Position;
+    }
+
     public class UITextEdit : UIElement
     {
         public bool Transparent = false;
@@ -60,89 +66,115 @@ namespace Gonzo.Elements
 
         private StringBuilder m_SBuilder = new StringBuilder();
 
-        private List<StringBuilder> m_Lines = new List<StringBuilder>();
+        private List<RenderableText> m_Lines = new List<RenderableText>();
 
         public UITextEdit(AddTextEditNode Node, ParserState State, UIScreen Screen) : base(Screen)
         {
             m_Name = Node.Name;
             m_ID = Node.ID;
-            Position = new Vector2();
-            Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]) + Screen.Position;
 
-            if (State.InSharedPropertiesGroup)
-                m_Size = State.Size;
+            if (!State.InSharedPropertiesGroup)
+            {
+                if (Node.TextEditPosition.Numbers.Count > 0)
+                {
+                    Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]) + Screen.Position;
+                    m_TextPosition = Position;
+                }
+
+                if (State.InSharedPropertiesGroup)
+                    m_Size = State.Size;
+                else
+                {
+                    m_Size = new Vector2();
+                    m_Size.X = Node.Size.Numbers[0];
+                    m_Size.Y = Node.Size.Numbers[1];
+                }
+
+                if (Node.Tooltip != "")
+                    Tooltip = m_Screen.GetString(Node.Tooltip);
+
+                Transparent = (Node.Transparent == 1) ? true : false;
+
+                if (Node.Lines != null)
+                    m_NumLines = (int)Node.Lines;
+
+                if (Node.Capacity != null)
+                    m_MaxChars = (int)Node.Capacity;
+
+                if (Node.Alignment != null)
+                    m_Alignment = (TextEditAlignment)Node.Alignment;
+
+                if (Node.FlashOnEmpty != null)
+                    m_FlashOnEmpty = (Node.FlashOnEmpty == 1) ? true : false;
+
+                if (Node.FrameOnFocus != null)
+                    m_FrameOnFocus = (Node.FrameOnFocus == 1) ? true : false;
+
+                if (State.InSharedPropertiesGroup)
+                    TextColor = State.Color;
+                else
+                    TextColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
+
+                if (Node.BackColor != null)
+                {
+                    m_BackColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
+                    Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
+                    if(Position != null)
+                        Image.Position = Position;
+                    Image.Slicer = new NineSlicer(new Vector2(0, 0), Image.Texture.Width, Image.Texture.Height, 20, 20, 20, 20);
+                    Image.SetSize((int)Size.X, (int)Size.Y);
+                }
+                else
+                {
+                    m_BackColor = new Color(57, 81, 110, 255);
+                    Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
+                    if(Position != null)
+                        Image.Position = Position;
+                    Image.Slicer = new NineSlicer(new Vector2(0, 0), Image.Texture.Width, Image.Texture.Height, 20, 20, 20, 20);
+                    Image.SetSize((int)Size.X, (int)Size.Y);
+                }
+
+                if (Node.Mode != null)
+                    m_Mode = (Node.Mode == "kReadOnly") ? TextEditMode.ReadOnly : TextEditMode.Insert;
+
+                if (Node.ScrollbarImage != string.Empty)
+                    m_ScrollbarImage = m_Screen.GetImage(Node.ScrollbarImage).Image.Texture;
+
+                if (Node.ScrollbarGutter != null)
+                    m_ScrollbarWidth = (int)Node.ScrollbarGutter;
+
+                if (Node.ScrollbarType != null)
+                    m_ScrollbarType = (ScrollbarType)Node.ScrollbarType;
+
+                if (Node.ResizeForExactLineHeight != null)
+                    m_ResizeForExactLineHeight = (Node.ResizeForExactLineHeight == 1) ? true : false;
+
+                if (Node.EnableIME != null)
+                    m_EnableInputModeEditing = (Node.EnableIME == 1) ? true : false;
+
+                if (Node.CursorColor != null)
+                    m_CursorColor = new Color(Node.CursorColor.Numbers[0], Node.CursorColor.Numbers[1], Node.CursorColor.Numbers[2]);
+
+                if (Node.FrameColor != null)
+                    m_FrameColor = new Color(Node.FrameColor.Numbers[0], Node.FrameColor.Numbers[1], Node.FrameColor.Numbers[2]);
+            }
             else
             {
-                m_Size = new Vector2();
-                m_Size.X = Node.Size.Numbers[0];
-                m_Size.Y = Node.Size.Numbers[1];
+                if (State.BackColor != null)
+                    m_BackColor = State.BackColor;
+                if (State.Color != null)
+                    TextColor = State.Color;
+                if (State.CursorColor != null)
+                    m_CursorColor = State.CursorColor;
+                if (State.Position != null)
+                {
+                    Position = new Vector2(State.Position[0], State.Position[1]) + Screen.Position;
+                    m_TextPosition = Position;
+                    Image.Position = Position;
+                }
+                if (State.Tooltip != "")
+                    Tooltip = State.Tooltip;
             }
-
-            if (Node.Tooltip != "")
-                Tooltip = m_Screen.GetString(Node.Tooltip);
-
-            Transparent = (Node.Transparent == 1) ? true : false;
-
-            if (Node.Lines != null)
-                m_NumLines = (int)Node.Lines;
-
-            if (Node.Capacity != null)
-                m_MaxChars = (int)Node.Capacity;
-
-            if(Node.Alignment != null)
-                m_Alignment = (TextEditAlignment)Node.Alignment;
-
-            if (Node.FlashOnEmpty != null)
-                m_FlashOnEmpty = (Node.FlashOnEmpty == 1) ? true : false;
-
-            if (Node.FrameOnFocus != null)
-                m_FrameOnFocus = (Node.FrameOnFocus == 1) ? true : false;
-
-            if (State.InSharedPropertiesGroup)
-                TextColor = State.Color;
-            else
-                TextColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
-
-            if (Node.BackColor != null)
-            {
-                m_BackColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
-                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
-                Image.Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]);
-                Image.Slicer = new NineSlicer(new Vector2(0, 0), Image.Texture.Width, Image.Texture.Height, 20, 20, 20, 20);
-                Image.SetSize((int)Size.X, (int)Size.Y);
-            }
-            else
-            {
-                m_BackColor = new Color(57, 81, 110, 255);
-                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
-                Image.Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]);
-                Image.Slicer = new NineSlicer(new Vector2(0, 0), Image.Texture.Width, Image.Texture.Height, 20, 20, 20, 20);
-                Image.SetSize((int)Size.X, (int)Size.Y);
-            }
-
-            if (Node.Mode != null)
-                m_Mode = (Node.Mode == "kInsert") ? TextEditMode.Insert : TextEditMode.ReadOnly;
-
-            if (Node.ScrollbarImage != string.Empty)
-                m_ScrollbarImage = m_Screen.GetImage(Node.ScrollbarImage).Image.Texture;
-
-            if (Node.ScrollbarGutter != null)
-                m_ScrollbarWidth = (int)Node.ScrollbarGutter;
-
-            if (Node.ScrollbarType != null)
-                m_ScrollbarType = (ScrollbarType)Node.ScrollbarType;
-
-            if (Node.ResizeForExactLineHeight != null)
-                m_ResizeForExactLineHeight = (Node.ResizeForExactLineHeight == 1) ? true : false;
-
-            if (Node.EnableIME != null)
-                m_EnableInputModeEditing = (Node.EnableIME == 1) ? true : false;
-
-            if (Node.CursorColor != null)
-                m_CursorColor = new Color(Node.CursorColor.Numbers[0], Node.CursorColor.Numbers[1], Node.CursorColor.Numbers[2]);
-
-            if (Node.FrameColor != null)
-                m_FrameColor = new Color(Node.FrameColor.Numbers[0], Node.FrameColor.Numbers[1], Node.FrameColor.Numbers[2]);
 
             int Font = 0;
             if (Node.Font != 0)
@@ -152,6 +184,9 @@ namespace Gonzo.Elements
             
             switch(Font)
             {
+                case 9:
+                    m_Font = Screen.Font9px;
+                    break;
                 case 10:
                     m_Font = Screen.Font10px;
                     break;
@@ -165,23 +200,6 @@ namespace Gonzo.Elements
                     m_Font = Screen.Font16px;
                     break;
             }
-
-            if (State != null)
-            {
-                if (State.BackColor != null)
-                    m_BackColor = State.BackColor;
-                if (State.Color != null)
-                    TextColor = State.Color;
-                if (State.CursorColor != null)
-                    m_CursorColor = State.CursorColor;
-                if (State.Position != null)
-                {
-                    if(Position.X == 0 && Position.Y == 0)
-                        Position = new Vector2(State.Position[0], State.Position[1]);
-                }
-                if (State.Tooltip != "")
-                    Tooltip = State.Tooltip;
-            }
         }
 
         /// <summary>
@@ -192,8 +210,8 @@ namespace Gonzo.Elements
             get
             {
                 string InputStr = "";
-                foreach (StringBuilder SBuilder in m_Lines)
-                    InputStr += SBuilder.ToString();
+                foreach (RenderableText Txt in m_Lines)
+                    InputStr += Txt.SBuilder.ToString();
 
                 return InputStr;
             }
@@ -201,11 +219,11 @@ namespace Gonzo.Elements
 
         public override void Update(InputHelper Input, GameTime GTime)
         {
-            if (m_Mode == TextEditMode.Insert)
+            if (m_Mode != TextEditMode.ReadOnly)
             {
                 if (IsMouseOver(Input))
                 {
-                    if (Input.IsCurPress(MouseButtons.LeftButton))
+                    if (Input.IsNewPress(MouseButtons.LeftButton))
                         m_HasFocus = true;
                 }
 
@@ -216,13 +234,13 @@ namespace Gonzo.Elements
                     {
                         if ((m_Lines.Count <= m_NumLines) && (m_Lines.Count < m_Size.Y))
                         {
-                            m_Lines.Add(m_SBuilder);
+                            m_Lines.Add(new RenderableText() { SBuilder = m_SBuilder, Position = m_TextPosition });
                             m_SBuilder = new StringBuilder();
                             m_TextPosition.Y += m_Font.LineSpacing;
                         }
                         else //Text went beyond the borders of the control...
                         {
-                            m_Lines.Add(m_SBuilder);
+                            m_Lines.Add(new RenderableText() { SBuilder = m_SBuilder, Position = m_TextPosition });
                             m_SBuilder = new StringBuilder();
                             m_TextPosition.Y += m_Font.LineSpacing;
                             m_ScrollbarHeight += m_Font.LineSpacing;
@@ -414,7 +432,7 @@ namespace Gonzo.Elements
             else
                 Depth = 0.5f;
 
-            int Height = (int)m_TextPosition.Y;
+            int DrawingHeight = (int)m_TextPosition.Y;
 
             if (Visible)
             {
@@ -435,13 +453,15 @@ namespace Gonzo.Elements
                     SBatch.Draw(m_ScrollbarImage, new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f,
                         new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight), SpriteEffects.None, Depth);
 
-                foreach (StringBuilder SBuilder in m_Lines)
+                foreach (RenderableText Txt in m_Lines)
                 {
-                    SBatch.DrawString(m_Font, SBuilder.ToString(), new Vector2(m_TextPosition.X, Height), TextColor);
-                    Height += m_Font.LineSpacing;
+                    SBatch.DrawString(m_Font, Txt.SBuilder.ToString(), new Vector2(Txt.Position.X, Txt.Position.Y), 
+                        TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
+                    DrawingHeight += m_Font.LineSpacing;
                 }
 
-                SBatch.DrawString(m_Font, m_SBuilder.ToString(), new Vector2(m_TextPosition.Y, Height), TextColor);
+                SBatch.DrawString(m_Font, m_SBuilder.ToString(), new Vector2(m_TextPosition.X, m_TextPosition.Y), 
+                    TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
             }
         }
 

@@ -132,6 +132,7 @@ namespace GonzoTest
         {
             m_HeadSkinBrowser.Update(Input, GTime);
             m_BodySkinBrowser.Update(Input, GTime);
+            m_DescriptionTextEdit.Update(Input, GTime);
 
             base.Update(Input, GTime);
         }
