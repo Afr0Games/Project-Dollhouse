@@ -38,6 +38,7 @@ namespace Gonzo.Elements
     {
         public StringBuilder SBuilder = new StringBuilder();
         public Vector2 Position;
+        public bool Visible = true;
     }
 
     public class UITextEdit : UIElement
@@ -47,6 +48,9 @@ namespace Gonzo.Elements
         private int m_MaxChars = 0;
         private TextEditAlignment m_Alignment = 0;
         private bool m_FlashOnEmpty = false;
+
+        //This is used to index the current line of text to turn invisible when text is scrolling.
+        private int m_VisibilityIndex = 0;
         
         /// <summary>
         /// Defines whether this text edit control will receive a border on focus. 1=Yes, 0=No.Default is yes.
@@ -232,7 +236,7 @@ namespace Gonzo.Elements
                     //Check that text doesn't go beyond width of control...
                     if (m_Font.MeasureString(m_SBuilder.ToString()).X >= m_Size.X)
                     {
-                        if ((m_Lines.Count <= m_NumLines) && (m_Lines.Count < m_Size.Y))
+                        if (m_TextPosition.Y <= Position.Y + ((m_NumLines - 2) * m_Font.LineSpacing))
                         {
                             m_Lines.Add(new RenderableText() { SBuilder = m_SBuilder, Position = m_TextPosition });
                             m_SBuilder = new StringBuilder();
@@ -240,10 +244,15 @@ namespace Gonzo.Elements
                         }
                         else //Text went beyond the borders of the control...
                         {
+                            foreach (RenderableText Txt in m_Lines)
+                                Txt.Position.Y -= m_Font.LineSpacing;
+
                             m_Lines.Add(new RenderableText() { SBuilder = m_SBuilder, Position = m_TextPosition });
                             m_SBuilder = new StringBuilder();
-                            m_TextPosition.Y += m_Font.LineSpacing;
-                            m_ScrollbarHeight += m_Font.LineSpacing;
+                            m_ScrollbarHeight -= m_Font.LineSpacing;
+
+                            m_Lines[m_VisibilityIndex].Visible = false;
+                            m_VisibilityIndex++;
                         }
                     }
                 }
@@ -455,12 +464,16 @@ namespace Gonzo.Elements
 
                 foreach (RenderableText Txt in m_Lines)
                 {
-                    SBatch.DrawString(m_Font, Txt.SBuilder.ToString(), new Vector2(Txt.Position.X, Txt.Position.Y), 
-                        TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
-                    DrawingHeight += m_Font.LineSpacing;
+                    if (Txt.Visible)
+                    {
+                        SBatch.DrawString(m_Font, Txt.SBuilder.ToString(), new Vector2(Txt.Position.X, Txt.Position.Y),
+                            TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
+                        DrawingHeight += m_Font.LineSpacing;
+                    }
                 }
 
-                SBatch.DrawString(m_Font, m_SBuilder.ToString(), new Vector2(m_TextPosition.X, m_TextPosition.Y), 
+                SBatch.DrawString(m_Font, m_SBuilder.ToString(), new Vector2(m_TextPosition.X, 
+                    (m_VisibilityIndex > 0) ? m_TextPosition.Y + m_Font.LineSpacing : m_TextPosition.Y), 
                     TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
             }
         }
