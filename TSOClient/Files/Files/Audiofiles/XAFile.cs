@@ -28,7 +28,7 @@ namespace Files.AudioFiles
     /// Represents a *.xa file.
     /// It is used to store compressed wav data.
     /// </summary>
-    public class XAFile : ISoundCodec
+    public class XAFile : ISoundCodec, IDisposable
     {
         private int m_CurSampleLeft = 0;
         private int m_PrevSampleLeft = 0;
@@ -337,5 +337,15 @@ namespace Files.AudioFiles
              0xFFFFFFFD,
              0xFFFFFFFC
         };
+
+        public void Dispose()
+        {
+            if (m_Reader != null)
+                m_Reader.Close();
+            if (m_Writer != null)
+                m_Writer.Close();
+            if (m_DecompressedStream != null)
+                m_DecompressedStream.Close();
+        }
     }
 }

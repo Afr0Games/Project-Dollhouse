@@ -22,7 +22,7 @@ namespace Files.Manager
     /// <summary>
     /// An in-memory asset. Loaded and managed by FileManager.
     /// </summary>
-    public class Asset
+    public class Asset : IDisposable
     {
         private DateTime m_LastAccessed = DateTime.Now;
         private ManualResetEvent m_LastAccessedLock = new ManualResetEvent(false);
@@ -110,5 +110,16 @@ namespace Files.Manager
             m_LastAccessed = DateTime.Now;
             m_LastAccessedLock.Set();
         }
+
+        public void Dispose()
+        {
+            if (m_LastAccessedLock != null)
+                m_LastAccessedLock.Close();
+
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public virtual void Dispose(bool CleanupNativeandManagedResources) { }
     }
 }

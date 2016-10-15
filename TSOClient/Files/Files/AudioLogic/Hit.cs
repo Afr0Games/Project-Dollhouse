@@ -17,7 +17,7 @@ using System.IO;
 
 namespace Files.AudioLogic
 {
-    public class Hit
+    public class Hit : IDisposable
     {
         private FileReader m_Reader;
 
@@ -46,6 +46,12 @@ namespace Files.AudioLogic
             InstructionData = m_Reader.ReadBytes((int)m_Reader.StreamLength);
 
             m_Reader.Close();
+        }
+
+        public void Dispose()
+        {
+            if (m_Reader != null)
+                m_Reader.Close();
         }
     }
 }

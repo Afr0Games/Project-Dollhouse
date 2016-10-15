@@ -21,7 +21,7 @@ namespace Files.IFF
     /// <summary>
     /// This chunk type holds a regular Windows BMP file.
     /// </summary>
-    public class BMP_ : IFFChunk
+    public class BMP_ : IFFChunk, IDisposable
     {
         public MemoryStream BitmapStream;
 
@@ -31,6 +31,12 @@ namespace Files.IFF
             BitmapStream = new MemoryStream(Reader.ReadToEnd());
 
             Reader.Close();
+        }
+
+        public void Dispose()
+        {
+            if (BitmapStream != null)
+                BitmapStream.Close();
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Files.FAR3
     /// <summary>
     /// Represents a FAR version 3 archive.
     /// </summary>
-    public class FAR3Archive
+    public class FAR3Archive : IDisposable
     {
         private ConcurrentDictionary<ulong, FAR3Entry> m_Entries = new ConcurrentDictionary<ulong, FAR3Entry>();
         private string m_Path;
@@ -176,6 +176,14 @@ namespace Files.FAR3
             m_FinishedReading.WaitOne();
 
             return m_Entries.ContainsKey(ID);
+        }
+
+        public void Dispose()
+        {
+            if (m_Reader != null)
+                m_Reader.Close();
+            if (m_FinishedReading != null)
+                m_FinishedReading.Close();
         }
     }
 }

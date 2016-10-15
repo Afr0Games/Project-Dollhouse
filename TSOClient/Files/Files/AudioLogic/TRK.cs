@@ -33,7 +33,7 @@ namespace Files.AudioLogic
         kGroupVox = 3
     }
 
-    public class TRK
+    public class TRK : IDisposable
     {
         private FileReader m_Reader;
         private int m_Version;
@@ -92,6 +92,12 @@ namespace Files.AudioLogic
                 Volume = int.Parse(Elements[(m_Version != 2) ? 13 : 14], NumberStyles.Integer);
 
             m_Reader.Close();
+        }
+
+        public void Dispose()
+        {
+            if (m_Reader != null)
+                m_Reader.Close();
         }
     }
 }

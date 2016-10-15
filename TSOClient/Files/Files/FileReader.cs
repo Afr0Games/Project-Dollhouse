@@ -332,6 +332,15 @@ namespace Files
         public void Dispose()
         {
             m_Reader.Dispose();
+
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanupNativeAndManagedResources)
+        {
+            if (true)
+                m_Reader.Dispose();
         }
     }
 }

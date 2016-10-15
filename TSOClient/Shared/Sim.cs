@@ -68,9 +68,9 @@ namespace Shared
         /// Sets the head for this Sim.
         /// </summary>
         /// <param name="Head">The Appearance of the head to set.</param>
-        public void Head(Appearance Head)
+        public void Head(Outfit Head, SkinType Type)
         {
-            m_Avatar.Head = Head;
+            m_Avatar.SetHead(Head, Type);
         }
 
         /// <summary>

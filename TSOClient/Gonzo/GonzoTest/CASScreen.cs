@@ -25,6 +25,9 @@ namespace GonzoTest
         private Sim m_Avatar;
         VitaboyScreen m_VitaboyScreen;
 
+        //0 = light, 1 = medium, 2 = dark
+        private int m_CurrentSkinType = 1;
+
         public CASScreen(ScreenManager Manager, SpriteBatch SBatch) : base(Manager, "CAS", SBatch, 
             new Vector2(0, 0), 
             new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight),
@@ -55,14 +58,14 @@ namespace GonzoTest
 
             m_DescriptionTextEdit = (UITextEdit)m_Elements["\"DescriptionTextEdit\""];
 
-            m_HeadSkinBrowser = new UIHeadBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Male);
+            m_HeadSkinBrowser = new UIHeadBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Female);
             m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
-            m_BodySkinBrowser = new UIBodyBrowser(this, m_Controls["\"BodySkinBrowser\""], 1, AvatarSex.Male);
+            m_BodySkinBrowser = new UIBodyBrowser(this, m_Controls["\"BodySkinBrowser\""], 1, AvatarSex.Female);
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device);
             Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
-            Avatar.Head = FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2);
+            Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), (Vitaboy.SkinType)m_CurrentSkinType);
             Avatar.ShouldRotate = true;
 
             m_Avatar = new Sim(Manager.Device, Avatar);
@@ -80,12 +83,18 @@ namespace GonzoTest
         {
             m_HeadSkinBrowser.Sex = AvatarSex.Male;
             m_BodySkinBrowser.Sex = AvatarSex.Male;
+
+            m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mab000_robin), (Vitaboy.SkinType)m_CurrentSkinType);
+            m_Avatar.Head(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mah003_antony), (Vitaboy.SkinType)m_CurrentSkinType);
         }
 
         private void M_FemaleBtn_OnButtonClicked(UIButton ClickedButton)
         {
             m_HeadSkinBrowser.Sex = AvatarSex.Female;
             m_BodySkinBrowser.Sex = AvatarSex.Female;
+
+            m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), (Vitaboy.SkinType)m_CurrentSkinType);
+            m_Avatar.Head(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), (Vitaboy.SkinType)m_CurrentSkinType);
         }
 
         /// <summary>
@@ -96,6 +105,7 @@ namespace GonzoTest
         {
             m_HeadSkinBrowser.SkinType = 0;
             m_BodySkinBrowser.SkinType = 0;
+            m_CurrentSkinType = 0;
         }
 
         /// <summary>
@@ -106,6 +116,7 @@ namespace GonzoTest
         {
             m_HeadSkinBrowser.SkinType = 1;
             m_BodySkinBrowser.SkinType = 1;
+            m_CurrentSkinType = 1;
         }
 
         /// <summary>
@@ -116,6 +127,7 @@ namespace GonzoTest
         {
             m_HeadSkinBrowser.SkinType = 2;
             m_BodySkinBrowser.SkinType = 2;
+            m_CurrentSkinType = 2;
         }
 
         private void M_HeadSkinBrowser_OnButtonClicked(int SkinType, Outfit SelectedOutfit)

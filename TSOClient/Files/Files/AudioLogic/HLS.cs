@@ -13,7 +13,7 @@ namespace Files.AudioLogic
     /// comma-seperated list of decimal values, or decimal ranges (e.g. "1025-1035"), succeeded 
     /// by a single LF newline.
     /// </summary>
-    public class HLS
+    public class HLS : IDisposable
     {
         private FileReader m_Reader;
         public List<uint> SoundsAndHitlists = new List<uint>();
@@ -74,6 +74,12 @@ namespace Files.AudioLogic
             }
 
             m_Reader.Close();
+        }
+
+        public void Dispose()
+        {
+            if (m_Reader != null)
+                m_Reader.Close();
         }
     }
 }

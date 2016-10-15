@@ -20,7 +20,7 @@ using System.Diagnostics;
 
 namespace Files.FAR1
 {
-    public class FAR1Archive
+    public class FAR1Archive : IDisposable
     {
         private EntryContainer m_Entries = new EntryContainer();
         private string m_Path;
@@ -141,6 +141,12 @@ namespace Files.FAR1
         public bool ContainsEntry(string Filename)
         {
             return m_Entries.Contains(Filename);
+        }
+
+        public void Dispose()
+        {
+            if (m_Reader != null)
+                m_Reader.Close();
         }
     }
 }

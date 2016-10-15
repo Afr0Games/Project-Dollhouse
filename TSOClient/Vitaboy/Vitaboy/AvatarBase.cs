@@ -108,7 +108,7 @@ namespace Vitaboy
                         RightHandApr = FileManager.GetAppearance(Hag.Medium.Right.Idle.AppearanceID.UniqueID);
                         break;
                     case SkinType.Dark:
-                        LeftHandApr = FileManager.GetAppearance(Hag.Medium.Left.Idle.AppearanceID.UniqueID);
+                        LeftHandApr = FileManager.GetAppearance(Hag.Dark.Left.Idle.AppearanceID.UniqueID);
                         RightHandApr = FileManager.GetAppearance(Hag.Dark.Right.Idle.AppearanceID.UniqueID);
                         break;
                     default:
@@ -163,7 +163,9 @@ namespace Vitaboy
             }
 
             Bindings = FileManager.GetBindings(Apr.BindingIDs);
-            HeadMesh = null; //IMPORTANT: Reset the head mesh before loading a new one.
+
+            if(Oft.Region == OutfitRegion.Head)
+                HeadMesh = null; //IMPORTANT: Reset the head mesh before loading a new one.
 
             foreach (Binding Bnd in Bindings)
             {
@@ -190,24 +192,39 @@ namespace Vitaboy
         }
 
         /// <summary>
-        /// Sets this avatar's head appearance.
+        /// Sets this avatar's head outfit.
         /// </summary>
-        public Appearance Head
+        public void SetHead(Outfit HeadOutfit, SkinType Type)
         {
-            set
+            Appearance Apr;
+
+            switch (Type)
             {
-                AccessoryMesh = null;
-                AccessoryTexture = null;
-
-                //I think that heads are always 0...
-                Binding Bnd = FileManager.GetBinding(value.BindingIDs[0].UniqueID);
-
-                HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
-
-                if(value.BindingIDs.Count > 1) //This head has accessories.
-                    Bnd = FileManager.GetBinding(value.BindingIDs[1].UniqueID);
+                case SkinType.Light:
+                    Apr = FileManager.GetAppearance(HeadOutfit.LightAppearance.UniqueID);
+                    break;
+                case SkinType.Medium:
+                    Apr = FileManager.GetAppearance(HeadOutfit.MediumAppearance.UniqueID);
+                    break;
+                case SkinType.Dark:
+                    Apr = FileManager.GetAppearance(HeadOutfit.DarkAppearance.UniqueID);
+                    break;
+                default:
+                    Apr = FileManager.GetAppearance(HeadOutfit.LightAppearance.UniqueID);
+                    break;
             }
+
+            AccessoryMesh = null;
+            AccessoryTexture = null;
+
+            //I think that heads are always 0...
+            Binding Bnd = FileManager.GetBinding(Apr.BindingIDs[0].UniqueID);
+
+            HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
+            HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+
+            if(Apr.BindingIDs.Count > 1) //This head has accessories.
+                Bnd = FileManager.GetBinding(Apr.BindingIDs[1].UniqueID);
         }
 
         /// <summary>

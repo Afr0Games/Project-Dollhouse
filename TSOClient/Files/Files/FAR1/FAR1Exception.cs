@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 
 namespace Files.FAR1
 {
+    [Serializable]
     public class FAR1Exception : Exception
     {
         public FAR1Exception(string Message) : base(Message)

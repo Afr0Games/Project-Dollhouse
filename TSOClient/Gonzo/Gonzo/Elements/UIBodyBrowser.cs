@@ -125,12 +125,12 @@ namespace Gonzo.Elements
                                                 m_LightFemaleAppearances[X * Y + m_Counter].Oft);
                                             break;
                                         case Elements.SkinType.Medium:
-                                            OnButtonClicked(0, m_Sex == AvatarSex.Male ?
+                                            OnButtonClicked(1, m_Sex == AvatarSex.Male ?
                                                 m_MediumAppearances[X * Y + m_Counter].Oft :
                                                 m_MediumFemaleAppearances[X * Y + m_Counter].Oft);
                                             break;
                                         case Elements.SkinType.Dark:
-                                            OnButtonClicked(0, m_Sex == AvatarSex.Male ?
+                                            OnButtonClicked(2, m_Sex == AvatarSex.Male ?
                                                 m_DarkAppearances[X * Y + m_Counter].Oft :
                                                 m_DarkFemaleAppearances[X * Y + m_Counter].Oft);
                                             break;
@@ -220,8 +220,8 @@ namespace Gonzo.Elements
                         for (int Y = 0; Y <= m_Map.GetUpperBound(0); Y++)
                         {
                             m_Thumb = FileManager.GetTexture(m_Sex == AvatarSex.Male ?
-                                m_MediumAppearances[(X * Y) + m_Counter].LightAppearance.ThumbnailID.UniqueID :
-                                m_MediumFemaleAppearances[(X * Y) + m_Counter].LightAppearance.ThumbnailID.UniqueID);
+                                m_MediumAppearances[(X * Y) + m_Counter].MediumAppearance.ThumbnailID.UniqueID :
+                                m_MediumFemaleAppearances[(X * Y) + m_Counter].MediumAppearance.ThumbnailID.UniqueID);
                             m_BtnWidth = m_SkinBtns[m_Counter + Y].BtnTex.Width / 4;
                             m_BtnHeight = m_SkinBtns[m_Counter + Y].BtnTex.Height;
 
@@ -250,8 +250,8 @@ namespace Gonzo.Elements
                         for (int Y = 0; Y <= m_Map.GetUpperBound(0); Y++)
                         {
                             m_Thumb = FileManager.GetTexture(m_Sex == AvatarSex.Male ?
-                                m_DarkAppearances[(X * Y) + m_Counter].LightAppearance.ThumbnailID.UniqueID :
-                                m_DarkFemaleAppearances[(X * Y) + m_Counter].LightAppearance.ThumbnailID.UniqueID);
+                                m_DarkAppearances[(X * Y) + m_Counter].DarkAppearance.ThumbnailID.UniqueID :
+                                m_DarkFemaleAppearances[(X * Y) + m_Counter].DarkAppearance.ThumbnailID.UniqueID);
                             m_BtnWidth = m_SkinBtns[m_Counter + Y].BtnTex.Width / 4 ;
                             m_BtnHeight = m_SkinBtns[m_Counter + Y].BtnTex.Height;
 

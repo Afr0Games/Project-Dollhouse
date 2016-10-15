@@ -13,7 +13,7 @@ namespace Files.AudioLogic
         public uint TrackID;
     }
 
-    public class EVT
+    public class EVT : IDisposable
     {
         private FileReader m_Reader;
         public List<TrackEvent> Events = new List<TrackEvent>();
@@ -37,6 +37,12 @@ namespace Files.AudioLogic
             }
 
             m_Reader.Close();
+        }
+
+        public void Dispose()
+        {
+            if (m_Reader != null)
+                m_Reader.Close();
         }
     }
 }

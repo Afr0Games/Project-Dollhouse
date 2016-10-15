@@ -21,7 +21,7 @@ namespace Files.AudioFiles
     /// Represents a *.UTK file.
     /// It is used to store compressed wav data.
     /// </summary>
-    public class UTKFile2 : ISoundCodec
+    public class UTKFile2 : ISoundCodec, IDisposable
     {
         public float[] UTKCosine = {
             0.0f, -.99677598476409912109375f, -.99032700061798095703125f, -.983879029750823974609375f, -.977430999279022216796875f,
@@ -458,6 +458,18 @@ namespace Files.AudioFiles
                 for (j = 0; j < i; j++)
                     LPC[i] -= LPCTemp[i - j - 1] * LPC[j];
             }
+        }
+
+        public void Dispose()
+        {
+            if(m_Writer != null)
+                m_Writer.Close();
+
+            if (m_Reader != null)
+                m_Reader.Close();
+
+            if (m_DecompressedStream != null)
+                m_DecompressedStream.Close();
         }
     }
 }

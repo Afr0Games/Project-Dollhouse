@@ -40,7 +40,7 @@ namespace GonzoTest
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device);
             Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
-            Avatar.Head = FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2);
+            Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), Vitaboy.SkinType.Medium);
             AddAvatar(Avatar, 1);
 
             VitaboyScreen VScreen = new VitaboyScreen(Manager, new Vector2(0, 0),

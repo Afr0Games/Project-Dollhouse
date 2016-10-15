@@ -38,6 +38,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
+[assembly: CLSCompliant(true)]
+
 namespace Paloma
 {
     internal static class TargaConstants
@@ -85,7 +87,7 @@ namespace Paloma
     /// <summary>
     /// Indicates the type of color map, if any, included with the image file. 
     /// </summary>
-    public enum ColorMapType : byte
+    public enum ColorMapType : int
     {
         /// <summary>
         /// No color map was included in the file.
@@ -392,7 +394,7 @@ namespace Paloma
                 }
             }
             else
-                throw new Exception(@"Error loading file");
+                throw new IOException(@"Error loading file");
         }
 
         /// <summary>
@@ -430,23 +432,21 @@ namespace Paloma
                                 }
                             }
                             else
-                                throw new Exception(@"Error loading file, could not read file from disk.");
+                                throw new IOException(@"Error loading file, could not read file from disk.");
                         
                         }
 
                     }
                     else
-                        throw new Exception(@"Error loading file, could not read file from disk.");
+                        throw new IOException(@"Error loading file, could not read file from disk.");
 
                 }
                 else
-                    throw new Exception(@"Error loading file, could not find file '" + strFileName + "' on disk.");
+                    throw new IOException(@"Error loading file, could not find file '" + strFileName + "' on disk.");
 
             }
             else
-                throw new Exception(@"Error loading file, file '" + strFileName + "' must have an extension of '.tga'.");
-
-            
+                throw new IOException(@"Error loading file, file '" + strFileName + "' must have an extension of '.tga'.");
         }
 
 
@@ -512,7 +512,7 @@ namespace Paloma
                 else
                 {
                     this.ClearAll();
-                    throw new Exception(@"Error loading file, could not read file from disk.");
+                    throw new IOException(@"Error loading file, could not read file from disk.");
                 }
 
            
@@ -661,7 +661,7 @@ namespace Paloma
                         this.objTargaHeader.ImageType == ImageType.RUN_LENGTH_ENCODED_COLOR_MAPPED)
                     {
                         this.ClearAll();
-                        throw new Exception("Image Type requires a Color Map and there was not a Color Map included in the file.");
+                        throw new IOException("Image Type requires a Color Map and there was not a Color Map included in the file.");
                     }
                 }
 
@@ -670,7 +670,7 @@ namespace Paloma
             else
             {
                 this.ClearAll();
-                throw new Exception(@"Error loading file, could not read file from disk.");
+                throw new IOException(@"Error loading file, could not read file from disk.");
             }
         }
 
@@ -788,7 +788,7 @@ namespace Paloma
             else
             {
                 this.ClearAll();
-                throw new Exception(@"Error loading file, could not read file from disk.");
+                throw new IOException(@"Error loading file, could not read file from disk.");
             }
         }
 
@@ -1005,13 +1005,13 @@ namespace Paloma
                 else
                 {
                     this.ClearAll();
-                    throw new Exception(@"Error loading file, No image data in file.");
+                    throw new IOException(@"Error loading file, No image data in file.");
                 }
             }
             else
             {
                 this.ClearAll();
-                throw new Exception(@"Error loading file, could not read file from disk.");
+                throw new IOException(@"Error loading file, could not read file from disk.");
             }
 
             // return the image byte array
@@ -2401,66 +2401,5 @@ namespace Paloma
             // return the resulting Color
             return Color.FromArgb(a, r, g, b);
         }
-
-        /// <summary>
-        /// Gets a 32 character binary string of the specified Int32 value.
-        /// </summary>
-        /// <param name="n">The value to get a binary string for.</param>
-        /// <returns>A string with the resulting binary for the supplied value.</returns>
-        /// <remarks>
-        /// This method was used during debugging and is left here just for fun.
-        /// </remarks>
-        internal static string GetIntBinaryString(Int32 n)
-        {
-            char[] b = new char[32];
-            int pos = 31;
-            int i = 0;
-
-            while (i < 32)
-            {
-                if ((n & (1 << i)) != 0)
-                {
-                    b[pos] = '1';
-                }
-                else
-                {
-                    b[pos] = '0';
-                }
-                pos--;
-                i++;
-            }
-            return new string(b);
-        }
-
-        /// <summary>
-        /// Gets a 16 character binary string of the specified Int16 value.
-        /// </summary>
-        /// <param name="n">The value to get a binary string for.</param>
-        /// <returns>A string with the resulting binary for the supplied value.</returns>
-        /// <remarks>
-        /// This method was used during debugging and is left here just for fun.
-        /// </remarks>
-        internal static string GetInt16BinaryString(Int16 n)
-        {
-            char[] b = new char[16];
-            int pos = 15;
-            int i = 0;
-
-            while (i < 16)
-            {
-                if ((n & (1 << i)) != 0)
-                {
-                    b[pos] = '1';
-                }
-                else
-                {
-                    b[pos] = '0';
-                }
-                pos--;
-                i++;
-            }
-            return new string(b);
-        }
-
     }
 }

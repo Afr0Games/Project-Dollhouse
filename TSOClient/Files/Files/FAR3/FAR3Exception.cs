@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Files.FAR3
 {
+    [Serializable]
     public class FAR3Exception : Exception
     {
         /// <summary>

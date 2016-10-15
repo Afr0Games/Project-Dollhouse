@@ -57,7 +57,7 @@ namespace Files.DBPF
         SoundFX = 0x2026960b,
     }
 
-    public class DBPFArchive
+    public class DBPFArchive : IDisposable
     {
         private Dictionary<UniqueFileID, DBPFEntry> m_Entries = new Dictionary<UniqueFileID, DBPFEntry>();
         private string m_Path;
@@ -88,10 +88,10 @@ namespace Files.DBPF
                     m_Reader = new FileReader(m_Path, false);
                 }
                 //This will be thrown because of file access privileges or because an archive is being tentatively opened twice.
-                catch (Exception e)
+                catch (Exception)
                 {
                     if (ThrowException)
-                        throw e;
+                        throw;
                     else
                         return false;
                 }
@@ -212,6 +212,14 @@ namespace Files.DBPF
         public bool ContainsEntry(UniqueFileID ID)
         {
             return m_Entries.ContainsKey(ID);
+        }
+
+        public void Dispose()
+        {
+            if (m_Reader != null)
+                m_Reader.Close();
+            if (m_FinishedReading != null)
+                m_FinishedReading.Close();
         }
     }
 }
