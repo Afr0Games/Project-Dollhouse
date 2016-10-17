@@ -29,6 +29,11 @@ namespace Gonzo
         private bool refreshData = false;
 
         /// <summary>
+        /// The current input language used by the user on his/her OS. Not sure if this is multi platform?
+        /// </summary>
+        public System.Windows.Forms.InputLanguage InputRegion = System.Windows.Forms.InputLanguage.CurrentInputLanguage;
+
+        /// <summary>
         /// Fetches the latest input states.
         /// </summary>
         public void Update()

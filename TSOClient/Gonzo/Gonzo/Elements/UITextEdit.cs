@@ -83,7 +83,8 @@ namespace Gonzo.Elements
 
         private List<RenderableText> m_Lines = new List<RenderableText>();
 
-        public UITextEdit(AddTextEditNode Node, ParserState State, UIScreen Screen) : base(Screen)
+        public UITextEdit(AddTextEditNode Node, ParserState State, UIScreen Screen) : 
+            base(Screen)
         {
             m_Name = Node.Name;
             m_ID = Node.ID;
@@ -607,10 +608,187 @@ namespace Gonzo.Elements
                                 m_SBuilder.Append("/");
                                 m_Cursor.Position.X += m_Font.MeasureString("/").X;
                                 break;
-                            //TODO: The below key is "ø" on Norwegian keyboards and "ö" on Swedish ones.
                             case Keys.OemSemicolon:
-                                m_SBuilder.Append(";");
-                                m_Cursor.Position.X += m_Font.MeasureString(";").X;
+                                if (Input.InputRegion != null)
+                                {
+                                    switch (Input.InputRegion.LayoutName)
+                                    {
+                                        case "English":
+                                            m_SBuilder.Append(";");
+                                            m_Cursor.Position.X += m_Font.MeasureString(";").X;
+                                            break;
+                                        case "Norwegian":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Ø");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Ø").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("ø");
+                                                m_Cursor.Position.X += m_Font.MeasureString("ø").X;
+                                            }
+                                            break;
+                                        case "Swedish":
+                                        case "Finnish":
+                                        case "Estonian":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Ö");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Ö").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("ö");
+                                                m_Cursor.Position.X += m_Font.MeasureString("ö").X;
+                                            }
+                                            break;
+                                        case "Danish":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Æ");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Æ").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("æ");
+                                                m_Cursor.Position.X += m_Font.MeasureString("æ").X;
+                                            }
+                                            break;
+                                    }
+                                }
+                                break;
+                            case Keys.OemQuotes:
+                                if (Input.InputRegion != null)
+                                {
+                                    switch (Input.InputRegion.LayoutName)
+                                    {
+                                        case "English": //TODO: Should this be double quote if upper??
+                                            m_SBuilder.Append("'");
+                                            m_Cursor.Position.X += m_Font.MeasureString("'").X;
+                                            break;
+                                        case "Norwegian":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Æ");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Æ").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("æ");
+                                                m_Cursor.Position.X += m_Font.MeasureString("æ").X;
+                                            }
+                                            break;
+                                        case "Swedish":
+                                        case "Finnish":
+                                        case "Estonian":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Ä");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Ä").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("ä");
+                                                m_Cursor.Position.X += m_Font.MeasureString("ä").X;
+                                            }
+                                            break;
+                                        case "Danish":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Ø");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Ø").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("ø");
+                                                m_Cursor.Position.X += m_Font.MeasureString("ø").X;
+                                            }
+                                            break;
+                                    }
+                                }
+                                break;
+                            case Keys.OemOpenBrackets:
+                                if (Input.InputRegion != null)
+                                {
+                                    switch (Input.InputRegion.LayoutName)
+                                    {
+                                        case "English":
+                                            m_SBuilder.Append("{");
+                                            m_Cursor.Position.X += m_Font.MeasureString("{").X;
+                                            break;
+                                        case "Norwegian":
+                                        case "Swedish":
+                                        case "Finnish":
+                                        case "Danish":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Å");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Å").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("å");
+                                                m_Cursor.Position.X += m_Font.MeasureString("å").X;
+                                            }
+                                            break;
+                                        case "Estonian":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Ü");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Ü").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("ü");
+                                                m_Cursor.Position.X += m_Font.MeasureString("ü").X;
+                                            }
+                                            break;
+                                    }
+                                }
+                                break;
+                            case Keys.OemCloseBrackets:
+                                if (Input.InputRegion != null)
+                                {
+                                    switch (Input.InputRegion.LayoutName)
+                                    {
+                                        case "English":
+                                            m_SBuilder.Append("}");
+                                            m_Cursor.Position.X += m_Font.MeasureString("}").X;
+                                            break;
+                                        case "Norwegian":
+                                        case "Swedish":
+                                        case "Finnish":
+                                        case "Danish":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("^");
+                                                m_Cursor.Position.X += m_Font.MeasureString("^").X;
+                                            }
+                                            else if(Input.IsCurPress(Keys.RightAlt))
+                                            {
+                                                m_SBuilder.Append("~");
+                                                m_Cursor.Position.X += m_Font.MeasureString("~").X;
+                                            }
+                                            break;
+                                        case "Estonian":
+                                            if (IsUpperCase(Input))
+                                            {
+                                                m_SBuilder.Append("Õ");
+                                                m_Cursor.Position.X += m_Font.MeasureString("Õ").X;
+                                            }
+                                            else
+                                            {
+                                                m_SBuilder.Append("õ");
+                                                m_Cursor.Position.X += m_Font.MeasureString("õ").X;
+                                            }
+                                            break;
+                                    }
+                                }
+                                break;
+                            case Keys.OemPlus:
+                                m_SBuilder.Append("+");
+                                m_Cursor.Position.X += m_Font.MeasureString("+").X;
                                 break;
                             case Keys.OemComma:
                                 if (IsUpperCase(Input))
@@ -697,10 +875,10 @@ namespace Gonzo.Elements
                                 }
                                 else
                                 {
-                                    m_SBuilder.Append(m_Lines[m_Lines.Count - 1].SBuilder.ToString());
+                                   m_SBuilder.Append(string.Copy((m_Lines[m_Lines.Count - 1].SBuilder.ToString())));
                                     m_Lines.Remove(m_Lines[m_Lines.Count - 1]);
 
-                                    m_TextPosition.X = Position.X;
+                                    //m_TextPosition.X = Position.X;
                                     m_TextPosition.Y -= m_Font.LineSpacing;
 
                                     m_Cursor.Position.X = Position.X + m_Size.X;
@@ -770,7 +948,7 @@ namespace Gonzo.Elements
         /// </summary>
         /// <param name="PressedKeys">A list of keys currently being pressed.</param>
         /// <returns>True if it is being pressed, false otherwise.</returns>
-        private bool IsUpperCase(/*Keys[] PressedKeys*/InputHelper Helper)
+        private bool IsUpperCase(InputHelper Helper)
         {
             if (Helper.IsCurPress(Keys.LeftShift) || Helper.IsCurPress(Keys.RightShift))
                 return true;
