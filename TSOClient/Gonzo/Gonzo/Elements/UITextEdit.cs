@@ -297,7 +297,7 @@ namespace Gonzo.Elements
                 bool Upper = false;
                 Keys[] PressedKeys = Input.CurrentKeyboardState.GetPressedKeys();
 
-                if (IsUpperCase(PressedKeys))
+                if (IsUpperCase(Input))
                     Upper = true;
 
                 foreach(Keys K in PressedKeys)
@@ -308,123 +308,183 @@ namespace Gonzo.Elements
                         {
                             case Keys.A:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("A");
+                                    m_Cursor.Position.X += m_Font.MeasureString("A").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("a");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                }
                                 break;
                             case Keys.B:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("B");
+                                    m_Cursor.Position.X += m_Font.MeasureString("B").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("b");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("b").X;
+                                }
                                 break;
                             case Keys.C:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("C");
+                                    m_Cursor.Position.X += m_Font.MeasureString("C").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("c");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("c").X;
+                                }
                                 break;
                             case Keys.D:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("D");
+                                    m_Cursor.Position.X += m_Font.MeasureString("D").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("d");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("d").X;
+                                }
                                 break;
                             case Keys.E:
                                 if (Upper)
-                                    m_SBuilder.Append("F");
+                                {
+                                    m_SBuilder.Append("E");
+                                    m_Cursor.Position.X += m_Font.MeasureString("E").X;
+                                }
                                 else
-                                    m_SBuilder.Append("f");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                {
+                                    m_SBuilder.Append("e");
+                                    m_Cursor.Position.X += m_Font.MeasureString("e").X;
+                                }
                                 break;
                             case Keys.F:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("F");
+                                    m_Cursor.Position.X += m_Font.MeasureString("F").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("f");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("f").X;
+                                }
                                 break;
                             case Keys.G:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("G");
+                                    m_Cursor.Position.X += m_Font.MeasureString("G").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("g");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("g").X;
+                                }
                                 break;
                             case Keys.H:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("H");
+                                    m_Cursor.Position.X += m_Font.MeasureString("H").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("h");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("h").X;
+                                }
                                 break;
                             case Keys.I:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("I");
+                                    m_Cursor.Position.X += m_Font.MeasureString("I").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("i");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("i").X;
+                                }
                                 break;
                             case Keys.J:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("J");
+                                    m_Cursor.Position.X += m_Font.MeasureString("J").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("j");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("j").X;
+                                }
                                 break;
                             case Keys.K:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("K");
+                                    m_Cursor.Position.X += m_Font.MeasureString("K").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("k");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("k").X;
+                                }
                                 break;
                             case Keys.L:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("L");
+                                    m_Cursor.Position.X += m_Font.MeasureString("L").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("l");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("l").X;
+                                }
                                 break;
                             case Keys.M:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("M");
+                                    m_Cursor.Position.X += m_Font.MeasureString("M").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("m");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("m").X;
+                                }
                                 break;
                             case Keys.N:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("N");
+                                    m_Cursor.Position.X += m_Font.MeasureString("N").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("n");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("n").X;
+                                }
                                 break;
                             case Keys.O:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("O");
+                                    m_Cursor.Position.X += m_Font.MeasureString("O").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("o");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("o").X;
+                                }
                                 break;
                             case Keys.P:
                                 if (Upper)
@@ -436,75 +496,198 @@ namespace Gonzo.Elements
                                 break;
                             case Keys.Q:
                                 if (Upper)
-                                    m_SBuilder.Append("R");
+                                {
+                                    m_SBuilder.Append("Q");
+                                    m_Cursor.Position.X += m_Font.MeasureString("Q").X;
+                                }
                                 else
-                                    m_SBuilder.Append("r");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                {
+                                    m_SBuilder.Append("q");
+                                    m_Cursor.Position.X += m_Font.MeasureString("q").X;
+                                }
                                 break;
                             case Keys.S:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("S");
+                                    m_Cursor.Position.X += m_Font.MeasureString("S").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("s");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("s").X;
+                                }
                                 break;
                             case Keys.T:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("T");
+                                    m_Cursor.Position.X += m_Font.MeasureString("T").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("t");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("t").X;
+                                }
                                 break;
                             case Keys.U:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("U");
+                                    m_Cursor.Position.X += m_Font.MeasureString("U").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("u");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("u").X;
+                                }
                                 break;
                             case Keys.V:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("V");
+                                    m_Cursor.Position.X += m_Font.MeasureString("V").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("v");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("v").X;
+                                }
                                 break;
                             case Keys.W:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("W");
+                                    m_Cursor.Position.X += m_Font.MeasureString("W").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("w");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("w").X;
+                                }
                                 break;
                             case Keys.X:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("X");
+                                    m_Cursor.Position.X += m_Font.MeasureString("X").X;
+                                }
                                 else
-                                    m_SBuilder.Append("X");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                {
+                                    m_SBuilder.Append("x");
+                                    m_Cursor.Position.X += m_Font.MeasureString("x").X;
+                                }
                                 break;
                             case Keys.Y:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("Y");
+                                    m_Cursor.Position.X += m_Font.MeasureString("Y").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("y");
-
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                    m_Cursor.Position.X += m_Font.MeasureString("y").X;
+                                }
                                 break;
                             case Keys.Z:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("Z");
+                                    m_Cursor.Position.X += m_Font.MeasureString("Z").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("z");
+                                    m_Cursor.Position.X += m_Font.MeasureString("z").X;
+                                }
 
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                break;
+                            case Keys.Divide:
+                                m_SBuilder.Append("/");
+                                m_Cursor.Position.X += m_Font.MeasureString("/").X;
+                                break;
+                            //TODO: The below key is "ø" on Norwegian keyboards and "ö" on Swedish ones.
+                            case Keys.OemSemicolon:
+                                m_SBuilder.Append(";");
+                                m_Cursor.Position.X += m_Font.MeasureString(";").X;
+                                break;
+                            case Keys.OemComma:
+                                if (IsUpperCase(Input))
+                                {
+                                    m_SBuilder.Append(";");
+                                    m_Cursor.Position.X += m_Font.MeasureString(";").X;
+                                }
+                                else
+                                {
+                                    m_SBuilder.Append(",");
+                                    m_Cursor.Position.X += m_Font.MeasureString(",").X;
+                                }
+                                break;
+                            case Keys.OemPeriod:
+                                m_SBuilder.Append(".");
+                                m_Cursor.Position.X += m_Font.MeasureString(".").X;
+                                break;
+                            case Keys.Space:
+                                m_SBuilder.Append(" ");
+                                m_Cursor.Position.X += m_Font.MeasureString(" ").X;
+                                break;
+                            case Keys.Tab:
+                                m_SBuilder.Append("    ");
+                                m_Cursor.Position.X += m_Font.MeasureString("   ").X;
+                                break;
+                            case Keys.Subtract:
+                                m_SBuilder.Append("-");
+                                m_Cursor.Position.X += m_Font.MeasureString("-").X;
+                                break;
+                            case Keys.NumPad0:
+                                m_SBuilder.Append("0");
+                                m_Cursor.Position.X += m_Font.MeasureString("0").X;
+                                break;
+                            case Keys.NumPad1:
+                                m_SBuilder.Append("1");
+                                m_Cursor.Position.X += m_Font.MeasureString("1").X;
+                                break;
+                            case Keys.NumPad2:
+                                m_SBuilder.Append("2");
+                                m_Cursor.Position.X += m_Font.MeasureString("2").X;
+                                break;
+                            case Keys.NumPad3:
+                                m_SBuilder.Append("3");
+                                m_Cursor.Position.X += m_Font.MeasureString("3").X;
+                                break;
+                            case Keys.NumPad4:
+                                m_SBuilder.Append("4");
+                                m_Cursor.Position.X += m_Font.MeasureString("4").X;
+                                break;
+                            case Keys.NumPad5:
+                                m_SBuilder.Append("5");
+                                m_Cursor.Position.X += m_Font.MeasureString("5").X;
+                                break;
+                            case Keys.NumPad6:
+                                m_SBuilder.Append("6");
+                                m_Cursor.Position.X += m_Font.MeasureString("6").X;
+                                break;
+                            case Keys.NumPad7:
+                                m_SBuilder.Append("7");
+                                m_Cursor.Position.X += m_Font.MeasureString("7").X;
+                                break;
+                            case Keys.NumPad8:
+                                m_SBuilder.Append("8");
+                                m_Cursor.Position.X += m_Font.MeasureString("8").X;
+                                break;
+                            case Keys.NumPad9:
+                                m_SBuilder.Append("9");
+                                m_Cursor.Position.X += m_Font.MeasureString("9").X;
+                                break;
+                            case Keys.Multiply:
+                                m_SBuilder.Append("*");
+                                m_Cursor.Position.X += m_Font.MeasureString("*").X;
+                                break;
+                            case Keys.Enter:
+                                m_Lines.Add(new RenderableText() { SBuilder = m_SBuilder, Position = m_TextPosition });
+                                m_SBuilder = new StringBuilder();
+                                m_TextPosition.Y += m_Font.LineSpacing;
                                 break;
                             case Keys.Back:
                                 if (m_SBuilder.Length > 0)
@@ -587,13 +770,10 @@ namespace Gonzo.Elements
         /// </summary>
         /// <param name="PressedKeys">A list of keys currently being pressed.</param>
         /// <returns>True if it is being pressed, false otherwise.</returns>
-        private bool IsUpperCase(Keys[] PressedKeys)
+        private bool IsUpperCase(/*Keys[] PressedKeys*/InputHelper Helper)
         {
-            foreach(Keys K in PressedKeys)
-            {
-                if (K == Keys.LeftShift || K == Keys.RightShift)
-                    return true;
-            }
+            if (Helper.IsCurPress(Keys.LeftShift) || Helper.IsCurPress(Keys.RightShift))
+                return true;
 
             return false;
         }

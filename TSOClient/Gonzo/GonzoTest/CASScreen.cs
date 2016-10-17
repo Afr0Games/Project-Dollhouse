@@ -56,8 +56,6 @@ namespace GonzoTest
             m_SkinDarkBtn = (UIButton)m_Elements["\"SkinDarkButton\""];
             m_SkinDarkBtn.OnButtonClicked += M_SkinDarkBtn_OnButtonClicked;
 
-            m_DescriptionTextEdit = (UITextEdit)m_Elements["\"DescriptionTextEdit\""];
-
             m_HeadSkinBrowser = new UIHeadBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Female);
             m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
             m_BodySkinBrowser = new UIBodyBrowser(this, m_Controls["\"BodySkinBrowser\""], 1, AvatarSex.Female);
@@ -144,7 +142,6 @@ namespace GonzoTest
         {
             m_HeadSkinBrowser.Update(Input, GTime);
             m_BodySkinBrowser.Update(Input, GTime);
-            m_DescriptionTextEdit.Update(Input, GTime);
 
             base.Update(Input, GTime);
         }
