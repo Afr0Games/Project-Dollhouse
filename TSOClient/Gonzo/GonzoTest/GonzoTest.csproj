@@ -79,18 +79,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Content\ProjectDollhouse_10px.spritefont" />
     <None Include="Content\ProjectDollhouse_10px.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\ProjectDollhouse_12px.spritefont" />
     <None Include="Content\ProjectDollhouse_12px.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\ProjectDollhouse_14px.spritefont" />
     <None Include="Content\ProjectDollhouse_14px.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\ProjectDollhouse_16px.spritefont" />
     <None Include="Content\ProjectDollhouse_16px.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\ProjectDollhouse_9px.spritefont" />
     <None Include="Content\ProjectDollhouse_9px.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
