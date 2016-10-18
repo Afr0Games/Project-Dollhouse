@@ -10,7 +10,6 @@ You can contribute to Project Dollhouse by testing cutting edge features in the 
 * [Coding Standards](https://github.com/Afr0Games/Project-Dollhouse/wiki/Coding-standards)
 * [Pull Requests](https://github.com/Afr0Games/Project-Dollhouse/pulls): [Open](https://github.com/Afr0Games/Project-Dollhouse/pulls)/[Closed](https://github.com/Afr0Games/Project-Dollhouse/issues?q=is%3Apr+is%3Aclosed)
 * [Translation](https://github.com/Afr0Games/the-sims-online-translation)
-* [Forums](http://forum.afr0games.com)
 * [Blog](http://afr0games.com)
 
 Looking for something to do? Check out the issues tagged as [good for new contributors](https://github.com/Afr0Games/Project-Dollhouse/labels/good%20for%20new%20contributors) to get started.
