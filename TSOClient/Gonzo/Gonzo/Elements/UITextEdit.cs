@@ -250,6 +250,9 @@ namespace Gonzo.Elements
             }
         }
 
+        //Is the user removing text (I.E pressing backspace)?
+        private bool m_RemovingTxt = false;
+
         public override void Update(InputHelper Input, GameTime GTime)
         {
             if (m_Mode != TextEditMode.ReadOnly)
@@ -263,7 +266,8 @@ namespace Gonzo.Elements
                 if (m_NumLines > 0)
                 {
                     //Check that text doesn't go beyond width of control...
-                    if (m_Font.MeasureString(m_SBuilder.ToString()).X >= m_Size.X)
+                    if ((m_Font.MeasureString(m_SBuilder.ToString()).X >= m_Size.X) && 
+                        !m_RemovingTxt)
                     {
                         if (m_TextPosition.Y <= Position.Y + ((m_NumLines - 2) * m_Font.LineSpacing))
                         {
@@ -318,6 +322,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("a");
                                     m_Cursor.Position.X += m_Font.MeasureString("a").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.B:
                                 if (Upper)
@@ -330,6 +336,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("b");
                                     m_Cursor.Position.X += m_Font.MeasureString("b").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.C:
                                 if (Upper)
@@ -342,6 +350,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("c");
                                     m_Cursor.Position.X += m_Font.MeasureString("c").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.D:
                                 if (Upper)
@@ -354,6 +364,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("d");
                                     m_Cursor.Position.X += m_Font.MeasureString("d").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.E:
                                 if (Upper)
@@ -366,6 +378,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("e");
                                     m_Cursor.Position.X += m_Font.MeasureString("e").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.F:
                                 if (Upper)
@@ -378,6 +392,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("f");
                                     m_Cursor.Position.X += m_Font.MeasureString("f").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.G:
                                 if (Upper)
@@ -390,6 +406,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("g");
                                     m_Cursor.Position.X += m_Font.MeasureString("g").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.H:
                                 if (Upper)
@@ -402,6 +420,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("h");
                                     m_Cursor.Position.X += m_Font.MeasureString("h").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.I:
                                 if (Upper)
@@ -414,6 +434,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("i");
                                     m_Cursor.Position.X += m_Font.MeasureString("i").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.J:
                                 if (Upper)
@@ -426,6 +448,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("j");
                                     m_Cursor.Position.X += m_Font.MeasureString("j").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.K:
                                 if (Upper)
@@ -438,6 +462,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("k");
                                     m_Cursor.Position.X += m_Font.MeasureString("k").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.L:
                                 if (Upper)
@@ -450,6 +476,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("l");
                                     m_Cursor.Position.X += m_Font.MeasureString("l").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.M:
                                 if (Upper)
@@ -462,6 +490,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("m");
                                     m_Cursor.Position.X += m_Font.MeasureString("m").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.N:
                                 if (Upper)
@@ -474,6 +504,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("n");
                                     m_Cursor.Position.X += m_Font.MeasureString("n").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.O:
                                 if (Upper)
@@ -486,14 +518,22 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("o");
                                     m_Cursor.Position.X += m_Font.MeasureString("o").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.P:
                                 if (Upper)
+                                {
                                     m_SBuilder.Append("P");
+                                    m_Cursor.Position.X += m_Font.MeasureString("P").X;
+                                }
                                 else
+                                {
                                     m_SBuilder.Append("p");
+                                    m_Cursor.Position.X += m_Font.MeasureString("p").X;
+                                }
 
-                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Q:
                                 if (Upper)
@@ -506,6 +546,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("q");
                                     m_Cursor.Position.X += m_Font.MeasureString("q").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.S:
                                 if (Upper)
@@ -518,6 +560,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("s");
                                     m_Cursor.Position.X += m_Font.MeasureString("s").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.T:
                                 if (Upper)
@@ -530,6 +574,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("t");
                                     m_Cursor.Position.X += m_Font.MeasureString("t").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.U:
                                 if (Upper)
@@ -542,6 +588,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("u");
                                     m_Cursor.Position.X += m_Font.MeasureString("u").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.V:
                                 if (Upper)
@@ -554,6 +602,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("v");
                                     m_Cursor.Position.X += m_Font.MeasureString("v").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.W:
                                 if (Upper)
@@ -566,6 +616,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("w");
                                     m_Cursor.Position.X += m_Font.MeasureString("w").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.X:
                                 if (Upper)
@@ -578,6 +630,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("x");
                                     m_Cursor.Position.X += m_Font.MeasureString("x").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Y:
                                 if (Upper)
@@ -590,6 +644,8 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append("y");
                                     m_Cursor.Position.X += m_Font.MeasureString("y").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Z:
                                 if (Upper)
@@ -603,10 +659,13 @@ namespace Gonzo.Elements
                                     m_Cursor.Position.X += m_Font.MeasureString("z").X;
                                 }
 
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Divide:
                                 m_SBuilder.Append("/");
                                 m_Cursor.Position.X += m_Font.MeasureString("/").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.OemSemicolon:
                                 if (Input.InputRegion != null)
@@ -657,6 +716,8 @@ namespace Gonzo.Elements
                                             break;
                                     }
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.OemQuotes:
                                 if (Input.InputRegion != null)
@@ -707,6 +768,8 @@ namespace Gonzo.Elements
                                             break;
                                     }
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.OemOpenBrackets:
                                 if (Input.InputRegion != null)
@@ -746,6 +809,8 @@ namespace Gonzo.Elements
                                             break;
                                     }
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.OemCloseBrackets:
                                 if (Input.InputRegion != null)
@@ -785,10 +850,14 @@ namespace Gonzo.Elements
                                             break;
                                     }
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.OemPlus:
                                 m_SBuilder.Append("+");
                                 m_Cursor.Position.X += m_Font.MeasureString("+").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.OemComma:
                                 if (IsUpperCase(Input))
@@ -801,73 +870,109 @@ namespace Gonzo.Elements
                                     m_SBuilder.Append(",");
                                     m_Cursor.Position.X += m_Font.MeasureString(",").X;
                                 }
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.OemPeriod:
                                 m_SBuilder.Append(".");
                                 m_Cursor.Position.X += m_Font.MeasureString(".").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Space:
                                 m_SBuilder.Append(" ");
                                 m_Cursor.Position.X += m_Font.MeasureString(" ").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Tab:
                                 m_SBuilder.Append("    ");
                                 m_Cursor.Position.X += m_Font.MeasureString("   ").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Subtract:
                                 m_SBuilder.Append("-");
                                 m_Cursor.Position.X += m_Font.MeasureString("-").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad0:
                                 m_SBuilder.Append("0");
                                 m_Cursor.Position.X += m_Font.MeasureString("0").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad1:
                                 m_SBuilder.Append("1");
                                 m_Cursor.Position.X += m_Font.MeasureString("1").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad2:
                                 m_SBuilder.Append("2");
                                 m_Cursor.Position.X += m_Font.MeasureString("2").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad3:
                                 m_SBuilder.Append("3");
                                 m_Cursor.Position.X += m_Font.MeasureString("3").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad4:
                                 m_SBuilder.Append("4");
                                 m_Cursor.Position.X += m_Font.MeasureString("4").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad5:
                                 m_SBuilder.Append("5");
                                 m_Cursor.Position.X += m_Font.MeasureString("5").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad6:
                                 m_SBuilder.Append("6");
                                 m_Cursor.Position.X += m_Font.MeasureString("6").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad7:
                                 m_SBuilder.Append("7");
                                 m_Cursor.Position.X += m_Font.MeasureString("7").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad8:
                                 m_SBuilder.Append("8");
                                 m_Cursor.Position.X += m_Font.MeasureString("8").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.NumPad9:
                                 m_SBuilder.Append("9");
                                 m_Cursor.Position.X += m_Font.MeasureString("9").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Multiply:
                                 m_SBuilder.Append("*");
                                 m_Cursor.Position.X += m_Font.MeasureString("*").X;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Enter:
                                 m_Lines.Add(new RenderableText() { SBuilder = m_SBuilder, Position = m_TextPosition });
                                 m_SBuilder = new StringBuilder();
                                 m_TextPosition.Y += m_Font.LineSpacing;
+
+                                m_RemovingTxt = false;
                                 break;
                             case Keys.Back:
+                                m_RemovingTxt = true;
+
                                 if (m_SBuilder.Length > 0)
                                 {
                                     m_SBuilder.Remove(m_SBuilder.Length - 1, 1);
@@ -875,10 +980,9 @@ namespace Gonzo.Elements
                                 }
                                 else
                                 {
-                                   m_SBuilder.Append(string.Copy((m_Lines[m_Lines.Count - 1].SBuilder.ToString())));
+                                    m_SBuilder.Append(string.Copy((m_Lines[m_Lines.Count - 1].SBuilder.ToString())));
                                     m_Lines.Remove(m_Lines[m_Lines.Count - 1]);
 
-                                    //m_TextPosition.X = Position.X;
                                     m_TextPosition.Y -= m_Font.LineSpacing;
 
                                     m_Cursor.Position.X = Position.X + m_Size.X;
