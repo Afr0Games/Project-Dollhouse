@@ -104,6 +104,20 @@ namespace Gonzo
         }
 
         /// <summary>
+        /// A new UIElement was clicked on and is ready to receive keyboard input.
+        /// </summary>
+        public void OverrideFocus(UIElement Element)
+        {
+            if(Element.ListensToKeyboard)
+            {
+                foreach (KeyValuePair<string, UIElement> KVP in m_Elements)
+                    KVP.Value.HasFocus = false;
+
+                m_Elements[Element.Name].HasFocus = true;
+            }
+        }
+
+        /// <summary>
         /// Tries to retrieve a string from this UIScreen's loaded strings.
         /// </summary>
         /// <param name="Name">Name of string to retrieve.</param>

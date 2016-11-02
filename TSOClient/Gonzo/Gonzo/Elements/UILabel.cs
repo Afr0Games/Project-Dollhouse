@@ -16,7 +16,7 @@ namespace Gonzo.Elements
 
         public UILabel(AddTextNode Node, ParserState State, UIScreen Screen) : base(Screen)
         {
-            m_Name = Node.Name;
+            Name = Node.Name;
             m_ID = Node.ID;
             Position = new Vector2(Node.TextPosition.Numbers[0], Node.TextPosition.Numbers[1]) + Screen.Position;
 

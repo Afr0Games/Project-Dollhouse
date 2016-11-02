@@ -38,7 +38,7 @@ namespace Gonzo.Elements
 
         public UIButton(AddButtonNode Node, ParserState State, UIScreen Screen) : base(Screen)
         {
-            m_Name = Node.Name;
+            Name = Node.Name;
             m_ID = Node.ID;
             m_Screen = Screen;
 
@@ -259,7 +259,7 @@ namespace Gonzo.Elements
         /// <param name="Screen">This button's screen.</param>
         public UIButton(string Name, Texture2D Tex, Vector2 Pos, UIScreen Screen, UIElement Parent = null) : base(Screen, Parent)
         {
-            m_Name = Name;
+            base.Name = Name;
             Position = Pos;
 
             Image = new UIImage(Tex, Screen, null);

@@ -18,7 +18,6 @@ namespace GonzoTest
             m_ScrollDownButtonImg, m_ScrollUpButtonImg;*/
         private UIButton m_CancelBtn, m_AcceptBtn, m_DescriptionScrollUpBtn, m_DescriptionScrollDownBtn,
             m_ExitBtn, m_FemaleBtn, m_MaleBtn, m_SkinLightBtn, m_SkinMediumBtn, m_SkinDarkBtn;
-        private UITextEdit m_DescriptionTextEdit;
         private UIHeadBrowser m_HeadSkinBrowser;
         private UIBodyBrowser m_BodySkinBrowser;
 

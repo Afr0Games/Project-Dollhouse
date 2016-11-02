@@ -61,7 +61,7 @@ namespace Gonzo.Elements
 
         public UIControl(SetControlPropsNode Node, UIScreen Screen, UIParser.ParserState State) : base(Screen)
         {
-            m_Name = Node.Control;
+            Name = Node.Control;
 
             if (!State.InSharedPropertiesGroup)
             {

@@ -27,8 +27,21 @@ namespace Gonzo.Elements
         protected UIElement m_Parent;
         protected UIScreen m_Screen;
         protected Dictionary<string, UIElement> m_Elements = new Dictionary<string, UIElement>();
-        protected string m_Name;
+        public string Name;
         protected int m_ID;
+
+        protected bool m_HasFocus = false; //Does this UIElement have focus so it can receive keyboard input?
+        protected bool m_KeyboardInput = false; //Should this UIElement receive keyboard input?
+
+        /// <summary>
+        /// Gets or sets whether this UIElement has focus so it can receive keyboard input.
+        /// </summary>
+        public bool HasFocus { get { return m_HasFocus; }  set { m_HasFocus = value; } }
+
+        /// <summary>
+        /// Can this UIElement receive keyboard input?
+        /// </summary>
+        public bool ListensToKeyboard { get { return m_KeyboardInput; } }
 
         protected bool m_Opaque = false;
         protected Vector2 m_Size;
@@ -58,7 +71,17 @@ namespace Gonzo.Elements
         /// Handles update logic for this UIElement.
         /// </summary>
         /// <param name="Helper">InputHelper instance for input data.</param>
-        public virtual void Update(InputHelper Helper, GameTime GTime) { }
+        public virtual void Update(InputHelper Helper, GameTime GTime)
+        {
+            if (IsMouseOver(Helper))
+            {
+                if (Helper.IsNewPress(MouseButtons.LeftButton))
+                {
+                    m_HasFocus = true;
+                    m_Screen.OverrideFocus(this);
+                }
+            }
+        }
 
         /// <summary>
         /// Handles drawing logic for this UIElement.
@@ -110,7 +133,7 @@ namespace Gonzo.Elements
 
         public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null)
         {
-            m_Name = Name;
+            this.Name = Name;
             m_Size = Size;
 
             if (Parent != null)

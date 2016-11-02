@@ -26,7 +26,7 @@ namespace Gonzo.Elements
         /// <param name="Screen">A UIScreen instance.</param>
         public UIImage(DefineImageNode Node, UIScreen Screen) : base(Screen)
         {
-            m_Name = Node.Name;
+            Name = Node.Name;
             Texture = FileManager.GetTexture(ulong.Parse(Node.AssetID, System.Globalization.NumberStyles.HexNumber));
 
             m_Loaded = true;
@@ -51,7 +51,7 @@ namespace Gonzo.Elements
         /// <param name="Image">A UIImage instance to copy.</param>
         public UIImage(UIImage Image) : base(Image.m_Screen)
         {
-            m_Name = Image.m_Name;
+            Name = Image.Name;
             Texture = Image.Texture;
             Position = Image.Position;
             m_Loaded = true;
@@ -155,8 +155,6 @@ namespace Gonzo.Elements
             else
                 Depth = 0.10f;
 
-            //NOTE: Whether or not this is drawn should probably be checked on the UIDialog-level,
-            //      so don't bother to check the visible property here for now.
             if (Scale != null)
                 SBatch.Draw(Texture, To, null, From, new Vector2(0.0f, 0.0f), 0.0f, Scale, Color.White, SpriteEffects.None, Depth);
             else

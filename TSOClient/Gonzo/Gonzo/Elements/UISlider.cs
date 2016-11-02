@@ -22,7 +22,7 @@ namespace Gonzo.Elements
 
         public UISlider(AddSliderNode Node, ParserState State, UIScreen Screen) : base(Screen)
         {
-            m_Name = Node.Name;
+            Name = Node.Name;
             m_ID = Node.ID;
             Position = new Vector2(Node.SliderPosition.Numbers[0], Node.SliderPosition.Numbers[1]);
 
