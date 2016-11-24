@@ -36,7 +36,7 @@ namespace Gonzo.Elements
         /// <summary>
         /// Gets or sets whether this UIElement has focus so it can receive keyboard input.
         /// </summary>
-        public bool HasFocus { get { return m_HasFocus; }  set { m_HasFocus = value; } }
+        public bool HasFocus { get { return m_HasFocus; } set { m_HasFocus = value; } }
 
         /// <summary>
         /// Can this UIElement receive keyboard input?

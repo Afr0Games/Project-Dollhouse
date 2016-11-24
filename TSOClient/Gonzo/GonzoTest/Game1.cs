@@ -30,7 +30,16 @@ namespace GonzoTest
             Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, false);
             Resolution.SetVirtualResolution(800, 600);
 
+            this.Window.Title = "The Sims Online";
+            this.Window.TextInput += Window_TextInput;
+
             Content.RootDirectory = "Content";
+        }
+
+        private void Window_TextInput(object sender, TextInputEventArgs e)
+        {
+            if (m_ScrManager != null)
+                m_ScrManager.ReceivedTextInput(sender, e);
         }
 
         /// <summary>

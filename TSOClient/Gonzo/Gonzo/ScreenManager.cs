@@ -16,6 +16,8 @@ namespace Gonzo
         private InputHelper m_Input;
         private SpriteFont[] m_Fonts;
 
+        public event EventHandler<TextInputEventArgs> OnTextInput;
+
         public GraphicsDevice Device
         {
             get { return m_Graphics; }
@@ -60,6 +62,18 @@ namespace Gonzo
             m_Graphics = Graphics;
             m_Input = Input;
             m_Fonts = Fonts;
+        }
+
+        /// <summary>
+        /// This should be called by an instance of Microsoft.XNA.Game.Window
+        /// whenever it receives text input. This method will call the 
+        /// OnTextInput event.
+        /// </summary>
+        /// <param name="Sender">The object that invoked this event, sent by the callee of this method.</param>
+        /// <param name="TInputEArgs">A TextInputEventArgs instance, sent by the callee of this method.</param>
+        public void ReceivedTextInput(object Sender, TextInputEventArgs TInputEArgs)
+        {
+            OnTextInput?.Invoke(Sender, TInputEArgs);
         }
 
         /// <summary>

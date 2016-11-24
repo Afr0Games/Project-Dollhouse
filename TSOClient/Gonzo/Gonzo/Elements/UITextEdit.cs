@@ -86,6 +86,8 @@ namespace Gonzo.Elements
         //The length of the current line of text being written.
         private int m_VerticalTextBoundary = 0;
 
+        private bool m_IsUpperCase = false; //Is shift currently being pressed?
+
         private List<RenderableText> m_Lines = new List<RenderableText>();
 
         public UITextEdit(AddTextEditNode Node, ParserState State, UIScreen Screen) : 
@@ -235,6 +237,92 @@ namespace Gonzo.Elements
             m_CursorVisibilityTimer.Enabled = true;
             m_CursorVisibilityTimer.Elapsed += M_CursorVisibilityTimer_Elapsed;
             m_CursorVisibilityTimer.Start();
+
+            m_Screen.Manager.OnTextInput += Manager_OnTextInput;
+        }
+
+        private void Manager_OnTextInput(object sender, TextInputEventArgs e)
+        {
+            if (m_HasFocus)
+            {
+                if (m_Mode != TextEditMode.ReadOnly)
+                {
+                    if (m_NumLines > 1)
+                    {
+                        //Check that text doesn't go beyond width of control...
+                        if ((m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X >= 
+                            m_Size.X) && !m_RemovingTxt && !m_MovingCursor)
+                        {
+                            if (m_TextPosition.Y <= Position.Y + ((m_NumLines - 2) * m_Font.LineSpacing))
+                            {
+                                m_TextPosition.Y += m_Font.LineSpacing;
+                                m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition });
+
+                                m_Cursor.Position.Y += m_Font.LineSpacing;
+                                m_Cursor.LineIndex++;
+                                m_Cursor.CharacterIndex = 0;
+                            }
+                            else //Text went beyond the borders of the control...
+                            {
+                                foreach (RenderableText Txt in m_Lines)
+                                    Txt.Position.Y -= m_Font.LineSpacing;
+
+                                m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition });
+                                m_ScrollbarHeight -= m_Font.LineSpacing; //TODO: Resize scrollbar...
+
+                                m_Cursor.LineIndex++;
+                                m_Cursor.CharacterIndex = 0;
+
+                                m_Lines[m_VisibilityIndex].Visible = false;
+                                m_VisibilityIndex++;
+                            }
+
+                            m_Cursor.Position.X = Position.X;
+                        }
+                    }
+                    else
+                    {
+                        if (m_Font.MeasureString(CurrentInput).X >= (m_Size.X - 
+                            m_Font.MeasureString(CurrentInput).X) && !m_RemovingTxt)
+                        {
+                            m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition, Visible = false });
+                            m_Cursor.Position.X = m_Size.X;
+                            //In a single line control, each "line" will hold one character.
+                            m_Cursor.LineIndex++;
+
+                            foreach(RenderableText Txt in m_Lines)
+                                Txt.Position.X -= m_Font.MeasureString(e.Character.ToString()).X;
+                        }
+                        else
+                        {
+                            Vector2 Pos = new Vector2(m_Cursor.LineIndex * m_Font.MeasureString(e.Character.ToString()).X, m_TextPosition.Y);
+                            m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = Pos, Visible = true});
+                            //In a single line control, each "line" will hold one character.
+                            m_Cursor.LineIndex++;
+                        }
+                    }
+                }
+
+                if (!m_IsUpperCase)
+                {
+                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = e.Character;
+                    else
+                        m_Lines[m_Cursor.LineIndex].SBuilder.Append(e.Character);
+                }
+                else
+                {
+                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = e.Character.ToString().ToUpper().ToCharArray()[0];
+                    else
+                        m_Lines[m_Cursor.LineIndex].SBuilder.Append(e.Character.ToString().ToUpper());
+                }
+
+                m_Cursor.CharacterIndex++;
+                m_RemovingTxt = false;
+                m_MovingCursor = false;
+                m_Cursor.Position.X += m_Font.MeasureString(e.Character.ToString()).X;
+            }
         }
 
         private void M_CursorVisibilityTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -269,1034 +357,488 @@ namespace Gonzo.Elements
 
             if (m_Mode != TextEditMode.ReadOnly)
             {
-                if (m_NumLines > 1)
+                m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X);
+                m_IsUpperCase = IsUpperCase(Input);
+
+                if (m_HasFocus)
                 {
-                    //Check that text doesn't go beyond width of control...
-                    if ((m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X >= m_Size.X) && 
-                        !m_RemovingTxt && !m_MovingCursor)
+                    Keys[] PressedKeys = Input.CurrentKeyboardState.GetPressedKeys();
+
+                    foreach (Keys K in PressedKeys)
                     {
-                        if (m_TextPosition.Y <= Position.Y + ((m_NumLines - 2) * m_Font.LineSpacing))
+                        if (Input.IsNewPress(K))
                         {
-                            m_TextPosition.Y += m_Font.LineSpacing;
-                            m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition });
+                            switch (K)
+                            {
+                                case Keys.Divide:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '/';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("/");
 
-                            m_Cursor.Position.Y += m_Font.LineSpacing;
-                            m_Cursor.LineIndex++;
-                            m_Cursor.CharacterIndex = 0;
-                        }
-                        else //Text went beyond the borders of the control...
-                        {
-                            foreach (RenderableText Txt in m_Lines)
-                                Txt.Position.Y -= m_Font.LineSpacing;
+                                    m_Cursor.Position.X += m_Font.MeasureString("/").X;
+                                    m_Cursor.CharacterIndex++;
 
-                            m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition });
-                            m_ScrollbarHeight -= m_Font.LineSpacing; //TODO: Resize scrollbar...
-
-                            m_Cursor.LineIndex++;
-                            m_Cursor.CharacterIndex = 0;
-
-                            m_Lines[m_VisibilityIndex].Visible = false;
-                            m_VisibilityIndex++;
-                        }
-
-                        m_Cursor.Position.X = Position.X;
-                    }
-                }
-                else
-                {
-                    if (m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X >= (m_Size.X - m_Font.MeasureString("a").X) && 
-                        !m_RemovingTxt)
-                    {
-                        m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition, Visible = false });
-
-                        m_Cursor.Position.X = m_Size.X;
-                    }
-                }
-            }
-
-            m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X);
-
-            if(m_HasFocus)
-            {
-                bool Upper = false;
-                Keys[] PressedKeys = Input.CurrentKeyboardState.GetPressedKeys();
-
-                if (IsUpperCase(Input))
-                    Upper = true;
-
-                foreach(Keys K in PressedKeys)
-                {
-                    if (Input.IsNewPress(K))
-                    {
-                        switch (K)
-                        {
-                            case Keys.A:
-                                switch (Input.InputRegion.LayoutName)
-                                {
-                                    case "Norwegian":
-                                    case "Swedish":
-                                    case "Danish":
-                                    case "English":
-                                    case "Estonian":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("A");
-                                            m_Cursor.Position.X += m_Font.MeasureString("A").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("a");
-                                            m_Cursor.Position.X += m_Font.MeasureString("a").X;
-                                        }
-                                        break;
-                                    case "French":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("Q");
-                                            m_Cursor.Position.X += m_Font.MeasureString("Q").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("q");
-                                            m_Cursor.Position.X += m_Font.MeasureString("q").X;
-                                        }
-                                        break;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.B:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("B");
-                                    m_Cursor.Position.X += m_Font.MeasureString("B").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("b");
-                                    m_Cursor.Position.X += m_Font.MeasureString("b").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.C:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("C");
-                                    m_Cursor.Position.X += m_Font.MeasureString("C").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("c");
-                                    m_Cursor.Position.X += m_Font.MeasureString("c").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.D:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("D");
-                                    m_Cursor.Position.X += m_Font.MeasureString("D").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("d");
-                                    m_Cursor.Position.X += m_Font.MeasureString("d").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.E:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("E");
-                                    m_Cursor.Position.X += m_Font.MeasureString("E").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("e");
-                                    m_Cursor.Position.X += m_Font.MeasureString("e").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.F:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("F");
-                                    m_Cursor.Position.X += m_Font.MeasureString("F").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("f");
-                                    m_Cursor.Position.X += m_Font.MeasureString("f").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.G:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("G");
-                                    m_Cursor.Position.X += m_Font.MeasureString("G").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("g");
-                                    m_Cursor.Position.X += m_Font.MeasureString("g").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.H:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("H");
-                                    m_Cursor.Position.X += m_Font.MeasureString("H").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("h");
-                                    m_Cursor.Position.X += m_Font.MeasureString("h").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.I:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("I");
-                                    m_Cursor.Position.X += m_Font.MeasureString("I").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("i");
-                                    m_Cursor.Position.X += m_Font.MeasureString("i").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.J:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("J");
-                                    m_Cursor.Position.X += m_Font.MeasureString("J").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("j");
-                                    m_Cursor.Position.X += m_Font.MeasureString("j").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.K:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("K");
-                                    m_Cursor.Position.X += m_Font.MeasureString("K").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("k");
-                                    m_Cursor.Position.X += m_Font.MeasureString("k").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.L:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("L");
-                                    m_Cursor.Position.X += m_Font.MeasureString("L").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("l");
-                                    m_Cursor.Position.X += m_Font.MeasureString("l").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.M:
-                                switch (Input.InputRegion.LayoutName)
-                                {
-                                    case "English":
-                                    case "Norwegian":
-                                    case "Swedish":
-                                    case "Danish":
-                                    case "Estonian":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("M");
-                                            m_Cursor.Position.X += m_Font.MeasureString("M").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("m");
-                                            m_Cursor.Position.X += m_Font.MeasureString("m").X;
-                                        }
-                                        break;
-                                    case "French":
-                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("?");
-                                        m_Cursor.Position.X += m_Font.MeasureString("?").X;
-                                        break;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.N:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("N");
-                                    m_Cursor.Position.X += m_Font.MeasureString("N").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("n");
-                                    m_Cursor.Position.X += m_Font.MeasureString("n").X;
-                                }
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.O:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("O");
-                                    m_Cursor.Position.X += m_Font.MeasureString("O").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("o");
-                                    m_Cursor.Position.X += m_Font.MeasureString("o").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.P:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("P");
-                                    m_Cursor.Position.X += m_Font.MeasureString("P").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("p");
-                                    m_Cursor.Position.X += m_Font.MeasureString("p").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Q:
-                                switch (Input.InputRegion.LayoutName)
-                                {
-                                    case "English":
-                                    case "Norwegian":
-                                    case "Swedish":
-                                    case "Danish":
-                                    case "Estonian":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("Q");
-                                            m_Cursor.Position.X += m_Font.MeasureString("Q").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("q");
-                                            m_Cursor.Position.X += m_Font.MeasureString("q").X;
-                                        }
-                                        break;
-                                    case "French":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("A");
-                                            m_Cursor.Position.X += m_Font.MeasureString("A").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("a");
-                                            m_Cursor.Position.X += m_Font.MeasureString("a").X;
-                                        }
-                                        break;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.S:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("S");
-                                    m_Cursor.Position.X += m_Font.MeasureString("S").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("s");
-                                    m_Cursor.Position.X += m_Font.MeasureString("s").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.T:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("T");
-                                    m_Cursor.Position.X += m_Font.MeasureString("T").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("t");
-                                    m_Cursor.Position.X += m_Font.MeasureString("t").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.U:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("U");
-                                    m_Cursor.Position.X += m_Font.MeasureString("U").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("u");
-                                    m_Cursor.Position.X += m_Font.MeasureString("u").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.V:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("V");
-                                    m_Cursor.Position.X += m_Font.MeasureString("V").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("v");
-                                    m_Cursor.Position.X += m_Font.MeasureString("v").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.W:
-                                switch (Input.InputRegion.LayoutName)
-                                {
-                                    case "English":
-                                    case "Norwegian":
-                                    case "Swedish":
-                                    case "Danish":
-                                    case "Estonian":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("W");
-                                            m_Cursor.Position.X += m_Font.MeasureString("W").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("w");
-                                            m_Cursor.Position.X += m_Font.MeasureString("w").X;
-                                        }
-                                        break;
-                                    case "French":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("Z");
-                                            m_Cursor.Position.X += m_Font.MeasureString("Z").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("z");
-                                            m_Cursor.Position.X += m_Font.MeasureString("z").X;
-                                        }
-                                        break;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.X:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("X");
-                                    m_Cursor.Position.X += m_Font.MeasureString("X").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("x");
-                                    m_Cursor.Position.X += m_Font.MeasureString("x").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Y:
-                                if (Upper)
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("Y");
-                                    m_Cursor.Position.X += m_Font.MeasureString("Y").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("y");
-                                    m_Cursor.Position.X += m_Font.MeasureString("y").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Z:
-                                switch (Input.InputRegion.LayoutName)
-                                {
-                                    case "English":
-                                    case "Norwegian":
-                                    case "Swedish":
-                                    case "Danish":
-                                    case "Estonian":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("Z");
-                                            m_Cursor.Position.X += m_Font.MeasureString("Z").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("z");
-                                            m_Cursor.Position.X += m_Font.MeasureString("z").X;
-                                        }
-                                        break;
-                                    case "French":
-                                        if (Upper)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("W");
-                                            m_Cursor.Position.X += m_Font.MeasureString("W").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("w");
-                                            m_Cursor.Position.X += m_Font.MeasureString("w").X;
-                                        }
-                                        break;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Divide:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("/");
-                                m_Cursor.Position.X += m_Font.MeasureString("/").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.OemSemicolon:
-                                if (Input.InputRegion != null)
-                                {
-                                    switch (Input.InputRegion.LayoutName)
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.OemSemicolon:
+                                    if (Input.InputRegion != null)
                                     {
-                                        case "English":
+                                        switch (Input.InputRegion.LayoutName)
+                                        {
+                                            case "English":
+                                                if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                                    m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = ';';
+                                                else
+                                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append(";");
+
+                                                m_Cursor.Position.X += m_Font.MeasureString(";").X;
+                                                break;
+                                        }
+                                    }
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.OemQuotes:
+                                    if (Input.InputRegion != null)
+                                    {
+                                        switch (Input.InputRegion.LayoutName)
+                                        {
+                                            case "English": //TODO: Should this be double quote if upper??
+                                                if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                                    m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '\'';
+                                                else
+                                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("'");
+
+                                                m_Cursor.Position.X += m_Font.MeasureString("'").X;
+                                                break;
+                                        }
+                                    }
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.OemCloseBrackets:
+                                    if (Input.InputRegion != null)
+                                    {
+                                        switch (Input.InputRegion.LayoutName)
+                                        {
+                                            case "English":
+                                                if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                                    m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '}';
+                                                else
+                                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append("}");
+
+                                                m_Cursor.Position.X += m_Font.MeasureString("}").X;
+                                                break;
+                                            case "Norwegian":
+                                            case "Swedish":
+                                            case "Finnish":
+                                            case "Danish":
+                                                if (IsUpperCase(Input))
+                                                {
+                                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '^';
+                                                    else
+                                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("^");
+
+                                                    m_Cursor.Position.X += m_Font.MeasureString("^").X;
+                                                }
+                                                else if (Input.IsCurPress(Keys.RightAlt))
+                                                {
+                                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '~';
+                                                    else
+                                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("~");
+
+                                                    m_Cursor.Position.X += m_Font.MeasureString("~").X;
+                                                }
+                                                break;
+                                        }
+                                    }
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.OemPlus:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '+';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("+");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("+").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.OemComma:
+                                    if (IsUpperCase(Input))
+                                    {
+                                        if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                            m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = ';';
+                                        else
                                             m_Lines[m_Cursor.LineIndex].SBuilder.Append(";");
-                                            m_Cursor.Position.X += m_Font.MeasureString(";").X;
-                                            break;
-                                        case "Norwegian":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Ø");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Ø").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("ø");
-                                                m_Cursor.Position.X += m_Font.MeasureString("ø").X;
-                                            }
 
-                                            break;
-                                        case "French":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("M");
-                                                m_Cursor.Position.X += m_Font.MeasureString("M").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("m");
-                                                m_Cursor.Position.X += m_Font.MeasureString("m").X;
-                                            }
-
-                                            break;
-                                        case "Swedish":
-                                        case "Finnish":
-                                        case "Estonian":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Ö");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Ö").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("ö");
-                                                m_Cursor.Position.X += m_Font.MeasureString("ö").X;
-                                            }
-
-                                            break;
-                                        case "Danish":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Æ");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Æ").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("æ");
-                                                m_Cursor.Position.X += m_Font.MeasureString("æ").X;
-                                            }
-
-                                            break;
+                                        m_Cursor.Position.X += m_Font.MeasureString(";").X;
                                     }
-                                }
-
-                                m_Cursor.CharacterIndex++;
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.OemQuotes:
-                                if (Input.InputRegion != null)
-                                {
-                                    switch (Input.InputRegion.LayoutName)
-                                    {
-                                        case "English": //TODO: Should this be double quote if upper??
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("'");
-                                            m_Cursor.Position.X += m_Font.MeasureString("'").X;
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                        case "Norwegian":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Æ");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Æ").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("æ");
-                                                m_Cursor.Position.X += m_Font.MeasureString("æ").X;
-                                            }
-
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                        case "Swedish":
-                                        case "Finnish":
-                                        case "Estonian":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Ä");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Ä").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("ä");
-                                                m_Cursor.Position.X += m_Font.MeasureString("ä").X;
-                                            }
-
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                        case "Danish":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Ø");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Ø").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("ø");
-                                                m_Cursor.Position.X += m_Font.MeasureString("ø").X;
-                                            }
-
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                    }
-                                }
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.OemOpenBrackets:
-                                if (Input.InputRegion != null)
-                                {
-                                    switch (Input.InputRegion.LayoutName)
-                                    {
-                                        case "English":
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("{");
-                                            m_Cursor.Position.X += m_Font.MeasureString("{").X;
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                        case "Norwegian":
-                                        case "Swedish":
-                                        case "Finnish":
-                                        case "Danish":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Å");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Å").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("å");
-                                                m_Cursor.Position.X += m_Font.MeasureString("å").X;
-                                            }
-
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                        case "Estonian":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Ü");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Ü").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("ü");
-                                                m_Cursor.Position.X += m_Font.MeasureString("ü").X;
-                                            }
-
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                    }
-                                }
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.OemCloseBrackets:
-                                if (Input.InputRegion != null)
-                                {
-                                    switch (Input.InputRegion.LayoutName)
-                                    {
-                                        case "English":
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append("}");
-                                            m_Cursor.Position.X += m_Font.MeasureString("}").X;
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                        case "Norwegian":
-                                        case "Swedish":
-                                        case "Finnish":
-                                        case "Danish":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("^");
-                                                m_Cursor.Position.X += m_Font.MeasureString("^").X;
-                                            }
-                                            else if(Input.IsCurPress(Keys.RightAlt))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("~");
-                                                m_Cursor.Position.X += m_Font.MeasureString("~").X;
-                                            }
-
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                        case "Estonian":
-                                            if (IsUpperCase(Input))
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("Õ");
-                                                m_Cursor.Position.X += m_Font.MeasureString("Õ").X;
-                                            }
-                                            else
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("õ");
-                                                m_Cursor.Position.X += m_Font.MeasureString("õ").X;
-                                            }
-
-                                            m_Cursor.CharacterIndex++;
-                                            break;
-                                    }
-                                }
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.OemPlus:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("+");
-                                m_Cursor.Position.X += m_Font.MeasureString("+").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.OemComma:
-                                if (IsUpperCase(Input))
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append(";");
-                                    m_Cursor.Position.X += m_Font.MeasureString(";").X;
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Append(",");
-                                    m_Cursor.Position.X += m_Font.MeasureString(",").X;
-                                }
-
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.OemPeriod:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append(".");
-                                m_Cursor.Position.X += m_Font.MeasureString(".").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Space:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append(" ");
-                                m_Cursor.Position.X += m_Font.MeasureString(" ").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Tab:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("    ");
-                                m_Cursor.Position.X += m_Font.MeasureString("   ").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Subtract:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("-");
-                                m_Cursor.Position.X += m_Font.MeasureString("-").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad0:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("0");
-                                m_Cursor.Position.X += m_Font.MeasureString("0").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad1:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("1");
-                                m_Cursor.Position.X += m_Font.MeasureString("1").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad2:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("2");
-                                m_Cursor.Position.X += m_Font.MeasureString("2").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad3:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("3");
-                                m_Cursor.Position.X += m_Font.MeasureString("3").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad4:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("4");
-                                m_Cursor.Position.X += m_Font.MeasureString("4").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad5:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("5");
-                                m_Cursor.Position.X += m_Font.MeasureString("5").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad6:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("6");
-                                m_Cursor.Position.X += m_Font.MeasureString("6").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad7:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("7");
-                                m_Cursor.Position.X += m_Font.MeasureString("7").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad8:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("8");
-                                m_Cursor.Position.X += m_Font.MeasureString("8").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.NumPad9:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("9");
-                                m_Cursor.Position.X += m_Font.MeasureString("9").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Multiply:
-                                m_Lines[m_Cursor.LineIndex].SBuilder.Append("*");
-                                m_Cursor.Position.X += m_Font.MeasureString("*").X;
-                                m_Cursor.CharacterIndex++;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Enter:
-                                m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition });
-                                m_TextPosition.Y += m_Font.LineSpacing;
-
-                                m_Cursor.Position.Y += m_Font.LineSpacing;
-                                m_Cursor.LineIndex += 1;
-                                m_Cursor.CharacterIndex = 0;
-
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Back:
-                                m_RemovingTxt = true;
-
-                                if (!m_MovingCursor)
-                                {
-                                    if (m_Cursor.Position.X <= m_VerticalTextBoundary)
-                                        m_Cursor.Position.X = m_VerticalTextBoundary;
                                     else
                                     {
-                                        if (m_Cursor.Position.X > Position.X)
-                                            m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                        if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                            m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = ',';
+                                        else
+                                            m_Lines[m_Cursor.LineIndex].SBuilder.Append(",");
+
+                                        m_Cursor.Position.X += m_Font.MeasureString(",").X;
                                     }
-                                }
 
-                                if (m_Lines[m_Cursor.LineIndex].SBuilder.Length == 0)
-                                {
-                                    m_TextPosition.Y -= m_Font.LineSpacing;
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.OemPeriod:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '.';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append(".");
 
-                                    m_Cursor.Position.X = Position.X + m_Size.X;
-                                    m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                    m_Cursor.Position.X += m_Font.MeasureString(".").X;
 
-                                    if (m_Cursor.LineIndex > 0)
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.Space:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = ' ';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append(" ");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString(" ").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.Tab:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("   "); //TODO: How to insert tab??
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("   ");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("   ").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.Subtract:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '-';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("-");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("-").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad0:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '0';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("0");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("0").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad1:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '1';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("1");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("1").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad2:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '2';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("2");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("2").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad3:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '3';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("3");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("3").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad4:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '4';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("4");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("4").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad5:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '5';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("5");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("5").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad6:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '6';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("6");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("6").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad7:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '7';
+                                    m_Cursor.Position.X += m_Font.MeasureString("7").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad8:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '8';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("8");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("8").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.NumPad9:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '9';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("9");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("9").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.Multiply:
+                                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = '*';
+                                    else
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Append("*");
+
+                                    m_Cursor.Position.X += m_Font.MeasureString("*").X;
+
+                                    m_Cursor.CharacterIndex++;
+                                    m_MovingCursor = false;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.Enter:
+                                    if(m_NumLines > 1)
                                     {
-                                        m_Cursor.LineIndex--;
-                                        m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                        m_TextPosition.X = Position.X;
+                                        m_TextPosition.Y += m_Font.LineSpacing;
+                                        m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition });
+
+                                        m_Cursor.Position.X = Position.X;
+                                        m_Cursor.Position.Y += m_Font.LineSpacing;
+                                        m_Cursor.LineIndex += 1;
+                                        m_Cursor.CharacterIndex = 0;
+
+                                        m_MovingCursor = false;
+                                        m_RemovingTxt = false;
                                     }
-                                }
-                                else
-                                {
-                                    m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
-                                    m_Cursor.CharacterIndex--;
-                                    m_Cursor.Position.X -= m_Font.MeasureString("a").X;
-                                }
+                                    break;
+                                case Keys.Back:
+                                    m_RemovingTxt = true;
 
-                                //Cursor moved to the beginning of a line.
-                                if(m_Cursor.Position.X <= Position.X)
-                                {
-                                    m_TextPosition.Y -= m_Font.LineSpacing;
-
-                                    m_Cursor.Position.X = Position.X + m_Size.X;
-                                    m_Cursor.Position.Y -= m_Font.LineSpacing;
-
-                                    if (m_Cursor.LineIndex > 0)
+                                    if (!m_MovingCursor)
                                     {
-                                        m_Cursor.LineIndex--;
-                                        m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
-                                    }
-                                }
-                                break;
-                            case Keys.Left:
-                                if (m_Cursor.Position.X > Position.X)
-                                {
-                                    m_Cursor.Position.X -= m_Font.MeasureString("a").X;
-                                    m_Cursor.CharacterIndex--;
-                                }
-
-                                m_MovingCursor = true;
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Right:
-                                if (m_Cursor.Position.X < (Position.X + m_Size.X))
-                                {
-                                    if (m_Lines[m_Cursor.LineIndex].SBuilder.Length > 0 &&
-                                        m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
-                                    {
-                                        m_Cursor.Position.X += m_Font.MeasureString("a").X;
-                                        m_Cursor.CharacterIndex++;
-                                    }
-                                }
-
-                                m_MovingCursor = true;
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Up:
-                                if (m_Cursor.Position.Y > Position.Y)
-                                {
-                                    m_Cursor.Position.Y -= m_Font.LineSpacing;
-                                    m_Cursor.LineIndex--;
-                                }
-
-                                m_MovingCursor = true;
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Down:
-                                if (m_Cursor.Position.Y < (Position.Y + m_Size.Y))
-                                {
-                                    if (m_Lines.Count >= 2)
-                                    {
-                                        if (m_Cursor.Position.Y < m_Lines[m_Lines.Count - 1].Position.Y)
+                                        if (m_Cursor.Position.X <= m_VerticalTextBoundary)
+                                            m_Cursor.Position.X = m_VerticalTextBoundary;
+                                        else
                                         {
-                                            m_Cursor.Position.Y += m_Font.LineSpacing;
-                                            m_Cursor.LineIndex++;
+                                            if (m_Cursor.Position.X > Position.X)
+                                                m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                        }
+                                    }
 
-                                            //Part of a line was most likely deleted, so readjust the cursor accordingly.
-                                            if (m_Cursor.CharacterIndex > m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                    if (m_Lines[m_Cursor.LineIndex].SBuilder.Length == 0)
+                                    {
+                                        m_TextPosition.Y -= m_Font.LineSpacing;
+
+                                        m_Cursor.Position.X = Position.X + m_Size.X;
+                                        m_Cursor.Position.Y -= m_Font.LineSpacing;
+
+                                        if (m_Cursor.LineIndex > 0)
+                                        {
+                                            m_Cursor.LineIndex--;
+                                            m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
+                                        m_Cursor.CharacterIndex--;
+                                        m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                    }
+
+                                    //Cursor moved to the beginning of a line.
+                                    if (m_Cursor.Position.X <= Position.X)
+                                    {
+                                        m_TextPosition.Y -= m_Font.LineSpacing;
+
+                                        m_Cursor.Position.X = Position.X + m_Size.X;
+                                        m_Cursor.Position.Y -= m_Font.LineSpacing;
+
+                                        if (m_Cursor.LineIndex > 0)
+                                        {
+                                            m_Cursor.LineIndex--;
+                                            m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                        }
+                                    }
+                                    break;
+                                case Keys.Left:
+                                    if (m_Cursor.Position.X > Position.X)
+                                    {
+                                        m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                        m_Cursor.CharacterIndex--;
+                                    }
+                                    else if(m_Cursor.Position.X <= Position.X)
+                                    {
+                                        if(m_NumLines == 1)
+                                        {
+                                            foreach (RenderableText Txt in m_Lines)
                                             {
-                                                m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
-                                                m_Cursor.Position.X = Position.X + 
-                                                    m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X;
+                                                if(!(m_Lines[0].Position.X > Position.X))
+                                                    Txt.Position.X += m_Font.MeasureString(Txt.SBuilder.ToString()).X;
                                             }
                                         }
                                     }
-                                }
 
-                                m_MovingCursor = true;
-                                m_RemovingTxt = false;
-                                break;
+                                    m_MovingCursor = true;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.Right:
+                                    if (m_Cursor.Position.X < (Position.X + m_Size.X))
+                                    {
+                                        if (m_NumLines > 1)
+                                        {
+                                            if (m_Lines[m_Cursor.LineIndex].SBuilder.Length > 0 &&
+                                                m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                            {
+                                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                                m_Cursor.CharacterIndex++;
+                                            }
+                                        }
+                                        else //Single-line control, simple.
+                                        {
+                                            m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                            m_Cursor.CharacterIndex++;
+                                        }
+                                    }
+                                    else if (m_Cursor.Position.X >= (Position.X + m_Size.X))
+                                    {
+                                        if (m_NumLines == 1)
+                                        {
+                                            foreach (RenderableText Txt in m_Lines)
+                                            {
+                                                if ((m_Lines[m_Lines.Count - 1].Position.X >= (Position.X + m_Size.X)))
+                                                    Txt.Position.X -= m_Font.MeasureString(Txt.SBuilder.ToString()).X;
+                                            }
+                                        }
+                                    }
+
+                                    m_MovingCursor = true;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.Up:
+                                    if (m_Cursor.Position.Y > Position.Y)
+                                    {
+                                        m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                        m_Cursor.LineIndex--;
+
+                                        //Part of a line was most likely deleted, so readjust the cursor accordingly.
+                                        if (m_Cursor.CharacterIndex > m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        {
+                                            m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                            m_Cursor.Position.X = Position.X +
+                                                m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X;
+                                        }
+                                    }
+
+                                    m_MovingCursor = true;
+                                    m_RemovingTxt = false;
+                                    break;
+                                case Keys.Down:
+                                    if (m_Cursor.Position.Y < (Position.Y + m_Size.Y))
+                                    {
+                                        if (m_Lines.Count >= 2)
+                                        {
+                                            if (m_Cursor.Position.Y < m_Lines[m_Lines.Count - 1].Position.Y)
+                                            {
+                                                m_Cursor.Position.Y += m_Font.LineSpacing;
+                                                m_Cursor.LineIndex++;
+
+                                                //Part of a line was most likely deleted, so readjust the cursor accordingly.
+                                                if (m_Cursor.CharacterIndex > m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                                {
+                                                    m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                                    m_Cursor.Position.X = Position.X +
+                                                        m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    m_MovingCursor = true;
+                                    m_RemovingTxt = false;
+                                    break;
+                            }
                         }
                     }
                 }
