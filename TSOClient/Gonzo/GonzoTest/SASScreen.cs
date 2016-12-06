@@ -209,7 +209,7 @@ namespace GonzoTest
 
         #region Eventhandlers
 
-        private void DescriptionTabBtn3_OnButtonClicked(UIButton ClickedButton)
+        private void DescriptionTabBtn3_OnButtonClicked(object Sender)
         {
             m_HouseButton3.Visible = false;
             m_CityButton3.Visible = false;
@@ -230,7 +230,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void DescriptionTabBtn2_OnButtonClicked(UIButton ClickedButton)
+        private void DescriptionTabBtn2_OnButtonClicked(object Sender)
         {
             m_HouseButton2.Visible = false;
             m_CityButton2.Visible = false;
@@ -251,7 +251,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void DescriptionTabBtn1_OnButtonClicked(UIButton ClickedButton)
+        private void DescriptionTabBtn1_OnButtonClicked(object Sender)
         {
             m_HouseButton1.Visible = false;
             m_CityButton1.Visible = false;
@@ -272,7 +272,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void EnterTabBtn3_OnButtonClicked(UIButton ClickedButton)
+        private void EnterTabBtn3_OnButtonClicked(object Sender)
         {
             if (m_Avatars.Count < 3)
             {
@@ -302,7 +302,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void EnterTabBtn2_OnButtonClicked(UIButton ClickedButton)
+        private void EnterTabBtn2_OnButtonClicked(object Sender)
         {
             if (m_Avatars.Count < 2)
             {
@@ -332,7 +332,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void EnterTabBtn1_OnButtonClicked(UIButton ClickedButton)
+        private void EnterTabBtn1_OnButtonClicked(object Sender)
         {
             if (m_Avatars.Count == 0)
             {

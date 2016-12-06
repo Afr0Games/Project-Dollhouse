@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 
 namespace Files.IFF
 {
+    [Serializable]
     public class IFFException : Exception
     {
         public IFFException(string Message) : base(Message)

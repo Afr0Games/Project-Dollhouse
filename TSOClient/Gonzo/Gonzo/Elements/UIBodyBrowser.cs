@@ -13,6 +13,7 @@ namespace Gonzo.Elements
     /// </summary>
     public class UIBodyBrowser : UISkinBrowser
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event UISkinButtonClicked OnButtonClicked;
         private Vector2 BodyTileSize = new Vector2(37, 76);
         private Texture2D m_EditBodySkinBtnTex;
@@ -98,7 +99,7 @@ namespace Gonzo.Elements
         public override void Update(InputHelper Helper, GameTime GTime)
         {
             m_Counter = m_Index;
-
+            
             for (int X = 0; X <= m_Map.GetUpperBound(1); X++)
             {
                 for (int Y = 0; Y <= m_Map.GetUpperBound(0); Y++)
@@ -117,22 +118,35 @@ namespace Gonzo.Elements
 
                                 if (OnButtonClicked != null)
                                 {
+                                    UISkinButtonClickedEventArgs EArgs = new UISkinButtonClickedEventArgs();
+
                                     switch (m_SelectedSkintype)
                                     {
                                         case Elements.SkinType.Light:
-                                            OnButtonClicked(0, m_Sex == AvatarSex.Male ?
+                                            EArgs.SkinType = 0;
+                                            EArgs.SelectedOutfit = (m_Sex == AvatarSex.Male ?
                                                 m_LightAppearances[(Y * X) + m_Counter].Oft :
                                                 m_LightFemaleAppearances[(Y * X) + m_Counter].Oft);
+
+                                            OnButtonClicked(this, EArgs);
                                             break;
                                         case Elements.SkinType.Medium:
-                                            OnButtonClicked(1, m_Sex == AvatarSex.Male ?
+                                            EArgs = new UISkinButtonClickedEventArgs();
+                                            EArgs.SkinType = 1;
+                                            EArgs.SelectedOutfit = (m_Sex == AvatarSex.Male ?
                                                 m_MediumAppearances[(X * Y) + m_Counter].Oft :
                                                 m_MediumFemaleAppearances[(Y * X) + m_Counter].Oft);
+
+                                            OnButtonClicked(this, EArgs);
                                             break;
                                         case Elements.SkinType.Dark:
-                                            OnButtonClicked(2, m_Sex == AvatarSex.Male ?
+                                            EArgs = new UISkinButtonClickedEventArgs();
+                                            EArgs.SkinType = 2;
+                                            EArgs.SelectedOutfit = (m_Sex == AvatarSex.Male ?
                                                 m_DarkAppearances[(X * Y) + m_Counter].Oft :
                                                 m_DarkFemaleAppearances[(Y * X) + m_Counter].Oft);
+
+                                            OnButtonClicked(this, EArgs);
                                             break;
                                     }
                                 }

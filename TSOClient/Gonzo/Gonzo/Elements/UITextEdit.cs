@@ -1,8 +1,7 @@
-﻿using System.Timers;
+﻿using System;
+using System.Timers;
 using System.Collections.Generic;
 using System.Text;
-using Files;
-using Files.Manager;
 using UIParser;
 using UIParser.Nodes;
 using Microsoft.Xna.Framework;
@@ -52,7 +51,7 @@ namespace Gonzo.Elements
         public int CharacterIndex = 0;  //Which character is the cursor next to?
     }
 
-    public class UITextEdit : UIElement
+    public class UITextEdit : UIElement, IDisposable
     {
         public bool Transparent = false;
         private int m_NumLines = 0;
@@ -87,6 +86,9 @@ namespace Gonzo.Elements
         private int m_VerticalTextBoundary = 0;
 
         private bool m_IsUpperCase = false; //Is shift currently being pressed?
+
+        //Factor by which to scroll characters vertically.
+        private int m_ScrollFactor = 3;
 
         private List<RenderableText> m_Lines = new List<RenderableText>();
 
@@ -282,21 +284,26 @@ namespace Gonzo.Elements
                     }
                     else
                     {
+                        //Text went beyond the borders of the control...
                         if (m_Font.MeasureString(CurrentInput).X >= (m_Size.X - 
-                            m_Font.MeasureString(CurrentInput).X) && !m_RemovingTxt)
+                            m_Font.MeasureString(e.Character.ToString()).X) && !m_RemovingTxt)
                         {
-                            m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition, Visible = false });
+                            m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_Cursor.Position, Visible = true });
                             m_Cursor.Position.X = m_Size.X;
                             //In a single line control, each "line" will hold one character.
                             m_Cursor.LineIndex++;
 
-                            foreach(RenderableText Txt in m_Lines)
+                            foreach (RenderableText Txt in m_Lines)
+                            {
                                 Txt.Position.X -= m_Font.MeasureString(e.Character.ToString()).X;
+
+                                if (Txt.Position.X < Position.X)
+                                    Txt.Visible = false;
+                            }
                         }
                         else
                         {
-                            Vector2 Pos = new Vector2(m_Cursor.LineIndex * m_Font.MeasureString(e.Character.ToString()).X, m_TextPosition.Y);
-                            m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = Pos, Visible = true});
+                            m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_Cursor.Position, Visible = true});
                             //In a single line control, each "line" will hold one character.
                             m_Cursor.LineIndex++;
                         }
@@ -305,17 +312,51 @@ namespace Gonzo.Elements
 
                 if (!m_IsUpperCase)
                 {
-                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
-                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = e.Character;
-                    else
-                        m_Lines[m_Cursor.LineIndex].SBuilder.Append(e.Character);
+                    //If the cursor is in the middle of a line, replace the character.
+                    if (m_NumLines > 1)
+                    {
+                        if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                            m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = e.Character;
+                        else
+                            m_Lines[m_Cursor.LineIndex].SBuilder.Append(e.Character);
+                    }
+                    else      
+                    {
+                        if (m_Cursor.CharacterIndex < CurrentInput.Length)
+                            m_Lines[m_Cursor.LineIndex].SBuilder[0] = e.Character;
+                        else
+                        {
+                            RenderableText Txt = new RenderableText();
+                            Txt.SBuilder = new StringBuilder(e.Character.ToString());
+                            Txt.Position = m_Cursor.Position;
+                            Txt.Visible = true;
+                            m_Lines.Insert(m_Cursor.LineIndex, Txt);
+                        }
+                    }
                 }
                 else
                 {
-                    if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
-                        m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = e.Character.ToString().ToUpper().ToCharArray()[0];
+                    if (m_NumLines > 1)
+                    {
+                        //If the cursor is in the middle of a line, replace the character.
+                        if (m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                            m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex] = e.Character.ToString().ToUpper().ToCharArray()[0];
+                        else
+                            m_Lines[m_Cursor.LineIndex].SBuilder.Append(e.Character.ToString().ToUpper());
+                    }
                     else
-                        m_Lines[m_Cursor.LineIndex].SBuilder.Append(e.Character.ToString().ToUpper());
+                    {
+                        if ((m_Cursor.CharacterIndex < CurrentInput.Length) && m_MovingCursor)
+                            m_Lines[m_Cursor.LineIndex].SBuilder[0] = e.Character;
+                        else
+                        {
+                            RenderableText Txt = new RenderableText();
+                            Txt.SBuilder = new StringBuilder(e.Character.ToString().ToUpper());
+                            Txt.Position = m_Cursor.Position;
+                            Txt.Visible = true;
+                            m_Lines.Insert(m_Cursor.LineIndex, Txt);
+                        }
+                    }
                 }
 
                 m_Cursor.CharacterIndex++;
@@ -392,14 +433,13 @@ namespace Gonzo.Elements
                                                 else
                                                     m_Lines[m_Cursor.LineIndex].SBuilder.Append(";");
 
+                                                m_Cursor.CharacterIndex++;
+                                                m_MovingCursor = false;
+                                                m_RemovingTxt = false;
                                                 m_Cursor.Position.X += m_Font.MeasureString(";").X;
                                                 break;
                                         }
                                     }
-
-                                    m_Cursor.CharacterIndex++;
-                                    m_MovingCursor = false;
-                                    m_RemovingTxt = false;
                                     break;
                                 case Keys.OemQuotes:
                                     if (Input.InputRegion != null)
@@ -412,14 +452,13 @@ namespace Gonzo.Elements
                                                 else
                                                     m_Lines[m_Cursor.LineIndex].SBuilder.Append("'");
 
+                                                m_Cursor.CharacterIndex++;
+                                                m_MovingCursor = false;
+                                                m_RemovingTxt = false;
                                                 m_Cursor.Position.X += m_Font.MeasureString("'").X;
                                                 break;
                                         }
                                     }
-
-                                    m_Cursor.CharacterIndex++;
-                                    m_MovingCursor = false;
-                                    m_RemovingTxt = false;
                                     break;
                                 case Keys.OemCloseBrackets:
                                     if (Input.InputRegion != null)
@@ -696,6 +735,7 @@ namespace Gonzo.Elements
                                 case Keys.Back:
                                     m_RemovingTxt = true;
 
+                                    //Cursor hasn't been moved.
                                     if (!m_MovingCursor)
                                     {
                                         if (m_Cursor.Position.X <= m_VerticalTextBoundary)
@@ -707,24 +747,43 @@ namespace Gonzo.Elements
                                         }
                                     }
 
+                                    //If the current line is empty, move the cursor up.
                                     if (m_Lines[m_Cursor.LineIndex].SBuilder.Length == 0)
                                     {
-                                        m_TextPosition.Y -= m_Font.LineSpacing;
-
-                                        m_Cursor.Position.X = Position.X + m_Size.X;
-                                        m_Cursor.Position.Y -= m_Font.LineSpacing;
-
-                                        if (m_Cursor.LineIndex > 0)
+                                        if (m_NumLines > 1)
                                         {
-                                            m_Cursor.LineIndex--;
-                                            m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                            m_TextPosition.Y -= m_Font.LineSpacing;
+
+                                            m_Cursor.Position.X = Position.X + m_Size.X;
+                                            m_Cursor.Position.Y -= m_Font.LineSpacing;
+
+                                            if (m_Cursor.LineIndex > 0)
+                                            {
+                                                m_Cursor.LineIndex--;
+                                                m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (m_Cursor.LineIndex > 0)
+                                                m_Cursor.LineIndex--;
                                         }
                                     }
                                     else
                                     {
-                                        m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
-                                        m_Cursor.CharacterIndex--;
-                                        m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                        if (m_NumLines > 1)
+                                        {
+                                            m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
+                                            m_Cursor.CharacterIndex--;
+                                            m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                        }
+                                        else
+                                        {
+                                            m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex]);
+                                            m_Cursor.CharacterIndex--;
+                                            m_Cursor.LineIndex--;
+                                            m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                        }
                                     }
 
                                     //Cursor moved to the beginning of a line.
@@ -747,15 +806,25 @@ namespace Gonzo.Elements
                                     {
                                         m_Cursor.Position.X -= m_Font.MeasureString("a").X;
                                         m_Cursor.CharacterIndex--;
+
+                                        if (m_NumLines == 1)
+                                            m_Cursor.LineIndex--;
                                     }
                                     else if(m_Cursor.Position.X <= Position.X)
                                     {
                                         if(m_NumLines == 1)
                                         {
-                                            foreach (RenderableText Txt in m_Lines)
+                                            for(int i = 0; i < m_Lines.Count; i++)
                                             {
-                                                if(!(m_Lines[0].Position.X > Position.X))
-                                                    Txt.Position.X += m_Font.MeasureString(Txt.SBuilder.ToString()).X;
+                                                //Don't know why Line[0] doesn't work here...
+                                                if ((m_Lines[1].Position.X < Position.X))
+                                                    m_Lines[i].Position.X += m_ScrollFactor;
+
+                                                if (m_Lines[i].Position.X > (Position.X + Size.X))
+                                                    m_Lines[i].Visible = false;
+
+                                                if (m_Lines[i].Position.X > Position.X && m_Lines[i].Position.X < (Position.X + Size.X))
+                                                    m_Lines[i].Visible = true;
                                             }
                                         }
                                     }
@@ -779,16 +848,24 @@ namespace Gonzo.Elements
                                         {
                                             m_Cursor.Position.X += m_Font.MeasureString("a").X;
                                             m_Cursor.CharacterIndex++;
+                                            m_Cursor.LineIndex++;
                                         }
                                     }
                                     else if (m_Cursor.Position.X >= (Position.X + m_Size.X))
                                     {
                                         if (m_NumLines == 1)
                                         {
-                                            foreach (RenderableText Txt in m_Lines)
+                                            for (int i = 0; i < m_Lines.Count; i++)
                                             {
                                                 if ((m_Lines[m_Lines.Count - 1].Position.X >= (Position.X + m_Size.X)))
-                                                    Txt.Position.X -= m_Font.MeasureString(Txt.SBuilder.ToString()).X;
+                                                    m_Lines[i].Position.X -= m_ScrollFactor;
+
+                                                if (m_Lines[i].Position.X < (Position.X + Size.X))
+                                                    m_Lines[i].Visible = true;
+
+                                                if (m_Lines[i].Position.X < (Position.X + Size.X) &&
+                                                    m_Lines[i].Position.X < Position.X)
+                                                    m_Lines[i].Visible = false;
                                             }
                                         }
                                     }
@@ -797,46 +874,52 @@ namespace Gonzo.Elements
                                     m_RemovingTxt = false;
                                     break;
                                 case Keys.Up:
-                                    if (m_Cursor.Position.Y > Position.Y)
+                                    if (m_NumLines > 1)
                                     {
-                                        m_Cursor.Position.Y -= m_Font.LineSpacing;
-                                        m_Cursor.LineIndex--;
-
-                                        //Part of a line was most likely deleted, so readjust the cursor accordingly.
-                                        if (m_Cursor.CharacterIndex > m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                        if (m_Cursor.Position.Y > Position.Y)
                                         {
-                                            m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
-                                            m_Cursor.Position.X = Position.X +
-                                                m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X;
-                                        }
-                                    }
+                                            m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                            m_Cursor.LineIndex--;
 
-                                    m_MovingCursor = true;
-                                    m_RemovingTxt = false;
+                                            //Part of a line was most likely deleted, so readjust the cursor accordingly.
+                                            if (m_Cursor.CharacterIndex > m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                            {
+                                                m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                                m_Cursor.Position.X = Position.X +
+                                                    m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X;
+                                            }
+                                        }
+
+                                        m_MovingCursor = true;
+                                        m_RemovingTxt = false;
+                                    }
                                     break;
                                 case Keys.Down:
-                                    if (m_Cursor.Position.Y < (Position.Y + m_Size.Y))
+                                    if (m_NumLines > 1)
                                     {
-                                        if (m_Lines.Count >= 2)
+                                        if (m_Cursor.Position.Y < (Position.Y + m_Size.Y))
                                         {
-                                            if (m_Cursor.Position.Y < m_Lines[m_Lines.Count - 1].Position.Y)
+                                            if (m_Lines.Count >= 2)
                                             {
-                                                m_Cursor.Position.Y += m_Font.LineSpacing;
-                                                m_Cursor.LineIndex++;
-
-                                                //Part of a line was most likely deleted, so readjust the cursor accordingly.
-                                                if (m_Cursor.CharacterIndex > m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                                if (m_Cursor.Position.Y < m_Lines[m_Lines.Count - 1].Position.Y)
                                                 {
-                                                    m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
-                                                    m_Cursor.Position.X = Position.X +
-                                                        m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X;
+                                                    m_Cursor.Position.Y += m_Font.LineSpacing;
+                                                    m_Cursor.LineIndex++;
+
+                                                    //Part of a line was most likely deleted, so readjust the cursor accordingly.
+                                                    if (m_Cursor.CharacterIndex > m_Lines[m_Cursor.LineIndex].SBuilder.Length)
+                                                    {
+                                                        m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                                        m_Cursor.Position.X = Position.X +
+                                                            m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X;
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
 
-                                    m_MovingCursor = true;
-                                    m_RemovingTxt = false;
+                                        m_MovingCursor = true;
+                                        m_RemovingTxt = false;
+                                    }
                                     break;
                             }
                         }
@@ -884,11 +967,14 @@ namespace Gonzo.Elements
                     }
                 }
 
-                if (m_Cursor.Visible == true)
+                if (m_HasFocus)
                 {
-                    SBatch.DrawString(m_Font, " " + m_Cursor.Cursor, new Vector2(m_Cursor.Position.X,
-                        m_Cursor.Position.Y), TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, 
-                        SpriteEffects.None, Depth + 0.1f);
+                    if (m_Cursor.Visible == true)
+                    {
+                        SBatch.DrawString(m_Font, " " + m_Cursor.Cursor, new Vector2(m_Cursor.Position.X,
+                            m_Cursor.Position.Y), TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f,
+                            SpriteEffects.None, Depth + 0.1f);
+                    }
                 }
             }
         }
@@ -904,6 +990,20 @@ namespace Gonzo.Elements
                 return true;
 
             return false;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if(CleanUpManagedResources)
+            {
+                m_CursorVisibilityTimer.Dispose();
+            }
         }
     }
 }

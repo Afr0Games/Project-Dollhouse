@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Files;
 using Files.Manager;
 using Files.Vitaboy;
@@ -56,12 +57,18 @@ namespace Gonzo.Elements
         public bool IsMouseHovering = false; //Is the mouse cursor hovering over this button?
     }
 
+    public class UISkinButtonClickedEventArgs : EventArgs
+    {
+        public int SkinType;
+        public Outfit SelectedOutfit;
+    }
+
     /// <summary>
     /// Raised whenever a button in the UISkinBrowser is clicked.
     /// </summary>
     /// <param name="SkinType">The type of skin; 0 means light, 1 means medium, 2 means dark.</param>
     /// <param name="SelectedOutfit">The selected outfit represented by the button clicked.</param>
-    public delegate void UISkinButtonClicked(int SkinType, Outfit SelectedOutfit);
+    public delegate void UISkinButtonClicked(object Sender, UISkinButtonClickedEventArgs E);
 
     /// <summary>
     /// A skin browser is used to browse through thumbnails of heads and bodies.
@@ -152,12 +159,12 @@ namespace Gonzo.Elements
             m_SkinBrowserArrowRight.OnButtonClicked += M_SkinBrowserArrowRight_OnButtonClicked;
         }
 
-        private void M_SkinBrowserArrowLeft_OnButtonClicked(UIButton ClickedButton)
+        private void M_SkinBrowserArrowLeft_OnButtonClicked(object Sender)
         {
             m_Index++;
         }
 
-        private void M_SkinBrowserArrowRight_OnButtonClicked(UIButton ClickedButton)
+        private void M_SkinBrowserArrowRight_OnButtonClicked(object Sender)
         {
             if(Index >= 1)
                 m_Index--;

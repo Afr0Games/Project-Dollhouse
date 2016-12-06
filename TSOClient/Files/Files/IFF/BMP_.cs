@@ -35,8 +35,17 @@ namespace Files.IFF
 
         public void Dispose()
         {
-            if (BitmapStream != null)
-                BitmapStream.Close();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if (BitmapStream != null)
+                    BitmapStream.Dispose();
+            }
         }
     }
 }

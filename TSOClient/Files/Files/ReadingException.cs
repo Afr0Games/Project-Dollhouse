@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 
 namespace Files
 {
+    [Serializable]
     public class ReadingException : Exception
     {
         public ReadingException(string Message) : base(Message)

@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Gonzo.Elements
 {
-    public delegate void ButtonClickDelegate(UIButton ClickedButton);
+    public delegate void ButtonClickDelegate(object Sender);
 
     /// <summary>
     /// A clickable button that can trigger an event.
@@ -34,6 +34,7 @@ namespace Gonzo.Elements
         public bool Enabled = true;
 
         public bool m_IsButtonClicked = false;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event ButtonClickDelegate OnButtonClicked;
 
         public UIButton(AddButtonNode Node, ParserState State, UIScreen Screen) : base(Screen)

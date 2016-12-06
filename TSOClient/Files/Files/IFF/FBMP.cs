@@ -31,5 +31,20 @@ namespace Files.IFF
 
             Reader.Close();
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if (BitmapStream != null)
+                    BitmapStream.Dispose();
+            }
+        }
     }
 }

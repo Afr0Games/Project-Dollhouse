@@ -30,9 +30,8 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Text;
+using System.Globalization;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -403,7 +402,7 @@ namespace Paloma
         public TargaImage(string strFileName) : this()
         {
             // make sure we have a .tga file
-            if (System.IO.Path.GetExtension(strFileName).ToLower() == ".tga")
+            if (System.IO.Path.GetExtension(strFileName).ToLower(CultureInfo.InvariantCulture) == ".tga")
             {
                 // make sure the file exists
                 if (System.IO.File.Exists(strFileName) == true)
@@ -469,7 +468,7 @@ namespace Paloma
                         string Signature = System.Text.Encoding.ASCII.GetString(binReader.ReadBytes(TargaConstants.FooterSignatureByteLength)).TrimEnd('\0');
 
                         // do we have a proper signature
-                        if (string.Compare(Signature, TargaConstants.TargaFooterASCIISignature) == 0)
+                        if (string.Compare(Signature, TargaConstants.TargaFooterASCIISignature, StringComparison.InvariantCultureIgnoreCase) == 0)
                         {
                             // this is a NEW targa file.
                             // create the footer
@@ -502,11 +501,11 @@ namespace Paloma
                             this.eTGAFormat = TGAFormat.ORIGINAL_TGA;
                         }
                     }
-                    catch ( Exception ex )
+                    catch (Exception)
                     {
                         // clear all 
                         this.ClearAll();
-                        throw ex;
+                        throw;
                     }
                 }
                 else
@@ -559,7 +558,7 @@ namespace Paloma
 
                         default:
                             this.ClearAll();
-                            throw new Exception("Targa Image only supports 8, 16, 24, or 32 bit pixel depths.");
+                            throw new IOException("Targa Image only supports 8, 16, 24, or 32 bit pixel depths.");
                     }
                     
 
@@ -576,10 +575,10 @@ namespace Paloma
                         this.objTargaHeader.SetImageIDValue(System.Text.Encoding.ASCII.GetString(ImageIDValueBytes).TrimEnd('\0'));
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     this.ClearAll();
-                    throw ex;
+                    throw;
                 }
 
 
@@ -630,17 +629,17 @@ namespace Paloma
                                             break;
                                         default:
                                             this.ClearAll();
-                                            throw new Exception("TargaImage only supports ColorMap Entry Sizes of 15, 16, 24 or 32 bits.");
+                                            throw new IOException("TargaImage only supports ColorMap Entry Sizes of 15, 16, 24 or 32 bits.");
                                             
                                     }
 
 
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 this.ClearAll();
-                                throw ex;
+                                throw;
                             }
 
                             
@@ -649,7 +648,7 @@ namespace Paloma
                         else
                         {
                             this.ClearAll();
-                            throw new Exception("Image Type requires a Color Map and Color Map Length is zero.");
+                            throw new IOException("Image Type requires a Color Map and Color Map Length is zero.");
                         }
                     }
 
@@ -707,8 +706,8 @@ namespace Paloma
                         Int16 iMinute = binReader.ReadInt16();
                         Int16 iSecond = binReader.ReadInt16();
                         DateTime dtstamp;
-                        string strStamp = iMonth.ToString() + @"/" + iDay.ToString() + @"/" + iYear.ToString() + @" ";
-                        strStamp += iHour.ToString() + @":" + iMinute.ToString() + @":" + iSecond.ToString();
+                        string strStamp = iMonth.ToString(CultureInfo.CurrentCulture) + @"/" + iDay.ToString(CultureInfo.CurrentCulture) + @"/" + iYear.ToString(CultureInfo.CurrentCulture) + @" ";
+                        strStamp += iHour.ToString(CultureInfo.CurrentCulture) + @":" + iMinute.ToString(CultureInfo.CurrentCulture) + @":" + iSecond.ToString(CultureInfo.CurrentCulture);
                         if (DateTime.TryParse(strStamp, out dtstamp) == true)
                             this.objTargaExtensionArea.SetDateTimeStamp(dtstamp);
 
@@ -732,7 +731,7 @@ namespace Paloma
                         string strVersionLetter = System.Text.Encoding.ASCII.GetString(binReader.ReadBytes(TargaConstants.ExtensionAreaSoftwareVersionLetterByteLength)).TrimEnd('\0');
                         
                         
-                        this.objTargaExtensionArea.SetSoftwareID(iVersionNumber.ToString(@"F2") + strVersionLetter);
+                        this.objTargaExtensionArea.SetSoftwareID(iVersionNumber.ToString(@"F2", CultureInfo.CurrentCulture) + strVersionLetter);
 
 
                         // get the color key of the file
@@ -778,10 +777,10 @@ namespace Paloma
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         this.ClearAll();
-                        throw ex;
+                        throw;
                     }
                 }
             }
@@ -1271,9 +1270,6 @@ namespace Paloma
                         // get the size in bytes of each row in the image
                         int intImageRowByteSize = iWidth * ((int)this.objTargaHeader.PixelDepth / 8);
 
-                        // get the size in bytes of the whole image
-                        int intImageByteSize = intImageRowByteSize * iHeight;
-
                         // thumbnails are never compressed
                         for (int i = 0; i < iHeight; i++)
                         {
@@ -1485,23 +1481,23 @@ namespace Paloma
     /// </summary>
     public class TargaHeader
     {
-        private byte bImageIDLength = 0;
-        private ColorMapType eColorMapType = ColorMapType.NO_COLOR_MAP;
-        private ImageType eImageType = ImageType.NO_IMAGE_DATA;
-        private short sColorMapFirstEntryIndex = 0;
-        private short sColorMapLength = 0;
-        private byte bColorMapEntrySize = 0;
-        private short sXOrigin = 0;
-        private short sYOrigin = 0;
-        private short sWidth = 0;
-        private short sHeight = 0;
-        private byte bPixelDepth = 0;
-        private byte bImageDescriptor = 0;
-        private VerticalTransferOrder eVerticalTransferOrder = VerticalTransferOrder.UNKNOWN;
-        private HorizontalTransferOrder eHorizontalTransferOrder = HorizontalTransferOrder.UNKNOWN;
-        private byte bAttributeBits = 0;
-        private string strImageIDValue = string.Empty;
-        private System.Collections.Generic.List<System.Drawing.Color> cColorMap = new List<System.Drawing.Color>();
+        private byte m_bImageIDLength = 0;
+        private ColorMapType m_eColorMapType = ColorMapType.NO_COLOR_MAP;
+        private ImageType m_eImageType = ImageType.NO_IMAGE_DATA;
+        private short m_sColorMapFirstEntryIndex = 0;
+        private short m_sColorMapLength = 0;
+        private byte m_bColorMapEntrySize = 0;
+        private short m_sXOrigin = 0;
+        private short m_sYOrigin = 0;
+        private short m_sWidth = 0;
+        private short m_sHeight = 0;
+        private byte m_bPixelDepth = 0;
+        private byte m_bImageDescriptor = 0;
+        private VerticalTransferOrder m_eVerticalTransferOrder = VerticalTransferOrder.UNKNOWN;
+        private HorizontalTransferOrder m_eHorizontalTransferOrder = HorizontalTransferOrder.UNKNOWN;
+        private byte m_bAttributeBits = 0;
+        private string m_strImageIDValue = string.Empty;
+        private Collection<System.Drawing.Color> cColorMap = new Collection<System.Drawing.Color>();
         
         /// <summary>
         /// Gets the number of bytes contained the ImageIDValue property. The maximum
@@ -1510,7 +1506,7 @@ namespace Paloma
         /// </summary>
         public byte ImageIDLength
         {
-            get { return this.bImageIDLength; }
+            get { return m_bImageIDLength; }
         }
 
         /// <summary>
@@ -1519,7 +1515,7 @@ namespace Paloma
         /// <param name="bImageIDLength">The Image ID Length value read from the file.</param>
         internal protected void SetImageIDLength(byte bImageIDLength)
         {
-            this.bImageIDLength = bImageIDLength;
+            m_bImageIDLength = bImageIDLength;
         }
 
         /// <summary>
@@ -1530,7 +1526,7 @@ namespace Paloma
         /// </summary>
         public ColorMapType ColorMapType
         {
-            get { return this.eColorMapType; }
+            get { return m_eColorMapType; }
         }
 
         /// <summary>
@@ -1539,7 +1535,7 @@ namespace Paloma
         /// <param name="eColorMapType">One of the ColorMapType enumeration values.</param>
         internal protected void SetColorMapType(ColorMapType eColorMapType)
         {
-            this.eColorMapType = eColorMapType;
+            m_eColorMapType = eColorMapType;
         }
 
         /// <summary>
@@ -1547,7 +1543,7 @@ namespace Paloma
         /// </summary>
         public ImageType ImageType
         {
-            get { return this.eImageType; }
+            get { return m_eImageType; }
         }
 
         /// <summary>
@@ -1556,7 +1552,7 @@ namespace Paloma
         /// <param name="eImageType">One of the ImageType enumeration values.</param>
         internal protected void SetImageType(ImageType eImageType)
         {
-            this.eImageType = eImageType;
+            m_eImageType = eImageType;
         }
 
         /// <summary>
@@ -1564,7 +1560,7 @@ namespace Paloma
         /// </summary>
         public short ColorMapFirstEntryIndex
         {
-            get { return this.sColorMapFirstEntryIndex; }
+            get { return m_sColorMapFirstEntryIndex; }
         }
 
         /// <summary>
@@ -1573,7 +1569,7 @@ namespace Paloma
         /// <param name="sColorMapFirstEntryIndex">The First Entry Index value read from the file.</param>
         internal protected void SetColorMapFirstEntryIndex(short sColorMapFirstEntryIndex)
         {
-            this.sColorMapFirstEntryIndex = sColorMapFirstEntryIndex;
+            m_sColorMapFirstEntryIndex = sColorMapFirstEntryIndex;
         }
 
         /// <summary>
@@ -1581,7 +1577,7 @@ namespace Paloma
         /// </summary>
         public short ColorMapLength
         {
-            get { return this.sColorMapLength; }
+            get { return m_sColorMapLength; }
         }
 
         /// <summary>
@@ -1590,7 +1586,7 @@ namespace Paloma
         /// <param name="sColorMapLength">The Color Map Length value read from the file.</param>
         internal protected void SetColorMapLength(short sColorMapLength)
         {
-            this.sColorMapLength = sColorMapLength;
+            m_sColorMapLength = sColorMapLength;
         }
 
         /// <summary>
@@ -1598,7 +1594,7 @@ namespace Paloma
         /// </summary>
         public byte ColorMapEntrySize
         {
-            get { return this.bColorMapEntrySize; }
+            get { return m_bColorMapEntrySize; }
         }
 
         /// <summary>
@@ -1607,7 +1603,7 @@ namespace Paloma
         /// <param name="bColorMapEntrySize">The Color Map Entry Size value read from the file.</param>
         internal protected void SetColorMapEntrySize(byte bColorMapEntrySize)
         {
-            this.bColorMapEntrySize = bColorMapEntrySize;
+            m_bColorMapEntrySize = bColorMapEntrySize;
         }
 
         /// <summary>
@@ -1617,7 +1613,7 @@ namespace Paloma
         /// </summary>
         public short XOrigin
         {
-            get { return this.sXOrigin; }
+            get { return m_sXOrigin; }
         }
 
         /// <summary>
@@ -1626,7 +1622,7 @@ namespace Paloma
         /// <param name="sXOrigin">The X Origin value read from the file.</param>
         internal protected void SetXOrigin(short sXOrigin)
         {
-            this.sXOrigin = sXOrigin;
+            m_sXOrigin = sXOrigin;
         }
 
         /// <summary>
@@ -1636,7 +1632,7 @@ namespace Paloma
         /// </summary>
         public short YOrigin
         {
-            get { return this.sYOrigin; }
+            get { return m_sYOrigin; }
         }
 
         /// <summary>
@@ -1645,7 +1641,7 @@ namespace Paloma
         /// <param name="sYOrigin">The Y Origin value read from the file.</param>
         internal protected void SetYOrigin(short sYOrigin)
         {
-            this.sYOrigin = sYOrigin;
+            m_sYOrigin = sYOrigin;
         }
 
         /// <summary>
@@ -1653,7 +1649,7 @@ namespace Paloma
         /// </summary>
         public short Width
         {
-            get { return this.sWidth; }
+            get { return m_sWidth; }
         }
 
         /// <summary>
@@ -1662,7 +1658,7 @@ namespace Paloma
         /// <param name="sWidth">The Width value read from the file.</param>
         internal protected void SetWidth(short sWidth)
         {
-            this.sWidth = sWidth;
+            m_sWidth = sWidth;
         }
 
         /// <summary>
@@ -1670,7 +1666,7 @@ namespace Paloma
         /// </summary>
         public short Height
         {
-            get { return this.sHeight; }
+            get { return m_sHeight; }
         }
 
         /// <summary>
@@ -1679,7 +1675,7 @@ namespace Paloma
         /// <param name="sHeight">The Height value read from the file.</param>
         internal protected void SetHeight(short sHeight)
         {
-            this.sHeight = sHeight;
+            m_sHeight = sHeight;
         }
 
         /// <summary>
@@ -1688,7 +1684,7 @@ namespace Paloma
         /// </summary>
         public byte PixelDepth
         {
-            get { return this.bPixelDepth; }
+            get { return m_bPixelDepth; }
         }
 
         /// <summary>
@@ -1697,7 +1693,7 @@ namespace Paloma
         /// <param name="bPixelDepth">The Pixel Depth value read from the file.</param>
         internal protected void SetPixelDepth(byte bPixelDepth)
         {
-            this.bPixelDepth = bPixelDepth;
+            m_bPixelDepth = bPixelDepth;
         }
 
         /// <summary>
@@ -1707,8 +1703,8 @@ namespace Paloma
         /// </summary>
         internal protected byte ImageDescriptor
         {
-            get { return this.bImageDescriptor; }
-            set { this.bImageDescriptor = value; }
+            get { return m_bImageDescriptor; }
+            set { m_bImageDescriptor = value; }
         }
 
         /// <summary>
@@ -1719,13 +1715,13 @@ namespace Paloma
             get 
             {
 
-                if (this.eVerticalTransferOrder == VerticalTransferOrder.UNKNOWN || this.eHorizontalTransferOrder == HorizontalTransferOrder.UNKNOWN)
+                if (m_eVerticalTransferOrder == VerticalTransferOrder.UNKNOWN || this.m_eHorizontalTransferOrder == HorizontalTransferOrder.UNKNOWN)
                      return FirstPixelDestination.UNKNOWN; 
-                else if (this.eVerticalTransferOrder == VerticalTransferOrder.BOTTOM && this.eHorizontalTransferOrder == HorizontalTransferOrder.LEFT)
+                else if (m_eVerticalTransferOrder == VerticalTransferOrder.BOTTOM && this.m_eHorizontalTransferOrder == HorizontalTransferOrder.LEFT)
                     return FirstPixelDestination.BOTTOM_LEFT;
-                else if (this.eVerticalTransferOrder == VerticalTransferOrder.BOTTOM && this.eHorizontalTransferOrder == HorizontalTransferOrder.RIGHT)
+                else if (m_eVerticalTransferOrder == VerticalTransferOrder.BOTTOM && this.m_eHorizontalTransferOrder == HorizontalTransferOrder.RIGHT)
                     return FirstPixelDestination.BOTTOM_RIGHT;
-                else if (this.eVerticalTransferOrder == VerticalTransferOrder.TOP && this.eHorizontalTransferOrder == HorizontalTransferOrder.LEFT)
+                else if (m_eVerticalTransferOrder == VerticalTransferOrder.TOP && this.m_eHorizontalTransferOrder == HorizontalTransferOrder.LEFT)
                     return FirstPixelDestination.TOP_LEFT;
                 else 
                     return FirstPixelDestination.TOP_RIGHT;
@@ -1739,7 +1735,7 @@ namespace Paloma
         /// </summary>
         public VerticalTransferOrder VerticalTransferOrder
         {
-            get { return this.eVerticalTransferOrder; }
+            get { return this.m_eVerticalTransferOrder; }
         }
 
         /// <summary>
@@ -1748,7 +1744,7 @@ namespace Paloma
         /// <param name="eVerticalTransferOrder">One of the VerticalTransferOrder enumeration values.</param>
         internal protected void SetVerticalTransferOrder(VerticalTransferOrder eVerticalTransferOrder)
         {
-            this.eVerticalTransferOrder = eVerticalTransferOrder;
+            m_eVerticalTransferOrder = eVerticalTransferOrder;
         }
 
         /// <summary>
@@ -1756,7 +1752,7 @@ namespace Paloma
         /// </summary>
         public HorizontalTransferOrder HorizontalTransferOrder
         {
-            get { return this.eHorizontalTransferOrder; }
+            get { return m_eHorizontalTransferOrder; }
         }
 
         /// <summary>
@@ -1765,7 +1761,7 @@ namespace Paloma
         /// <param name="eHorizontalTransferOrder">One of the HorizontalTransferOrder enumeration values.</param>
         internal protected void SetHorizontalTransferOrder(HorizontalTransferOrder eHorizontalTransferOrder)
         {
-            this.eHorizontalTransferOrder = eHorizontalTransferOrder;
+            m_eHorizontalTransferOrder = eHorizontalTransferOrder;
         }
 
         /// <summary>
@@ -1773,7 +1769,7 @@ namespace Paloma
         /// </summary>
         public byte AttributeBits
         {
-            get { return this.bAttributeBits; }
+            get { return this.m_bAttributeBits; }
         }
 
         /// <summary>
@@ -1782,7 +1778,7 @@ namespace Paloma
         /// <param name="bAttributeBits">The Attribute Bits value read from the file.</param>
         internal protected void SetAttributeBits(byte bAttributeBits)
         {
-            this.bAttributeBits = bAttributeBits;
+            m_bAttributeBits = bAttributeBits;
         }
 
         /// <summary>
@@ -1791,7 +1787,7 @@ namespace Paloma
         /// </summary>
         public string ImageIDValue
         {
-            get { return this.strImageIDValue; }
+            get { return m_strImageIDValue; }
         }
 
         /// <summary>
@@ -1800,13 +1796,13 @@ namespace Paloma
         /// <param name="strImageIDValue">The Image ID value read from the file.</param>
         internal protected void SetImageIDValue(string strImageIDValue)
         {
-            this.strImageIDValue = strImageIDValue;
+            m_strImageIDValue = strImageIDValue;
         }
 
         /// <summary>
         /// Gets the Color Map of the image, if any. The Color Map is represented by a list of System.Drawing.Color objects.
         /// </summary>
-        public System.Collections.Generic.List<System.Drawing.Color> ColorMap
+        public Collection<System.Drawing.Color> ColorMap
         {
             get { return this.cColorMap; }
         }
@@ -1824,11 +1820,11 @@ namespace Paloma
                 int intImageDataOffset = TargaConstants.HeaderByteLength;
 
                 // add the Image ID length (could be variable)
-                intImageDataOffset += this.bImageIDLength;
+                intImageDataOffset += this.m_bImageIDLength;
 
                 // determine the number of bytes for each Color Map entry
                 int Bytes = 0;
-                switch (this.bColorMapEntrySize)
+                switch (this.m_bColorMapEntrySize)
                 {
                     case 15:
                         Bytes = 2;
@@ -1845,7 +1841,7 @@ namespace Paloma
                 }
 
                 // add the length of the color map
-                intImageDataOffset += ((int)this.sColorMapLength * (int)Bytes);
+                intImageDataOffset += ((int)this.m_sColorMapLength * (int)Bytes);
 
                 // return result
                 return intImageDataOffset; 
@@ -1859,7 +1855,7 @@ namespace Paloma
         {
             get
             {
-                return (int)this.bPixelDepth / 8;
+                return (int)this.m_bPixelDepth / 8;
             }
         }
     }
@@ -1870,10 +1866,10 @@ namespace Paloma
     /// </summary>
     public class TargaFooter
     {
-        private int intExtensionAreaOffset = 0;
-        private int intDeveloperDirectoryOffset = 0;
-        private string strSignature = string.Empty;
-        private string strReservedCharacter = string.Empty;
+        private int m_ExtensionAreaOffset = 0;
+        private int m_DeveloperDirectoryOffset = 0;
+        private string m_strSignature = string.Empty;
+        private string m_strReservedCharacter = string.Empty;
         
         /// <summary>
         /// Gets the offset from the beginning of the file to the start of the Extension Area. 
@@ -1881,16 +1877,16 @@ namespace Paloma
         /// </summary>
         public int ExtensionAreaOffset
         {
-            get { return this.intExtensionAreaOffset; }
+            get { return this.m_ExtensionAreaOffset; }
         }
 
         /// <summary>
         /// Sets the ExtensionAreaOffset property, available only to objects in the same assembly as TargaFooter.
         /// </summary>
-        /// <param name="intExtensionAreaOffset">The Extension Area Offset value read from the file.</param>
-        internal protected void SetExtensionAreaOffset(int intExtensionAreaOffset)
+        /// <param name="ExtensionAreaOffset">The Extension Area Offset value read from the file.</param>
+        internal protected void SetExtensionAreaOffset(int ExtensionAreaOffset)
         {
-            this.intExtensionAreaOffset = intExtensionAreaOffset;
+            m_ExtensionAreaOffset = ExtensionAreaOffset;
         }
 
         /// <summary>
@@ -1899,16 +1895,16 @@ namespace Paloma
         /// </summary>
         public int DeveloperDirectoryOffset
         {
-            get { return this.intDeveloperDirectoryOffset; }
+            get { return m_DeveloperDirectoryOffset; }
         }
 
         /// <summary>
         /// Sets the DeveloperDirectoryOffset property, available only to objects in the same assembly as TargaFooter.
         /// </summary>
-        /// <param name="intDeveloperDirectoryOffset">The Developer Directory Offset value read from the file.</param>
-        internal protected void SetDeveloperDirectoryOffset(int intDeveloperDirectoryOffset)
+        /// <param name="DeveloperDirectoryOffset">The Developer Directory Offset value read from the file.</param>
+        internal protected void SetDeveloperDirectoryOffset(int DeveloperDirectoryOffset)
         {
-            this.intDeveloperDirectoryOffset = intDeveloperDirectoryOffset;
+            m_DeveloperDirectoryOffset = DeveloperDirectoryOffset;
         }
 
         /// <summary>
@@ -1919,7 +1915,7 @@ namespace Paloma
         /// </summary>
         public string Signature
         {
-            get { return this.strSignature; }
+            get { return m_strSignature; }
         }
 
         /// <summary>
@@ -1928,7 +1924,7 @@ namespace Paloma
         /// <param name="strSignature">The Signature value read from the file.</param>
         internal protected void SetSignature(string strSignature)
         {
-            this.strSignature = strSignature;
+            m_strSignature = strSignature;
         }
 
         /// <summary>
@@ -1936,16 +1932,17 @@ namespace Paloma
         /// </summary>
         public string ReservedCharacter
         {
-            get { return this.strReservedCharacter; }
+            get { return m_strReservedCharacter; }
         }
 
         /// <summary>
         /// Sets the ReservedCharacter property, available only to objects in the same assembly as TargaFooter.
         /// </summary>
         /// <param name="strReservedCharacter">The ReservedCharacter value read from the file.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "str")]
         internal protected void SetReservedCharacter(string strReservedCharacter)
         {
-            this.strReservedCharacter = strReservedCharacter;
+            m_strReservedCharacter = strReservedCharacter;
         }
 
         /// <summary>
@@ -1963,25 +1960,25 @@ namespace Paloma
     /// </summary>
     public class TargaExtensionArea
     {
-        int intExtensionSize = 0;
-        string strAuthorName = string.Empty;
-        string strAuthorComments = string.Empty;
-        DateTime dtDateTimeStamp = DateTime.Now;
-        string strJobName = string.Empty;
-        TimeSpan dtJobTime = TimeSpan.Zero;
-        string strSoftwareID = string.Empty;
-        string strSoftwareVersion = string.Empty;
-        Color cKeyColor = Color.Empty;
-        int intPixelAspectRatioNumerator = 0;
-        int intPixelAspectRatioDenominator = 0;
-        int intGammaNumerator = 0;
-        int intGammaDenominator = 0;
-        int intColorCorrectionOffset = 0;
-        int intPostageStampOffset = 0;
-        int intScanLineOffset = 0;
-        int intAttributesType = 0;
-        private System.Collections.Generic.List<int> intScanLineTable = new List<int>();
-        private System.Collections.Generic.List<System.Drawing.Color> cColorCorrectionTable = new List<System.Drawing.Color>();
+        int m_ExtensionSize = 0;
+        string m_strAuthorName = string.Empty;
+        string m_strAuthorComments = string.Empty;
+        DateTime m_dtDateTimeStamp = DateTime.Now;
+        string m_strJobName = string.Empty;
+        TimeSpan m_dtJobTime = TimeSpan.Zero;
+        string m_strSoftwareID = string.Empty;
+        string m_strSoftwareVersion = string.Empty;
+        Color m_cKeyColor = Color.Empty;
+        int m_PixelAspectRatioNumerator = 0;
+        int m_PixelAspectRatioDenominator = 0;
+        int m_GammaNumerator = 0;
+        int m_GammaDenominator = 0;
+        int m_ColorCorrectionOffset = 0;
+        int m_PostageStampOffset = 0;
+        int m_ScanLineOffset = 0;
+        int m_AttributesType = 0;
+        private Collection<int> intScanLineTable = new Collection<int>();
+        private Collection<System.Drawing.Color> cColorCorrectionTable = new Collection<System.Drawing.Color>();
 
         /// <summary>
         /// Gets the number of Bytes in the fixed-length portion of the ExtensionArea. 
@@ -1989,16 +1986,16 @@ namespace Paloma
         /// </summary>
         public int ExtensionSize
         {
-            get { return this.intExtensionSize; }
+            get { return this.m_ExtensionSize; }
         }
 
         /// <summary>
         /// Sets the ExtensionSize property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intExtensionSize">The Extension Size value read from the file.</param>
-        internal protected void SetExtensionSize(int intExtensionSize)
+        /// <param name="ExtensionSize">The Extension Size value read from the file.</param>
+        internal protected void SetExtensionSize(int ExtensionSize)
         {
-            this.intExtensionSize = intExtensionSize;
+            m_ExtensionSize = ExtensionSize;
         }
 
         /// <summary>
@@ -2006,7 +2003,7 @@ namespace Paloma
         /// </summary>
         public string AuthorName
         {
-            get { return this.strAuthorName; }
+            get { return m_strAuthorName; }
         }
 
         /// <summary>
@@ -2015,7 +2012,7 @@ namespace Paloma
         /// <param name="strAuthorName">The Author Name value read from the file.</param>
         internal protected void SetAuthorName(string strAuthorName)
         {
-            this.strAuthorName = strAuthorName;
+            m_strAuthorName = strAuthorName;
         }
 
         /// <summary>
@@ -2023,7 +2020,7 @@ namespace Paloma
         /// </summary>
         public string AuthorComments
         {
-            get { return this.strAuthorComments; }
+            get { return m_strAuthorComments; }
         }
 
         /// <summary>
@@ -2032,7 +2029,7 @@ namespace Paloma
         /// <param name="strAuthorComments">The Author Comments value read from the file.</param>
         internal protected void SetAuthorComments(string strAuthorComments)
         {
-            this.strAuthorComments = strAuthorComments;
+            m_strAuthorComments = strAuthorComments;
         }
 
         /// <summary>
@@ -2040,7 +2037,7 @@ namespace Paloma
         /// </summary>
         public DateTime DateTimeStamp
         {
-            get { return this.dtDateTimeStamp; }
+            get { return m_dtDateTimeStamp; }
         }
 
         /// <summary>
@@ -2049,7 +2046,7 @@ namespace Paloma
         /// <param name="dtDateTimeStamp">The Date Time Stamp value read from the file.</param>
         internal protected void SetDateTimeStamp(DateTime dtDateTimeStamp)
         {
-            this.dtDateTimeStamp = dtDateTimeStamp;
+            m_dtDateTimeStamp = dtDateTimeStamp;
         }
 
         /// <summary>
@@ -2057,7 +2054,7 @@ namespace Paloma
         /// </summary>
         public string JobName
         {
-            get { return this.strJobName; }
+            get { return m_strJobName; }
         }
 
         /// <summary>
@@ -2066,7 +2063,7 @@ namespace Paloma
         /// <param name="strJobName">The Job Name value read from the file.</param>
         internal protected void SetJobName(string strJobName)
         {
-            this.strJobName = strJobName;
+            m_strJobName = strJobName;
         }
 
         /// <summary>
@@ -2074,7 +2071,7 @@ namespace Paloma
         /// </summary>
         public TimeSpan JobTime
         {
-            get { return this.dtJobTime; }
+            get { return m_dtJobTime; }
         }
 
         /// <summary>
@@ -2083,7 +2080,7 @@ namespace Paloma
         /// <param name="dtJobTime">The Job Time value read from the file.</param>
         internal protected void SetJobTime(TimeSpan dtJobTime)
         {
-            this.dtJobTime = dtJobTime;
+            m_dtJobTime = dtJobTime;
         }
 
         /// <summary>
@@ -2091,7 +2088,7 @@ namespace Paloma
         /// </summary>
         public string SoftwareID
         {
-            get { return this.strSoftwareID; }
+            get { return m_strSoftwareID; }
         }
 
         /// <summary>
@@ -2100,7 +2097,7 @@ namespace Paloma
         /// <param name="strSoftwareID">The Software ID value read from the file.</param>
         internal protected void SetSoftwareID(string strSoftwareID)
         {
-            this.strSoftwareID = strSoftwareID;
+            m_strSoftwareID = strSoftwareID;
         }
 
         /// <summary>
@@ -2108,7 +2105,7 @@ namespace Paloma
         /// </summary>
         public string SoftwareVersion
         {
-            get { return this.strSoftwareVersion; }
+            get { return m_strSoftwareVersion; }
         }
 
         /// <summary>
@@ -2117,7 +2114,7 @@ namespace Paloma
         /// <param name="strSoftwareVersion">The Software Version value read from the file.</param>
         internal protected void SetSoftwareVersion(string strSoftwareVersion)
         {
-            this.strSoftwareVersion = strSoftwareVersion;
+            m_strSoftwareVersion = strSoftwareVersion;
         }
 
         /// <summary>
@@ -2126,7 +2123,7 @@ namespace Paloma
         /// </summary>
         public Color KeyColor
         {
-            get { return this.cKeyColor; }
+            get { return m_cKeyColor; }
         }
 
         /// <summary>
@@ -2135,7 +2132,7 @@ namespace Paloma
         /// <param name="cKeyColor">The Key Color value read from the file.</param>
         internal protected void SetKeyColor(Color cKeyColor)
         {
-            this.cKeyColor = cKeyColor;
+            m_cKeyColor = cKeyColor;
         }
 
         /// <summary>
@@ -2143,16 +2140,16 @@ namespace Paloma
         /// </summary>
         public int PixelAspectRatioNumerator
         {
-            get { return this.intPixelAspectRatioNumerator; }
+            get { return m_PixelAspectRatioNumerator; }
         }
 
         /// <summary>
         /// Sets the PixelAspectRatioNumerator property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intPixelAspectRatioNumerator">The Pixel Aspect Ratio Numerator value read from the file.</param>
-        internal protected void SetPixelAspectRatioNumerator(int intPixelAspectRatioNumerator)
+        /// <param name="PixelAspectRatioNumerator">The Pixel Aspect Ratio Numerator value read from the file.</param>
+        internal protected void SetPixelAspectRatioNumerator(int PixelAspectRatioNumerator)
         {
-            this.intPixelAspectRatioNumerator = intPixelAspectRatioNumerator;
+            m_PixelAspectRatioNumerator = PixelAspectRatioNumerator;
         }
 
         /// <summary>
@@ -2160,16 +2157,16 @@ namespace Paloma
         /// </summary>
         public int PixelAspectRatioDenominator
         {
-            get { return this.intPixelAspectRatioDenominator; }
+            get { return m_PixelAspectRatioDenominator; }
         }
 
         /// <summary>
         /// Sets the PixelAspectRatioDenominator property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intPixelAspectRatioDenominator">The Pixel Aspect Ratio Denominator value read from the file.</param>
-        internal protected void SetPixelAspectRatioDenominator(int intPixelAspectRatioDenominator)
+        /// <param name="PixelAspectRatioDenominator">The Pixel Aspect Ratio Denominator value read from the file.</param>
+        internal protected void SetPixelAspectRatioDenominator(int PixelAspectRatioDenominator)
         {
-            this.intPixelAspectRatioDenominator = intPixelAspectRatioDenominator;
+            m_PixelAspectRatioDenominator = PixelAspectRatioDenominator;
         }
 
         /// <summary>
@@ -2179,9 +2176,9 @@ namespace Paloma
         {
             get 
             {
-                if (this.intPixelAspectRatioDenominator > 0)
+                if (this.m_PixelAspectRatioDenominator > 0)
                 {
-                    return (float)this.intPixelAspectRatioNumerator / (float)this.intPixelAspectRatioDenominator;
+                    return (float)m_PixelAspectRatioNumerator / (float)m_PixelAspectRatioDenominator;
                 }
                 else
                     return 0.0F; 
@@ -2193,16 +2190,16 @@ namespace Paloma
         /// </summary>
         public int GammaNumerator
         {
-            get { return this.intGammaNumerator; }
+            get { return this.m_GammaNumerator; }
         }
 
         /// <summary>
         /// Sets the GammaNumerator property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intGammaNumerator">The Gamma Numerator value read from the file.</param>
-        internal protected void SetGammaNumerator(int intGammaNumerator)
+        /// <param name="GammaNumerator">The Gamma Numerator value read from the file.</param>
+        internal protected void SetGammaNumerator(int GammaNumerator)
         {
-            this.intGammaNumerator = intGammaNumerator;
+            m_GammaNumerator = GammaNumerator;
         }
 
         /// <summary>
@@ -2210,16 +2207,16 @@ namespace Paloma
         /// </summary>
         public int GammaDenominator
         {
-            get { return this.intGammaDenominator; }
+            get { return m_GammaDenominator; }
         }
 
         /// <summary>
         /// Sets the GammaDenominator property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intGammaDenominator">The Gamma Denominator value read from the file.</param>
-        internal protected void SetGammaDenominator(int intGammaDenominator)
+        /// <param name="GammaDenominator">The Gamma Denominator value read from the file.</param>
+        internal protected void SetGammaDenominator(int GammaDenominator)
         {
-            this.intGammaDenominator = intGammaDenominator;
+            m_GammaDenominator = GammaDenominator;
         }
 
         /// <summary>
@@ -2229,9 +2226,9 @@ namespace Paloma
         {
             get
             {
-                if (this.intGammaDenominator > 0)
+                if (this.m_GammaDenominator > 0)
                 {
-                    float ratio = (float)this.intGammaNumerator / (float)this.intGammaDenominator;
+                    float ratio = (float)this.m_GammaNumerator / (float)this.m_GammaDenominator;
                     return (float)Math.Round(ratio, 1);
                 }
                 else
@@ -2244,16 +2241,16 @@ namespace Paloma
         /// </summary>
         public int ColorCorrectionOffset
         {
-            get { return this.intColorCorrectionOffset; }
+            get { return this.m_ColorCorrectionOffset; }
         }
 
         /// <summary>
         /// Sets the ColorCorrectionOffset property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intColorCorrectionOffset">The Color Correction Offset value read from the file.</param>
-        internal protected void SetColorCorrectionOffset(int intColorCorrectionOffset)
+        /// <param name="ColorCorrectionOffset">The Color Correction Offset value read from the file.</param>
+        internal protected void SetColorCorrectionOffset(int ColorCorrectionOffset)
         {
-            this.intColorCorrectionOffset = intColorCorrectionOffset;
+            m_ColorCorrectionOffset = ColorCorrectionOffset;
         }
 
         /// <summary>
@@ -2261,16 +2258,16 @@ namespace Paloma
         /// </summary>
         public int PostageStampOffset
         {
-            get { return this.intPostageStampOffset; }
+            get { return m_PostageStampOffset; }
         }
 
         /// <summary>
         /// Sets the PostageStampOffset property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intPostageStampOffset">The Postage Stamp Offset value read from the file.</param>
-        internal protected void SetPostageStampOffset(int intPostageStampOffset)
+        /// <param name="PostageStampOffset">The Postage Stamp Offset value read from the file.</param>
+        internal protected void SetPostageStampOffset(int PostageStampOffset)
         {
-            this.intPostageStampOffset = intPostageStampOffset;
+            m_PostageStampOffset = PostageStampOffset;
         }
 
         /// <summary>
@@ -2278,16 +2275,16 @@ namespace Paloma
         /// </summary>
         public int ScanLineOffset
         {
-            get { return this.intScanLineOffset; }
+            get { return m_ScanLineOffset; }
         }
 
         /// <summary>
         /// Sets the ScanLineOffset property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intScanLineOffset">The Scan Line Offset value read from the file.</param>
-        internal protected void SetScanLineOffset(int intScanLineOffset)
+        /// <param name="ScanLineOffset">The Scan Line Offset value read from the file.</param>
+        internal protected void SetScanLineOffset(int ScanLineOffset)
         {
-            this.intScanLineOffset = intScanLineOffset;
+            m_ScanLineOffset = ScanLineOffset;
         }
 
         /// <summary>
@@ -2302,23 +2299,23 @@ namespace Paloma
         /// </summary>
         public int AttributesType
         {
-            get { return this.intAttributesType; }
+            get { return m_AttributesType; }
         }
 
         /// <summary>
         /// Sets the AttributesType property, available only to objects in the same assembly as TargaExtensionArea.
         /// </summary>
-        /// <param name="intAttributesType">The Attributes Type value read from the file.</param>
-        internal protected void SetAttributesType(int intAttributesType)
+        /// <param name="AttributesType">The Attributes Type value read from the file.</param>
+        internal protected void SetAttributesType(int AttributesType)
         {
-            this.intAttributesType = intAttributesType;
+            m_AttributesType = AttributesType;
         }
 
         /// <summary>
         /// Gets a list of offsets from the beginning of the file that point to the start of the next scan line, 
         /// in the order that the image was saved 
         /// </summary>
-        public System.Collections.Generic.List<int> ScanLineTable
+        public Collection<int> ScanLineTable
         {
             get { return this.intScanLineTable; }
         }
@@ -2327,7 +2324,7 @@ namespace Paloma
         /// Gets a list of Colors where each Color value is the desired Color correction for that entry.
         /// This allows the user to store a correction table for image remapping or LUT driving.
         /// </summary>
-        public System.Collections.Generic.List<System.Drawing.Color> ColorCorrectionTable
+        public Collection<System.Drawing.Color> ColorCorrectionTable
         {
             get { return this.cColorCorrectionTable; }
         }

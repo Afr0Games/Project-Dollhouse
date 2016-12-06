@@ -184,5 +184,20 @@ namespace Files.IFF
                 }
             }
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if (Texture != null)
+                    Texture.Dispose();
+            }
+        }
     }
 }

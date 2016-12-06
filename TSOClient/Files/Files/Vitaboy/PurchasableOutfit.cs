@@ -17,7 +17,7 @@ using System.IO;
 
 namespace Files.Vitaboy
 {
-    public class PurchasableOutfit
+    public class PurchasableOutfit : IDisposable
     {
         private FileReader m_Reader;
         public uint OutfitType;
@@ -47,6 +47,21 @@ namespace Files.Vitaboy
             m_Reader.ReadUInt32(); //Unknown.
 
             m_Reader.Close();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if (m_Reader != null)
+                    m_Reader.Dispose();
+            }
         }
     }
 }

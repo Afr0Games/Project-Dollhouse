@@ -462,7 +462,7 @@ namespace Files.AudioFiles
 
         public void Dispose()
         {
-            if(m_Writer != null)
+            if (m_Writer != null)
                 m_Writer.Close();
 
             if (m_Reader != null)
@@ -470,6 +470,21 @@ namespace Files.AudioFiles
 
             if (m_DecompressedStream != null)
                 m_DecompressedStream.Close();
+        }
+
+        public void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if (m_Writer != null)
+                    m_Writer.Close();
+
+                if (m_Reader != null)
+                    m_Reader.Close();
+
+                if (m_DecompressedStream != null)
+                    m_DecompressedStream.Close();
+            }
         }
     }
 }

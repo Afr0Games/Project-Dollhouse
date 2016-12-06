@@ -21,7 +21,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Files.Vitaboy
 {
-    public class Mesh
+    public class Mesh : IDisposable
     {
         private FileReader m_Reader;
         public uint BoneCount;
@@ -85,6 +85,21 @@ namespace Files.Vitaboy
             }
 
             m_Reader.Close();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if (m_Reader != null)
+                    m_Reader.Dispose();
+            }
         }
     }
 

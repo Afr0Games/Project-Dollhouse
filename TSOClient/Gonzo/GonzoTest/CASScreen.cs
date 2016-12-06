@@ -76,7 +76,7 @@ namespace GonzoTest
             Manager.AddScreen(m_VitaboyScreen);
         }
 
-        private void M_MaleBtn_OnButtonClicked(UIButton ClickedButton)
+        private void M_MaleBtn_OnButtonClicked(object Sender)
         {
             m_HeadSkinBrowser.Sex = AvatarSex.Male;
             m_BodySkinBrowser.Sex = AvatarSex.Male;
@@ -85,7 +85,7 @@ namespace GonzoTest
             m_Avatar.Head(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mah003_antony), (Vitaboy.SkinType)m_CurrentSkinType);
         }
 
-        private void M_FemaleBtn_OnButtonClicked(UIButton ClickedButton)
+        private void M_FemaleBtn_OnButtonClicked(object Sender)
         {
             m_HeadSkinBrowser.Sex = AvatarSex.Female;
             m_BodySkinBrowser.Sex = AvatarSex.Female;
@@ -98,7 +98,7 @@ namespace GonzoTest
         /// The player clicked the SkinLightButton.
         /// This causes the browsers' skin type to change to light.
         /// </summary>
-        private void M_SkinLightBtn_OnButtonClicked(UIButton ClickedButton)
+        private void M_SkinLightBtn_OnButtonClicked(object Sender)
         {
             m_HeadSkinBrowser.SkinType = 0;
             m_BodySkinBrowser.SkinType = 0;
@@ -109,7 +109,7 @@ namespace GonzoTest
         /// The player clicked the SkinMediumButton.
         /// This causes the browsers' skin type to change to medium.
         /// </summary>
-        private void M_SkinMediumBtn_OnButtonClicked(UIButton ClickedButton)
+        private void M_SkinMediumBtn_OnButtonClicked(object Sender)
         {
             m_HeadSkinBrowser.SkinType = 1;
             m_BodySkinBrowser.SkinType = 1;
@@ -120,21 +120,21 @@ namespace GonzoTest
         /// The player clicked the SkinDarkButton.
         /// This causes the browsers' skin type to change to dark.
         /// </summary>
-        private void M_SkinDarkBtn_OnButtonClicked(UIButton ClickedButton)
+        private void M_SkinDarkBtn_OnButtonClicked(object Sender)
         {
             m_HeadSkinBrowser.SkinType = 2;
             m_BodySkinBrowser.SkinType = 2;
             m_CurrentSkinType = 2;
         }
 
-        private void M_HeadSkinBrowser_OnButtonClicked(int SkinType, Outfit SelectedOutfit)
+        private void M_HeadSkinBrowser_OnButtonClicked(object Sender, UISkinButtonClickedEventArgs EArgs)
         {
-            m_Avatar.ChangeOutfit(SelectedOutfit, (Vitaboy.SkinType)SkinType);
+            m_Avatar.ChangeOutfit(EArgs.SelectedOutfit, (Vitaboy.SkinType)EArgs.SkinType);
         }
 
-        private void M_BodySkinBrowser_OnButtonClicked(int SkinType, Outfit SelectedOutfit)
+        private void M_BodySkinBrowser_OnButtonClicked(object Sender, UISkinButtonClickedEventArgs EArgs)
         {
-            m_Avatar.ChangeOutfit(SelectedOutfit, (Vitaboy.SkinType)SkinType);
+            m_Avatar.ChangeOutfit(EArgs.SelectedOutfit, (Vitaboy.SkinType)EArgs.SkinType);
         }
 
         public override void Update(InputHelper Input, GameTime GTime)

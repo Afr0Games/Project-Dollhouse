@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace Files.Vitaboy
 {
-    public class Skeleton
+    public class Skeleton : IDisposable
     {
         private FileReader m_Reader;
         public string Name;
@@ -56,6 +56,21 @@ namespace Files.Vitaboy
         public int FindBone(string BoneName)
         {
             return Bones.FirstOrDefault(x => x.Name == BoneName).BoneIndex;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if (m_Reader != null)
+                    m_Reader.Dispose();
+            }
         }
     }
 }

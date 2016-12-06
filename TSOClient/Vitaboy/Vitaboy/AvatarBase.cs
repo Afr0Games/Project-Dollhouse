@@ -26,7 +26,7 @@ namespace Vitaboy
     /// Class for drawing and updating the meshes that make up an avatar.
     /// Also responsible for animating an avatar.
     /// </summary>
-    public class AvatarBase
+    public class AvatarBase : IDisposable
     {
         protected GraphicsDevice m_Devc;
         public Skeleton Skel;
@@ -655,6 +655,27 @@ namespace Vitaboy
             foreach (var child in bone.Children)
             {
                 ComputeBonePositions(child, myWorld);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if(m_AccessoryEffect != null)
+                    m_AccessoryEffect.Dispose();
+                if(m_BodyEffect != null)
+                    m_BodyEffect.Dispose();
+                if(m_HeadEffect != null)
+                    m_HeadEffect.Dispose();
+                if(m_LeftHandEffect != null)
+                    m_LeftHandEffect.Dispose();
             }
         }
     }

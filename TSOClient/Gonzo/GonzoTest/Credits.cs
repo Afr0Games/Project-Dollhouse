@@ -61,7 +61,7 @@ namespace GonzoTest
             m_CreditsY -= 1.5f;
         }
 
-        private void MaxisButton_OnButtonClicked(UIButton ClickedButton)
+        private void MaxisButton_OnButtonClicked(object Sender)
         {
             m_WillWrightDiag.IsDrawn = true;
         }

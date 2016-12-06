@@ -59,7 +59,7 @@ namespace Gonzo.Elements
             m_CloseButton.OnButtonClicked += CloseButton_OnButtonClicked;
         }
 
-        private void CloseButton_OnButtonClicked(UIButton ClickedButton)
+        private void CloseButton_OnButtonClicked(object Sender)
         {
             IsDrawn = false;
         }

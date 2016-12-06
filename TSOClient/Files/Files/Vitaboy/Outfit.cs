@@ -27,7 +27,7 @@ namespace Files.Vitaboy
     /// Outfits collect together the light-, medium-, and dark-skinned versions of an appearance 
     /// and associate them collectively with a hand group and a body region (head or body).
     /// </summary>
-    public class Outfit
+    public class Outfit : IDisposable
     {
         private FileReader m_Reader;
         public UniqueFileID LightAppearance, MediumAppearance, DarkAppearance;
@@ -62,6 +62,21 @@ namespace Files.Vitaboy
             uint TypeID = m_Reader.ReadUInt32();
 
             return new UniqueFileID(TypeID, FileID);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if(m_Reader != null)
+                    m_Reader.Dispose();
+            }
         }
     }
 }

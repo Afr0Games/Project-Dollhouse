@@ -37,5 +37,20 @@ namespace Files.Vitaboy
             Medium = new HandSet(m_Reader);
             Dark = new HandSet(m_Reader);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpManagedResources)
+        {
+            if (CleanUpManagedResources)
+            {
+                if (m_Reader != null)
+                    m_Reader.Dispose();
+            }
+        }
     }
 }
