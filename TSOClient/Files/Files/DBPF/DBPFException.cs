@@ -11,11 +11,10 @@ Contributor(s):
 */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Files.DBPF
 {
+    [Serializable]
     public class DBPFException : Exception
     {
         public DBPFException(string Message) : base(Message)

@@ -96,8 +96,17 @@ namespace Files.AudioLogic
 
         public void Dispose()
         {
-            if (m_Reader != null)
-                m_Reader.Close();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        {
+            if (CleanUpNativeAndManagedResources)
+            {
+                if (m_Reader != null)
+                    m_Reader.Close();
+            }
         }
     }
 }

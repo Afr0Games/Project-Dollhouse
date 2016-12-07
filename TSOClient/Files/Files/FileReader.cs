@@ -78,7 +78,6 @@ namespace Files
             }
             catch(IOException Exception)
             {
-                this.Close();
                 throw new ReadingException("Couldn't open file - FileReader.cs\r\n" + Exception.ToString());
             }
         }
@@ -331,10 +330,10 @@ namespace Files
 
         public void Dispose()
         {
-            m_Reader.Dispose();
-
             Dispose(true);
             GC.SuppressFinalize(this);
+
+            return;
         }
 
         protected virtual void Dispose(bool CleanupNativeAndManagedResources)

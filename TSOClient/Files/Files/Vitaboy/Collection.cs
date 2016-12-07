@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace Files.Vitaboy
 {
-    public class Collection
+    public class Collection : IDisposable
     {
         private FileReader m_Reader;
         public List<UniqueFileID> PurchasableOutfitIDs = new List<UniqueFileID>();

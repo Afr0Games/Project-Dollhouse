@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the SimsLib.
+The Original Code is the Files library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -46,7 +46,7 @@ namespace Files.FAR3
             if (m_Reader == null)
                 m_Reader = new FileReader(m_Path, false);
 
-            lock(m_Reader)
+            lock (m_Reader)
             {
                 ASCIIEncoding Enc = new ASCIIEncoding();
                 string MagicNumber = Enc.GetString(m_Reader.ReadBytes(8));
@@ -65,7 +65,7 @@ namespace Files.FAR3
                 m_Reader.ReadUInt32(); //Version.
                 m_Reader.Seek((long)m_Reader.ReadUInt32());
 
-                uint NumFiles = m_Reader.ReadUInt32(); 
+                uint NumFiles = m_Reader.ReadUInt32();
 
                 for (int i = 0; i < NumFiles; i++)
                 {
@@ -83,7 +83,7 @@ namespace Files.FAR3
 
                     UniqueFileID ID = new UniqueFileID(Entry.TypeID, Entry.FileID);
 
-                    if(!m_Entries.ContainsKey(ID.UniqueID))
+                    if (!m_Entries.ContainsKey(ID.UniqueID))
                         m_Entries.AddOrUpdate(ID.UniqueID, Entry, (Key, ExistingValue) => ExistingValue = Entry);
                 }
             }
@@ -108,7 +108,7 @@ namespace Files.FAR3
 
             FAR3Entry Entry = m_Entries[ID];
 
-            lock(m_Reader)
+            lock (m_Reader)
             {
                 m_Reader.Seek((long)Entry.DataOffset);
 
@@ -180,10 +180,19 @@ namespace Files.FAR3
 
         public void Dispose()
         {
-            if (m_Reader != null)
-                m_Reader.Close();
-            if (m_FinishedReading != null)
-                m_FinishedReading.Close();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        {
+            if (CleanUpNativeAndManagedResources)
+            {
+                if (m_Reader != null)
+                    m_Reader.Close();
+                if (m_FinishedReading != null)
+                    m_FinishedReading.Close();
+            }
         }
     }
 }

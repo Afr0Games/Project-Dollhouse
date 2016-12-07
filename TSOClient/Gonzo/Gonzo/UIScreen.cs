@@ -1,14 +1,24 @@
-﻿using System;
+﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at
+http://mozilla.org/MPL/2.0/.
+
+The Original Code is the Gonzo library.
+
+The Initial Developer of the Original Code is
+Mats 'Afr0' Vederhus. All Rights Reserved.
+
+Contributor(s):
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using Files.Manager;
 using Irony.Parsing;
 using Irony.Interpreter.Ast;
 using UIParser;
 using UIParser.Nodes;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using Gonzo.Elements;
 

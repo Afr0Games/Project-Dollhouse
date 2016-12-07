@@ -113,13 +113,14 @@ namespace Files.Manager
 
         public void Dispose()
         {
-            if (m_LastAccessedLock != null)
-                m_LastAccessedLock.Close();
-
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        public virtual void Dispose(bool CleanupNativeandManagedResources) { }
+        protected virtual void Dispose(bool CleanupNativeAndManagedResources)
+        {
+            if (CleanupNativeAndManagedResources)
+                m_LastAccessedLock.Dispose();
+        }
     }
 }

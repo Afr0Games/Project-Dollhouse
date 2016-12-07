@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the SimsLib.
+The Original Code is the Files library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -11,8 +11,6 @@ Contributor(s):
 */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace Files.IFF
@@ -20,7 +18,7 @@ namespace Files.IFF
     /// <summary>
     /// This chunk type holds a regular Windows BMP file.
     /// </summary>
-    public class FBMP : IFFChunk
+    public class FBMP : IFFChunk, IDisposable
     {
         public MemoryStream BitmapStream;
 

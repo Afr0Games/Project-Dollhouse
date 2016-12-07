@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the SimsLib.
+The Original Code is the Files library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -10,10 +10,8 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -23,7 +21,7 @@ namespace Files.IFF
     /// Interchange File Format (IFF) is a chunk-based file format for binary resource data intended to promote a 
     /// common model for store and use by an executable.
     /// </summary>
-    public class Iff
+    public class Iff : IDisposable
     {
         /// <summary>
         /// Graphicsdevice used to construct SPR# and SPR2 chunks.

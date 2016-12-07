@@ -2,17 +2,15 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the SimsLib.
+The Original Code is the Files library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
 
-Contributor(s): Andrew D'Addesio
+Contributor(s):
 */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace Files.AudioFiles
@@ -462,17 +460,11 @@ namespace Files.AudioFiles
 
         public void Dispose()
         {
-            if (m_Writer != null)
-                m_Writer.Close();
-
-            if (m_Reader != null)
-                m_Reader.Close();
-
-            if (m_DecompressedStream != null)
-                m_DecompressedStream.Close();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        public void Dispose(bool CleanUpManagedResources)
+        protected virtual void Dispose(bool CleanUpManagedResources)
         {
             if (CleanUpManagedResources)
             {

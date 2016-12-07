@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the SimsLib.
+The Original Code is the Files library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -20,7 +20,7 @@ using Microsoft.Xna.Framework;
 
 namespace Files.Vitaboy
 {
-    public class Anim
+    public class Anim : IDisposable
     {
         private FileReader m_Reader;
         public string Name;
