@@ -15,6 +15,10 @@
        <Start>&#x0080;</Start> <!--Latin-1 Supplement-->
        <End>&#x00FF;</End>
      </CharacterRegion>
+     <CharacterRegion>
+       <Start>&#8481;</Start>
+       <End>&#8482;</End>
+     </CharacterRegion>
     </CharacterRegions>
   </Asset>
 </XnaContent>

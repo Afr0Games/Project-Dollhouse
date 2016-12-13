@@ -2,9 +2,9 @@
 using Shared;
 using Files;
 using Files.Manager;
-using Files.Vitaboy;
 using Gonzo;
 using Gonzo.Elements;
+using Gonzo.Dialogs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,6 +20,7 @@ namespace GonzoTest
             m_ExitBtn, m_FemaleBtn, m_MaleBtn, m_SkinLightBtn, m_SkinMediumBtn, m_SkinDarkBtn;
         private UIHeadBrowser m_HeadSkinBrowser;
         private UIBodyBrowser m_BodySkinBrowser;
+        private ExitDialog m_ExitDialog;
 
         private Sim m_Avatar;
         VitaboyScreen m_VitaboyScreen;
@@ -32,32 +33,34 @@ namespace GonzoTest
             new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight),
             GlobalSettings.Default.StartupPath + "\\" + "gamedata\\uiscripts\\personselectionedit.uis")
         {
-            m_BackgroundImg = (UIImage)m_Elements["\"BackgroundImage\""];
+            m_BackgroundImg = (UIImage)m_Walker.Elements["\"BackgroundImage\""];
 
-            m_CancelBtn = (UIButton)m_Elements["\"CancelButton\""];
-            m_AcceptBtn = (UIButton)m_Elements["\"AcceptButton\""];
-            m_DescriptionScrollUpBtn = (UIButton)m_Elements["\"DescriptionScrollUpButton\""];
-            m_DescriptionScrollDownBtn = (UIButton)m_Elements["\"DescriptionScrollDownButton\""];
-            m_ExitBtn = (UIButton)m_Elements["\"ExitButton\""];
+            m_CancelBtn = (UIButton)m_Walker.Elements["\"CancelButton\""];
+            m_AcceptBtn = (UIButton)m_Walker.Elements["\"AcceptButton\""];
+            m_DescriptionScrollUpBtn = (UIButton)m_Walker.Elements["\"DescriptionScrollUpButton\""];
+            m_DescriptionScrollDownBtn = (UIButton)m_Walker.Elements["\"DescriptionScrollDownButton\""];
 
-            m_FemaleBtn = (UIButton)m_Elements["\"FemaleButton\""];
+            m_ExitBtn = (UIButton)m_Walker.Elements["\"ExitButton\""];
+            m_ExitBtn.OnButtonClicked += M_ExitBtn_OnButtonClicked;
+
+            m_FemaleBtn = (UIButton)m_Walker.Elements["\"FemaleButton\""];
             m_FemaleBtn.OnButtonClicked += M_FemaleBtn_OnButtonClicked;
 
-            m_MaleBtn = (UIButton)m_Elements["\"MaleButton\""];
+            m_MaleBtn = (UIButton)m_Walker.Elements["\"MaleButton\""];
             m_MaleBtn.OnButtonClicked += M_MaleBtn_OnButtonClicked;
 
-            m_SkinLightBtn = (UIButton)m_Elements["\"SkinLightButton\""];
+            m_SkinLightBtn = (UIButton)m_Walker.Elements["\"SkinLightButton\""];
             m_SkinLightBtn.OnButtonClicked += M_SkinLightBtn_OnButtonClicked;
 
-            m_SkinMediumBtn = (UIButton)m_Elements["\"SkinMediumButton\""];
+            m_SkinMediumBtn = (UIButton)m_Walker.Elements["\"SkinMediumButton\""];
             m_SkinMediumBtn.OnButtonClicked += M_SkinMediumBtn_OnButtonClicked;
 
-            m_SkinDarkBtn = (UIButton)m_Elements["\"SkinDarkButton\""];
+            m_SkinDarkBtn = (UIButton)m_Walker.Elements["\"SkinDarkButton\""];
             m_SkinDarkBtn.OnButtonClicked += M_SkinDarkBtn_OnButtonClicked;
 
-            m_HeadSkinBrowser = new UIHeadBrowser(this, m_Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Female);
+            m_HeadSkinBrowser = new UIHeadBrowser(this, m_Walker.Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Female);
             m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
-            m_BodySkinBrowser = new UIBodyBrowser(this, m_Controls["\"BodySkinBrowser\""], 1, AvatarSex.Female);
+            m_BodySkinBrowser = new UIBodyBrowser(this, m_Walker.Controls["\"BodySkinBrowser\""], 1, AvatarSex.Female);
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device);
@@ -73,7 +76,18 @@ namespace GonzoTest
                 new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight));
             m_VitaboyScreen.AddSim(m_Avatar);
 
+            m_ExitDialog = new ExitDialog(this, new Vector2(250, 250), m_Walker,
+                GlobalSettings.Default.StartupPath + "\\" + "gamedata\\uiscripts\\exitdialog.uis");
+            m_ExitDialog.Visible = false;
+
             Manager.AddScreen(m_VitaboyScreen);
+        }
+
+        #region EventHandlers
+
+        private void M_ExitBtn_OnButtonClicked(object Sender)
+        {
+            m_ExitDialog.Visible = true;
         }
 
         private void M_MaleBtn_OnButtonClicked(object Sender)
@@ -136,6 +150,8 @@ namespace GonzoTest
         {
             m_Avatar.ChangeOutfit(EArgs.SelectedOutfit, (Vitaboy.SkinType)EArgs.SkinType);
         }
+
+        #endregion
 
         public override void Update(InputHelper Input, GameTime GTime)
         {

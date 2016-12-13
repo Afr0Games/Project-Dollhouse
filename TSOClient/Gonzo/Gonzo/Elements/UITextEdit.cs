@@ -729,7 +729,7 @@ namespace Gonzo.Elements
                                     m_RemovingTxt = false;
                                     break;
                                 case Keys.Enter:
-                                    if(m_NumLines > 1)
+                                    if (m_NumLines > 1)
                                     {
                                         m_TextPosition.X = Position.X;
                                         m_TextPosition.Y += m_Font.LineSpacing;
@@ -822,11 +822,11 @@ namespace Gonzo.Elements
                                         if (m_NumLines == 1)
                                             m_Cursor.LineIndex--;
                                     }
-                                    else if(m_Cursor.Position.X <= Position.X)
+                                    else if (m_Cursor.Position.X <= Position.X)
                                     {
-                                        if(m_NumLines == 1)
+                                        if (m_NumLines == 1)
                                         {
-                                            for(int i = 0; i < m_Lines.Count; i++)
+                                            for (int i = 0; i < m_Lines.Count; i++)
                                             {
                                                 //Don't know why Line[0] doesn't work here...
                                                 if ((m_Lines[1].Position.X < Position.X))
@@ -933,6 +933,43 @@ namespace Gonzo.Elements
                                         m_RemovingTxt = false;
                                     }
                                     break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (IsMouseOver(Input))
+            {
+                if (Input.IsNewPress(MouseButtons.LeftButton) || Input.IsCurPress(MouseButtons.LeftButton))
+                {
+                    if (m_NumLines > 1)
+                    {
+                        if (m_Lines.Count > (Input.MousePosition.Y - Position.Y))
+                        {
+                            if (m_Lines[(int)(Input.MousePosition.Y - Position.Y)].SBuilder.ToString() != "")
+                            {
+                                m_Cursor.Position = Input.MousePosition;
+                                m_Cursor.CharacterIndex = (int)((Input.MousePosition.X - Position.X) - 1);
+                                m_Cursor.LineIndex = (int)((Input.MousePosition.Y - Position.Y) - 1);
+                                m_MovingCursor = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if ((Position.X + m_Font.MeasureString(CurrentInput).X) > Input.MousePosition.X)
+                        {
+                            int ApproxChars = (int)(m_Font.MeasureString(CurrentInput).X / m_Lines.Count);
+                            int Index = (int)Input.MousePosition.X / ApproxChars;
+
+                            //TODO: Figure out how to access an index in the array based on mouse position.
+                            if (m_Lines[Index - 1].SBuilder.ToString() != "")
+                            {
+                                m_Cursor.Position.X = Input.MousePosition.X;
+                                m_Cursor.CharacterIndex = (int)(Index - 1);
+                                m_Cursor.LineIndex = (int)(Index);
+                                m_MovingCursor = true;
                             }
                         }
                     }

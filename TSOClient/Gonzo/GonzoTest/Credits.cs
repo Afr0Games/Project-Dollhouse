@@ -1,8 +1,8 @@
-﻿using System;
+﻿
 using System.Timers;
 using System.Collections.Generic;
-using System.Text;
 using Gonzo;
+using Gonzo.Dialogs;
 using Gonzo.Elements;
 using Files.Manager;
 using Files.IFF;
@@ -29,20 +29,20 @@ namespace GonzoTest
             new Vector2(0, 0), new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight), 
             GlobalSettings.Default.StartupPath + "\\" + "gamedata\\uiscripts\\credits.uis")
         {
-            BackgroundImg = (UIImage)m_Elements["\"BackgroundImage\""];
-            TSOLogoImage = m_Controls["\"TSOLogoImage\""].Image;
-            BackButtonIndentImage = m_Controls["\"BackButtonIndentImage\""].Image;
-            WillImage = (UIImage)m_Elements["\"WillImage\""];
+            BackgroundImg = (UIImage)m_Walker.Elements["\"BackgroundImage\""];
+            TSOLogoImage = m_Walker.Controls["\"TSOLogoImage\""].Image;
+            BackButtonIndentImage = m_Walker.Controls["\"BackButtonIndentImage\""].Image;
+            WillImage = (UIImage)m_Walker.Elements["\"WillImage\""];
 
-            MaxisButton = (UIButton)m_Elements["\"MaxisButton\""];
+            MaxisButton = (UIButton)m_Walker.Elements["\"MaxisButton\""];
             MaxisButton.OnButtonClicked += MaxisButton_OnButtonClicked;
 
             m_WillWrightDiag = new WillWrightDiag(WillImage, this, new Vector2(100, 100));
             m_WillWrightDiag.IsDrawn = false;
-            m_Elements.Add("WillWrightDiag", m_WillWrightDiag);
+            m_Walker.Elements.Add("WillWrightDiag", m_WillWrightDiag);
 
             m_Credits = FileManager.GetIFF("credits.iff");
-            m_CreditsArea = (UIControl)m_Controls["\"CreditsArea\""];
+            m_CreditsArea = (UIControl)m_Walker.Controls["\"CreditsArea\""];
             m_CreditsY = m_CreditsArea.Size.Y;
 
             foreach(TranslatedString TStr in m_Credits.GetSTR(163).GetStringList(LanguageCodes.EngUS))
@@ -56,6 +56,8 @@ namespace GonzoTest
             m_CreditsTimer.Start();
         }
 
+        #region EventHandlers
+
         private void M_CreditsTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             m_CreditsY -= 1.5f;
@@ -65,6 +67,8 @@ namespace GonzoTest
         {
             m_WillWrightDiag.IsDrawn = true;
         }
+
+        #endregion
 
         public override void Update(InputHelper Input, GameTime GTime)
         {

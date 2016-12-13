@@ -1,22 +1,11 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
-If a copy of the MPL was not distributed with this file, You can obtain one at
-http://mozilla.org/MPL/2.0/.
-
-The Original Code is the Gonzo library.
-
-The Initial Developer of the Original Code is
-Mats 'Afr0' Vederhus. All Rights Reserved.
-
-Contributor(s):
-*/
-
+﻿using Gonzo.Elements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Files;
 using Files.Manager;
 using Microsoft.Xna.Framework.Input;
 
-namespace Gonzo.Elements
+namespace Gonzo.Dialogs
 {
     public class UIDialog : UIElement
     {
@@ -35,6 +24,14 @@ namespace Gonzo.Elements
 
         private bool m_HasExitBtn = false;
 
+        /// <summary>
+        /// Constructs a new UIDialog instance.
+        /// </summary>
+        /// <param name="Screen">A UIScreen instance.</param>
+        /// <param name="Pos">A Vector2 instance specifying the position of this dialog.</param>
+        /// <param name="IsTall">Will this dialog use a tall background template?</param>
+        /// <param name="IsDraggable">Is this dialog draggable?</param>
+        /// <param name="HasExitButton">Does this dialog have an exit button?</param>
         public UIDialog(UIScreen Screen, Vector2 Pos, bool IsTall, bool IsDraggable, bool HasExitButton) : base(Screen)
         {
             Position = Pos;

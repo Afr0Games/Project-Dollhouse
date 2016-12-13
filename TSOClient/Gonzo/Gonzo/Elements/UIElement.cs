@@ -34,7 +34,6 @@ namespace Gonzo.Elements
     {
         protected UIElement m_Parent;
         protected UIScreen m_Screen;
-        protected Dictionary<string, UIElement> m_Elements = new Dictionary<string, UIElement>();
         public string Name;
         protected int m_ID;
 
@@ -160,7 +159,8 @@ namespace Gonzo.Elements
         /// </summary>
         /// <param name="Screen">A Screen instance.</param>
         /// <param name="Parent">(Optional) UIElement that acts as a parent.</param>
-        public UIElement(UIScreen Screen, UIElement Parent = null)
+        /// <param name="Path"> (Optional) Path to a UI script that will create this UI element.</param>
+        public UIElement(UIScreen Screen, UIElement Parent = null, string Path = "")
         {
             m_Screen = Screen;
 
@@ -189,23 +189,6 @@ namespace Gonzo.Elements
 
                 if (Image != null)
                     Image.Position = m_Position;
-            }
-        }
-
-        /// <summary>
-        /// Gets a child from this UIElements Dictionary of children.
-        /// </summary>
-        /// <param name="Name">The name of the child to get.</param>
-        /// <returns>A UIElement instance that can be cast.</returns>
-        public UIElement GetChild(string Name)
-        {
-            try
-            {
-                return m_Elements[Name];
-            }
-            catch (Exception)
-            {
-                throw new Exception("Couldn't find child: " + Name + " in UIElement.cs");
             }
         }
 

@@ -13,7 +13,6 @@ Contributor(s):
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.MemoryMappedFiles;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Diagnostics;
@@ -22,7 +21,6 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Linq;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using Files.FAR3;
 using Files.FAR1;
 using Files.DBPF;
