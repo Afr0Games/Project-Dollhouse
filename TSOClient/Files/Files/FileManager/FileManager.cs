@@ -165,27 +165,32 @@ namespace Files.Manager
         /// Gets an Texture2D instance from the FileManager.
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the texture to get.</param>
+        /// <param name="IsTGA">Do you know ahead of time that the resource is a TGA?
+        /// Set this to true to avoid a lot of try/catch branches.</param>
         /// <returns>A Texture2D instance.</returns>
-        public static Texture2D GetTexture(ulong AssetID)
+        public static Texture2D GetTexture(ulong AssetID, bool IsTGA = false)
         {
-            Stream Data = (Stream)GrabItem(AssetID, FAR3TypeIDs.JPG);
-
-            if (Data == null)
-                Data = GrabItem(AssetID, FAR3TypeIDs.BMP);
-            if (Data == null)
-                Data = GrabItem(AssetID, FAR3TypeIDs.PNG);
-            if (Data == null)
-                Data = GrabItem(AssetID, FAR3TypeIDs.PackedPNG);
-            if (Data == null)
-                Data = GrabItem(AssetID, FAR3TypeIDs.TGA);
-            Stream PNGStream = new MemoryStream();
-
-            if (Data == null)
+            if (!IsTGA)
             {
-                Debug.WriteLine("Tried to load null data! Stack: \r\n" + System.Environment.StackTrace);
-                PNGStream.Dispose();
-                return null;
+                Stream Data = (Stream)GrabItem(AssetID, FAR3TypeIDs.JPG);
+
+                if (Data == null)
+                    Data = GrabItem(AssetID, FAR3TypeIDs.BMP);
+                if (Data == null)
+                    Data = GrabItem(AssetID, FAR3TypeIDs.PNG);
+                if (Data == null)
+                    Data = GrabItem(AssetID, FAR3TypeIDs.PackedPNG);
+                if (Data == null)
+                    Data = GrabItem(AssetID, FAR3TypeIDs.TGA);
+
+                if (Data == null)
+                {
+                    Debug.WriteLine("Tried to load null data! Stack: \r\n" + Environment.StackTrace);
+                    return null;
+                }
             }
+            else
+                GrabItem(AssetID, FAR3TypeIDs.TGA);
 
             m_AssetsResetEvent.WaitOne();
             return (Texture2D)m_Assets[AssetID].AssetData;
@@ -768,7 +773,7 @@ namespace Files.Manager
                                     Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
                                 break;
                             case FAR3TypeIDs.JPG:
-                                lock (MemStream)
+                                try
                                 {
                                     BMap = new Bitmap(Data);
                                     BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
@@ -778,16 +783,27 @@ namespace Files.Manager
                                     BMap.Dispose();
                                     MemStream.Seek(0, SeekOrigin.Begin);
 
+                                    AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                        Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                }
+                                catch
+                                {
                                     try
                                     {
+                                        MemStream.Dispose();
+                                        AddItem(ID, new Asset(ID, (uint)Data.Length,
+                                            Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
+                                    }
+                                    catch(Exception) //Most likely a TGA, sigh.
+                                    {
+                                        MemStream = new MemoryStream();
+
+                                        Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
+                                        TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                        TGA.Dispose();
+                                        MemStream.Seek(0, SeekOrigin.Begin);
                                         AddItem(ID, new Asset(ID, (uint)MemStream.Length,
                                             Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
-                                    }
-                                    catch
-                                    {
-                                        MemStream.Dispose();
-                                        AddItem(ID, new Asset(ID, (uint)Data.Length, 
-                                            Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
                                     }
                                 }
                                 break;
@@ -796,16 +812,26 @@ namespace Files.Manager
                                 {
                                     lock (MemStream)
                                     {
-                                        BMap = new Bitmap(Data);
-                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
-                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
-                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
-                                        BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                                        BMap.Dispose();
-                                        MemStream.Seek(0, SeekOrigin.Begin);
+                                        try
+                                        {
+                                            BMap = new Bitmap(Data);
+                                            BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
+                                            BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
+                                            BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
+                                            BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                            BMap.Dispose();
+                                            MemStream.Seek(0, SeekOrigin.Begin);
 
-                                        AddItem(ID, new Asset(ID, (uint)MemStream.Length,
-                                            Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                            AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                                Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                        }
+                                        catch (Exception)
+                                        {
+                                            MemStream.Dispose();
+
+                                            AddItem(ID, new Asset(ID, (uint)Data.Length,
+                                                Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
+                                        }
                                     }
                                 }
                                 else

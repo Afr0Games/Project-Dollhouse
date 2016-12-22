@@ -40,8 +40,8 @@ namespace Gonzo.Dialogs
 
             //TODO: Find a way to NOT hardcode these references.
             Texture2D Tex = (IsTall != false) ? 
-                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplatetall) : 
-                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplate);
+                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplatetall, true) : 
+                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplate, true);
 
             Texture2D CloseBtnBackground = (IsTall != false) ? 
                 FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackgroundtall) : 

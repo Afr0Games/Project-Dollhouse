@@ -37,7 +37,7 @@ namespace GonzoTest
                 {
                     RegistryKey tsoKey = maxisKey.OpenSubKey("The Sims Online");
                     string installDir = (string)tsoKey.GetValue("InstallDir");
-                    installDir += "\\TSOClient\\";
+                    installDir += "TSOClient\\";
                     GlobalSettings.Default.StartupPath = installDir;
                 }
                 else

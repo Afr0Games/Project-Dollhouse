@@ -71,10 +71,14 @@
     <Compile Include="Elements\UIElement.cs" />
     <Compile Include="Elements\UIImage.cs" />
     <Compile Include="Elements\UILabel.cs" />
+    <Compile Include="TreeWalker.cs" />
     <Compile Include="UIScreen.cs" />
     <Compile Include="Elements\UISlider.cs" />
     <Compile Include="Elements\UITextEdit.cs" />
     <Compile Include="VitaboyScreen.cs" />
+    <Compile Include="Dialogs\UIDialog.cs" />
+    <Compile Include="Dialogs\WillWrightDiag.cs" />
+    <Compile Include="Dialogs\ExitDialog.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Other\libs\UIParser\UIParser\UIParser.csproj">
