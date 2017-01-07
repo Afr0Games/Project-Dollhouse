@@ -45,13 +45,13 @@ namespace Gonzo.Elements
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event ButtonClickDelegate OnButtonClicked;
 
-        public UIButton(AddButtonNode Node, ParserState State, UIScreen Screen) : base(Screen)
+        public UIButton(AddButtonNode Node, ParseResult Result, UIScreen Screen) : base(Screen)
         {
             Name = Node.Name;
             m_ID = Node.ID;
             m_Screen = Screen;
 
-            if (!State.InSharedPropertiesGroup)
+            if (!Result.State.InSharedPropertiesGroup)
             {
                 if (Node.Image != null)
                 {
@@ -80,27 +80,26 @@ namespace Gonzo.Elements
             }
             else
             {
-                if (State.Image != "")
+                if (Result.State.Image != "")
                 {
-                    Image = m_Screen.GetImage(State.Image, true);
+                    Image = m_Screen.GetImage(Result.State.Image, true);
                     //Initialize to second frame in the image.
                     m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
                     m_Size = new Vector2();
-                    m_Size.X = Image.Texture.Width / 4;
+                    m_Size.X = (Image.Texture.Width) / (4);
                     m_Size.Y = Image.Texture.Height;
-
-                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
                 }
                 else
                 {
-                    if (State.TextButton)
+                    if (Result.State.TextButton)
                     {
-                        m_Text = State.Caption;
+                        m_Text = Result.State.Caption;
                         //Text buttons always use this image.
                         Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
                         //Initialize to second frame in the image.
-                        m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+                        if(Result.State.Size == null)
+                            m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
                         m_Size = new Vector2();
                         m_Size.X = Image.Texture.Width / 4;
@@ -115,15 +114,13 @@ namespace Gonzo.Elements
                         m_Size = new Vector2();
                         m_Size.X = (Image.Texture.Width) / (4);
                         m_Size.Y = Image.Texture.Height;
-
-                        Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
                     }
 
                     Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
                 }
 
-                if (State.Tooltip != "")
-                    Tooltip = m_Screen.GetString(State.Tooltip);
+                if (Result.State.Tooltip != "")
+                    Tooltip = m_Screen.GetString(Result.State.Tooltip);
             }
 
             if (Node.TextHighlighted != null)
@@ -152,9 +149,9 @@ namespace Gonzo.Elements
                         break;
                 }
             }
-            else if(State.Font != 0)
+            else if (Result.State.Font != 0)
             {
-                switch (State.Font)
+                switch (Result.State.Font)
                 {
                     case 9:
                         m_Font = Screen.Font9px;
@@ -187,7 +184,7 @@ namespace Gonzo.Elements
             }
             else
             {
-                TextColor = State.TextColor;
+                TextColor = Result.State.TextColor;
                 TextColor.A = 255;
             }
 
@@ -201,7 +198,7 @@ namespace Gonzo.Elements
             }
             else
             {
-                TextColorSelected = State.TextColorSelected;
+                TextColorSelected = Result.State.TextColorSelected;
                 TextColorSelected.A = 255;
             }
 
@@ -215,7 +212,7 @@ namespace Gonzo.Elements
             }
             else
             {
-                TextColorHighlighted = State.TextColorHighlighted;
+                TextColorHighlighted = Result.State.TextColorHighlighted;
                 TextColorHighlighted.A = 255;
             }
 
@@ -229,31 +226,34 @@ namespace Gonzo.Elements
             }
             else
             {
-                TextColorDisabled = State.TextColorDisabled;
+                TextColorDisabled = Result.State.TextColorDisabled;
                 TextColorDisabled.A = 255;
             }
 
             if (Node.TextButton != null)
                 m_IsTextButton = (Node.TextButton == 1) ? true : false;
             else
-                m_IsTextButton = m_IsTextButton = State.TextButton;
+                m_IsTextButton = m_IsTextButton = Result.State.TextButton;
 
 
             if (m_IsTextButton)
             {
                 if (Node.Text != string.Empty)
-                    m_Text = m_Screen.GetString(Node.Text);
+                    m_Text = Result.Strings[Node.Text];
                 else
-                    m_Text = m_Screen.GetString(State.Caption);
+                    m_Text = Result.Strings[Result.State.Caption];
 
                 m_TextPosition = Position;
 
                 if (m_Size.X != 0)
-                    ScaleToText();
+                {
+                    //if (Result.State.Size == null)
+                        ScaleToText();
+                }
             }
 
             if (Node.Tooltip != "")
-                Tooltip = m_Screen.GetString(Node.Tooltip);
+                Tooltip = Result.Strings[Node.Tooltip];
 
             if (Node.Tracking != null)
                 Tracking = (int)Node.Tracking;
@@ -375,8 +375,7 @@ namespace Gonzo.Elements
                         TextDrawingColor = TextColorHighlighted;
                         m_SourcePosition.X += m_Size.X;
 
-                        if (OnButtonClicked != null)
-                            OnButtonClicked(this);
+                        OnButtonClicked?.Invoke(this);
 
                         m_IsButtonClicked = true;
                     }

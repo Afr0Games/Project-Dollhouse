@@ -82,7 +82,8 @@ namespace UIParser.Nodes
         BackgroundImageAssignment = 64,
         ValueAssignment = 65,
         EnabledAssignment = 66,
-        UseBackgroundImageAssignment = 67
+        UseBackgroundImageAssignment = 67,
+        FitTextAssignment = 68
     }
 
     public class AssignmentNode : UINode
@@ -364,6 +365,10 @@ namespace UIParser.Nodes
                     break;
                 case "enabled":
                     TypeOfAssignment = AssignmentType.EnabledAssignment;
+                    Value = (int)nodes[2].Token.Value;
+                    break;
+                case "fittext":
+                    TypeOfAssignment = AssignmentType.FitTextAssignment;
                     Value = (int)nodes[2].Token.Value;
                     break;
             }

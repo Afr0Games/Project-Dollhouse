@@ -24,16 +24,24 @@ using Gonzo.Elements;
 namespace Gonzo
 {
     /// <summary>
+    /// A container containing all elements, controls, and strings created by the TreeWalker,
+    /// as well as the current state of the parser.
+    /// </summary>
+    public class ParseResult
+    {
+        public Dictionary<string, UIElement> Elements = new Dictionary<string, UIElement>();
+        public Dictionary<string, UIControl> Controls = new Dictionary<string, UIControl>();
+        public Dictionary<string, string> Strings = new Dictionary<string, string>();
+
+        public UIParser.ParserState State = new UIParser.ParserState();
+    }
+
+    /// <summary>
     /// Used tp walk a generated AST (Abstract Syntax Tree) for UI scripts.
     /// </summary>
     public class TreeWalker
     {
         private UIScreen m_Screen;
-
-        public Dictionary<string, UIElement> Elements = new Dictionary<string, UIElement>();
-        public Dictionary<string, UIControl> Controls = new Dictionary<string, UIControl>();
-
-        public Dictionary<string, string> Strings = new Dictionary<string, string>();
 
         /// <summary>
         /// Constructs a new TreeWalker instance.
@@ -48,7 +56,7 @@ namespace Gonzo
         /// Parses a UI script and walks the generated AST.
         /// </summary>
         /// <param name="Path">The path to the script.</param>
-        public void Initialize(string Path)
+        public void Initialize(string Path, ref ParseResult Result)
         {
             StringBuilder SBuilder = new StringBuilder();
             LanguageData LangData = new LanguageData(new UIGrammar());
@@ -58,7 +66,7 @@ namespace Gonzo
                 SBuilder.Append(Statement + "\r\n");
 
             ParseTree Tree = Pars.Parse(SBuilder.ToString());
-            WalkTree(new UIParser.ParserState(), (AstNode)Tree.Root.AstNode);
+            WalkTree(Result.State, (AstNode)Tree.Root.AstNode, ref Result);
         }
 
         /// <summary>
@@ -66,7 +74,7 @@ namespace Gonzo
         /// </summary>
         /// <param name="State">A ParserState instance.</param>
         /// <param name="node">The root node of the AST.</param>
-        private void WalkTree(UIParser.ParserState State, AstNode node)
+        private void WalkTree(UIParser.ParserState State, AstNode node, ref ParseResult Result)
         {
             NodeType NType = (NodeType)Enum.Parse(typeof(NodeType), node.ToString(), true);
 
@@ -75,32 +83,32 @@ namespace Gonzo
                 case NodeType.DefineImage: //Defines an image and loads a texture for it.
                     DefineImageNode ImgNode = (DefineImageNode)UINode.GetNode(node);
                     UIImage Img = new UIImage(ImgNode, m_Screen);
-                    Elements.Add(ImgNode.Name, Img);
+                    Result.Elements.Add(ImgNode.Name, Img);
                     break;
                 case NodeType.DefineString: //Defines a string with a name.
                     DefineStringNode StrNode = (DefineStringNode)UINode.GetNode(node);
-                    Strings.Add(StrNode.Name, StringManager.StrTable(State.CurrentStringTable)[StrNode.StrIndex]);
+                    Result.Strings.Add(StrNode.Name, StringManager.StrTable(State.CurrentStringTable)[StrNode.StrIndex]);
                     break;
                 case NodeType.AddButton: //Defines a button.
                     AddButtonNode ButtonNode = (AddButtonNode)UINode.GetNode(node);
-                    UIButton Btn = new UIButton(ButtonNode, State, m_Screen);
-                    Elements.Add(ButtonNode.Name, Btn);
+                    UIButton Btn = new UIButton(ButtonNode, Result, m_Screen);
+                    Result.Elements.Add(ButtonNode.Name, Btn);
 
                     break;
                 case NodeType.AddText:
                     AddTextNode TextNode = (AddTextNode)UINode.GetNode(node);
-                    UILabel Lbl = new UILabel(TextNode, State, m_Screen);
-                    Elements.Add(TextNode.Name, Lbl);
+                    UILabel Lbl = new UILabel(TextNode, Result, m_Screen);
+                    Result.Elements.Add(TextNode.Name, Lbl);
                     break;
                 case NodeType.AddTextEdit:
                     AddTextEditNode TextEditNode = (AddTextEditNode)UINode.GetNode(node);
                     UITextEdit Txt = new UITextEdit(TextEditNode, State, m_Screen);
-                    Elements.Add(TextEditNode.Name, Txt);
+                    Result.Elements.Add(TextEditNode.Name, Txt);
                     break;
                 case NodeType.AddSlider:
                     AddSliderNode SliderNode = (AddSliderNode)UINode.GetNode(node);
                     UISlider Slider = new UISlider(SliderNode, State, m_Screen);
-                    Elements.Add(SliderNode.Name, Slider);
+                    Result.Elements.Add(SliderNode.Name, Slider);
                     break;
                 case NodeType.SetSharedProperties: //Assigns a bunch of shared properties to declarations following the statement.
                     State.InSharedPropertiesGroup = true;
@@ -210,20 +218,20 @@ namespace Gonzo
                     SetControlPropsNode ControlPropsNode = (SetControlPropsNode)UINode.GetNode(node);
 
                     UIControl Ctrl = new UIControl(ControlPropsNode, m_Screen, State);
-                    Controls.Add(ControlPropsNode.Control, Ctrl);
+                    Result.Controls.Add(ControlPropsNode.Control, Ctrl);
 
                     if (State.InSharedPropertiesGroup)
                     {
                         UIElement Test = new UIElement(m_Screen, null);
                         //Script implicitly created an object... :\
-                        if (!Elements.TryGetValue(ControlPropsNode.Control, out Test))
+                        if (!Result.Elements.TryGetValue(ControlPropsNode.Control, out Test))
                         {
-                            Elements.Add(ControlPropsNode.Control, new UIElement(m_Screen, null));
+                            Result.Elements.Add(ControlPropsNode.Control, new UIElement(m_Screen, null));
 
                             if (Ctrl.Image != null)
-                                Elements[ControlPropsNode.Control].Image = new UIImage(Ctrl.Image);
+                                Result.Elements[ControlPropsNode.Control].Image = new UIImage(Ctrl.Image);
 
-                            Elements[ControlPropsNode.Control].Position = Ctrl.Position;
+                            Result.Elements[ControlPropsNode.Control].Position = Ctrl.Position;
                         }
                     }
 
@@ -239,7 +247,7 @@ namespace Gonzo
             }
 
             foreach (AstNode child in node.ChildNodes)
-                WalkTree(State, child);
+                WalkTree(State, child, ref Result);
         }
     }
 }

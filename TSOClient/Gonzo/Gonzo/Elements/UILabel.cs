@@ -23,7 +23,7 @@ namespace Gonzo.Elements
         private Color m_TextColor;
         private TextAlignment m_Alignment;
 
-        public UILabel(AddTextNode Node, ParserState State, UIScreen Screen) : base(Screen)
+        public UILabel(AddTextNode Node, ParseResult Result, UIScreen Screen) : base(Screen)
         {
             Name = Node.Name;
             m_ID = Node.ID;
@@ -32,7 +32,7 @@ namespace Gonzo.Elements
             if (Node.Size != null)
                 m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]);
             else
-                m_Size = State.Size;
+                m_Size = Result.State.Size;
 
             if (Node.Color != null)
             {
@@ -44,14 +44,14 @@ namespace Gonzo.Elements
             }
             else
             {
-                m_TextColor = State.Color;
+                m_TextColor = Result.State.Color;
                 m_TextColor.A = 255; //Ignore opacity, The Sims Online doesn't support transparent text.
             }
 
             if (Node.Alignment != 0)
                 m_Alignment = Node.Alignment;
             else
-                m_Alignment = (TextAlignment)State.Alignment;
+                m_Alignment = (TextAlignment)Result.State.Alignment;
 
             int Font = 0;
             if (Node.Font != null)
@@ -60,18 +60,21 @@ namespace Gonzo.Elements
                     Font = (int)Node.Font;
             }
             else
-                Font = State.Font;
+                Font = Result.State.Font;
 
             switch (Font)
             {
                     case 7:
-                        m_Font = Screen.Font10px; //TODO: Fixme.
-                    break;
+                        m_Font = Screen.Font9px; //TODO: Fixme.
+                        break;
                     case 9:
                     m_Font = Screen.Font9px;
                         break;
                     case 10:
                         m_Font = Screen.Font10px;
+                        break;
+                    case 11:
+                        m_Font = Screen.Font11px;
                         break;
                     case 12:
                         m_Font = Screen.Font12px;
@@ -85,13 +88,13 @@ namespace Gonzo.Elements
             }
 
             if (Node.Text != "")
-                Caption = m_Screen.GetString(Node.Text);
+                Caption = Result.Strings[Node.Text];
             else
             {
-                if(State.Caption != "") 
+                if(Result.State.Caption != "") 
                     //Sometimes labels will not have pre-defined text, as they will hold text
                     //generated in-game.
-                    Caption = m_Screen.GetString(State.Caption);
+                    Caption = Result.Strings[Result.State.Caption];
             }
 
             AlignText();

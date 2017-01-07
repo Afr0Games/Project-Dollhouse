@@ -70,6 +70,7 @@ namespace GonzoTest
 
             m_Fonts[0] = Content.Load<SpriteFont>("ProjectDollhouse_9px");
             m_Fonts[1] = Content.Load<SpriteFont>("ProjectDollhouse_10px");
+            m_Fonts[1] = Content.Load<SpriteFont>("ProjectDollhouse_11px");
             m_Fonts[2] = Content.Load<SpriteFont>("ProjectDollhouse_12px");
             m_Fonts[3] = Content.Load<SpriteFont>("ProjectDollhouse_14px");
             m_Fonts[4] = Content.Load<SpriteFont>("ProjectDollhouse_16px");

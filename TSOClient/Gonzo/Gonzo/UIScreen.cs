@@ -33,6 +33,7 @@ namespace Gonzo
         public ScreenManager Manager { get { return m_Manager; } }
 
         protected TreeWalker m_Walker;
+        protected ParseResult m_PResult = new ParseResult();
 
         protected SpriteBatch m_SBatch;
         
@@ -50,6 +51,11 @@ namespace Gonzo
         /// 10px font used to render text by this UIScreen instance.
         /// </summary>
         public SpriteFont Font10px { get { return m_Manager.Font10px; } }
+
+        /// <summary>
+        /// 11px font used to render text by this UIScreen instance.
+        /// </summary>
+        public SpriteFont Font11px { get { return m_Manager.Font11px; } }
 
         /// <summary>
         /// 12px font used to render text by this UIScreen instance.
@@ -87,7 +93,7 @@ namespace Gonzo
             m_Walker = new TreeWalker(this);
 
             if (UIScriptPath != "")
-                m_Walker.Initialize(UIScriptPath);
+                m_Walker.Initialize(UIScriptPath, ref m_PResult);
         }
 
         /// <summary>
@@ -97,10 +103,10 @@ namespace Gonzo
         {
             if(Element.ListensToKeyboard)
             {
-                foreach (KeyValuePair<string, UIElement> KVP in m_Walker.Elements)
+                foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
                     KVP.Value.HasFocus = false;
 
-                m_Walker.Elements[Element.Name].HasFocus = true;
+                m_PResult.Elements[Element.Name].HasFocus = true;
             }
         }
 
@@ -113,7 +119,7 @@ namespace Gonzo
         {
             try
             {
-                return m_Walker.Strings[Name];
+                return m_PResult.Strings[Name];
             }
             catch (Exception)
             {
@@ -131,12 +137,12 @@ namespace Gonzo
         {
             if (Copy)
             {
-                UIImage Value = new UIImage((UIImage)m_Walker.Elements[Name]);
+                UIImage Value = new UIImage((UIImage)m_PResult.Elements[Name]);
                 return Value;
             }
             else
             {
-                UIImage Value = (UIImage)m_Walker.Elements[Name];
+                UIImage Value = (UIImage)m_PResult.Elements[Name];
                 return Value;
             }
         }
@@ -145,13 +151,13 @@ namespace Gonzo
         {
             Input.Update();
 
-            foreach (KeyValuePair<string, UIElement> KVP in m_Walker.Elements)
+            foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
                 KVP.Value.Update(Input, GTime);
         }
 
         public virtual void Draw()
         {
-            foreach (KeyValuePair<string, UIElement> KVP in m_Walker.Elements)
+            foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
             {
                 try
                 {

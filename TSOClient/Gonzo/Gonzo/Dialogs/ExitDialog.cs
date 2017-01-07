@@ -26,37 +26,74 @@ namespace Gonzo.Dialogs
         public ExitDialog(UIScreen Screen, Vector2 Position, TreeWalker Walker, string ScriptPath) : 
             base(Screen, Position, true, true, true)
         {
-            Walker.Initialize(ScriptPath);
-            m_Elements = Walker.Elements;
-            m_Controls = Walker.Controls;
+            ParseResult Result = new ParseResult();
 
-            m_ReloginButton = (UIButton)m_Elements["ReLoginButton"];
-            m_ExitButton = (UIButton)m_Elements["ExitButton"];
-            m_CancelButton = (UIButton)m_Elements["CancelButton"];
+            Walker.Initialize(ScriptPath, ref Result);
 
-            m_TitleText = (UILabel)m_Elements["TitleText"];
-            m_MessageText = (UILabel)m_Elements["MessageText"];
+            m_ReloginButton = (UIButton)Result.Elements["\"ReLoginButton\""];
+            m_ReloginButton.Position += Position;
+            m_ExitButton = (UIButton)Result.Elements["\"ExitButton\""];
+            m_ExitButton.Position += Position;
+            m_CancelButton = (UIButton)Result.Elements["\"CancelButton\""];
+            m_CancelButton.Position += Position;
+
+            m_TitleText = (UILabel)Result.Elements["\"TitleText\""];
+            m_TitleText.Position += Position;
+            m_MessageText = (UILabel)Result.Elements["\"MessageText\""];
+            m_MessageText.Position += Position;
+
+            UIControl DialogSize = Result.Controls["\"DialogSize\""];
+
+            if (Size.X != 0 && Size.Y != 0)
+                SetSize((int)(Size.X * Resolution.getVirtualAspectRatio()), (int)(Size.Y * Resolution.getVirtualAspectRatio()));
+            else
+                SetSize((int)(DialogSize.Size.X * Resolution.getVirtualAspectRatio()), (int)(DialogSize.Size.Y * Resolution.getVirtualAspectRatio()));
+        }
+
+        public override void Update(InputHelper Helper, GameTime GTime)
+        {
+            if (IsDrawn)
+            {
+                m_ReloginButton.Update(Helper, GTime);
+                m_ExitButton.Update(Helper, GTime);
+                m_CancelButton.Update(Helper, GTime);
+
+                if(m_DoDrag)
+                {
+                    m_ReloginButton.Position = (Position - new Vector2(-30, -120)) * Resolution.getVirtualAspectRatio();
+                    m_ExitButton.Position = (Position - new Vector2(-140, -120))  * Resolution.getVirtualAspectRatio();
+                    m_CancelButton.Position = (Position - new Vector2(-251, -120)) * Resolution.getVirtualAspectRatio();
+
+                    m_TitleText.Position = ((Position - new Vector2(-10, -6)) * Resolution.getVirtualAspectRatio());
+                    m_MessageText.Position = ((Position - new Vector2(-10, -48)) * Resolution.getVirtualAspectRatio());
+                }
+            }
+
+            base.Update(Helper, GTime);
         }
 
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
-            float Depth;
-            if (LayerDepth != null)
-                Depth = (float)LayerDepth;
-            else
-                Depth = 0.10f;
-
-            if (IsDrawn)
+            if (Visible)
             {
-                m_ReloginButton.Draw(SBatch, (float)(LayerDepth + 0.1));
-                m_ExitButton.Draw(SBatch, (float)(LayerDepth + 0.1));
-                m_CancelButton.Draw(SBatch, (float)(LayerDepth + 0.1));
+                float Depth;
+                if (LayerDepth != null)
+                    Depth = (float)LayerDepth;
+                else
+                    Depth = 0.10f;
 
-                m_TitleText.Draw(SBatch, (float)(LayerDepth + 0.1));
-                m_MessageText.Draw(SBatch, (float)(LayerDepth + 0.1));
+                if (IsDrawn)
+                {
+                    m_ReloginButton.Draw(SBatch, (float)(LayerDepth + 0.1));
+                    m_ExitButton.Draw(SBatch, (float)(LayerDepth + 0.1));
+                    m_CancelButton.Draw(SBatch, (float)(LayerDepth + 0.1));
+
+                    m_TitleText.Draw(SBatch, (float)(LayerDepth + 0.1));
+                    m_MessageText.Draw(SBatch, (float)(LayerDepth + 0.1));
+                }
+
+                base.Draw(SBatch, LayerDepth);
             }
-
-            base.Draw(SBatch, LayerDepth);
         }
     }
 }

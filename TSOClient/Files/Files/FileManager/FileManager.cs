@@ -133,8 +133,7 @@ namespace Files.Manager
                 }
             }
 
-            if(OnThirtyThreePercentCompleted != null)
-                OnThirtyThreePercentCompleted();
+            OnThirtyThreePercentCompleted?.Invoke();
 
             foreach (string Path in m_FAR1Paths)
             {
@@ -143,8 +142,7 @@ namespace Files.Manager
                 m_FAR1Archives.Add(Archive);
             }
 
-            if(OnSixtysixPercentCompleted != null)
-                OnSixtysixPercentCompleted();
+            OnSixtysixPercentCompleted?.Invoke();
 
             foreach (string Path in m_DBPFPaths)
             {
@@ -155,8 +153,7 @@ namespace Files.Manager
 
             m_StillLoading.Set();
 
-            if (OnHundredPercentCompleted != null)
-                OnHundredPercentCompleted();
+            OnHundredPercentCompleted?.Invoke();
         }
 
         #region Grabbing

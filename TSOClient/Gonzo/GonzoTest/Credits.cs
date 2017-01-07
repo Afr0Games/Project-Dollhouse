@@ -29,20 +29,20 @@ namespace GonzoTest
             new Vector2(0, 0), new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight), 
             GlobalSettings.Default.StartupPath + "\\" + "gamedata\\uiscripts\\credits.uis")
         {
-            BackgroundImg = (UIImage)m_Walker.Elements["\"BackgroundImage\""];
-            TSOLogoImage = m_Walker.Controls["\"TSOLogoImage\""].Image;
-            BackButtonIndentImage = m_Walker.Controls["\"BackButtonIndentImage\""].Image;
-            WillImage = (UIImage)m_Walker.Elements["\"WillImage\""];
+            BackgroundImg = (UIImage)m_PResult.Elements["\"BackgroundImage\""];
+            TSOLogoImage = m_PResult.Controls["\"TSOLogoImage\""].Image;
+            BackButtonIndentImage = m_PResult.Controls["\"BackButtonIndentImage\""].Image;
+            WillImage = (UIImage)m_PResult.Elements["\"WillImage\""];
 
-            MaxisButton = (UIButton)m_Walker.Elements["\"MaxisButton\""];
+            MaxisButton = (UIButton)m_PResult.Elements["\"MaxisButton\""];
             MaxisButton.OnButtonClicked += MaxisButton_OnButtonClicked;
 
             m_WillWrightDiag = new WillWrightDiag(WillImage, this, new Vector2(100, 100));
             m_WillWrightDiag.IsDrawn = false;
-            m_Walker.Elements.Add("WillWrightDiag", m_WillWrightDiag);
+            m_PResult.Elements.Add("WillWrightDiag", m_WillWrightDiag);
 
             m_Credits = FileManager.GetIFF("credits.iff");
-            m_CreditsArea = (UIControl)m_Walker.Controls["\"CreditsArea\""];
+            m_CreditsArea = (UIControl)m_PResult.Controls["\"CreditsArea\""];
             m_CreditsY = m_CreditsArea.Size.Y;
 
             foreach(TranslatedString TStr in m_Credits.GetSTR(163).GetStringList(LanguageCodes.EngUS))

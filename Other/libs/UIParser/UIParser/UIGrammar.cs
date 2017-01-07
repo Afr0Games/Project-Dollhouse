@@ -104,7 +104,8 @@ namespace UIParser
                 ToTerm("edgeOffsetR") + ToTerm("=") + NUMBER | ToTerm("edgeoffsetT") + ToTerm("=") + NUMBER |
                 ToTerm("edgeOffsetB") + ToTerm("=") + NUMBER | ToTerm("foregroundImage") + ToTerm("=") + STRING |
                 ToTerm("backgroundImage") + ToTerm("=") + STRING | ToTerm("value") + ToTerm("=") + NUMBER |
-                ToTerm("useBackgroundImage") + ToTerm("=") + NUMBER | ToTerm("enabled") + ToTerm("=") + NUMBER;
+                ToTerm("useBackgroundImage") + ToTerm("=") + NUMBER | ToTerm("enabled") + ToTerm("=") + NUMBER |
+                ToTerm("fittext") + ToTerm("=") + NUMBER;
 
             ANYASSIGNMENT.Rule = MakeStarRule(ANYASSIGNMENT, ASSIGNMENT);
             //This means "assignmentblock is assignment followed by n assignments". 
