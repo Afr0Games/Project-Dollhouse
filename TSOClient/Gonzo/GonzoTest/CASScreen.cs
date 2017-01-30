@@ -165,13 +165,14 @@ namespace GonzoTest
 
         public override void Draw()
         {
+            base.Draw(); //Needs to be drawn first for the ExitDialog to be drawn correctly.
+
             m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
-            m_HeadSkinBrowser.Draw(m_SBatch, 0.9f);
-            m_BodySkinBrowser.Draw(m_SBatch, 0.9f);
+            m_HeadSkinBrowser.Draw(m_SBatch, 0.7f);
+            m_BodySkinBrowser.Draw(m_SBatch, 0.7f);
 
+            //TODO: Find out why the ExitDialog is drawn behind the other buttons on the screen.
             m_ExitDialog.Draw(m_SBatch, 0.9f);
-
-            base.Draw();
         }
     }
 }

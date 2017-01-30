@@ -294,8 +294,10 @@ namespace Gonzo.Elements
 
             m_XScale += 0.5f; //Text margin.
 
-            m_TextPosition.X += ((m_Size.X / 2) * m_XScale) - (m_Font.MeasureString(m_Text).X / 2);
-            m_TextPosition.Y += (m_Size.Y / 2) - (m_Font.MeasureString(m_Text).Y / 2);
+            float HalfX = m_Size.X / 2;
+            float HalfY = m_Size.Y / 2; 
+            m_TextPosition.X += (HalfX * m_XScale) - (m_Font.MeasureString(m_Text).X / 2);
+            m_TextPosition.Y += HalfY - (m_Font.MeasureString(m_Text).Y / 2);
         }
 
         public override bool IsMouseOver(InputHelper Input)
@@ -366,6 +368,14 @@ namespace Gonzo.Elements
 
         public override void Update(InputHelper Input, GameTime GTime)
         {
+            if(m_IsTextButton)
+            {
+                m_TextPosition = Position;
+
+                if (m_Size.X != 0)
+                    ScaleToText();
+            }
+
             if(IsMouseOver(Input) || PixelCheck(Input, (int)m_Size.X))
             {
                 if (Input.IsNewPress(MouseButtons.LeftButton))
@@ -432,8 +442,9 @@ namespace Gonzo.Elements
 
                 if (m_IsTextButton)
                 {
+                    //TODO: What depth should be used to have the text draw on top?
                     SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextDrawingColor, 0.0f,
-                        new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
+                        new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth);
                 }
             }
         }

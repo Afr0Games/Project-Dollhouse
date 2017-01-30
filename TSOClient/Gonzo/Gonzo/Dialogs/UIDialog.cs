@@ -107,7 +107,7 @@ namespace Gonzo.Dialogs
                 {
                     if (m_DoDrag)
                     {
-                       Position = (Helper.MousePosition - m_DragOffset);
+                        Position = (Helper.MousePosition - m_DragOffset);
 
                         if (m_HasExitBtn)
                         {
@@ -115,7 +115,7 @@ namespace Gonzo.Dialogs
                             m_CloseBtnBack.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
 
                             OffsetFromMouse = new Vector2(Image.Slicer.Width - (m_CloseButton.Image.Texture.Width / 2.5f), 9f);
-                            m_CloseButton.Position = (Helper.MousePosition + (OffsetFromMouse)) - m_DragOffset;
+                            m_CloseButton.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
                         }
                     }
 
@@ -167,12 +167,6 @@ namespace Gonzo.Dialogs
 
             if (IsDrawn)
             {
-                if (m_HasExitBtn)
-                {
-                    m_CloseBtnBack.Draw(SBatch, null, Depth);
-                    m_CloseButton.Draw(SBatch, Depth);
-                }
-
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
                 Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0), Depth);
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
@@ -185,6 +179,12 @@ namespace Gonzo.Dialogs
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY), null);
                 Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY), Depth);
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY), Depth);
+
+                if (m_HasExitBtn)
+                {
+                    m_CloseBtnBack.Draw(SBatch, null, Depth);
+                    m_CloseButton.Draw(SBatch, Depth);
+                }
             }
         }
     }

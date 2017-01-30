@@ -26,8 +26,7 @@ namespace GonzoTest
             graphics.PreferredBackBufferHeight = GlobalSettings.Default.ScreenHeight;
 
             Resolution.Init(ref graphics);
-            //TODO: Add Global parameter for fullscreen.
-            Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, false);
+            Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, GlobalSettings.Default.Fullscreen);
             Resolution.SetVirtualResolution(800, 600);
 
             this.Window.Title = "The Sims Online";

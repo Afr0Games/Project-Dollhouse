@@ -23,7 +23,6 @@ namespace Gonzo.Elements
     /// </summary>
     public class UIHeadBrowser : UISkinBrowser
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event UISkinButtonClicked OnButtonClicked;
         private Vector2 HeadTileSize = new Vector2(37, 42);
         private Texture2D m_EditHeadSkinBtnTex;
@@ -197,6 +196,11 @@ namespace Gonzo.Elements
             else
                 m_Depth = 0.9f;
 
+            //TODO: Why the fuck is this only drawn when UITextEdit has focus?? o_O
+            int NumHeads = m_LightAppearances.Count + m_MediumAppearances.Count + m_DarkAppearances.Count;
+            SBatch.DrawString(m_Screen.Font9px, "Heads: " + NumHeads, new Vector2(m_Size.X / 2, m_Size.Y - 70),
+                new Color(255, 249, 157));
+
             switch (m_SelectedSkintype)
             {
                 case Elements.SkinType.Light:
@@ -214,6 +218,7 @@ namespace Gonzo.Elements
                                 new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y));
                             Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
+                            //NOTE: Must be drawn at Depth - 0.1f because of alpha issues with thumbs.
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
@@ -244,6 +249,7 @@ namespace Gonzo.Elements
                             Vector2 TexturePosition = new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y));
                             Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
+                            //NOTE: Must be drawn at Depth - 0.1f because of alpha issues with thumbs.
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
@@ -274,6 +280,7 @@ namespace Gonzo.Elements
                             Vector2 TexturePosition = new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y));
                             Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
+                            //NOTE: Must be drawn at Depth - 0.1f because of alpha issues with thumbs.
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,

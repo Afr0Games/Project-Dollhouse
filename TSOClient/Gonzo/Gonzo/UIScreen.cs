@@ -161,7 +161,7 @@ namespace Gonzo
             {
                 try
                 {
-                    if (KVP.Value is UIDialog || KVP.Value is WillWrightDiag)
+                    if (KVP.Value is UIDialog || KVP.Value is WillWrightDiag || KVP.Value is ExitDialog)
                         KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.DialogLayer));
                     else if (KVP.Value is UIButton)
                         KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ButtonLayer));
