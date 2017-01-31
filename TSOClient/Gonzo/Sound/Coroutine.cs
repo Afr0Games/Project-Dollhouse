@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Files.AudioLogic
+namespace Sound
 {
     /// <summary>
     /// C# implementation of a Coroutine, from: http://www.gamedev.net/blog/1612/entry-2259253-coroutines-building-a-framework-in-c/

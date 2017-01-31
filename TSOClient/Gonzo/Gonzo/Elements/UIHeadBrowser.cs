@@ -26,6 +26,7 @@ namespace Gonzo.Elements
         public event UISkinButtonClicked OnButtonClicked;
         private Vector2 HeadTileSize = new Vector2(37, 42);
         private Texture2D m_EditHeadSkinBtnTex;
+        private int m_NumberOfHeads = 0;
 
         public UIHeadBrowser(UIScreen Screen, UIControl Ctrl, int SkinType, AvatarSex Sex) :
             base(Screen, Ctrl, SkinType, Sex)
@@ -58,6 +59,8 @@ namespace Gonzo.Elements
             {
                 foreach (UniqueFileID PO in Col.PurchasableOutfitIDs)
                 {
+                    m_NumberOfHeads++;
+
                     OftContainer = new OutfitContainer(FileManager.GetOutfit(
                         FileManager.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
 
@@ -196,10 +199,10 @@ namespace Gonzo.Elements
             else
                 m_Depth = 0.9f;
 
-            //TODO: Why the fuck is this only drawn when UITextEdit has focus?? o_O
-            int NumHeads = m_LightAppearances.Count + m_MediumAppearances.Count + m_DarkAppearances.Count;
-            SBatch.DrawString(m_Screen.Font9px, "Heads: " + NumHeads, new Vector2(m_Size.X / 2, m_Size.Y - 70),
-                new Color(255, 249, 157));
+            SBatch.DrawString(m_Screen.Font9px, "Heads: " + m_NumberOfHeads, 
+                new Vector2(Position.X + (m_Size.X / 2) - m_Screen.Font9px.MeasureString("Heads: ").X, 
+                Position.Y + (m_Size.Y - 70)), new Color(255, 249, 157), 0.0f, new Vector2(0, 0), 1.0f, 
+                SpriteEffects.None, m_Depth);
 
             switch (m_SelectedSkintype)
             {

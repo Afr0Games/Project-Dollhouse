@@ -156,6 +156,8 @@ namespace Gonzo.Elements
         /// <param name="SkinType">The type of skin initially displayed by this UISkinBrowser. 0 = light, 1 = medium, 2 = dark.</param>
         public UISkinBrowser(UIScreen Screen, UIControl Ctrl, int SkinType, AvatarSex Sex) : base(Ctrl, Screen)
         {
+            m_KeyboardInput = false;
+
             Position = Position + Screen.Position;
 
             m_SelectedSkintype = (Elements.SkinType)SkinType;

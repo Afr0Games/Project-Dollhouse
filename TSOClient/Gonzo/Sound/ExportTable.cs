@@ -14,8 +14,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using Files;
 
-namespace Files.AudioLogic
+namespace Sound
 {
     /// <summary>
     /// The export table was introduced into the HIT format in TSO. The HIT export table exports subroutines to handle the 

@@ -12,8 +12,9 @@ Contributor(s):
 
 using System;
 using System.IO;
+using Files.AudioLogic;
 
-namespace Files.AudioLogic
+namespace Sound
 {
     /// <summary>
     /// Groups together related HIT resources.

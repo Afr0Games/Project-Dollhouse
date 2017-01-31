@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Gonzo;
 using Files.Manager;
-using Files.AudioLogic;
+using Sound;
 
 namespace GonzoTest
 {

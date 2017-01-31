@@ -12,12 +12,12 @@ Contributor(s):
 
 using Microsoft.Xna.Framework.Audio;
 
-namespace Files.AudioLogic
+namespace Sound
 {
     /// <summary>
     /// Called upon by HIT subroutines to play sounds.
     /// </summary>
-    public class SoundPlayer //TODO: Move this class into different library...
+    public class SoundPlayer
     {
         /// <summary>
         /// Starts playing a sound.

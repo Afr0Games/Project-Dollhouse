@@ -11,7 +11,6 @@ Contributor(s):
 */
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Globalization;
@@ -55,7 +54,7 @@ namespace Files.AudioLogic
             string MagicNumber = Enc.GetString(m_Reader.ReadBytes(4));
 
             if (!MagicNumber.Equals("2DKT", StringComparison.InvariantCultureIgnoreCase) && !MagicNumber.Equals("TKDT", StringComparison.InvariantCultureIgnoreCase))
-                throw new HitException("Invalid TrackData header - TRK.cs");
+                throw new TRKException("Invalid TrackData header - TRK.cs");
 
             if (MagicNumber.Equals("2DKT", StringComparison.InvariantCultureIgnoreCase))
             {

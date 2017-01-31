@@ -13,8 +13,10 @@ Contributor(s):
 using System;
 using System.Text;
 using System.IO;
+using Files;
+using Files.AudioLogic;
 
-namespace Files.AudioLogic
+namespace Sound
 {
     public class Hit : IDisposable
     {

@@ -10,7 +10,7 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-namespace Files.AudioLogic
+namespace Sound
 {
     /// <summary>
     /// Represents an event registered by the VM.

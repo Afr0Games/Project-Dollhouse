@@ -13,10 +13,11 @@ Contributor(s):
 using System;
 using System.Collections.Generic;
 using Files.AudioFiles;
+using Files.AudioLogic;
 using Files.Manager;
 using System.Diagnostics;
 
-namespace Files.AudioLogic
+namespace Sound
 {
     public class HITNoteEntry
     {

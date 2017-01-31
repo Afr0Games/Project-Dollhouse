@@ -59,20 +59,11 @@
     <Compile Include="Audiofiles\ISoundCodec.cs" />
     <Compile Include="Audiofiles\UTKFile2.cs" />
     <Compile Include="Audiofiles\XAFile.cs" />
-    <Compile Include="AudioLogic\Coroutine.cs" />
     <Compile Include="AudioLogic\EVT.cs" />
-    <Compile Include="AudioLogic\Hit.cs" />
-    <Compile Include="AudioLogic\HitResourcegroup.cs" />
-    <Compile Include="AudioLogic\HitVM.cs" />
-    <Compile Include="AudioLogic\HitException.cs" />
     <Compile Include="AudioLogic\HLS.cs" />
-    <Compile Include="AudioLogic\HLSException.cs" />
     <Compile Include="AudioLogic\HSM.cs" />
-    <Compile Include="AudioLogic\RegisteredEvent.cs" />
-    <Compile Include="AudioLogic\SoundPlayer.cs" />
-    <Compile Include="AudioLogic\SubRoutine.cs" />
-    <Compile Include="AudioLogic\ExportTable.cs" />
     <Compile Include="AudioLogic\TRK.cs" />
+    <Compile Include="AudioLogic\TRKException.cs" />
     <Compile Include="DBPF\DBPFArchive.cs" />
     <Compile Include="DBPF\DBPFEntry.cs" />
     <Compile Include="DBPF\DBPFException.cs" />
@@ -155,6 +146,7 @@
       <Name>TargaImage</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

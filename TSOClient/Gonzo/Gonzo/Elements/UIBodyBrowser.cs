@@ -23,10 +23,10 @@ namespace Gonzo.Elements
     /// </summary>
     public class UIBodyBrowser : UISkinBrowser
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event UISkinButtonClicked OnButtonClicked;
         private Vector2 BodyTileSize = new Vector2(37, 76);
         private Texture2D m_EditBodySkinBtnTex;
+        private int m_NumberOfBodies = 0;
 
         public UIBodyBrowser(UIScreen Screen, UIControl Ctrl, int SkinType, AvatarSex Sex) : 
             base(Screen, Ctrl, SkinType, Sex)
@@ -65,6 +65,8 @@ namespace Gonzo.Elements
             {
                 foreach (UniqueFileID PO in Col.PurchasableOutfitIDs)
                 {
+                    m_NumberOfBodies++;
+
                     OftContainer = new OutfitContainer(FileManager.GetOutfit(
                         FileManager.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
 
@@ -205,6 +207,11 @@ namespace Gonzo.Elements
                 m_Depth = (float)LayerDepth;
             else
                 m_Depth = 0.9f;
+
+            SBatch.DrawString(m_Screen.Font9px, "Bodies: " + m_NumberOfBodies, 
+                new Vector2(Position.X + (m_Size.X / 2) - m_Screen.Font9px.MeasureString("Bodies: ").X,
+                Position.Y + (m_Size.Y - 70)), new Color(255, 249, 157), 0.0f, new Vector2(0, 0), 1.0f,
+                SpriteEffects.None, m_Depth);
 
             switch (m_SelectedSkintype)
             {

@@ -13,8 +13,9 @@ Contributor(s):
 using System;
 using System.Collections.Generic;
 using Files.Manager;
+using Files.AudioLogic;
 
-namespace Files.AudioLogic
+namespace Sound
 {
     public class HitVM
     {

@@ -12,7 +12,7 @@ Contributor(s):
 
 using System;
 
-namespace Files.AudioLogic
+namespace Sound
 {
     [Serializable]
     public class HitException : Exception
