@@ -123,6 +123,10 @@
       <Project>{e838507c-3cac-494e-9c23-d3a1c2bdf6a9}</Project>
       <Name>Shared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Sound\Sound.csproj">
+      <Project>{b3a3bee4-ec13-48e0-b1d8-e5eebd27a2c9}</Project>
+      <Name>Sound</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Vitaboy\Vitaboy\Vitaboy.csproj">
       <Project>{21af42a0-012a-4265-b7df-1cf7588437f3}</Project>
       <Name>Vitaboy</Name>
@@ -130,10 +134,6 @@
     <ProjectReference Include="..\Gonzo\Gonzo.csproj">
       <Project>{0db1f9a2-7c59-443f-ac56-4d395bd9d0f1}</Project>
       <Name>Gonzo</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sound\Sound.csproj">
-      <Project>{b3a3bee4-ec13-48e0-b1d8-e5eebd27a2c9}</Project>
-      <Name>Sound</Name>
     </ProjectReference>
   </ItemGroup>
   <!-- Specify the search path explicitly so the ResolveAssemblyReferences task picks the right ones -->
