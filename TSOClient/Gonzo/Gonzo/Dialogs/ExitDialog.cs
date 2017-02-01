@@ -31,34 +31,22 @@ namespace Gonzo.Dialogs
             Walker.Initialize(ScriptPath, ref Result);
 
             m_ReloginButton = (UIButton)Result.Elements["\"ReLoginButton\""];
-            if (Resolution.getVirtualAspectRatio() > 1.3) //Only adjust if we're above 800x600
-            {
-                m_ReloginButton.Position = Position;
-                m_ReloginButton.Position += new Vector2(30, 120);
-            }
+            m_ReloginButton.Position = Position;
+            m_ReloginButton.Position += new Vector2(30, 120);
+
             m_ExitButton = (UIButton)Result.Elements["\"ExitButton\""];
-            if (Resolution.getVirtualAspectRatio() > 1.3)
-            {
-                m_ExitButton.Position = Position;
-                m_ExitButton.Position += new Vector2(160, 120);
-            }
+            m_ExitButton.Position = Position;
+            m_ExitButton.Position += new Vector2(160, 120);
+
             m_CancelButton = (UIButton)Result.Elements["\"CancelButton\""];
-            if (Resolution.getVirtualAspectRatio() > 1.3)
-            {
-                m_CancelButton.Position = Position;
-                m_CancelButton.Position += new Vector2(350, 120);
-            }
+            m_CancelButton.Position = Position;
+            m_CancelButton.Position += new Vector2(350, 120);
 
             m_TitleText = (UILabel)Result.Elements["\"TitleText\""];
-            if (Resolution.getVirtualAspectRatio() > 1.3)
-            {
-                m_TitleText.Position += Position;
-            }
+            m_TitleText.Position += Position;
+
             m_MessageText = (UILabel)Result.Elements["\"MessageText\""];
-            if (Resolution.getVirtualAspectRatio() > 1.3)
-            {
-                m_MessageText.Position += Position;
-            }
+            m_MessageText.Position += Position;
 
             UIControl DialogSize = Result.Controls["\"DialogSize\""];
 

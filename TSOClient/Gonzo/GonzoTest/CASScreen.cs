@@ -69,7 +69,10 @@ namespace GonzoTest
             Avatar.ShouldRotate = true;
 
             m_Avatar = new Sim(Manager.Device, Avatar);
-            m_Avatar.Camera.Origin = new Vector2(175, 100);
+            if (Resolution.getVirtualAspectRatio() > 1.33333337f)
+                m_Avatar.Camera.Origin = new Vector2(175, 100);
+            else
+                m_Avatar.Camera.Origin = new Vector2(145, 80); //800x600 resolution
             m_Avatar.Camera.Zoom = 0.7f;
 
             m_VitaboyScreen = new VitaboyScreen(Manager, new Vector2(0, 0), 
