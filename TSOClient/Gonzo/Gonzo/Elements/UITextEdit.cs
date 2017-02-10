@@ -66,7 +66,7 @@ namespace Gonzo.Elements
     public class UITextEdit : UIElement, IDisposable
     {
         public bool Transparent = false;
-        private int m_NumLines = 0;
+        private int m_NumLines = 0; //Maximum number of lines that this control can hold.
         private int m_MaxChars = 0;
         private TextEditAlignment m_Alignment = 0;
         private bool m_FlashOnEmpty = false;
@@ -103,6 +103,37 @@ namespace Gonzo.Elements
         private int m_ScrollFactor = 3;
 
         private List<RenderableText> m_Lines = new List<RenderableText>();
+
+        /// <summary>
+        /// Gets or sets the font used by this UITextEdit.
+        /// </summary>
+        public SpriteFont Font
+        {
+            get { return m_Font; }
+            set { m_Font = value; }
+        }
+
+        /// <summary>
+        /// Current height of a line in this UITextEdit.
+        /// </summary>
+        public float Lineheight
+        {
+            get { return m_Font.MeasureString("a").Y; }
+        }
+
+        /// <summary>
+        /// Current number of lines for this control.
+        /// </summary>
+        public int CurrentNumberOfLines
+        {
+            get
+            {
+                if (m_NumLines > 1)
+                    return m_Lines.Count;
+                else
+                    return 1;
+            }
+        }
 
         public UITextEdit(AddTextEditNode Node, ParserState State, UIScreen Screen) : 
             base(Screen)
@@ -253,6 +284,76 @@ namespace Gonzo.Elements
             m_CursorVisibilityTimer.Start();
 
             m_Screen.Manager.OnTextInput += Manager_OnTextInput;
+        }
+
+        /// <summary>
+        /// Can the text be scrolled up any further?
+        /// </summary>
+        bool MaxScrollup = false;
+
+        /// <summary>
+        /// Can the text be scrolled down any further?
+        /// </summary>
+        bool MaxScrolldown = false;
+
+        /// <summary>
+        /// Scrolls the text in the textbox upwards.
+        /// Called when clicking a scrollup button for this textbox.
+        /// </summary>
+        /// <returns>True if the text can still be scrolled up, false otherwise.</returns>
+        public bool ScrollUp()
+        {
+            foreach (RenderableText Txt in m_Lines)
+            {
+                if (!MaxScrollup)
+                    Txt.Position.Y += m_Font.LineSpacing;
+
+                if (MaxScrolldown == true)
+                    MaxScrolldown = false;
+
+                if (Txt.Position.Y >= (Position.Y + Size.Y) - m_Font.LineSpacing)
+                    MaxScrollup = true;
+            }
+
+            m_Lines[m_VisibilityIndex].Visible = true;
+
+            if (m_VisibilityIndex > 0)
+                m_VisibilityIndex--;
+
+            if (MaxScrollup)
+                return false;
+            else
+                return true;
+        }
+
+        /// <summary>
+        /// Scrolls the text in the textbox downwards.
+        /// Called when clicking a scrolldown button for this textbox.
+        /// </summary>
+        /// <returns>True if the text can still be scrolled down, false otherwise.</returns>
+        public bool ScrollDown()
+        {
+            foreach (RenderableText Txt in m_Lines)
+            {
+                if (!MaxScrolldown)
+                    Txt.Position.Y -= m_Font.LineSpacing;
+
+                if (MaxScrollup == true)
+                    MaxScrollup = false;
+
+                if (Txt.Position.Y <= ((Position.Y - Size.Y) + m_Font.LineSpacing))
+                    MaxScrolldown = true;
+            }
+
+            m_Lines[m_VisibilityIndex].Visible = true;
+
+            if (m_VisibilityIndex < m_Lines.Count)
+                m_VisibilityIndex++;
+
+            if (MaxScrolldown)
+                return false;
+            else
+                return true;
         }
 
         private void Manager_OnTextInput(object sender, TextInputEventArgs e)

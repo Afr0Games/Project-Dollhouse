@@ -21,6 +21,7 @@ namespace GonzoTest
         private UIHeadBrowser m_HeadSkinBrowser;
         private UIBodyBrowser m_BodySkinBrowser;
         private ExitDialog m_ExitDialog;
+        private UITextEdit m_DescriptionTextEdit;
 
         private Sim m_Avatar;
         VitaboyScreen m_VitaboyScreen;
@@ -37,8 +38,13 @@ namespace GonzoTest
 
             m_CancelBtn = (UIButton)m_PResult.Elements["\"CancelButton\""];
             m_AcceptBtn = (UIButton)m_PResult.Elements["\"AcceptButton\""];
+
             m_DescriptionScrollUpBtn = (UIButton)m_PResult.Elements["\"DescriptionScrollUpButton\""];
+            m_DescriptionScrollUpBtn.OnButtonClicked += M_DescriptionScrollUpBtn_OnButtonClicked;
+            m_DescriptionScrollUpBtn.Enabled = false;
             m_DescriptionScrollDownBtn = (UIButton)m_PResult.Elements["\"DescriptionScrollDownButton\""];
+            m_DescriptionScrollDownBtn.OnButtonClicked += M_DescriptionScrollDownBtn_OnButtonClicked;
+            m_DescriptionScrollDownBtn.Enabled = false;
 
             m_ExitBtn = (UIButton)m_PResult.Elements["\"ExitButton\""];
             m_ExitBtn.OnButtonClicked += M_ExitBtn_OnButtonClicked;
@@ -83,16 +89,43 @@ namespace GonzoTest
                 GlobalSettings.Default.StartupPath + "gamedata\\uiscripts\\exitdialog.uis");
             m_ExitDialog.Visible = false;
 
+            m_DescriptionTextEdit = (UITextEdit)m_PResult.Elements["\"DescriptionTextEdit\""];
+
             Manager.AddScreen(m_VitaboyScreen);
         }
 
         #region EventHandlers
 
+        /// <summary>
+        /// User tried to scroll the text in the description textbox down.
+        /// </summary>
+        /// <param name="Sender"></param>
+        private void M_DescriptionScrollDownBtn_OnButtonClicked(object Sender)
+        {
+            if (!m_DescriptionTextEdit.ScrollDown())
+                m_DescriptionScrollDownBtn.Enabled = false;
+        }
+
+        /// <summary>
+        /// User tried to scroll the text in the description textbox up.
+        /// </summary>
+        private void M_DescriptionScrollUpBtn_OnButtonClicked(object Sender)
+        {
+            if (!m_DescriptionTextEdit.ScrollUp())
+                m_DescriptionScrollUpBtn.Enabled = false;
+        }
+
+        /// <summary>
+        /// User wanted to exit the application.
+        /// </summary>
         private void M_ExitBtn_OnButtonClicked(object Sender)
         {
             m_ExitDialog.Visible = true;
         }
 
+        /// <summary>
+        /// User wanted to change the sex of the avatar to male.
+        /// </summary>
         private void M_MaleBtn_OnButtonClicked(object Sender)
         {
             m_HeadSkinBrowser.Sex = AvatarSex.Male;
@@ -102,6 +135,9 @@ namespace GonzoTest
             m_Avatar.Head(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mah003_antony), (Vitaboy.SkinType)m_CurrentSkinType);
         }
 
+        /// <summary>
+        /// User wanted to change the sex of the avatar to female.
+        /// </summary>
         private void M_FemaleBtn_OnButtonClicked(object Sender)
         {
             m_HeadSkinBrowser.Sex = AvatarSex.Female;
@@ -162,6 +198,11 @@ namespace GonzoTest
             m_BodySkinBrowser.Update(Input, GTime);
 
             m_ExitDialog.Update(Input, GTime);
+
+            if (m_DescriptionTextEdit.CurrentNumberOfLines > 10)
+                m_DescriptionScrollUpBtn.Enabled = true;
+            else
+                m_DescriptionScrollUpBtn.Enabled = false;
 
             base.Update(Input, GTime);
         }
