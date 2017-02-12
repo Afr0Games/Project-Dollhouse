@@ -303,15 +303,23 @@ namespace Gonzo.Elements
         /// <returns>True if the text can still be scrolled up, false otherwise.</returns>
         public bool ScrollUp()
         {
-            foreach (RenderableText Txt in m_Lines)
+            for(int i = 0; i < m_Lines.Count; i++)
             {
                 if (!MaxScrollup)
-                    Txt.Position.Y += m_Font.LineSpacing;
+                {
+                    m_Lines[i].Position.Y += m_Font.LineSpacing;
+
+                    if (m_Lines[i].Position.Y <= Position.Y && m_Lines[i].Visible)
+                    {
+                        for(int j = 0; j < m_Lines.Count; j++)
+                            m_Lines[j].Position.Y -= m_Font.LineSpacing;
+                    }
+                }
 
                 if (MaxScrolldown == true)
                     MaxScrolldown = false;
 
-                if (Txt.Position.Y >= (Position.Y + Size.Y) - m_Font.LineSpacing)
+                if (m_Lines[i].Position.Y >= (Position.Y + Size.Y) - m_Font.LineSpacing)
                     MaxScrollup = true;
             }
 
@@ -374,6 +382,7 @@ namespace Gonzo.Elements
                                 m_Lines.Add(new RenderableText() { SBuilder = new StringBuilder(), Position = m_TextPosition });
 
                                 m_Cursor.Position.Y += m_Font.LineSpacing;
+
                                 m_Cursor.LineIndex++;
                                 m_Cursor.CharacterIndex = 0;
                             }
@@ -865,10 +874,13 @@ namespace Gonzo.Elements
                                     {
                                         if (m_NumLines > 1)
                                         {
-                                            m_TextPosition.Y -= m_Font.LineSpacing;
+                                            if (m_TextPosition.Y > Position.Y)
+                                            {
+                                                m_TextPosition.Y -= m_Font.LineSpacing;
 
-                                            m_Cursor.Position.X = Position.X + m_Size.X;
-                                            m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                                m_Cursor.Position.X = Position.X + m_Size.X;
+                                                m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                            }
 
                                             if (m_Cursor.LineIndex > 0)
                                             {
@@ -902,10 +914,13 @@ namespace Gonzo.Elements
                                     //Cursor moved to the beginning of a line.
                                     if (m_Cursor.Position.X <= Position.X)
                                     {
-                                        m_TextPosition.Y -= m_Font.LineSpacing;
+                                        if (m_TextPosition.Y > Position.Y)
+                                        {
+                                            m_TextPosition.Y -= m_Font.LineSpacing;
 
-                                        m_Cursor.Position.X = Position.X + m_Size.X;
-                                        m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                            m_Cursor.Position.X = Position.X + m_Size.X;
+                                            m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                        }
 
                                         if (m_Cursor.LineIndex > 0)
                                         {
