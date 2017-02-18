@@ -200,7 +200,10 @@ namespace GonzoTest
             m_ExitDialog.Update(Input, GTime);
 
             if (m_DescriptionTextEdit.CurrentNumberOfLines > 10)
+            {
                 m_DescriptionScrollUpBtn.Enabled = true;
+                m_DescriptionScrollDownBtn.Enabled = true;
+            }
             else
                 m_DescriptionScrollUpBtn.Enabled = false;
 

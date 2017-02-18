@@ -303,35 +303,39 @@ namespace Gonzo.Elements
         /// <returns>True if the text can still be scrolled up, false otherwise.</returns>
         public bool ScrollUp()
         {
-            for(int i = 0; i < m_Lines.Count; i++)
+            ScrollTextUp();
+
+            if (!MaxScrollup)
             {
+                m_Lines[m_VisibilityIndex].Visible = true;
+
+                if (m_VisibilityIndex > 0)
+                    m_VisibilityIndex--;
+
+                return true;
+            }
+            else
+                return false;
+        }
+
+        private void ScrollTextUp()
+        {
+            for (int i = 0; i < m_Lines.Count; i++)
+            {
+                if (m_Lines[0].Visible == true)
+                    MaxScrollup = true;
+
                 if (!MaxScrollup)
                 {
                     m_Lines[i].Position.Y += m_Font.LineSpacing;
 
-                    if (m_Lines[i].Position.Y <= Position.Y && m_Lines[i].Visible)
-                    {
-                        for(int j = 0; j < m_Lines.Count; j++)
-                            m_Lines[j].Position.Y -= m_Font.LineSpacing;
-                    }
+                    if (m_Lines[i].Position.Y >= ((Position.Y + Size.Y) - m_Font.LineSpacing) && m_Lines[i].Visible)
+                        m_Lines[i].Visible = false;
+
+                    if (MaxScrolldown == true)
+                        MaxScrolldown = false;
                 }
-
-                if (MaxScrolldown == true)
-                    MaxScrolldown = false;
-
-                if (m_Lines[i].Position.Y >= (Position.Y + Size.Y) - m_Font.LineSpacing)
-                    MaxScrollup = true;
             }
-
-            m_Lines[m_VisibilityIndex].Visible = true;
-
-            if (m_VisibilityIndex > 0)
-                m_VisibilityIndex--;
-
-            if (MaxScrollup)
-                return false;
-            else
-                return true;
         }
 
         /// <summary>
@@ -341,27 +345,36 @@ namespace Gonzo.Elements
         /// <returns>True if the text can still be scrolled down, false otherwise.</returns>
         public bool ScrollDown()
         {
-            foreach (RenderableText Txt in m_Lines)
+            ScrollTextDown();
+
+            if (!MaxScrolldown)
             {
-                if (!MaxScrolldown)
-                    Txt.Position.Y -= m_Font.LineSpacing;
+                m_Lines[m_VisibilityIndex].Visible = true;
 
-                if (MaxScrollup == true)
-                    MaxScrollup = false;
+                if (m_VisibilityIndex < m_Lines.Count)
+                    m_VisibilityIndex++;
 
-                if (Txt.Position.Y <= ((Position.Y - Size.Y) + m_Font.LineSpacing))
-                    MaxScrolldown = true;
-            }
-
-            m_Lines[m_VisibilityIndex].Visible = true;
-
-            if (m_VisibilityIndex < m_Lines.Count)
-                m_VisibilityIndex++;
-
-            if (MaxScrolldown)
-                return false;
-            else
                 return true;
+            }
+            else
+                return false;
+        }
+
+        private void ScrollTextDown()
+        {
+            for (int i = 0; i < m_Lines.Count; i++)
+            {
+                if (m_Lines[m_Lines.Count - 1].Visible == true)
+                    MaxScrolldown = true;
+
+                if (!MaxScrolldown)
+                {
+                    m_Lines[i].Position.Y -= m_Font.LineSpacing;
+
+                    if (MaxScrollup == true)
+                        MaxScrollup = false;
+                }
+            }
         }
 
         private void Manager_OnTextInput(object sender, TextInputEventArgs e)
