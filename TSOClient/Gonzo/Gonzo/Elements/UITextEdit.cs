@@ -318,6 +318,9 @@ namespace Gonzo.Elements
                 return false;
         }
 
+        /// <summary>
+        /// Does the grunt work of scrolling the text up.
+        /// </summary>
         private void ScrollTextUp()
         {
             for (int i = 0; i < m_Lines.Count; i++)
@@ -351,7 +354,7 @@ namespace Gonzo.Elements
             {
                 m_Lines[m_VisibilityIndex].Visible = true;
 
-                if (m_VisibilityIndex < m_Lines.Count)
+                if (m_VisibilityIndex < (m_Lines.Count - 1))
                     m_VisibilityIndex++;
 
                 return true;
@@ -360,6 +363,9 @@ namespace Gonzo.Elements
                 return false;
         }
 
+        /// <summary>
+        /// Does the grunt work of scrolling the text down.
+        /// </summary>
         private void ScrollTextDown()
         {
             for (int i = 0; i < m_Lines.Count; i++)
@@ -370,6 +376,9 @@ namespace Gonzo.Elements
                 if (!MaxScrolldown)
                 {
                     m_Lines[i].Position.Y -= m_Font.LineSpacing;
+
+                    if (m_Lines[i].Position.Y <= Position.Y && m_Lines[i].Visible)
+                        m_Lines[i].Visible = false;
 
                     if (MaxScrollup == true)
                         MaxScrollup = false;
