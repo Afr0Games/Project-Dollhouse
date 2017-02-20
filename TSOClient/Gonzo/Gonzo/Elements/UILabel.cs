@@ -100,6 +100,53 @@ namespace Gonzo.Elements
             AlignText();
         }
 
+        public UILabel(string StrCaption, int ID, Vector2 TextPosition, Vector2 Size, Color Clr, int Font,
+            UIScreen Screen, TextAlignment Alignment = TextAlignment.Center_Center) : base(Screen)
+        {
+            Name = "Lbl" + Caption;
+            m_ID = ID;
+            Position = new Vector2(TextPosition.X, TextPosition.Y) + Screen.Position;
+
+            m_Size = new Vector2(Size.X, Size.Y);
+
+            m_TextColor = new Color();
+            m_TextColor.A = 255; //Ignore opacity, The Sims Online doesn't support transparent text.
+            m_TextColor.R = (byte)Clr.R;
+            m_TextColor.G = (byte)Clr.G;
+            m_TextColor.B = (byte)Clr.B;
+
+            m_Alignment = Alignment;
+
+            switch (Font)
+            {
+                case 7:
+                    m_Font = Screen.Font9px; //TODO: Fixme.
+                    break;
+                case 9:
+                    m_Font = Screen.Font9px;
+                    break;
+                case 10:
+                    m_Font = Screen.Font10px;
+                    break;
+                case 11:
+                    m_Font = Screen.Font11px;
+                    break;
+                case 12:
+                    m_Font = Screen.Font12px;
+                    break;
+                case 14:
+                    m_Font = Screen.Font14px;
+                    break;
+                case 16:
+                    m_Font = Screen.Font16px;
+                    break;
+            }
+
+            Caption = StrCaption;
+
+            AlignText();
+        }
+
         private void AlignText()
         {
             Vector2 Measurement = m_Font.MeasureString(Caption);

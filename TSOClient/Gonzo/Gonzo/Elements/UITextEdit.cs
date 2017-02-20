@@ -319,7 +319,7 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
-        /// Does the grunt work of scrolling the text up.
+        /// Performs the memory movement of scrolling text up.
         /// </summary>
         private void ScrollTextUp()
         {
@@ -364,7 +364,7 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
-        /// Does the grunt work of scrolling the text down.
+        /// Performs the memory movement of scrolling text down.
         /// </summary>
         private void ScrollTextDown()
         {

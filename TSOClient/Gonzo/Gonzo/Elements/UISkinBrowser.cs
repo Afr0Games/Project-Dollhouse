@@ -160,7 +160,7 @@ namespace Gonzo.Elements
 
             Position = Position + Screen.Position;
 
-            m_SelectedSkintype = (Elements.SkinType)SkinType;
+            m_SelectedSkintype = (SkinType)SkinType;
             m_Sex = Sex;
 
             m_SkinBrowserArrowLeft = new UIButton("SkinBrowserArrowLeft",

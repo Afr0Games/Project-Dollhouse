@@ -38,7 +38,6 @@ namespace Gonzo.Dialogs
             m_IsDraggable = IsDraggable;
             m_HasExitBtn = HasExitButton;
 
-            //TODO: Find a way to NOT hardcode these references.
             Texture2D Tex = (IsTall != false) ? 
                 FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplatetall, true) : 
                 FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplate, true);
