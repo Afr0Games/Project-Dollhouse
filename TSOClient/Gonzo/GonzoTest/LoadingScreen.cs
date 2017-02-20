@@ -27,6 +27,51 @@ namespace GonzoTest
             m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
             m_Txt = StringManager.StrTable(155);
 
+            m_LblExtrudingTerrainWeb = new UILabel(m_Txt[4], 1, new Vector2(0,
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12),
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblExtrudingTerrainWeb.Visible = true;
+
+            m_LblCalculatingDomesticCoefficients = new UILabel(m_Txt[5], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblCalculatingDomesticCoefficients.Visible = false;
+
+            m_LblReadjustingCareerLadder = new UILabel(m_Txt[6], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblReadjustingCareerLadder.Visible = false;
+
+            m_LblAccessingMoneySupply = new UILabel(m_Txt[7], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblAccessingMoneySupply.Visible = false;
+
+            m_LblHackingTheSocialNetwork = new UILabel(m_Txt[8], 1, new Vector2(0,
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12),
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblHackingTheSocialNetwork.Visible = false;
+
+            m_LblDownloadingReticulatedSplines = new UILabel(m_Txt[9], 1, new Vector2(0,
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12),
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblDownloadingReticulatedSplines.Visible = false;
+
+            m_LblAdjustingEmotionalWeights = new UILabel(m_Txt[10], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblAdjustingEmotionalWeights.Visible = false;
+
+            m_LblCalibratingPersonalityMatrix = new UILabel(m_Txt[11], 1, new Vector2(0,
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12),
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblCalibratingPersonalityMatrix.Visible = false;
+
+            m_LblSettingUpPersonfinder = new UILabel(m_Txt[12], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+                Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
+            m_LblSettingUpPersonfinder.Visible = false;
+
             Task LoadTask = new Task(new Action(CacheResources));
             LoadTask.Start();
         }
@@ -174,47 +219,55 @@ namespace GonzoTest
 
         private void OnFinishedExtrudingTerrainWeb()
         {
-
+            m_LblExtrudingTerrainWeb.Visible = false;
+            m_LblCalculatingDomesticCoefficients.Visible = true;
         }
 
         private void OnFinishedCalculatingDomesticCoefficients()
         {
-
+            m_LblCalculatingDomesticCoefficients.Visible = false;
+            m_LblReadjustingCareerLadder.Visible = true;
         }
 
         public void OnFinishedReadjusticCareerLadder()
         {
-
+            m_LblReadjustingCareerLadder.Visible = false;
+            m_LblAccessingMoneySupply.Visible = true;
         }
 
         public void OnFinishedAccessingMoneySupply()
         {
-
+            m_LblAccessingMoneySupply.Visible = false;
+            m_LblHackingTheSocialNetwork.Visible = true;
         }
 
         public void OnFinishedHackingTheSocialNetwork()
         {
-
+            m_LblHackingTheSocialNetwork.Visible = false;
+            m_LblDownloadingReticulatedSplines.Visible = true;
         }
 
         private void OnFinishedDownloadingReticulatedSplines()
         {
-
+            m_LblDownloadingReticulatedSplines.Visible = false;
+            m_LblAdjustingEmotionalWeights.Visible = true;
         }
 
         private void OnFinishedAdjustingEmotionalWeights()
         {
-
+            m_LblAdjustingEmotionalWeights.Visible = false;
+            m_LblCalibratingPersonalityMatrix.Visible = true;
         }
 
         private void OnFinishedCalibratingPersonalityMatrix()
         {
-
+            m_LblCalibratingPersonalityMatrix.Visible = false;
+            m_LblSettingUpPersonfinder.Visible = true;
         }
 
         private void OnFinishedSettingUpPersonFinder()
         {
-
+            m_LblSettingUpPersonfinder.Visible = false;
         }
 
         public override void Draw()
