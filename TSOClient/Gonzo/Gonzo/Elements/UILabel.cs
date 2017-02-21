@@ -147,6 +147,15 @@ namespace Gonzo.Elements
             AlignText();
         }
 
+        /// <summary>
+        /// The position of this UILabel on the X coordinate scale. Used for tweening.
+        /// </summary>
+        public float XPosition
+        {
+            get { return Position.X; }
+            set { Position = new Vector2(value, Position.Y); }
+        }
+
         private void AlignText()
         {
             Vector2 Measurement = m_Font.MeasureString(Caption);

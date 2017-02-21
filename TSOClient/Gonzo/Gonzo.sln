@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gonzo", "Gonzo\Gonzo.csproj", "{0DB1F9A2-7C59-443F-AC56-4D395BD9D0F1}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TargaImage", "..\..\Other\libs\TargaImage\TargaImage.csproj", "{56F4BD87-2404-4263-80D5-6FA2161EB0A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sound", "..\Sound\Sound.csproj", "{B3A3BEE4-EC13-48E0-B1D8-E5EEBD27A2C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glide", "..\..\Other\libs\Glide\Glide.csproj", "{891F06E8-3851-469C-B1E2-7D1C70C43359}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +91,14 @@ Global
 		{B3A3BEE4-EC13-48E0-B1D8-E5EEBD27A2C9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B3A3BEE4-EC13-48E0-B1D8-E5EEBD27A2C9}.Release|x86.ActiveCfg = Release|Any CPU
 		{B3A3BEE4-EC13-48E0-B1D8-E5EEBD27A2C9}.Release|x86.Build.0 = Release|Any CPU
+		{891F06E8-3851-469C-B1E2-7D1C70C43359}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{891F06E8-3851-469C-B1E2-7D1C70C43359}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{891F06E8-3851-469C-B1E2-7D1C70C43359}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{891F06E8-3851-469C-B1E2-7D1C70C43359}.Debug|x86.Build.0 = Debug|Any CPU
+		{891F06E8-3851-469C-B1E2-7D1C70C43359}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{891F06E8-3851-469C-B1E2-7D1C70C43359}.Release|Any CPU.Build.0 = Release|Any CPU
+		{891F06E8-3851-469C-B1E2-7D1C70C43359}.Release|x86.ActiveCfg = Release|Any CPU
+		{891F06E8-3851-469C-B1E2-7D1C70C43359}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -112,6 +112,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Other\libs\Glide\Glide.csproj">
+      <Project>{891f06e8-3851-469c-b1e2-7d1c70c43359}</Project>
+      <Name>Glide</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Other\libs\UIParser\UIParser\UIParser.csproj">
       <Project>{c58d344e-cb5c-4a61-851b-3cdc9e3f6913}</Project>
       <Name>UIParser</Name>

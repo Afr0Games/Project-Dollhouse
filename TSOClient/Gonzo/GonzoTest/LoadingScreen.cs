@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Files;
 using Files.Vitaboy;
 using Files.Manager;
@@ -8,12 +9,15 @@ using Gonzo;
 using Gonzo.Elements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Glide;
 
 namespace GonzoTest
 {
     public class LoadingScreen : UIScreen
     {
         private UIImage m_BackgroundImg;
+        private Tweener m_Tween;
+        private Stopwatch m_Stopwatch;
         private UILabel m_LblExtrudingTerrainWeb, m_LblCalculatingDomesticCoefficients, 
             m_LblReadjustingCareerLadder, m_LblAccessingMoneySupply, m_LblHackingTheSocialNetwork,
             m_LblDownloadingReticulatedSplines, m_LblAdjustingEmotionalWeights, 
@@ -27,53 +31,59 @@ namespace GonzoTest
             m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
             m_Txt = StringManager.StrTable(155);
 
-            m_LblExtrudingTerrainWeb = new UILabel(m_Txt[4], 1, new Vector2(0,
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12),
+            m_LblExtrudingTerrainWeb = new UILabel(m_Txt[5], 1, new Vector2(0,
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12),
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
-            m_LblExtrudingTerrainWeb.Visible = true;
+            m_LblExtrudingTerrainWeb.Visible = false;
 
-            m_LblCalculatingDomesticCoefficients = new UILabel(m_Txt[5], 1, new Vector2(0, 
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+            m_LblCalculatingDomesticCoefficients = new UILabel(m_Txt[6], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblCalculatingDomesticCoefficients.Visible = false;
 
-            m_LblReadjustingCareerLadder = new UILabel(m_Txt[6], 1, new Vector2(0, 
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+            m_LblReadjustingCareerLadder = new UILabel(m_Txt[7], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblReadjustingCareerLadder.Visible = false;
 
-            m_LblAccessingMoneySupply = new UILabel(m_Txt[7], 1, new Vector2(0, 
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+            m_LblAccessingMoneySupply = new UILabel(m_Txt[8], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblAccessingMoneySupply.Visible = false;
 
-            m_LblHackingTheSocialNetwork = new UILabel(m_Txt[8], 1, new Vector2(0,
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12),
+            m_LblHackingTheSocialNetwork = new UILabel(m_Txt[9], 1, new Vector2(0,
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12),
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblHackingTheSocialNetwork.Visible = false;
 
-            m_LblDownloadingReticulatedSplines = new UILabel(m_Txt[9], 1, new Vector2(0,
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12),
+            m_LblDownloadingReticulatedSplines = new UILabel(m_Txt[10], 1, new Vector2(0,
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12),
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblDownloadingReticulatedSplines.Visible = false;
 
-            m_LblAdjustingEmotionalWeights = new UILabel(m_Txt[10], 1, new Vector2(0, 
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+            m_LblAdjustingEmotionalWeights = new UILabel(m_Txt[11], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblAdjustingEmotionalWeights.Visible = false;
 
-            m_LblCalibratingPersonalityMatrix = new UILabel(m_Txt[11], 1, new Vector2(0,
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12),
+            m_LblCalibratingPersonalityMatrix = new UILabel(m_Txt[12], 1, new Vector2(0,
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12),
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblCalibratingPersonalityMatrix.Visible = false;
 
-            m_LblSettingUpPersonfinder = new UILabel(m_Txt[12], 1, new Vector2(0, 
-                GlobalSettings.Default.ScreenHeight - 12), new Vector2(12, 12), 
+            m_LblSettingUpPersonfinder = new UILabel(m_Txt[13], 1, new Vector2(0, 
+                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblSettingUpPersonfinder.Visible = false;
 
             Task LoadTask = new Task(new Action(CacheResources));
             LoadTask.Start();
+
+            m_Stopwatch = new Stopwatch();
+            m_Stopwatch.Start();
+
+            m_Tween = new Tweener();
+            m_Tween.Tween(m_LblExtrudingTerrainWeb, new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
         }
 
         private void CacheResources()
@@ -137,6 +147,7 @@ namespace GonzoTest
 
             OnFinishedReadjusticCareerLadder();
 
+            //TODO: Apply these as backgrounds on the appropriate dates.
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_halloween);
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_paddys_day);
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_thanksgiving);
@@ -185,6 +196,40 @@ namespace GonzoTest
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront);
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground);
 
+            //Cache some meshes.
+
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb001fafat_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb001fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb002fafat_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb002fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003fafat_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003faskn_01_pelvis_body);
+
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb004fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb006fafat_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb007fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008fafat_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008faskn_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009fafat_01_pelvis_body);
+
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009faskn_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb010fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011fafat_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011faskn_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012fafat_01_pelvis_body);
+
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012faskn_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb013fafat_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb013fafit_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb017fafat_01_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb017fafit_retro_pelvis_body);
+            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb021fafit_jennifer_pelvis_body);
+
             OnFinishedAdjustingEmotionalWeights();
 
             //Cache collections.
@@ -219,48 +264,67 @@ namespace GonzoTest
 
         private void OnFinishedExtrudingTerrainWeb()
         {
+            m_Tween.Tween(m_LblCalculatingDomesticCoefficients, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+
             m_LblExtrudingTerrainWeb.Visible = false;
             m_LblCalculatingDomesticCoefficients.Visible = true;
         }
 
         private void OnFinishedCalculatingDomesticCoefficients()
         {
+            m_Tween.Tween(m_LblReadjustingCareerLadder, new { XPosition = GlobalSettings.Default.ScreenWidth }, 5);
+
             m_LblCalculatingDomesticCoefficients.Visible = false;
             m_LblReadjustingCareerLadder.Visible = true;
         }
 
         public void OnFinishedReadjusticCareerLadder()
         {
+            m_Tween.Tween(m_LblAccessingMoneySupply, new { XPosition = GlobalSettings.Default.ScreenWidth }, 5);
+
             m_LblReadjustingCareerLadder.Visible = false;
             m_LblAccessingMoneySupply.Visible = true;
         }
 
         public void OnFinishedAccessingMoneySupply()
         {
+            m_Tween.Tween(m_LblHackingTheSocialNetwork, new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+
             m_LblAccessingMoneySupply.Visible = false;
             m_LblHackingTheSocialNetwork.Visible = true;
         }
 
         public void OnFinishedHackingTheSocialNetwork()
         {
+            m_Tween.Tween(m_LblDownloadingReticulatedSplines, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+
             m_LblHackingTheSocialNetwork.Visible = false;
             m_LblDownloadingReticulatedSplines.Visible = true;
         }
 
         private void OnFinishedDownloadingReticulatedSplines()
         {
+            m_Tween.Tween(m_LblAdjustingEmotionalWeights, new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+
             m_LblDownloadingReticulatedSplines.Visible = false;
             m_LblAdjustingEmotionalWeights.Visible = true;
         }
 
         private void OnFinishedAdjustingEmotionalWeights()
         {
+            m_Tween.Tween(m_LblCalibratingPersonalityMatrix, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+
             m_LblAdjustingEmotionalWeights.Visible = false;
             m_LblCalibratingPersonalityMatrix.Visible = true;
         }
 
         private void OnFinishedCalibratingPersonalityMatrix()
         {
+            m_Tween.Tween(m_LblSettingUpPersonfinder, new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+
             m_LblCalibratingPersonalityMatrix.Visible = false;
             m_LblSettingUpPersonfinder.Visible = true;
         }
@@ -270,11 +334,28 @@ namespace GonzoTest
             m_LblSettingUpPersonfinder.Visible = false;
         }
 
+        public override void Update(InputHelper Input, GameTime GTime)
+        {
+            base.Update(Input, GTime);
+
+            m_Tween.Update(m_Stopwatch.Elapsed.Seconds);
+        }
+
         public override void Draw()
         {
             base.Draw();
 
             m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
+
+            m_LblExtrudingTerrainWeb.Draw(m_SBatch, 0.3f);
+            m_LblCalculatingDomesticCoefficients.Draw(m_SBatch, 0.3f);
+            m_LblReadjustingCareerLadder.Draw(m_SBatch, 0.3f);
+            m_LblAccessingMoneySupply.Draw(m_SBatch, 0.3f);
+            m_LblHackingTheSocialNetwork.Draw(m_SBatch, 0.3f);
+            m_LblDownloadingReticulatedSplines.Draw(m_SBatch, 0.3f);
+            m_LblAdjustingEmotionalWeights.Draw(m_SBatch, 0.3f);
+            m_LblCalibratingPersonalityMatrix.Draw(m_SBatch, 0.3f);
+            m_LblSettingUpPersonfinder.Draw(m_SBatch, 0.3f);
         }
     }
 }
