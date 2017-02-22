@@ -83,7 +83,7 @@ namespace GonzoTest
             m_Stopwatch.Start();
 
             m_Tween = new Tweener();
-            m_Tween.Tween(m_LblExtrudingTerrainWeb, new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblExtrudingTerrainWeb, new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 }, 5);
         }
 
         private void CacheResources()
@@ -264,32 +264,43 @@ namespace GonzoTest
 
         private void OnFinishedExtrudingTerrainWeb()
         {
-            m_Tween.Tween(m_LblCalculatingDomesticCoefficients, 
+            m_Tween.Tween(m_LblExtrudingTerrainWeb, 
                 new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblCalculatingDomesticCoefficients, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                (Font12px.MeasureString(m_LblCalculatingDomesticCoefficients.Caption).X / 2) }, 5);
 
-            m_LblExtrudingTerrainWeb.Visible = false;
             m_LblCalculatingDomesticCoefficients.Visible = true;
         }
 
         private void OnFinishedCalculatingDomesticCoefficients()
         {
-            m_Tween.Tween(m_LblReadjustingCareerLadder, new { XPosition = GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblCalculatingDomesticCoefficients, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblReadjustingCareerLadder, new { XPosition = GlobalSettings.Default.ScreenWidth / 2 -
+                (Font12px.MeasureString(m_LblReadjustingCareerLadder.Caption).X / 2) }, 5);
 
-            m_LblCalculatingDomesticCoefficients.Visible = false;
+            m_LblExtrudingTerrainWeb.Visible = false;
             m_LblReadjustingCareerLadder.Visible = true;
         }
 
         public void OnFinishedReadjusticCareerLadder()
         {
-            m_Tween.Tween(m_LblAccessingMoneySupply, new { XPosition = GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblReadjustingCareerLadder, 
+                new { XPosition = GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblAccessingMoneySupply, new { XPosition = GlobalSettings.Default.ScreenWidth / 2 -
+                (Font12px.MeasureString(m_LblAccessingMoneySupply.Caption).X / 2) }, 5);
 
-            m_LblReadjustingCareerLadder.Visible = false;
+            m_LblCalculatingDomesticCoefficients.Visible = false;
             m_LblAccessingMoneySupply.Visible = true;
         }
 
         public void OnFinishedAccessingMoneySupply()
         {
-            m_Tween.Tween(m_LblHackingTheSocialNetwork, new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblReadjustingCareerLadder, new { XPosition = GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblHackingTheSocialNetwork, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                (Font12px.MeasureString(m_LblHackingTheSocialNetwork.Caption).X / 2) }, 5);
 
             m_LblAccessingMoneySupply.Visible = false;
             m_LblHackingTheSocialNetwork.Visible = true;
@@ -297,41 +308,55 @@ namespace GonzoTest
 
         public void OnFinishedHackingTheSocialNetwork()
         {
-            m_Tween.Tween(m_LblDownloadingReticulatedSplines, 
+            m_Tween.Tween(m_LblHackingTheSocialNetwork, 
                 new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblDownloadingReticulatedSplines, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                (Font12px.MeasureString(m_LblDownloadingReticulatedSplines.Caption).X / 2) }, 5);
 
-            m_LblHackingTheSocialNetwork.Visible = false;
+            m_LblReadjustingCareerLadder.Visible = false;
             m_LblDownloadingReticulatedSplines.Visible = true;
         }
 
         private void OnFinishedDownloadingReticulatedSplines()
         {
-            m_Tween.Tween(m_LblAdjustingEmotionalWeights, new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblDownloadingReticulatedSplines,
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblAdjustingEmotionalWeights, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                (Font12px.MeasureString(m_LblAdjustingEmotionalWeights.Caption).X / 2) }, 5);
 
-            m_LblDownloadingReticulatedSplines.Visible = false;
+            m_LblHackingTheSocialNetwork.Visible = false;
             m_LblAdjustingEmotionalWeights.Visible = true;
         }
 
         private void OnFinishedAdjustingEmotionalWeights()
         {
-            m_Tween.Tween(m_LblCalibratingPersonalityMatrix, 
+            m_Tween.Tween(m_LblAdjustingEmotionalWeights, 
                 new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblCalibratingPersonalityMatrix, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                (Font12px.MeasureString(m_LblCalibratingPersonalityMatrix.Caption).X / 2) }, 5);
 
-            m_LblAdjustingEmotionalWeights.Visible = false;
+            m_LblDownloadingReticulatedSplines.Visible = false;
             m_LblCalibratingPersonalityMatrix.Visible = true;
         }
 
         private void OnFinishedCalibratingPersonalityMatrix()
         {
-            m_Tween.Tween(m_LblSettingUpPersonfinder, new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblCalibratingPersonalityMatrix, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth }, 5);
+            m_Tween.Tween(m_LblSettingUpPersonfinder, 
+                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 - 
+                (Font12px.MeasureString(m_LblSettingUpPersonfinder.Caption).X / 2) }, 5);
 
-            m_LblCalibratingPersonalityMatrix.Visible = false;
+            m_LblAdjustingEmotionalWeights.Visible = false;
             m_LblSettingUpPersonfinder.Visible = true;
         }
 
         private void OnFinishedSettingUpPersonFinder()
         {
-            m_LblSettingUpPersonfinder.Visible = false;
+            m_LblCalibratingPersonalityMatrix.Visible = false;
         }
 
         public override void Update(InputHelper Input, GameTime GTime)
