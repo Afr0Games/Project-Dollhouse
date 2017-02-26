@@ -22,6 +22,7 @@ namespace Sound
         private static List<SubRoutine> m_CurrentlyPlayingTracks = new List<SubRoutine>();
 
         private static Dictionary<int, int> m_GlobalVars = new Dictionary<int, int>();
+        private static Dictionary<EVT, HITTVOn> m_ActiveEvents = new Dictionary<EVT, HITTVOn>();
 
         /// <summary>
         /// Sets a global variable to a value.
@@ -48,11 +49,16 @@ namespace Sound
         /// </summary>
         public static Dictionary<string, RegisteredEvent> Events = new Dictionary<string, RegisteredEvent>();
 
+        //The game's directory.
+        public static string GameDir = "";
+
         private static HitResourcegroup Rsc_newmain, Rsc_relationships, Rsc_tsoep5, Rsc_tsov2, Rsc_tsov3, Rsc_turkey;
         public static bool IsInitialized = false;
 
         public HitVM(string StartupDir)
         {
+            GameDir = StartupDir;
+
 			if (IsLinux)
 			{
 				Rsc_newmain = new HitResourcegroup (StartupDir + "sounddata/newmain.hit", 
@@ -133,6 +139,7 @@ namespace Sound
             {
                 RegisteredEvent Event = new RegisteredEvent();
                 Event.Name = TEvent.Name;
+                Event.EventType = TEvent.EventType;
                 Event.TrackID = TEvent.TrackID;
                 Event.Rsc = RscGroup;
                 if(!Events.ContainsKey(TEvent.Name))
@@ -205,6 +212,13 @@ namespace Sound
                 }
                 else if (TrackID != 0 && FileManager.TrackExists(TrackID))
                     m_CurrentlyPlayingTracks.Add(new SubRoutine(TrackID, 0, Events[Event].Rsc.HitResource));
+                else
+                {
+                    if(Events[Event].EventType == HITEvents.kSetMusicMode)
+                    {
+                        HITTVOn Thread = new HITTVOn(Events[Event].TrackID);
+                    }
+                }
             }
         }
 

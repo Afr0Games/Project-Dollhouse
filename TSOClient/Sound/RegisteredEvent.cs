@@ -10,6 +10,8 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using Files.AudioLogic;
+
 namespace Sound
 {
     /// <summary>
@@ -21,6 +23,11 @@ namespace Sound
         /// The name of the event.
         /// </summary>
         public string Name;
+
+        /// <summary>
+        /// The type of the event.
+        /// </summary>
+        public HITEvents EventType;
 
         /// <summary>
         /// The ID of the track associated with this event.

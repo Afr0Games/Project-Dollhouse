@@ -315,7 +315,7 @@ namespace Sound
                                 m_Notes.Add(new HITNoteEntry(m_SoundID, Snd));
 
                                 SetVariable(Dest, m_Notes.Count - 1);
-                                SoundPlayer.PlaySound(Snd.DecompressedWav(), Snd.GetSampleRate());
+                                SoundPlayer.PlaySound(Snd.DecompressedWav(), m_SoundID, Snd.GetSampleRate());
                             }
                             else
                                 Debug.WriteLine("SubRoutine.cs: Couldn't find sound " + m_SoundID);
@@ -648,7 +648,7 @@ namespace Sound
                             m_Notes.Add(Note);
 
                             SetVariable(Dest, m_Notes.Count - 1);
-                            SoundPlayer.PlaySound(Note.Sound.DecompressedWav(), Note.Sound.GetSampleRate(), true);
+                            SoundPlayer.PlaySound(Note.Sound.DecompressedWav(), m_SoundID, Note.Sound.GetSampleRate(), true);
 
                             break;
                     }
@@ -657,7 +657,7 @@ namespace Sound
             else
             {
                 ISoundCodec Snd = FileManager.GetSound(m_SoundID);
-                SoundPlayer.PlaySound(Snd.DecompressedWav(), Snd.GetSampleRate(), false);
+                SoundPlayer.PlaySound(Snd.DecompressedWav(), m_SoundID, Snd.GetSampleRate(), false);
                 yield return true;
             }
         }

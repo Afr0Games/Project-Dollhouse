@@ -85,6 +85,37 @@ namespace Files
         #region Read
 
         /// <summary>
+        /// Read a BigEndian Int16.
+        /// </summary>
+        /// <returns>A short.</returns>
+        public short ReadBigEndianInt16()
+        {
+            byte[] b = ReadBytes(2);
+            return (short)(b[1] + (b[0] << 8));
+        }
+
+        /// <summary>
+        /// Read a BigEndian Int32.
+        /// </summary>
+        /// <param name="Reader">A BinaryReaderInstance.</param>
+        /// <returns>An int.</returns>
+        public int ReadBigEndianInt32()
+        {
+            byte[] b = ReadBytes(4);
+            return b[3] + (b[2] << 8) + (b[1] << 16) + (b[0] << 24);
+        }
+
+        /// <summary>
+        /// Read a BigEndian Int64.
+        /// </summary>
+        /// <returns>A long.</returns>
+        public long ReadBigEndianInt64()
+        {
+            byte[] b = ReadBytes(8);
+            return b[7] + (b[6] << 8) + (b[5] << 16) + (b[4] << 24) + (b[3] << 32) + (b[2] << 40) + (b[1] << 48) + (b[0] << 56);
+        }
+
+        /// <summary>
         /// Reads a ulong from the underlying stream.
         /// </summary>
         /// <returns>A ulong.</returns>

@@ -9,7 +9,9 @@ using Gonzo;
 using Gonzo.Elements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using Glide;
+using Sound;
 
 namespace GonzoTest
 {
@@ -23,6 +25,7 @@ namespace GonzoTest
             m_LblDownloadingReticulatedSplines, m_LblAdjustingEmotionalWeights, 
             m_LblCalibratingPersonalityMatrix, m_LblSettingUpPersonfinder;
         private CaretSeparatedText m_Txt;
+        private Song m_LoadingSong;
 
         public LoadingScreen(ScreenManager Manager, SpriteBatch SBatch) : base(Manager, "LoadingScreen", 
             SBatch, new Vector2(0, 0), 
@@ -75,6 +78,8 @@ namespace GonzoTest
                 GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblSettingUpPersonfinder.Visible = false;
+
+            HitVM.PlayEvent("bkground_load");
 
             Task LoadTask = new Task(new Action(CacheResources));
             LoadTask.Start();

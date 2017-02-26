@@ -396,7 +396,7 @@ namespace Files.Manager
         }
 
         /// <summary>
-        /// Gets a sound (XA or UTK) from the FileManager.
+        /// Gets a sound (XA, WAV or UTK) from the FileManager.
         /// </summary>
         /// <param name="ID">The FileID/InstanceID of the sound to get.</param>
         /// <returns>A new ISoundCodec instance.</returns>
@@ -418,6 +418,14 @@ namespace Files.Manager
                 return (ISoundCodec)m_Assets[UID.UniqueID].AssetData;
             }
 
+            UID = new UniqueFileID((uint)TypeIDs.WAV, ID);
+
+            if (m_Assets.ContainsKey(UID.UniqueID))
+            {
+                m_AssetsResetEvent.WaitOne();
+                return (ISoundCodec)m_Assets[UID.UniqueID].AssetData;
+            }
+
             UID = new UniqueFileID((uint)TypeIDs.SoundFX, ID);
 
             if (m_Assets.ContainsKey(UID.UniqueID))
@@ -432,15 +440,17 @@ namespace Files.Manager
                 Data = (ISoundCodec)GrabItem(ID, TypeIDs.XA);
             if(Data == null)
                 Data = (ISoundCodec)GrabItem(ID, TypeIDs.SoundFX);
+            if (Data == null)
+                Data = (ISoundCodec)GrabItem(ID, TypeIDs.WAV);
 
             return Data;
         }
 
         /// <summary>
-        /// Checks if the supplied data is a BMP.
+        /// Checks if the supplied data is a UTK.
         /// </summary>
         /// <param name="Data">The data as a Stream.</param>
-        /// <returns>True if data was BMP, false otherwise.</returns>
+        /// <returns>True if data was UTK, false otherwise.</returns>
         private static bool IsUTK(Stream Data)
         {
             if (Data == null)
@@ -451,6 +461,28 @@ namespace Files.Manager
             Reader.Dispose();
             byte[] magic = new byte[] { (byte)'U', (byte)'T', (byte)'M', (byte)'0' };
             return data.SequenceEqual(magic);
+        }
+
+        /// <summary>
+        /// Checks if the supplied data is a UTK.
+        /// </summary>
+        /// <param name="Data">The data as a Stream.</param>
+        /// <returns>True if data was XA, false otherwise.</returns>
+        private static bool IsXA(Stream Data)
+        {
+            if (Data == null)
+                return false;
+
+            BinaryReader Reader = new BinaryReader(Data, Encoding.UTF8, true);
+            byte[] data = Reader.ReadBytes(4);
+            Reader.Dispose();
+            byte[] magic = new byte[] { (byte)'X', (byte)'A', (byte)'I', (byte)'0' };
+            byte[] magic2 = new byte[] { (byte)'X', (byte)'A', (byte)'J', (byte)'0' };
+
+            if (data.SequenceEqual(magic) || data.SequenceEqual(magic2))
+                return true;
+            else
+                return false;
         }
 
         /// <summary>
@@ -539,8 +571,10 @@ namespace Files.Manager
                     {
                         if (IsUTK(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
-                        else
+                        else if(IsXA(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                        else //TODO: Check for more file formats!
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new WavFile(Data)));
                     }
 
                     return m_Assets[UniqueID.UniqueID].AssetData;
@@ -567,8 +601,10 @@ namespace Files.Manager
                     {
                         if (IsUTK(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
-                        else
+                        else if (IsXA(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                        else //TODO: Check for more file formats!
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new WavFile(Data)));
                     }
 
                     return Archive.GrabEntry(UniqueID);
@@ -583,8 +619,10 @@ namespace Files.Manager
                     {
                         if (IsUTK(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
-                        else
+                        else if (IsXA(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                        else //TODO: Check for more file formats!
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new WavFile(Data)));
                     }
 
                     return m_Assets[UniqueID.UniqueID].AssetData;
@@ -623,8 +661,10 @@ namespace Files.Manager
                     {
                         if (IsUTK(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
-                        else
+                        else if (IsXA(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                        else //TODO: Check for more file formats!
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new WavFile(Data)));
                     }
 
                     return m_Assets[UniqueID.UniqueID].AssetData;
@@ -639,8 +679,10 @@ namespace Files.Manager
                     {
                         if (IsUTK(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
-                        else
+                        else if (IsXA(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                        else //TODO: Check for more file formats!
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new WavFile(Data)));
                     }
 
                     return m_Assets[UniqueID.UniqueID].AssetData;
@@ -677,8 +719,10 @@ namespace Files.Manager
                     {
                         if (IsUTK(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
-                        else
+                        else if (IsXA(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                        else //TODO: Check for more file formats!
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new WavFile(Data)));
                     }
 
                     return m_Assets[UniqueID.UniqueID].AssetData;
@@ -693,8 +737,10 @@ namespace Files.Manager
                     {
                         if (IsUTK(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new UTKFile2(Data)));
-                        else
+                        else if (IsXA(Data))
                             AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new XAFile(Data)));
+                        else //TODO: Check for more file formats!
+                            AddItem(UniqueID.UniqueID, new Asset(UniqueID.UniqueID, (uint)Data.Length, new WavFile(Data)));
                     }
 
                     return m_Assets[UniqueID.UniqueID].AssetData;

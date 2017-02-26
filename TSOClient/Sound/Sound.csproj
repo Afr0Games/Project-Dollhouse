@@ -57,6 +57,7 @@
     <Compile Include="Hit.cs" />
     <Compile Include="HitException.cs" />
     <Compile Include="HitResourcegroup.cs" />
+    <Compile Include="HITTVOn.cs" />
     <Compile Include="HitVM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisteredEvent.cs" />
