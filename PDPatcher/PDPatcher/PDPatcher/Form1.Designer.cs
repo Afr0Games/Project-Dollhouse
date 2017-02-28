@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.PrgTotal = new System.Windows.Forms.ProgressBar();
             this.LblTotalProgress = new System.Windows.Forms.Label();
             this.PrgFile = new System.Windows.Forms.ProgressBar();
@@ -85,6 +86,7 @@
             this.pictureBox1.Location = new System.Drawing.Point(530, 12);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(128, 113);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox1.TabIndex = 3;
             this.pictureBox1.TabStop = false;
             // 
@@ -109,8 +111,9 @@
             this.Controls.Add(this.LblTotalProgress);
             this.Controls.Add(this.PrgFile);
             this.Controls.Add(this.PrgTotal);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "PD Patcher";
+            this.Text = "PD Patcher: v0.0.10";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
