@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using Microsoft.Win32;
 using System.IO;
 using Files.FAR3;
-using Files.FAR1;
 
 namespace Mr.Shipper
 {
@@ -599,9 +598,9 @@ namespace Mr.Shipper
         {
             Dictionary<FAR3Entry, string> AnimEntries = new Dictionary<FAR3Entry, string>();
 
-            AddFilesFromDir(GlobalSettings.Default.StartupPath + "avatardata\\animations\\", "", ref AnimEntries);
-            AddFilesFromDir(GlobalSettings.Default.StartupPath + "avatardata2\\animations\\", "", ref AnimEntries);
-            AddFilesFromDir(GlobalSettings.Default.StartupPath + "avatardata3\\animations\\", "", ref AnimEntries);
+            AddFilesFromDir(GlobalSettings.Default.StartupPath + "avatardata\\", "animations", ref AnimEntries);
+            AddFilesFromDir(GlobalSettings.Default.StartupPath + "avatardata2\\", "animations", ref AnimEntries);
+            AddFilesFromDir(GlobalSettings.Default.StartupPath + "avatardata3\\", "animations", ref AnimEntries);
 
             WriteCSEnum("packingslips\\AnimationsFileIDs.cs", "AnimationsFileIDs", AnimEntries);
 

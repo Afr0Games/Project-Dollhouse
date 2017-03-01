@@ -137,6 +137,21 @@ namespace Files.FAR3
             }
         }
 
+        /// <summary>
+        /// Returns all entries.
+        /// Throws a FAR3Exception if an entry wasn't found.
+        /// THIS METHOD IS USED BY MR. SHIPPER - DO NOT DELETE!
+        /// </summary>
+        /// <returns>The entries as a List of FAR3Entries.</returns>
+        public List<FAR3Entry> GrabAllEntries()
+        {
+            List<FAR3Entry> GrabbedEntries = new List<FAR3Entry>();
+            foreach (KeyValuePair<ulong, FAR3Entry> KVP in m_Entries)
+                GrabbedEntries.Add(KVP.Value);
+
+            return GrabbedEntries;
+        }
+
         private Stream Decompress(FAR3Entry Entry)
         {
             m_Reader.ReadBytes(9);
