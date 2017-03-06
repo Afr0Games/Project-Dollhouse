@@ -70,6 +70,7 @@ namespace Files.Manager
         private static ConcurrentDictionary<byte[], string> m_IFFHashes = new ConcurrentDictionary<byte[], string>();
 
         private static Game m_Game;
+        private static string m_StartupDir = "";
 
         static FileManager()
         {
@@ -83,6 +84,7 @@ namespace Files.Manager
         public static void Initialize(Game G, string StartupDir)
         {
             m_Game = G;
+            m_StartupDir = StartupDir;
 
             m_FAR3Paths = GetFileList("*.dat", StartupDir);
             m_FAR1Paths = GetFileList("*.far", StartupDir);
@@ -179,6 +181,9 @@ namespace Files.Manager
                     Data = GrabItem(AssetID, FAR3TypeIDs.PackedPNG);
                 if (Data == null)
                     Data = GrabItem(AssetID, FAR3TypeIDs.TGA);
+                if(Data == null) //Asset most likely existed outside of an archive.
+                {
+                }
 
                 if (Data == null)
                 {
@@ -887,6 +892,36 @@ namespace Files.Manager
                     }
 
                     return Data;
+                }
+                else //Asset most likely existed outside of an archive.
+                {
+                    if (Enum.IsDefined(typeof(FileIDs.TerrainFileIDs), ID))
+                    {
+                        FileStream FS;
+
+                        //TODO: Figure out if file is in "terrain\\newformat"
+                        if (Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID).Contains("road"))
+                        {
+                            FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/" : "gamedata\\terrain\\") +
+                                Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read,
+                                FileShare.ReadWrite);
+                            GC.KeepAlive(FS);
+                        }
+                        else
+                        {
+                            FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/newformat/" : "gamedata\\terrain\\newformat\\") + 
+                                Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read, 
+                                FileShare.ReadWrite);
+                            GC.KeepAlive(FS);
+                        }
+                        
+                        Paloma.TargaImage TGA = new Paloma.TargaImage(FS);
+                        TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                        MemStream.Seek(0, SeekOrigin.Begin);
+                        AddItem(ID, new Asset(ID, (uint)FS.Length,
+                            Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                        TGA.Dispose();
+                    }
                 }
             }
 

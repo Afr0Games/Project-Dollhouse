@@ -147,6 +147,11 @@ namespace GonzoTest
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint7);
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint8);
 
+            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.gr);
+            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.rk);
+            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.sn);
+            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.wt);
+
             //TODO: Apply these as backgrounds on the appropriate dates.
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_halloween);
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_paddys_day);

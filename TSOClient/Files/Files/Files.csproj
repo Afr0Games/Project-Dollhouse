@@ -87,9 +87,11 @@
     <Compile Include="FileIDs\CitiesFileIDs.cs" />
     <Compile Include="FileIDs\CollectionsFileIDs.cs" />
     <Compile Include="FileIDs\HandgroupsFileIDs.cs" />
+    <Compile Include="FileIDs\HintsFileIDs.cs" />
     <Compile Include="FileIDs\MeshFileIDs.cs" />
     <Compile Include="FileIDs\OutfitsFileIDs.cs" />
     <Compile Include="FileIDs\PurchasablesFileIDs.cs" />
+    <Compile Include="FileIDs\TerrainFileIDs.cs" />
     <Compile Include="FileIDs\TextureFileIDs.cs" />
     <Compile Include="FileIDs\ThumbnailsFileIDs.cs" />
     <Compile Include="FileIDs\UIFileIDs.cs" />
