@@ -151,6 +151,15 @@ namespace GonzoTest
             FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.rk);
             FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.sn);
             FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.wt);
+            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.sd);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_vertexcolor);
 
             //TODO: Apply these as backgrounds on the appropriate dates.
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_halloween);

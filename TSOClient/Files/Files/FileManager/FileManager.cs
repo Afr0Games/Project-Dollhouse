@@ -893,36 +893,52 @@ namespace Files.Manager
 
                     return Data;
                 }
-                else //Asset most likely existed outside of an archive.
-                {
-                    if (Enum.IsDefined(typeof(FileIDs.TerrainFileIDs), ID))
-                    {
-                        FileStream FS;
+            }
 
-                        //TODO: Figure out if file is in "terrain\\newformat"
-                        if (Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID).Contains("road"))
-                        {
-                            FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/" : "gamedata\\terrain\\") +
-                                Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read,
-                                FileShare.ReadWrite);
-                            GC.KeepAlive(FS);
-                        }
-                        else
-                        {
-                            FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/newformat/" : "gamedata\\terrain\\newformat\\") + 
-                                Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read, 
-                                FileShare.ReadWrite);
-                            GC.KeepAlive(FS);
-                        }
-                        
-                        Paloma.TargaImage TGA = new Paloma.TargaImage(FS);
-                        TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                        MemStream.Seek(0, SeekOrigin.Begin);
-                        AddItem(ID, new Asset(ID, (uint)FS.Length,
-                            Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
-                        TGA.Dispose();
-                    }
+            //If we reached this point, asset most likely existed outside of an archive...
+            if (Enum.IsDefined(typeof(FileIDs.TerrainFileIDs), ID))
+            {
+                FileStream FS;
+
+                if (Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID).Contains("road"))
+                {
+                    FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/" : "gamedata\\terrain\\") +
+                        Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read,
+                        FileShare.ReadWrite);
                 }
+                else
+                {
+                    FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/newformat/" : "gamedata\\terrain\\newformat\\") +
+                        Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read,
+                        FileShare.ReadWrite);
+                }
+
+                Paloma.TargaImage TGA = new Paloma.TargaImage(FS);
+                TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                MemStream.Seek(0, SeekOrigin.Begin);
+                AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                    Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                TGA.Dispose();
+
+                return MemStream;
+            }
+            else if (Enum.IsDefined(typeof(FileIDs.CitiesFileIDs), ID))
+            {
+                FileStream FS;
+                string[] Split = Enum.GetName(typeof(FileIDs.CitiesFileIDs), ID).Split("_".ToCharArray());
+
+                FS = File.Open(m_StartupDir + (IsLinux ? "cities/" : "cities\\") + 
+                    Split[0] + "_" + Split[1] + (IsLinux ? "/" : "\\") + Split[2] + ".bmp", 
+                    FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+                BMap = new Bitmap(FS);
+                BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                BMap.Dispose();
+                MemStream.Seek(0, SeekOrigin.Begin);
+
+                AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                    Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                return MemStream;
             }
 
             return null;
