@@ -807,12 +807,13 @@ namespace Files.Manager
                             case FAR3TypeIDs.TGA:
                                 lock (MemStream)
                                 {
-                                    Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
-                                    TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                                    TGA.Dispose();
-                                    MemStream.Seek(0, SeekOrigin.Begin);
-                                    AddItem(ID, new Asset(ID, (uint)MemStream.Length,
-                                        Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                    using (Paloma.TargaImage TGA = new Paloma.TargaImage(Data))
+                                    {
+                                        TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                        MemStream.Seek(0, SeekOrigin.Begin);
+                                        AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                            Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                    }
                                 }
                                 break;
                             case FAR3TypeIDs.PNG:
@@ -823,13 +824,15 @@ namespace Files.Manager
                             case FAR3TypeIDs.JPG:
                                 try
                                 {
-                                    BMap = new Bitmap(Data);
-                                    BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
-                                    BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
-                                    BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
-                                    BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                                    BMap.Dispose();
-                                    MemStream.Seek(0, SeekOrigin.Begin);
+                                    using (BMap = new Bitmap(Data))
+                                    {
+                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
+                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
+                                        BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
+                                        BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                        BMap.Dispose();
+                                        MemStream.Seek(0, SeekOrigin.Begin);
+                                    }
 
                                     AddItem(ID, new Asset(ID, (uint)MemStream.Length,
                                         Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
@@ -846,12 +849,14 @@ namespace Files.Manager
                                     {
                                         MemStream = new MemoryStream();
 
-                                        Paloma.TargaImage TGA = new Paloma.TargaImage(Data);
-                                        TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                                        TGA.Dispose();
-                                        MemStream.Seek(0, SeekOrigin.Begin);
-                                        AddItem(ID, new Asset(ID, (uint)MemStream.Length,
-                                            Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                        using (Paloma.TargaImage TGA = new Paloma.TargaImage(Data))
+                                        {
+                                            TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                            TGA.Dispose();
+                                            MemStream.Seek(0, SeekOrigin.Begin);
+                                            AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                                Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                                        }
                                     }
                                 }
                                 break;
@@ -862,13 +867,14 @@ namespace Files.Manager
                                     {
                                         try
                                         {
-                                            BMap = new Bitmap(Data);
-                                            BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
-                                            BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
-                                            BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
-                                            BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                                            BMap.Dispose();
-                                            MemStream.Seek(0, SeekOrigin.Begin);
+                                            using (BMap = new Bitmap(Data))
+                                            {
+                                                BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
+                                                BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
+                                                BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
+                                                BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                                MemStream.Seek(0, SeekOrigin.Begin);
+                                            }
 
                                             AddItem(ID, new Asset(ID, (uint)MemStream.Length,
                                                 Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
@@ -898,47 +904,93 @@ namespace Files.Manager
             //If we reached this point, asset most likely existed outside of an archive...
             if (Enum.IsDefined(typeof(FileIDs.TerrainFileIDs), ID))
             {
-                FileStream FS;
-
                 if (Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID).Contains("road"))
                 {
-                    FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/" : "gamedata\\terrain\\") +
+                    using (FileStream FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/" : "gamedata\\terrain\\") +
                         Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read,
-                        FileShare.ReadWrite);
+                        FileShare.ReadWrite))
+                    {
+                        using (Paloma.TargaImage TGA = new Paloma.TargaImage(FS))
+                        {
+                            TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                            MemStream.Seek(0, SeekOrigin.Begin);
+                            AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                        }
+                    }
                 }
                 else
                 {
-                    FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/newformat/" : "gamedata\\terrain\\newformat\\") +
-                        Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read,
-                        FileShare.ReadWrite);
+                    using (FileStream FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/newformat/" : 
+                        "gamedata\\terrain\\newformat\\") + Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", 
+                        FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    {
+                        using (Paloma.TargaImage TGA = new Paloma.TargaImage(FS))
+                        {
+                            TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                            MemStream.Seek(0, SeekOrigin.Begin);
+                            AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                        }
+                    }
                 }
-
-                Paloma.TargaImage TGA = new Paloma.TargaImage(FS);
-                TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                MemStream.Seek(0, SeekOrigin.Begin);
-                AddItem(ID, new Asset(ID, (uint)MemStream.Length,
-                    Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
-                TGA.Dispose();
 
                 return MemStream;
             }
             else if (Enum.IsDefined(typeof(FileIDs.CitiesFileIDs), ID))
             {
-                FileStream FS;
                 string[] Split = Enum.GetName(typeof(FileIDs.CitiesFileIDs), ID).Split("_".ToCharArray());
+                using (FileStream FS = File.Open(m_StartupDir + (IsLinux ? "cities/" : "cities\\") +
+                    Split[0] + "_" + Split[1] + (IsLinux ? "/" : "\\") + Split[2] + ".bmp",
+                    FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (BMap = new Bitmap(FS))
+                    {
+                        BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                        MemStream.Seek(0, SeekOrigin.Begin);
+                    }
 
-                FS = File.Open(m_StartupDir + (IsLinux ? "cities/" : "cities\\") + 
-                    Split[0] + "_" + Split[1] + (IsLinux ? "/" : "\\") + Split[2] + ".bmp", 
-                    FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                        Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                    return MemStream;
+                }
+            }
+            else if(Enum.IsDefined(typeof(FileIDs.UIFileIDs), ID))
+            {
+                using (FileStream FS = File.Open(m_StartupDir +
+                    (IsLinux ? "uigraphics/holiday/" : "uigraphics\\holiday\\") +
+                    Enum.GetName(typeof(FileIDs.UIFileIDs), ID) + 
+                    GetExtension(Enum.GetName(typeof(FileIDs.UIFileIDs), ID)), 
+                    FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (BMap = new Bitmap(FS))
+                    {
+                        BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                        MemStream.Seek(0, SeekOrigin.Begin);
+                    }
 
-                BMap = new Bitmap(FS);
-                BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                BMap.Dispose();
-                MemStream.Seek(0, SeekOrigin.Begin);
+                    AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                        Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                    return MemStream;
+                }
+            }
+            else if (Enum.IsDefined(typeof(FileIDs.HintsFileIDs), ID))
+            {
+                using (FileStream FS = File.Open(m_StartupDir +
+                    (IsLinux ? "uigraphics/hints/" : "uigraphics\\hints\\") + 
+                    Enum.GetName(typeof(FileIDs.HintsFileIDs), ID) + ".bmp", 
+                    FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (BMap = new Bitmap(FS))
+                    {
+                        BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                        MemStream.Seek(0, SeekOrigin.Begin);
+                    }
 
-                AddItem(ID, new Asset(ID, (uint)MemStream.Length,
-                    Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
-                return MemStream;
+                    AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                        Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                    return MemStream;
+                }
             }
 
             return null;
@@ -1038,6 +1090,32 @@ namespace Files.Manager
 
         #endregion
 
+        #region Helper methods
+
+        /// <summary>
+        /// Sigh. Gets the extension based on a filename in uigraphics\\holiday, because Maxis
+        /// couldn't decide on the type of file to use.
+        /// </summary>
+        /// <param name="Filename">Filename without extension.</param>
+        /// <returns>A string indicating the filename.</returns>
+        private static string GetExtension(string Filename)
+        {
+            if (Filename.Contains("paddys_day"))
+                return ".png";
+            if (Filename.Contains("valentine"))
+                return ".png";
+            if (Filename.Contains("halloween"))
+                return ".bmp";
+            if (Filename.Contains("thanksgiving"))
+                return ".bmp";
+            if (Filename.Contains("xmas"))
+                return ".png";
+            if (Filename.Contains("thanksgiving"))
+                return ".bmp";
+
+            return "";
+        }
+
         private static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)
         {
             Queue<string> pending = new Queue<string>();
@@ -1069,5 +1147,7 @@ namespace Files.Manager
 
             return Hash;
         }
+
+        #endregion
     }
 }

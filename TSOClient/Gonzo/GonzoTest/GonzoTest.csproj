@@ -42,6 +42,8 @@
   <ItemGroup>
     <Compile Include="CASScreen.cs" />
     <Compile Include="Credits.cs" />
+    <Compile Include="DateRange.cs" />
+    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GlobalSettings.Designer.cs">
       <AutoGen>True</AutoGen>

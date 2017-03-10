@@ -25,13 +25,29 @@ namespace GonzoTest
             m_LblDownloadingReticulatedSplines, m_LblAdjustingEmotionalWeights, 
             m_LblCalibratingPersonalityMatrix, m_LblSettingUpPersonfinder;
         private CaretSeparatedText m_Txt;
-        private Song m_LoadingSong;
 
         public LoadingScreen(ScreenManager Manager, SpriteBatch SBatch) : base(Manager, "LoadingScreen", 
             SBatch, new Vector2(0, 0), 
             new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight))
         {
-            m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
+            DateTime Now = DateTime.Now;
+            //For some reason, 31. of October isn't valid...
+            DateTime Halloween = DateTime.ParseExact("30/09/" + Now.Year.ToString(), "dd/MM/yyyy", null);
+            DateTime Valentine = DateTime.ParseExact("14/02/" + Now.Year.ToString(), "dd/MM/yyyy", null);
+            DateTime StPaddys = DateTime.ParseExact("17/03/" + Now.Year.ToString(), "dd/MM/yyyy", null);
+            DateRange Christmas = new DateRange(new DateTime(Now.Year, 12, 25), new DateTime(Now.Year, 12, 30));
+
+            if (!Now.IsSameDay(Halloween) && !Now.IsSameDay(Valentine) && !Now.IsSameDay(StPaddys) && !Christmas.Includes(Now))
+                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
+            else if (Now.IsSameDay(Halloween))
+                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_halloween), this);
+            else if (Now.IsSameDay(Valentine))
+                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_valentine), this);
+            else if (Now.IsSameDay(StPaddys))
+                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_paddys_day), this);
+            else if (Christmas.Includes(Now))
+                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_xmas), this);
+
             m_Txt = StringManager.StrTable(155);
 
             m_LblExtrudingTerrainWeb = new UILabel(m_Txt[5], 1, new Vector2(GlobalSettings.Default.ScreenWidth,
@@ -138,14 +154,14 @@ namespace GonzoTest
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_whosonlinetab);
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_whosonlinetabbtn);
 
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint1);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint2);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint3);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint4);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint5);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint6);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint7);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_hints_hint8);
+            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint1);
+            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint2);
+            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint3);
+            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint4);
+            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint5);
+            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint6);
+            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint7);
+            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint8);
 
             FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.gr);
             FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.rk);
@@ -153,6 +169,7 @@ namespace GonzoTest
             FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.wt);
             FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.sd);
 
+            //Load some city data.
             FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_elevation);
             FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_forestdensity);
             FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_foresttype);
@@ -161,12 +178,80 @@ namespace GonzoTest
             FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_thumbnail);
             FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_vertexcolor);
 
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_vertexcolor);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_vertexcolor);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_vertexcolor);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_vertexcolor);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_vertexcolor);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_vertexcolor);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_vertexcolor);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_vertexcolor);
+
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_elevation);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_forestdensity);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_foresttype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_roadmap);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_terraintype);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_thumbnail);
+            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_vertexcolor);
+
             //TODO: Apply these as backgrounds on the appropriate dates.
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_halloween);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_paddys_day);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_thanksgiving);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_valentine);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.uigraphics_holiday_setup_xmas);
+            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_thanksgiving);
 
             FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog);
 
