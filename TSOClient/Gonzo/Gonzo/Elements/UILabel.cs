@@ -111,9 +111,9 @@ namespace Gonzo.Elements
 
             m_TextColor = new Color();
             m_TextColor.A = 255; //Ignore opacity, The Sims Online doesn't support transparent text.
-            m_TextColor.R = (byte)Clr.R;
-            m_TextColor.G = (byte)Clr.G;
-            m_TextColor.B = (byte)Clr.B;
+            m_TextColor.R = Clr.R;
+            m_TextColor.G = Clr.G;
+            m_TextColor.B = Clr.B;
 
             m_Alignment = Alignment;
 

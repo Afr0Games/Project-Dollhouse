@@ -476,6 +476,10 @@ namespace GonzoTest
         private void OnFinishedSettingUpPersonFinder()
         {
             m_LblCalibratingPersonalityMatrix.Visible = false;
+
+            Manager.AddScreen(new LoginScreen(Manager, m_SBatch));
+            if (HitVM.IsEventActive("bkground_load"))
+                SoundPlayer.StopSound(5);
         }
 
         public override void Update(InputHelper Input, GameTime GTime)

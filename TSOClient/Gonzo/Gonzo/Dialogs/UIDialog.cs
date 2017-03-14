@@ -17,10 +17,25 @@ namespace Gonzo.Dialogs
         /// </summary>
         public bool IsDrawn = true;
 
+        /// <summary>
+        /// Is this dialog draggable?
+        /// </summary>
         protected bool m_IsDraggable;
+
+        /// <summary>
+        /// Is the dialog being dragged by the user?
+        /// </summary>
         protected bool m_DoDrag = false;
-        protected Vector2 m_DragOffset;   //Offset from mouse cursor when dragging.
-        protected int m_DragTolerance = 20; //How far off the screen a dialog can be dragged.
+
+        /// <summary>
+        /// Offset from mouse cursor when dragging.
+        /// </summary>
+        protected Vector2 m_DragOffset;
+
+        /// <summary>
+        /// How far off the screen a dialog can be dragged.
+        /// </summary>
+        protected int m_DragTolerance = 20;
 
         private bool m_HasExitBtn = false;
 

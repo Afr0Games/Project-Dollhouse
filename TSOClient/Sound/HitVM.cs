@@ -22,7 +22,7 @@ namespace Sound
         private static List<SubRoutine> m_CurrentlyPlayingTracks = new List<SubRoutine>();
 
         private static Dictionary<int, int> m_GlobalVars = new Dictionary<int, int>();
-        private static Dictionary<EVT, HITTVOn> m_ActiveEvents = new Dictionary<EVT, HITTVOn>();
+        private static Dictionary<string, HITTVOn> m_ActiveEvents = new Dictionary<string, HITTVOn>();
 
         /// <summary>
         /// Sets a global variable to a value.
@@ -32,6 +32,22 @@ namespace Sound
         public static void SetGlobalVar(int Location, int Value)
         {
             m_GlobalVars[Location] = Value;
+        }
+
+        /// <summary>
+        /// Check if an event is currently active (I.E being played)
+        /// </summary>
+        /// <param name="ID">ID of the event to check for.</param>
+        /// <returns></returns>
+        public static bool IsEventActive(string Event)
+        {
+            foreach(KeyValuePair<string, HITTVOn> KVP in m_ActiveEvents)
+            {
+                if (Event == KVP.Key)
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -217,6 +233,7 @@ namespace Sound
                     if(Events[Event].EventType == HITEvents.kSetMusicMode)
                     {
                         HITTVOn Thread = new HITTVOn(Events[Event].TrackID);
+                        m_ActiveEvents.Add(Event, Thread);
                     }
                 }
             }

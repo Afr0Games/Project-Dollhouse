@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Files.Manager;
+﻿using Files.Manager;
 using Files.AudioFiles;
 
 namespace Sound
@@ -10,8 +8,20 @@ namespace Sound
     /// </summary>
     public class HITTVOn
     {
+        private uint m_ID = 0;
+
+        /// <summary>
+        /// The SoundID for the sound that this HITTVOn event handles.
+        /// </summary>
+        public uint SoundID
+        {
+            get { return m_ID; }
+        }
+
         public HITTVOn(uint ID)
         {
+            m_ID = ID;
+
             if(ID == 5) //Loadloop, play the sound directly.
             {
                 ISoundCodec Loadloop = FileManager.GetSound(0x00004f85);

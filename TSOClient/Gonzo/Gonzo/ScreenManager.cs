@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -95,10 +96,16 @@ namespace Gonzo
         /// <summary>
         /// Add a UIScreen instance to this ScreenManager instance.
         /// </summary>
-        /// <param name="Screen"></param>
+        /// <param name="Screen">The screen to add.</param>
         public void AddScreen(UIScreen Screen)
         {
-            m_Screens.Add(Screen);
+            if(m_Screens.Count <= 0)
+                m_Screens.Add(Screen);
+            else
+            {
+                m_Screens.Remove(m_Screens[0]);
+                m_Screens.Add(Screen);
+            }
         }
 
         public void Update(GameTime GTime)

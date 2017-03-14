@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CaretSeparatedText.cs" />
+    <Compile Include="Dialogs\LoginDialog.cs" />
     <Compile Include="Elements\UIBodyBrowser.cs" />
     <Compile Include="Elements\UIHeadBrowser.cs" />
     <Compile Include="Elements\UISkinBrowser.cs" />

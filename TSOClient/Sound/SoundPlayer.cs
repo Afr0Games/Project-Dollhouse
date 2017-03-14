@@ -77,7 +77,7 @@ namespace Sound
         /// Stops playing a sound. If the sound is meant to fade out, it will fade out before stopping.
         /// </summary>
         /// <param name="SoundID">ID of the sound to stop.</param>
-        public void StopSound(uint SoundID)
+        public static void StopSound(uint SoundID)
         {
             if (!m_ActiveSounds[SoundID].FadeOut)
             {
@@ -94,7 +94,7 @@ namespace Sound
             }
         }
 
-        private void FadeOutTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private static void FadeOutTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Timer T = (Timer)sender;
 
@@ -103,7 +103,16 @@ namespace Sound
                 if (KVP.Value.FadeOutTimer == T)
                 {
                     if (KVP.Value.Instance.Volume > 0)
-                        KVP.Value.Instance.Volume -= 0.20f;
+                    {
+                        try
+                        {
+                            KVP.Value.Instance.Volume -= 0.10f;
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            KVP.Value.Instance.Stop();
+                        }
+                    }
                     else
                         KVP.Value.Instance.Stop();
                 }

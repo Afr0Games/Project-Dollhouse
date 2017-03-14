@@ -43,6 +43,11 @@ namespace Gonzo
         public bool IsVitaboyScreen = false;
 
         /// <summary>
+        /// This is the standard text color for TSO.
+        /// </summary>
+        public Color StandardTxtColor = new Color(255, 249, 157);
+
+        /// <summary>
         /// 9px font used to render text by this UIScreen instance.
         /// </summary>
         public SpriteFont Font9px { get { return m_Manager.Font9px; } }
