@@ -45,19 +45,25 @@ namespace Sound
         public static void PlaySound(byte[] WavData, uint SoundID, uint SampleRate, bool LoopIt = false,
             bool FadeOut = false)
         {
-            SoundEffect Efx = new SoundEffect(WavData, (int)SampleRate, AudioChannels.Stereo);
-            SoundEffectInstance Inst = Efx.CreateInstance();
+            if (m_ActiveSounds.ContainsKey(SoundID))
+                m_ActiveSounds[SoundID].Instance.Play();
+            else
+            {
 
-            ActiveSound ASound = new ActiveSound();
-            ASound.Instance = Inst;
-            if (FadeOut) ASound.FadeOut = true;
+                SoundEffect Efx = new SoundEffect(WavData, (int)SampleRate, AudioChannels.Stereo);
+                SoundEffectInstance Inst = Efx.CreateInstance();
 
-            m_ActiveSounds.Add(SoundID, ASound);
+                ActiveSound ASound = new ActiveSound();
+                ASound.Instance = Inst;
+                if (FadeOut) ASound.FadeOut = true;
 
-            if (LoopIt)
-                Inst.IsLooped = true;
+                m_ActiveSounds.Add(SoundID, ASound);
 
-            Inst.Play();
+                if (LoopIt)
+                    Inst.IsLooped = true;
+
+                Inst.Play();
+            }
         }
 
         /// <summary>

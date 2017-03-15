@@ -242,6 +242,9 @@ namespace Gonzo
                     State.TextButton = false; //Reset 
                     State.Color = new Color();
                     State.Caption = "";
+                    State.Size = new Vector2(0, 0);
+                    State.Alignment = 0;
+                    State.Font = 0;
                     //TODO: Reset more?
                     break;
             }

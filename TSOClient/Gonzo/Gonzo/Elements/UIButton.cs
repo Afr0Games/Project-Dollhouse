@@ -118,9 +118,9 @@ namespace Gonzo.Elements
                         m_Size.X = (Image.Texture.Width) / (4);
                         m_Size.Y = Image.Texture.Height;
                     }
-
-                    Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
                 }
+
+                Position = new Vector2(Node.ButtonPosition.Numbers[0], Node.ButtonPosition.Numbers[1]) + m_Screen.Position;
 
                 if (Result.State.Tooltip != "")
                     Tooltip = m_Screen.GetString(Result.State.Tooltip);
