@@ -107,7 +107,10 @@ namespace Gonzo.Elements
                     }
                     else
                     {
-                        Image = m_Screen.GetImage(Node.Image, false);
+                        if(Node.Image != null)
+                            Image = m_Screen.GetImage(Node.Image, false);
+                        else
+                            Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
                         //Initialize to second frame in the image.
                         m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
 

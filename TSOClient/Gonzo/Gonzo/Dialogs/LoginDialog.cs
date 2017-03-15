@@ -26,7 +26,7 @@ namespace Gonzo.Dialogs
         {
             base.Update(Helper, GTime);
 
-            if(IsDrawn)
+            if(Visible)
             {
                 if(m_DoDrag)
                 {
@@ -40,6 +40,16 @@ namespace Gonzo.Dialogs
 
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
+            float Depth;
+            if (LayerDepth != null)
+                Depth = (float)LayerDepth;
+            else
+                Depth = 0.10f;
+
+            m_LblTitle.Draw(SBatch, Depth + 0.1f);
+            m_LblUsername.Draw(SBatch, Depth + 0.1f);
+            //m_LblPassword.Draw(SBatch, Depth + 0.1f);
+
             base.Draw(SBatch, LayerDepth);
         }
     }

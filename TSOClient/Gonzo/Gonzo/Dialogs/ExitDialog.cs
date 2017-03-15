@@ -60,7 +60,7 @@ namespace Gonzo.Dialogs
         {
             base.Update(Helper, GTime);
 
-            if (IsDrawn)
+            if (Visible)
             {
                 m_ReloginButton.Update(Helper, GTime);
                 m_ExitButton.Update(Helper, GTime);
@@ -93,14 +93,14 @@ namespace Gonzo.Dialogs
                 else
                     Depth = 0.10f;
 
-                if (IsDrawn)
+                if (Visible)
                 {
-                    m_ReloginButton.Draw(SBatch, (float)(LayerDepth + 0.1));
-                    m_ExitButton.Draw(SBatch, (float)(LayerDepth + 0.1));
-                    m_CancelButton.Draw(SBatch, (float)(LayerDepth + 0.1));
+                    m_ReloginButton.Draw(SBatch, (float)(Depth + 0.1));
+                    m_ExitButton.Draw(SBatch, (float)(Depth + 0.1));
+                    m_CancelButton.Draw(SBatch, (float)(Depth + 0.1));
 
-                    m_TitleText.Draw(SBatch, (float)(LayerDepth + 0.1));
-                    m_MessageText.Draw(SBatch, (float)(LayerDepth + 0.1));
+                    m_TitleText.Draw(SBatch, (float)(Depth + 0.1));
+                    m_MessageText.Draw(SBatch, (float)(Depth + 0.1));
                 }
 
                 base.Draw(SBatch, LayerDepth);

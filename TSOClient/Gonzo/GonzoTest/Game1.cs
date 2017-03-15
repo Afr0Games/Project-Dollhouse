@@ -81,9 +81,9 @@ namespace GonzoTest
         {
             SoundManager = new HitVM(GlobalSettings.Default.StartupPath);
             //m_ScrManager.AddScreen(new CreditsScreen(m_ScrManager, spriteBatch));
-            //m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
+            m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
             //m_ScrManager.AddScreen(new CASScreen(m_ScrManager, spriteBatch));
-            m_ScrManager.AddScreen(new LoadingScreen(m_ScrManager, spriteBatch));
+            //m_ScrManager.AddScreen(new LoadingScreen(m_ScrManager, spriteBatch));
         }
 
         /// <summary>

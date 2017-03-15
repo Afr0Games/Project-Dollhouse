@@ -19,7 +19,7 @@ namespace Gonzo.Dialogs
 
         public override void Update(InputHelper Helper, GameTime GTime)
         {
-            if (IsDrawn)
+            if (Visible)
             {
                 if (m_DoDrag)
                     m_WillWrightImg.Position = Position - new Vector2(-22, -42);
@@ -36,7 +36,7 @@ namespace Gonzo.Dialogs
             else
                 Depth = 0.10f;
 
-            if (IsDrawn)
+            if (Visible)
                 SBatch.Draw(m_WillWrightImg.Texture, m_WillWrightImg.Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, null, 
                     Color.White, SpriteEffects.None, Depth);
 

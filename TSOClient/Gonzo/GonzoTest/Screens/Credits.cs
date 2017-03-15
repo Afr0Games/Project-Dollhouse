@@ -38,7 +38,7 @@ namespace GonzoTest
             MaxisButton.OnButtonClicked += MaxisButton_OnButtonClicked;
 
             m_WillWrightDiag = new WillWrightDiag(WillImage, this, new Vector2(100, 100));
-            m_WillWrightDiag.IsDrawn = false;
+            m_WillWrightDiag.Visible = false;
             m_PResult.Elements.Add("WillWrightDiag", m_WillWrightDiag);
 
             m_Credits = FileManager.GetIFF("credits.iff");
@@ -65,7 +65,7 @@ namespace GonzoTest
 
         private void MaxisButton_OnButtonClicked(object Sender)
         {
-            m_WillWrightDiag.IsDrawn = true;
+            m_WillWrightDiag.Visible = true;
         }
 
         #endregion

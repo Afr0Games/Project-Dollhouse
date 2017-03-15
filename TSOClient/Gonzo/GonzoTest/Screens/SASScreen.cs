@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Shared;
 using Gonzo;
 using Gonzo.Elements;
+using Gonzo.Dialogs;
 using Files;
 using Files.Manager;
 using Sound;
@@ -23,6 +24,7 @@ namespace GonzoTest
             m_NewAvatarButton3, m_DeleteAvatarButton1, m_DeleteAvatarButton2, m_DeleteAvatarButton3, m_PersonDescriptionScrollUpBtn1, 
             m_PersonDescriptionScrollUpBtn2, m_PersonDescriptionScrollUpBtn3, m_PersonDescriptionScrollDownBtn1, 
             m_PersonDescriptionScrollDownBtn2, m_PersonDescriptionScrollDownBtn3, m_CreditsButton;
+        private ExitDialog m_ExitDialog;
 
         private UITextEdit m_PersonDescriptionText1, m_PersonDescriptionText2, m_PersonDescriptionText3;
 
@@ -89,6 +91,10 @@ namespace GonzoTest
             CityButtonTemplateImage = (UIImage)m_PResult.Elements["\"CityButtonTemplateImage\""];
 
             m_ExitButton = (UIButton)m_PResult.Elements["\"ExitButton\""];
+            m_ExitButton.OnButtonClicked += M_ExitButton_OnButtonClicked;
+            m_ExitDialog = new ExitDialog(this, new Vector2(250, 250), m_Walker, 
+                GlobalSettings.Default.StartupPath + "gamedata\\uiscripts\\exitdialog.uis");
+            m_ExitDialog.Visible = false;
 
             m_EnterTabBtn1 = (UIButton)m_PResult.Elements["\"EnterTabButton1\""];
             m_EnterTabBtn1.OnButtonClicked += EnterTabBtn1_OnButtonClicked;
@@ -208,6 +214,11 @@ namespace GonzoTest
         }
 
         #region Eventhandlers
+
+        private void M_ExitButton_OnButtonClicked(object Sender)
+        {
+            m_ExitDialog.Visible = true;
+        }
 
         private void DescriptionTabBtn3_OnButtonClicked(object Sender)
         {
@@ -367,40 +378,44 @@ namespace GonzoTest
         public override void Update(InputHelper Input, GameTime GTime)
         {
             base.Update(Input, GTime);
+
+            m_ExitDialog.Update(Input, GTime);
         }
 
         public override void Draw()
         {
+            base.Draw();
+
             BackgroundImg.Draw(m_SBatch, null, 0.0f);
 
-            TabBackgroundImg1.Draw(m_SBatch, null, 0.0f);
-            TabBackgroundImg2.Draw(m_SBatch, null, 0.0f);
-            TabBackgroundImg3.Draw(m_SBatch, null, 0.0f);
+            TabBackgroundImg1.Draw(m_SBatch, null, 0.5f);
+            TabBackgroundImg2.Draw(m_SBatch, null, 0.5f);
+            TabBackgroundImg3.Draw(m_SBatch, null, 0.5f);
 
-            DescriptionTabBackgroundImg1.Draw(m_SBatch, null, 0.0f);
-            DescriptionTabImage1.Draw(m_SBatch, null, 0.0f);
+            DescriptionTabBackgroundImg1.Draw(m_SBatch, null, 0.7f);
+            DescriptionTabImage1.Draw(m_SBatch, null, 0.7f);
 
-            EnterTabBackgroundImage1.Draw(m_SBatch, null, 0.0f);
-            EnterTabImage1.Draw(m_SBatch, null, 0.0f);
+            EnterTabBackgroundImage1.Draw(m_SBatch, null, 0.5f);
+            EnterTabImage1.Draw(m_SBatch, null, 0.5f);
 
-            DescriptionTabBackgroundImg2.Draw(m_SBatch, null, 0.0f);
-            DescriptionTabImage2.Draw(m_SBatch, null, 0.0f);
+            DescriptionTabBackgroundImg2.Draw(m_SBatch, null, 0.7f);
+            DescriptionTabImage2.Draw(m_SBatch, null, 0.7f);
 
-            EnterTabBackgroundImage2.Draw(m_SBatch, null, 0.0f);
-            EnterTabImage2.Draw(m_SBatch, null, 0.0f);
+            EnterTabBackgroundImage2.Draw(m_SBatch, null, 0.5f);
+            EnterTabImage2.Draw(m_SBatch, null, 0.5f);
 
-            DescriptionTabBackgroundImg3.Draw(m_SBatch, null, 0.0f);
-            DescriptionTabImage3.Draw(m_SBatch, null, 0.0f);
+            DescriptionTabBackgroundImg3.Draw(m_SBatch, null, 0.7f);
+            DescriptionTabImage3.Draw(m_SBatch, null, 0.7f);
 
-            EnterTabBackgroundImage3.Draw(m_SBatch, null, 0.0f);
-            EnterTabImage3.Draw(m_SBatch, null, 0.0f);
+            EnterTabBackgroundImage3.Draw(m_SBatch, null, 0.5f);
+            EnterTabImage3.Draw(m_SBatch, null, 0.5f);
 
             //DefaultHouseImg.Draw(m_SBatch, null, 0.0f);
 
             CreditsBackgroundImg.Draw(m_SBatch, null, 0.0f);
             //CityThumbnailBusyImg.Draw(m_SBatch, null, 0.0f);
 
-            base.Draw();
+            m_ExitDialog.Draw(m_SBatch, 0.9f);
         }
     }
 }

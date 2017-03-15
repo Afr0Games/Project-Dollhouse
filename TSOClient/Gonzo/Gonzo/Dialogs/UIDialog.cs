@@ -13,11 +13,6 @@ namespace Gonzo.Dialogs
         private UIImage m_CloseBtnBack;
 
         /// <summary>
-        /// If this is set to false, it means the dialog was closed by the user.
-        /// </summary>
-        public bool IsDrawn = true;
-
-        /// <summary>
         /// Is this dialog draggable?
         /// </summary>
         protected bool m_IsDraggable;
@@ -81,7 +76,7 @@ namespace Gonzo.Dialogs
 
         private void CloseButton_OnButtonClicked(object Sender)
         {
-            IsDrawn = false;
+            Visible = false;
         }
 
         public override void MouseEvents(InputHelper Helper)
@@ -115,7 +110,7 @@ namespace Gonzo.Dialogs
 
         public override void Update(InputHelper Helper, GameTime GTime)
         {
-            if (IsDrawn)
+            if (Visible)
             {
                 if (m_IsDraggable)
                 {
@@ -179,7 +174,7 @@ namespace Gonzo.Dialogs
             else
                 Depth = 0.10f;
 
-            if (IsDrawn)
+            if (Visible)
             {
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
                 Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0), Depth);
