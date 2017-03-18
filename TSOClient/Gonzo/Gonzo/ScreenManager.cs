@@ -99,13 +99,19 @@ namespace Gonzo
         /// <param name="Screen">The screen to add.</param>
         public void AddScreen(UIScreen Screen)
         {
-            if(m_Screens.Count <= 0)
-                m_Screens.Add(Screen);
-            else
-            {
+            m_Screens.Add(Screen);
+        }
+
+        /// <summary>
+        /// Remove a UIScreen instance from this ScreenManager instance.
+        /// </summary>
+        /// <param name="Screen">The screen to remove.</param>
+        public void RemoveScreen(UIScreen Screen)
+        {
+            m_Screens.Remove(Screen);
+
+            if (m_Screens.Count > 0) //This screen had a Vitaboy overlay.
                 m_Screens.Remove(m_Screens[0]);
-                m_Screens.Add(Screen);
-            }
         }
 
         public void Update(GameTime GTime)

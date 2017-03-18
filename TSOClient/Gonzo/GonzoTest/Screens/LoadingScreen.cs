@@ -477,6 +477,7 @@ namespace GonzoTest
         {
             m_LblCalibratingPersonalityMatrix.Visible = false;
 
+            Manager.RemoveScreen(this);
             Manager.AddScreen(new LoginScreen(Manager, m_SBatch));
             if (HitVM.IsEventActive("bkground_load"))
                 SoundPlayer.StopSound(5);
