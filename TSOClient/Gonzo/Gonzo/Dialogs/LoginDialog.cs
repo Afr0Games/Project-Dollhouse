@@ -20,6 +20,8 @@ namespace Gonzo.Dialogs
                 m_Screen.StandardTxtColor, 11, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
             m_LblUsername = new UILabel(m_Cst[4], 2, new Vector2(Pos.X + 20, Pos.Y - 50), m_Font.MeasureString(m_Cst[4]), 
                 m_Screen.StandardTxtColor, 11, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
+            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 40) * Resolution.getVirtualAspectRatio()), 
+                (int)(200 * Resolution.getVirtualAspectRatio()));
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)

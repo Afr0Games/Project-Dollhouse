@@ -11,13 +11,9 @@ Contributor(s):
 */
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using System.Threading.Tasks;
 using System.IO.MemoryMappedFiles;
-using System.Security.Principal;
-using System.Security.AccessControl;
 
 namespace Files
 {
@@ -54,11 +50,16 @@ namespace Files
         /// <summary>
         /// Creates a new FileReader instance.
         /// </summary>
-        /// <param name="Data">The data with which to create this FileReader instance.</param>
+        /// <param name="DataStream">The data with which to create this FileReader instance.</param>
         /// <param name="BigEndian">Is the data stored as big endian?</param>
-        public FileReader(Stream DataStream, bool BigEndian)
+        /// <param name="Enc">(Optional) The encoding to use when reading.</param>
+        public FileReader(Stream DataStream, bool BigEndian, Encoding Enc = null)
         {
-            m_Reader = new BinaryReader(DataStream);
+            if (Enc == null)
+                m_Reader = new BinaryReader(DataStream);
+            else
+                m_Reader = new BinaryReader(DataStream, Enc);
+
             m_IsBigEndian = BigEndian;
         }
 
@@ -71,6 +72,8 @@ namespace Files
         {
             m_MemFile = MemoryMappedFile.CreateFromFile(Path, FileMode.Open, Guid.NewGuid().ToString(), 0, 
                 MemoryMappedFileAccess.Read);
+
+            m_IsBigEndian = BigEndian;
 
             try
             {

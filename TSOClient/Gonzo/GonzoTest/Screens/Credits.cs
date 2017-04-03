@@ -45,6 +45,7 @@ namespace GonzoTest
             m_CreditsArea = (UIControl)m_PResult.Controls["\"CreditsArea\""];
             m_CreditsY = m_CreditsArea.Size.Y;
 
+            //TODO: Convert all strings to UILabels and use Glide to scroll them.
             foreach(TranslatedString TStr in m_Credits.GetSTR(163).GetStringList(LanguageCodes.EngUS))
             {
                 foreach (string Str in TStr.TranslatedStr.Split('\n'))
@@ -60,7 +61,7 @@ namespace GonzoTest
 
         private void M_CreditsTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            m_CreditsY -= 1.5f;
+            m_CreditsY -= 3.5f;
         }
 
         private void MaxisButton_OnButtonClicked(object Sender)

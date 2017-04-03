@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System.Collections.Generic;
+using System.Text;
 using System.IO;
 
 namespace Files.IFF
@@ -77,7 +78,7 @@ namespace Files.IFF
 
         public STR(IFFChunk BaseChunk) : base(BaseChunk)
         {
-            FileReader Reader = new FileReader(new MemoryStream(m_Data), false);
+            FileReader Reader = new FileReader(new MemoryStream(m_Data), false, Encoding.GetEncoding(1252));
 
             Version = Reader.ReadInt16();
             ushort NumStrings = 0;
@@ -179,6 +180,7 @@ namespace Files.IFF
                                 TranslatedString Str = new TranslatedString();
                                 Str.LangCode = (LanguageCodes)(Reader.ReadByte() + 1);
                                 Str.TranslatedStr = Reader.ReadString();
+
                                 Reader.ReadString(); //Comment
 
                                 if (Strings.ContainsKey(Str.LangCode))
