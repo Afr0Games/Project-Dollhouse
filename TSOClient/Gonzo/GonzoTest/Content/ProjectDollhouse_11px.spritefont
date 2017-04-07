@@ -16,6 +16,18 @@
        <End>&#x00FF;</End>
      </CharacterRegion>
      <CharacterRegion>
+       <Start>&#x00AB;</Start> <!--Double quotation-->
+       <End>&#x00BB;</End>
+     </CharacterRegion>
+     <CharacterRegion>
+       <Start>&#x2018;</Start> <!--Other quotations-->
+       <End>&#x203A;</End>
+     </CharacterRegion>
+     <CharacterRegion>
+       <Start>&#x401;</Start> <!--Cyrillic-->
+       <End>&#x451;</End>
+     </CharacterRegion>
+     <CharacterRegion>
        <Start>&#8481;</Start> <!--TM symbol-->
        <End>&#8482;</End>
      </CharacterRegion>
