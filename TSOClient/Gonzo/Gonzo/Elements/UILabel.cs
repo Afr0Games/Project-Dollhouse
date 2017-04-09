@@ -156,6 +156,15 @@ namespace Gonzo.Elements
             set { Position = new Vector2(value, Position.Y); }
         }
 
+        /// <summary>
+        /// The position of this UILabel on the Y coordinate scale. Used for tweening.
+        /// </summary>
+        public float YPosition
+        {
+            get { return Position.Y; }
+            set { Position = new Vector2(Position.X, value); }
+        }
+
         private void AlignText()
         {
             Vector2 Measurement = m_Font.MeasureString(Caption);

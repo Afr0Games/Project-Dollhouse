@@ -1,6 +1,4 @@
-﻿
-using System.Timers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Gonzo;
 using Gonzo.Dialogs;
 using Gonzo.Elements;
@@ -8,6 +6,7 @@ using Files.Manager;
 using Files.IFF;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Glide;
 
 namespace GonzoTest
 {
@@ -17,11 +16,11 @@ namespace GonzoTest
         private UIButton MaxisButton;
 
         private Iff m_Credits;
-        private List<string> m_CreditsStrings = new List<string>();
+        private List<UILabel> m_CreditsStrings = new List<UILabel>();
         private UIControl m_CreditsArea;
         private float m_CreditsY = 0;       //Upwards position of credits text.
         private float m_CreditsCenterX = 0; //Center of credits area.
-        private Timer m_CreditsTimer;       //Timer for controlling text scroll.
+        private Tweener m_Tween;
 
         private WillWrightDiag m_WillWrightDiag;
 
@@ -45,24 +44,32 @@ namespace GonzoTest
             m_CreditsArea = (UIControl)m_PResult.Controls["\"CreditsArea\""];
             m_CreditsY = m_CreditsArea.Size.Y;
 
-            //TODO: Convert all strings to UILabels and use Glide to scroll them.
+            int StrID = 0;
+            float Separation = 1.0f;
+
             foreach(TranslatedString TStr in m_Credits.GetSTR(163).GetStringList(LanguageCodes.EngUS))
             {
                 foreach (string Str in TStr.TranslatedStr.Split('\n'))
-                    m_CreditsStrings.Add(Str);
+                {
+                    m_CreditsStrings.Add(new UILabel(Str, StrID++, new Vector2(m_CreditsArea.Position.X +
+                        m_CreditsCenterX, m_CreditsY + Separation), Manager.Font12px.MeasureString(Str), 
+                        Color.Wheat, 12, this));
+                    Separation += 15.0f;
+                }
             }
 
-            m_CreditsTimer = new Timer(300);
-            m_CreditsTimer.Elapsed += M_CreditsTimer_Elapsed;
-            m_CreditsTimer.Start();
+            m_Tween = new Tweener();
+            Separation = 0.0f - (m_CreditsStrings.Count * 15.0f);
+
+            foreach (UILabel Lbl in m_CreditsStrings)
+            {
+                m_Tween.Tween(Lbl, new { YPosition = Separation }, 1000);
+                Separation += 15.0f;
+            }
         }
 
         #region EventHandlers
 
-        private void M_CreditsTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            m_CreditsY -= 3.5f;
-        }
 
         private void MaxisButton_OnButtonClicked(object Sender)
         {
@@ -74,6 +81,7 @@ namespace GonzoTest
         public override void Update(InputHelper Input, GameTime GTime)
         {
             m_WillWrightDiag.Update(Input, GTime);
+            m_Tween.Update(0.3f); //Set this to a lower value if text scrolls by too fast.
 
             base.Update(Input, GTime);
         }
@@ -84,19 +92,10 @@ namespace GonzoTest
             TSOLogoImage.Draw(m_SBatch, null, 0.0f);
             BackButtonIndentImage.Draw(m_SBatch, null, 0.0f);
 
-            float Separation = 1.0f;
-
-            foreach (string Str in m_CreditsStrings)
+            foreach (UILabel Lbl in m_CreditsStrings)
             {
-                m_CreditsCenterX = (m_CreditsArea.Size.X / 2) - (Manager.Font12px.MeasureString(Str).X / 2);
-
-                if ((m_CreditsY + Separation) > m_CreditsArea.Position.Y && (m_CreditsY + Separation) < m_CreditsArea.Size.Y)
-                {
-                    m_SBatch.DrawString(Manager.Font12px, Str, new Vector2(m_CreditsArea.Position.X + 
-                        m_CreditsCenterX, m_CreditsY + Separation), Color.Wheat);
-                }
-
-                Separation += 15.0f;
+                if(Lbl.YPosition > m_CreditsArea.Position.Y && (Lbl.YPosition < m_CreditsArea.Size.Y))
+                    Lbl.Draw(m_SBatch, 0.3f);
             }
 
             base.Draw();
