@@ -42,7 +42,6 @@ namespace Gonzo.Elements
         public bool Enabled = true;
 
         public bool m_IsButtonClicked = false;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event ButtonClickDelegate OnButtonClicked;
 
         public UIButton(AddButtonNode Node, ParseResult Result, UIScreen Screen) : base(Screen)
@@ -266,22 +265,29 @@ namespace Gonzo.Elements
         /// Constructs a new UIButton instance.
         /// </summary>
         /// <param name="Name">Name of button.</param>
-        /// <param name="Tex">Texture used to display this button.</param>
         /// <param name="Position">Button's position.</param>
         /// <param name="Screen">This button's screen.</param>
-        public UIButton(string Name, Texture2D Tex, Vector2 Pos, UIScreen Screen, UIElement Parent = null) : base(Screen, Parent)
+        /// <param name="Tex">Texture used to display this button.</param>
+        public UIButton(string Name, Vector2 Pos, UIScreen Screen, Texture2D Tex = null, UIElement Parent = null) : 
+            base(Screen, Parent)
         {
             base.Name = Name;
             Position = Pos;
 
-            Image = new UIImage(Tex, Screen, null);
-            Image.Position = new Vector2(Pos.X, Pos.Y);
+            if (Tex != null)
+            {
+                Image = new UIImage(Tex, Screen, null);
+                Image.Position = new Vector2(Pos.X, Pos.Y);
+            }
+            else
+                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+
             //Initialize to second frame in the image.
-            m_SourcePosition = new Vector2((Tex.Width / 4) * 2, 0.0f);
+            m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
             m_Size = new Vector2();
-            m_Size.X = Tex.Width / 4;
-            m_Size.Y = Tex.Height;
+            m_Size.X = Image.Texture.Width / 4;
+            m_Size.Y = Image.Texture.Height;
         }
 
         /// <summary>

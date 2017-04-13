@@ -9,6 +9,8 @@ namespace Gonzo.Dialogs
     {
         private UILabel m_LblTitle, m_LblUsername, m_LblPassword;
         private UITextEdit m_TxtUsername, m_TxtPassword;
+        private UIButton m_BtnLogin, m_BtnExit;
+
         private CaretSeparatedText m_Cst;
 
         public LoginDialog(UIScreen Screen, Vector2 Pos) : base(Screen, Pos, false, true, false)
@@ -16,12 +18,17 @@ namespace Gonzo.Dialogs
             m_Font = m_Screen.Font11px;
 
             m_Cst = StringManager.StrTable(209);
+
             m_LblTitle = new UILabel(m_Cst[1], 1, Pos, m_Font.MeasureString(m_Cst[1]),
                 m_Screen.StandardTxtColor, 11, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
             m_LblUsername = new UILabel(m_Cst[4], 2, new Vector2(Pos.X + 20, Pos.Y - 50), m_Font.MeasureString(m_Cst[4]), 
-                m_Screen.StandardTxtColor, 11, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
+                m_Screen.StandardTxtColor, 9, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
+
+            m_BtnLogin = new UIButton("BtnLogin", new Vector2(120, 170), m_Screen);
+            m_BtnExit = new UIButton("BtnExit", new Vector2(200, 170), m_Screen);
+
             SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 40) * Resolution.getVirtualAspectRatio()), 
-                (int)(200 * Resolution.getVirtualAspectRatio()));
+                (int)(175 * Resolution.getVirtualAspectRatio()));
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
@@ -32,10 +39,18 @@ namespace Gonzo.Dialogs
             {
                 if(m_DoDrag)
                 {
-                    Vector2 OffsetFromMouse = Position;
+                    Vector2 OffsetFromMouse = new Vector2(60, 0);
                     m_LblTitle.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-                    OffsetFromMouse = new Vector2(Position.X + 20, Position.Y - 50);
+                    OffsetFromMouse = new Vector2(20, 50);
                     m_LblUsername.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
+
+                    OffsetFromMouse = new Vector2(120, 170);
+                    m_BtnLogin.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
+                    m_BtnLogin.Update(Helper, GTime);
+
+                    OffsetFromMouse = new Vector2(200, 170);
+                    m_BtnExit.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
+                    m_BtnExit.Update(Helper, GTime);
                 }
             }
         }
@@ -51,6 +66,9 @@ namespace Gonzo.Dialogs
             m_LblTitle.Draw(SBatch, Depth + 0.1f);
             m_LblUsername.Draw(SBatch, Depth + 0.1f);
             //m_LblPassword.Draw(SBatch, Depth + 0.1f);
+
+            m_BtnLogin.Draw(SBatch, Depth + 0.1f);
+            m_BtnExit.Draw(SBatch, Depth + 0.1f);
 
             base.Draw(SBatch, LayerDepth);
         }

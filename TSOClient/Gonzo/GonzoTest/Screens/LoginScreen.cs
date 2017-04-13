@@ -20,6 +20,7 @@ namespace GonzoTest
         {
             m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
             m_LoginDiag = new LoginDialog(this, new Vector2(Position.X / 2, Position.Y / 2));
+            m_PResult.Elements.Add("LoginDialog", m_LoginDiag);
         }
 
         public override void Update(InputHelper Input, GameTime GTime)
@@ -34,7 +35,6 @@ namespace GonzoTest
             base.Draw();
 
             m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
-            m_LoginDiag.Draw(m_SBatch, 1.5f);
         }
     }
 }

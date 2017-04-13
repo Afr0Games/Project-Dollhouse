@@ -38,7 +38,7 @@ namespace GonzoTest
 
             m_WillWrightDiag = new WillWrightDiag(WillImage, this, new Vector2(100, 100));
             m_WillWrightDiag.Visible = false;
-            m_PResult.Elements.Add("WillWrightDiag", m_WillWrightDiag);
+            //m_PResult.Elements.Add("WillWrightDiag", m_WillWrightDiag);
 
             m_Credits = FileManager.GetIFF("credits.iff");
             m_CreditsArea = (UIControl)m_PResult.Controls["\"CreditsArea\""];
@@ -80,10 +80,10 @@ namespace GonzoTest
 
         public override void Update(InputHelper Input, GameTime GTime)
         {
+            base.Update(Input, GTime);
+
             m_WillWrightDiag.Update(Input, GTime);
             m_Tween.Update(0.3f); //Set this to a lower value if text scrolls by too fast.
-
-            base.Update(Input, GTime);
         }
 
         public override void Draw()
@@ -94,9 +94,12 @@ namespace GonzoTest
 
             foreach (UILabel Lbl in m_CreditsStrings)
             {
+                //TODO: Figure out how to stop lines from displaying outside of the screen.
                 if(Lbl.YPosition > m_CreditsArea.Position.Y && (Lbl.YPosition < m_CreditsArea.Size.Y))
                     Lbl.Draw(m_SBatch, 0.3f);
             }
+
+            m_WillWrightDiag.Draw(m_SBatch, 0.4f);
 
             base.Draw();
         }

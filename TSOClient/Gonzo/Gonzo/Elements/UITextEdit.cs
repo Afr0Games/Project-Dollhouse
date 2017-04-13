@@ -14,6 +14,8 @@ using System;
 using System.Timers;
 using System.Collections.Generic;
 using System.Text;
+using Files;
+using Files.Manager;
 using UIParser;
 using UIParser.Nodes;
 using Microsoft.Xna.Framework;
@@ -104,6 +106,8 @@ namespace Gonzo.Elements
 
         private List<RenderableText> m_Lines = new List<RenderableText>();
 
+        private bool m_DrawBackground = false;
+
         /// <summary>
         /// Gets or sets the font used by this UITextEdit.
         /// </summary>
@@ -135,6 +139,49 @@ namespace Gonzo.Elements
             }
         }
 
+        /// <summary>
+        /// Constructs a new UITextEdit control manually (I.E not from a UIScript).
+        /// </summary>
+        /// <param name="Name">The name of this UITextEdit control.</param>
+        /// <param name="ID">The ID of this UITextEdit control.</param>
+        /// <param name="DrawBackground">Should this UITextEdit's background be drawn?</param>
+        /// <param name="NumLines">Number of lines that this UITextEdit control supports.</param>
+        /// <param name="TextEditPosition">The position of this UITextEdit control.</param>
+        /// <param name="TextEditSize">The size of this UITextEdit control.</param>
+        /// <param name="Screen">A UIScreen instance.</param>
+        /// <param name="Tooltip">The tooltip associated with this UITextEdit control (optional).</param>
+        public UITextEdit(string Name, int ID, bool DrawBackground, int NumLines, Vector2 TextEditPosition, 
+            Vector2 TextEditSize, UIScreen Screen, string Tooltip = "") : base(Screen)
+        {
+            this.Name = Name;
+            m_ID = ID;
+            m_KeyboardInput = true; //UITextEdit needs to receive input from keyboard!
+            m_DrawBackground = DrawBackground;
+
+            Position = TextEditPosition;
+            m_TextPosition = Position;
+            m_Size = TextEditSize;
+            m_NumLines = NumLines;
+            TextColor = m_Screen.StandardTxtColor;
+
+            if(DrawBackground)
+            {
+                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
+
+                if (Position != null)
+                    Image.Position = Position;
+
+                Image.Slicer = new NineSlicer(new Vector2(0, 0), (int)Image.Texture.Width, (int)Image.Texture.Width, 15, 15, 15, 15);
+                Image.SetSize((int)Size.X, (int)Size.Y);
+            }
+        }
+
+        /// <summary>
+        /// Constructs a new UITextEdit control from a parsed UIScript.
+        /// </summary>
+        /// <param name="Node">The AddTextEditNode that defines this UITextEdit control.</param>
+        /// <param name="State">The ParserState returned when parsing the UIScript.</param>
+        /// <param name="Screen">A UIScreen instance.</param>
         public UITextEdit(AddTextEditNode Node, ParserState State, UIScreen Screen) : 
             base(Screen)
         {
@@ -185,23 +232,9 @@ namespace Gonzo.Elements
                     TextColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
 
                 if (Node.BackColor != null)
-                {
                     m_BackColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
-                    /*Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
-                    if(Position != null)
-                        Image.Position = Position;
-                    Image.Slicer = new NineSlicer(new Vector2(0, 0), (int)Image.Texture.Width, (int)Image.Texture.Width, 15, 15, 15, 15);
-                    Image.SetSize((int)Size.X, (int)Size.Y);*/
-                }
                 else
-                {
                     m_BackColor = new Color(57, 81, 110, 255);
-                    /*Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
-                    if(Position != null)
-                        Image.Position = Position;
-                    Image.Slicer = new NineSlicer(new Vector2(0, 0), (int)Image.Texture.Width, Image.Texture.Height, 15, 15, 15, 15);
-                    Image.SetSize((int)Size.X, (int)Size.Y);*/
-                }
 
                 if (Node.Mode != null)
                     m_Mode = (Node.Mode == "kReadOnly") ? TextEditMode.ReadOnly : TextEditMode.Insert;
@@ -239,7 +272,6 @@ namespace Gonzo.Elements
                 {
                     Position = new Vector2(State.Position[0], State.Position[1]) + Screen.Position;
                     m_TextPosition = Position;
-                    //Image.Position = Position;
                 }
                 if (State.Tooltip != "")
                     Tooltip = State.Tooltip;
@@ -1127,18 +1159,21 @@ namespace Gonzo.Elements
 
             if (Visible)
             {
-                /*Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
-                Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0), Depth);
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
+                if (m_DrawBackground)
+                {
+                    Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
+                    Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0), Depth);
+                    Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
 
-                Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + new Vector2(0, Image.Slicer.TopPadding), null);
-                Image.DrawTextureTo(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, Image.Slicer.TopPadding), Depth);
-                Image.DrawTextureTo(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, Image.Slicer.TopPadding), Depth);
+                    Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + new Vector2(0, Image.Slicer.TopPadding), null);
+                    Image.DrawTextureTo(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, Image.Slicer.TopPadding), Depth);
+                    Image.DrawTextureTo(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, Image.Slicer.TopPadding), Depth);
 
-                int BottomY = Image.Slicer.Height - Image.Slicer.BottomPadding;
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY), null);
-                Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY), Depth);
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY), Depth);*/
+                    int BottomY = Image.Slicer.Height - Image.Slicer.BottomPadding;
+                    Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY), null);
+                    Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY), Depth);
+                    Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY), Depth);
+                }
 
                 if (m_ScrollbarImage != null)
                     SBatch.Draw(m_ScrollbarImage, new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f,
@@ -1188,9 +1223,7 @@ namespace Gonzo.Elements
         protected virtual void Dispose(bool CleanUpManagedResources)
         {
             if(CleanUpManagedResources)
-            {
                 m_CursorVisibilityTimer.Dispose();
-            }
         }
     }
 }
