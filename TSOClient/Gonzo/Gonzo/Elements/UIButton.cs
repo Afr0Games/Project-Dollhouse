@@ -37,6 +37,15 @@ namespace Gonzo.Elements
         private float m_XScale = 1.0f; //Used to scale buttons to fit text.
 
         /// <summary>
+        /// Gets or sets this button's textposition (if it is a textbutton).
+        /// </summary>
+        public Vector2 TextPosition
+        {
+            get { return m_TextPosition; }
+            set { m_TextPosition = value; }
+        }
+
+        /// <summary>
         /// Is this button enabled (I.E not greyed out?)
         /// </summary>
         public bool Enabled = true;
@@ -248,10 +257,7 @@ namespace Gonzo.Elements
                 m_TextPosition = Position;
 
                 if (m_Size.X != 0)
-                {
-                    //if (Result.State.Size == null)
-                        ScaleToText();
-                }
+                    ScaleToText();
             }
 
             if (Node.Tooltip != "")
@@ -267,9 +273,12 @@ namespace Gonzo.Elements
         /// <param name="Name">Name of button.</param>
         /// <param name="Position">Button's position.</param>
         /// <param name="Screen">This button's screen.</param>
-        /// <param name="Tex">Texture used to display this button.</param>
-        public UIButton(string Name, Vector2 Pos, UIScreen Screen, Texture2D Tex = null, UIElement Parent = null) : 
-            base(Screen, Parent)
+        /// <param name="Caption">The caption for this button (optional).</param>
+        /// <param name="Font">The size of the caption's font (optional).</param>
+        /// <param name="Tex">Texture used to display this button (optional).</param>
+        /// <param name="ScaleToText">Should the button be scaled to fit the caption?</param>
+        public UIButton(string Name, Vector2 Pos, UIScreen Screen, Texture2D Tex = null, 
+            string Caption = "", int Font = 9, bool ScaleToText = true, UIElement Parent = null) : base(Screen, Parent)
         {
             base.Name = Name;
             Position = Pos;
@@ -284,6 +293,36 @@ namespace Gonzo.Elements
 
             //Initialize to second frame in the image.
             m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
+
+            if (Caption != "")
+            {
+                m_IsTextButton = true;
+                m_Text = Caption;
+            }
+
+            TextColor = m_Screen.StandardTxtColor; //TODO: Find out how to pass optional color as a parameter.
+
+            switch (Font)
+            {
+                case 9:
+                    m_Font = Screen.Font9px;
+                    break;
+                case 10:
+                    m_Font = Screen.Font10px;
+                    break;
+                case 12:
+                    m_Font = Screen.Font12px;
+                    break;
+                case 14:
+                    m_Font = Screen.Font14px;
+                    break;
+                case 16:
+                    m_Font = Screen.Font16px;
+                    break;
+                default:
+                    m_Font = Screen.Font12px;
+                    break;
+            }
 
             m_Size = new Vector2();
             m_Size.X = Image.Texture.Width / 4;
@@ -379,10 +418,13 @@ namespace Gonzo.Elements
         {
             if(m_IsTextButton)
             {
+                //Make the text stick to the button if/when button is moved.
                 m_TextPosition = Position;
 
-                if (m_Size.X != 0)
-                    ScaleToText();
+                float HalfX = m_Size.X / 2;
+                float HalfY = m_Size.Y / 2;
+                m_TextPosition.X += (HalfX * m_XScale) - (m_Font.MeasureString(m_Text).X / 2);
+                m_TextPosition.Y += HalfY - (m_Font.MeasureString(m_Text).Y / 2);
             }
 
             if(IsMouseOver(Input) || PixelCheck(Input, (int)m_Size.X))

@@ -70,8 +70,7 @@ namespace Gonzo.Dialogs
 
             Texture2D CloseButtonTex = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
             m_CloseButton = new UIButton("CloseBtn", 
-                Position + new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex, 
-                null);
+                Position + new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex);
             m_CloseButton.OnButtonClicked += CloseButton_OnButtonClicked;
         }
 
