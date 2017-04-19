@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Gonzo;
 using Gonzo.Dialogs;
@@ -20,6 +21,9 @@ namespace GonzoTest
         {
             m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
             m_LoginDiag = new LoginDialog(this, new Vector2(Position.X / 2, Position.Y / 2));
+
+            foreach (KeyValuePair<string, UIElement> KVP in m_LoginDiag.RegistrableUIElements)
+                m_PResult.Elements.Add(KVP.Key, KVP.Value);
             m_PResult.Elements.Add("LoginDialog", m_LoginDiag);
         }
 

@@ -151,7 +151,7 @@ namespace Gonzo.Elements
         /// <param name="Screen">A UIScreen instance.</param>
         /// <param name="Tooltip">The tooltip associated with this UITextEdit control (optional).</param>
         public UITextEdit(string Name, int ID, bool DrawBackground, int NumLines, Vector2 TextEditPosition, 
-            Vector2 TextEditSize, UIScreen Screen, string Tooltip = "") : base(Screen)
+            Vector2 TextEditSize, int Font, UIScreen Screen, string Tooltip = "") : base(Screen)
         {
             this.Name = Name;
             m_ID = ID;
@@ -164,7 +164,33 @@ namespace Gonzo.Elements
             m_NumLines = NumLines;
             TextColor = m_Screen.StandardTxtColor;
 
-            if(DrawBackground)
+            m_Lines.Add(new RenderableText()
+            {
+                SBuilder = new StringBuilder(),
+                Position = m_TextPosition,
+                Visible = true
+            });
+
+            switch (Font)
+            {
+                case 9:
+                    m_Font = Screen.Font9px;
+                    break;
+                case 10:
+                    m_Font = Screen.Font10px;
+                    break;
+                case 12:
+                    m_Font = Screen.Font12px;
+                    break;
+                case 14:
+                    m_Font = Screen.Font14px;
+                    break;
+                case 16:
+                    m_Font = Screen.Font16px;
+                    break;
+            }
+
+            if (DrawBackground)
             {
                 Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
 

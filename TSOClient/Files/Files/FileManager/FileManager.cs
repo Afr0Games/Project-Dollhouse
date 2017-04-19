@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using System.Collections.Concurrent;
@@ -19,6 +20,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using log4net;
 using System.Linq;
 using System.Drawing;
 using Files.FAR3;
@@ -45,6 +47,9 @@ namespace Files.Manager
     {
         public const uint CACHE_SIZE = 350000000; //~350mb
         private static uint m_BytesLoaded = 0;
+
+        private static readonly ILog m_Logger = 
+            LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private static ConcurrentDictionary<ulong, Asset> m_Assets = new ConcurrentDictionary<ulong, Asset>();
         private static ManualResetEvent m_AssetsResetEvent = new ManualResetEvent(false);
@@ -929,8 +934,17 @@ namespace Files.Manager
                         {
                             TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
                             MemStream.Seek(0, SeekOrigin.Begin);
-                            AddItem(ID, new Asset(ID, (uint)MemStream.Length,
-                                Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                            try
+                            {
+                                AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                    Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                            }
+                            catch(Exception E)
+                            {
+                                m_Logger.Error("FileManager.GrabItem():\n" +
+                                    "Failed to load TGA from 'gamedata\\terrain\\newformat\\':\n" + 
+                                    E.ToString());
+                            }
                         }
                     }
                 }
@@ -950,8 +964,18 @@ namespace Files.Manager
                         MemStream.Seek(0, SeekOrigin.Begin);
                     }
 
-                    AddItem(ID, new Asset(ID, (uint)MemStream.Length,
-                        Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                    try
+                    {
+                        AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                            Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
+                    }
+                    catch (Exception E)
+                    {
+                        m_Logger.Error("FileManager.GrabItem():\n" +
+                            "Failed to load BMP from 'cities\\':\n" +
+                            E.ToString());
+                    }
+
                     return MemStream;
                 }
             }

@@ -1,4 +1,5 @@
-﻿using Gonzo.Elements;
+﻿using System.Collections.Generic;
+using Gonzo.Elements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Files;
@@ -11,6 +12,11 @@ namespace Gonzo.Dialogs
     {
         private UIButton m_CloseButton;
         private UIImage m_CloseBtnBack;
+
+        /// <summary>
+        /// UIDialogs can have elements that need to be registered for rendering and updates.
+        /// </summary>
+        public Dictionary<string, UIElement> RegistrableUIElements = new Dictionary<string, UIElement>();
 
         /// <summary>
         /// Is this dialog draggable?
