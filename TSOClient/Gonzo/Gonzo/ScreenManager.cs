@@ -11,7 +11,7 @@ Contributor(s):
 */
 
 using System;
-using System.Threading;
+using Shared;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -27,12 +27,24 @@ namespace Gonzo
         private List<UIScreen> m_Screens = new List<UIScreen>();
         private InputHelper m_Input;
         private SpriteFont[] m_Fonts;
+        private Camera m_Camera;
 
         public event EventHandler<TextInputEventArgs> OnTextInput;
 
+        /// <summary>
+        /// A graphicsdevice instance.
+        /// </summary>
         public GraphicsDevice Device
         {
             get { return m_Graphics; }
+        }
+
+        /// <summary>
+        /// Camera used for rendering stuff.
+        /// </summary>
+        public Camera RenderCamera
+        {
+            get { return m_Camera; }
         }
 
         /// <summary>
@@ -77,6 +89,7 @@ namespace Gonzo
         public ScreenManager(GraphicsDevice Graphics, SpriteFont[] Fonts, InputHelper Input)
         {
             m_Graphics = Graphics;
+            m_Camera = new Camera(Graphics);
             m_Input = Input;
             m_Fonts = Fonts;
         }

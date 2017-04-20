@@ -1,33 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Diagnostics;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 
-namespace CityRenderer
+namespace Cityrenderer
 {
     /// <summary>
-    /// This is the main type for your game
+    /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Microsoft.Xna.Framework.Game
+    public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
-
-        //Which city are we loading?
-        public const int CITY_NUMBER = 3;
-
-        private Terrain m_Terrain;
+        SpriteBatch spriteBatch;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1024;
-            graphics.PreferredBackBufferHeight = 768;
             Content.RootDirectory = "Content";
         }
 
@@ -39,27 +26,9 @@ namespace CityRenderer
         /// </summary>
         protected override void Initialize()
         {
-            this.IsMouseVisible = true;
-            graphics.DeviceResetting += new EventHandler(GraphicsDevice_DeviceResetting);
-
-            CityDataRetriever cityData = new CityDataRetriever();
-
-            m_Terrain = new Terrain(GraphicsDevice, CITY_NUMBER, cityData, Content);
-            m_Terrain.Initialize();
-            m_Terrain.RegenData = true;
-
-
-            //Shadow configuration. Very Low quality res: 512, Low quality: 1024, High quality: 2048
-            m_Terrain.ShadowsEnabled = true;
-            m_Terrain.ShadowRes = 2048;
+            // TODO: Add your initialization logic here
 
             base.Initialize();
-        }
-
-        private void GraphicsDevice_DeviceResetting(object sender, EventArgs e)
-        {
-            UnloadContent();
-            LoadContent();
         }
 
         /// <summary>
@@ -68,19 +37,19 @@ namespace CityRenderer
         /// </summary>
         protected override void LoadContent()
         {
-            m_Terrain.m_GraphicsDevice = GraphicsDevice;
-            m_Terrain.LoadContent(GraphicsDevice, Content);
-            m_Terrain.RegenData = true;
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
-        /// all content.
+        /// game-specific content.
         /// </summary>
         protected override void UnloadContent()
         {
-            m_Terrain.UnloadEverything(); //call this when you're removing the cityview.
-            Content.Unload();
+            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -90,11 +59,10 @@ namespace CityRenderer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
 
-            m_Terrain.Update(gameTime);
+            // TODO: Add your update logic here
 
             base.Update(gameTime);
         }
@@ -105,10 +73,9 @@ namespace CityRenderer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.RenderState.DepthBufferEnable = true;
-            GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
-            GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            m_Terrain.Draw(GraphicsDevice);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            // TODO: Add your drawing code here
 
             base.Draw(gameTime);
         }

@@ -24,7 +24,7 @@ namespace Shared
     /// </summary>
     public class Sim
     {
-        public UICamera Camera;
+        public UICameraController CameraController;
         private AvatarBase m_Avatar;
         public bool HasHouse = false;
         public bool IsChild = false;
@@ -35,13 +35,12 @@ namespace Shared
         /// <param name="Devc">A GraphicsDevice instance.</param>
         /// <param name="Avatar">The Avatar used for this sim (can be AdultAvatar, ChildAvatar, DogAvatar or CatAvatar.</param>
         /// <param name="Child">Is this Sim a child?</param>
-        public Sim(GraphicsDevice Devc, AvatarBase Avatar, bool Child = false)
+        public Sim(GraphicsDevice Devc, Camera Cam, AvatarBase Avatar, bool Child = false)
         {
             IsChild = Child;
             m_Avatar = Avatar;
 
-            Camera = new UICamera(Devc);
-            Camera.Position = new Vector3(0.0f, -2.0f, 17.0f);
+            CameraController = new UICameraController(Cam);
         }
 
         /// <summary>
@@ -99,7 +98,7 @@ namespace Shared
 
         public void Draw()
         {
-            m_Avatar.Render(Camera.View, m_Avatar.WorldMatrix, Camera.Projection);
+            m_Avatar.Render(CameraController.View, m_Avatar.WorldMatrix, CameraController.Projection);
         }
     }
 }

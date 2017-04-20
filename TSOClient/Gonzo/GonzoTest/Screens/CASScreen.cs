@@ -23,6 +23,7 @@ namespace GonzoTest
         private ExitDialog m_ExitDialog;
         private UITextEdit m_DescriptionTextEdit;
 
+        private Camera m_Camera; //Might want to make this globally accessible.
         private Sim m_Avatar;
         VitaboyScreen m_VitaboyScreen;
 
@@ -74,12 +75,7 @@ namespace GonzoTest
             Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), (Vitaboy.SkinType)m_CurrentSkinType);
             Avatar.ShouldRotate = true;
 
-            m_Avatar = new Sim(Manager.Device, Avatar);
-            if (Resolution.getVirtualAspectRatio() > 1.33333337f)
-                m_Avatar.Camera.Origin = new Vector2(175, 100);
-            else
-                m_Avatar.Camera.Origin = new Vector2(145, 80); //800x600 resolution
-            m_Avatar.Camera.Zoom = 0.7f;
+            m_Avatar = new Sim(Manager.Device, Manager.RenderCamera, Avatar);
 
             m_VitaboyScreen = new VitaboyScreen(Manager, new Vector2(0, 0), 
                 new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight));

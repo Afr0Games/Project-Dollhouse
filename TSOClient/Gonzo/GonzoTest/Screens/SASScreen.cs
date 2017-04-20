@@ -202,13 +202,11 @@ namespace GonzoTest
             {
                 case 1:
                     if (m_Avatars.Count != 0)
-                        m_Avatars[0] = new Sim(Manager.Device, Avatar);
+                        m_Avatars[0] = new Sim(Manager.Device, Manager.RenderCamera, Avatar);
                     else
-                        m_Avatars.Add(new Sim(Manager.Device, Avatar));
+                        m_Avatars.Add(new Sim(Manager.Device, Manager.RenderCamera, Avatar));
 
                     m_Avatars[0].ShouldRotate = true;
-                    m_Avatars[0].Camera.Origin = new Vector2(175, 100);
-                    m_Avatars[0].Camera.Zoom = 0.7f;
                     break;
             }
         }

@@ -6,7 +6,6 @@ using Gonzo.Dialogs;
 using Gonzo.Elements;
 using Files;
 using Files.Manager;
-using Sound;
 
 namespace GonzoTest
 {
