@@ -5,16 +5,30 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cityrenderer", "Cityrenderer\Cityrenderer.csproj", "{2FA6D729-16AB-4C78-B108-90AD8A1101A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TargaImage", "..\..\libs\TargaImage\TargaImage.csproj", "{56F4BD87-2404-4263-80D5-6FA2161EB0A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2FA6D729-16AB-4C78-B108-90AD8A1101A6}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{2FA6D729-16AB-4C78-B108-90AD8A1101A6}.Debug|x86.ActiveCfg = Debug|x86
 		{2FA6D729-16AB-4C78-B108-90AD8A1101A6}.Debug|x86.Build.0 = Debug|x86
+		{2FA6D729-16AB-4C78-B108-90AD8A1101A6}.Release|Any CPU.ActiveCfg = Release|x86
 		{2FA6D729-16AB-4C78-B108-90AD8A1101A6}.Release|x86.ActiveCfg = Release|x86
 		{2FA6D729-16AB-4C78-B108-90AD8A1101A6}.Release|x86.Build.0 = Release|x86
+		{56F4BD87-2404-4263-80D5-6FA2161EB0A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56F4BD87-2404-4263-80D5-6FA2161EB0A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56F4BD87-2404-4263-80D5-6FA2161EB0A4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{56F4BD87-2404-4263-80D5-6FA2161EB0A4}.Debug|x86.Build.0 = Debug|Any CPU
+		{56F4BD87-2404-4263-80D5-6FA2161EB0A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56F4BD87-2404-4263-80D5-6FA2161EB0A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56F4BD87-2404-4263-80D5-6FA2161EB0A4}.Release|x86.ActiveCfg = Release|Any CPU
+		{56F4BD87-2404-4263-80D5-6FA2161EB0A4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
