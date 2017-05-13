@@ -23,7 +23,7 @@ VertexShaderHeadOutput TransformHead(VertexShaderHeadInput Input)
 {
 	VertexShaderHeadOutput Output;
 
-	float4 WorldPosition = mul(World, Input.Position);
+	float4 WorldPosition = mul(Input.Position, World);
 	float4 ViewPosition = mul(WorldPosition, View);
 	Output.Position = mul(ViewPosition, Projection);
 	Output.Normal = mul(ViewPosition, Projection);
