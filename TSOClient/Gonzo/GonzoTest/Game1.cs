@@ -18,6 +18,7 @@ namespace GonzoTest
         private ScreenManager m_ScrManager;
         private SpriteFont[] m_Fonts = new SpriteFont[5];
         private InputHelper m_Input = new InputHelper();
+        private Effect m_SimShader;
 
         public Game1()
         {
@@ -74,7 +75,9 @@ namespace GonzoTest
             m_Fonts[2] = Content.Load<SpriteFont>("ProjectDollhouse_12px");
             m_Fonts[3] = Content.Load<SpriteFont>("ProjectDollhouse_14px");
             m_Fonts[4] = Content.Load<SpriteFont>("ProjectDollhouse_16px");
+            m_SimShader = Content.Load<Effect>("VertexShader");
             m_ScrManager = new ScreenManager(GraphicsDevice, m_Fonts, m_Input);
+            m_ScrManager.HeadShader = m_SimShader;
         }
 
         private void FileManager_OnHundredPercentCompleted()

@@ -70,7 +70,7 @@ namespace GonzoTest
             m_BodySkinBrowser = new UIBodyBrowser(this, m_PResult.Controls["\"BodySkinBrowser\""], 1, AvatarSex.Female);
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
 
-            AdultAvatar Avatar = new AdultAvatar(Manager.Device);
+            AdultAvatar Avatar = new AdultAvatar(Manager.Device, Manager.HeadShader);
             Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
             Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), (Vitaboy.SkinType)m_CurrentSkinType);
             Avatar.ShouldRotate = true;
@@ -202,6 +202,8 @@ namespace GonzoTest
             }
             else
                 m_DescriptionScrollUpBtn.Enabled = false;
+
+            m_Avatar.Update(GTime);
 
             base.Update(Input, GTime);
         }

@@ -3,7 +3,7 @@
 
 /outputDir:bin/WindowsGL
 /intermediateDir:obj/WindowsGL
-/platform:WindowsGL
+/platform:DesktopGL
 /config:
 /profile:Reach
 /compress:False
@@ -12,4 +12,10 @@
 
 
 #---------------------------------- Content ---------------------------------#
+
+#begin VertexShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:VertexShader.fx
 

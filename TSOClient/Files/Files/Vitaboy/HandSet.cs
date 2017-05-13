@@ -22,8 +22,8 @@ namespace Files.Vitaboy
         /// <param name="Reader">A FileReader used to read a HandGroup file.</param>
         public HandSet(FileReader Reader)
         {
-            Left = new Hand(Reader);
             Right = new Hand(Reader);
+            Left = new Hand(Reader);
         }
     }
 }

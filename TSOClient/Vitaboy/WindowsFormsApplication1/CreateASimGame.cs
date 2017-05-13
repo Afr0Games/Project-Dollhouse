@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Files;
 using Files.Manager;
 using Vitaboy;
@@ -50,8 +47,9 @@ namespace WindowsFormsApplication1
         private void FileManager_OnHundredPercentCompleted()
         {
             m_Avatar = new AdultAvatar(m_Graphics.GraphicsDevice);
-            m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
-            m_Avatar.Head = FileManager.GetAppearance((ulong)FileIDs.AppearancesFileIDs.fahm814_unleashedkim2);
+            //m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
+            m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mab000_robin), SkinType.Medium);
+            m_Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mah020_willw), SkinType.Medium);
             m_Avatar.Animation = FileManager.GetAnimation(0x5f00000007);
         }
 
@@ -63,7 +61,7 @@ namespace WindowsFormsApplication1
             if (m_Avatar != null)
             {
                 if(m_Avatar.Animation != null)
-                    m_Avatar.AdvanceFrame(m_Avatar.Animation, 0.05f);
+                    m_Avatar.AdvanceFrame(m_Avatar.Animation, 0.03f);
 
                 m_Avatar.ComputeBonePositions(m_Avatar.Skel.RootBone, mWorldMat);
             }

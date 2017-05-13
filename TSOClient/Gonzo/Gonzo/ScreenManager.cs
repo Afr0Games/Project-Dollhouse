@@ -28,6 +28,7 @@ namespace Gonzo
         private InputHelper m_Input;
         private SpriteFont[] m_Fonts;
         private Camera m_Camera;
+        private Effect m_Shader; //TODO: Move this elsewhere.
 
         public event EventHandler<TextInputEventArgs> OnTextInput;
 
@@ -81,6 +82,8 @@ namespace Gonzo
         /// The 16px by 16px font for this ScreenManager instance.
         /// </summary>
         public SpriteFont Font16px { get { return m_Fonts[5]; } }
+
+        public Effect HeadShader { get { return m_Shader; } set { m_Shader = value; } }
 
         /// <summary>
         /// Constructs a new ScreenManager instance.
