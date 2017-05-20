@@ -314,15 +314,20 @@ namespace Vitaboy
             }
             else
             {
-                m_HeadShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[16].AbsoluteMatrix);
+                m_HeadShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("HEAD")].AbsoluteMatrix);
                 m_HeadShader.Parameters["View"].SetValue(ViewMatrix);
                 m_HeadShader.Parameters["Projection"].SetValue(ProjectionMatrix);
             }
 
             if (HeadTexture != null)
             {
-                m_HeadEffect.Texture = HeadTexture;
-                m_HeadEffect.TextureEnabled = true;
+                if (m_GPURender == false)
+                {
+                    m_HeadEffect.Texture = HeadTexture;
+                    m_HeadEffect.TextureEnabled = true;
+                }
+                else
+                    m_HeadShader.Parameters["HeadTexture"].SetValue(HeadTexture);
             }
 
             m_AccessoryEffect.World = WorldMatrix;

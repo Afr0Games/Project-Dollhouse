@@ -5,6 +5,13 @@ float4x4 Projection;
 float4 AmbientColor = float4(1, 1, 1, 1);
 float AmbientIntensity = 0.1;
 
+texture HeadTexture;
+
+sampler HeadTextureSampler = sampler_state
+{
+	Texture = <HeadTexture>;
+};
+
 struct VertexShaderHeadInput
 {
 	float4 Position : POSITION0;
@@ -34,8 +41,8 @@ VertexShaderHeadOutput TransformHead(VertexShaderHeadInput Input)
 
 float4 PixelShaderFunction(VertexShaderHeadOutput Input) : COLOR0
 {
-	//return AmbientColor * AmbientIntensity;
-	return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	float4 Color = tex2D(HeadTextureSampler, Input.TexPosition);
+	return Color;
 }
 
 technique TransformVerticesTechnique
