@@ -12,6 +12,27 @@ sampler HeadTextureSampler = sampler_state
 	Texture = <HeadTexture>;
 };
 
+texture AccessoryTexture;
+
+sampler AccessoryTextureSampler = sampler_state
+{
+	Texture = <AccessoryTexture>;
+};
+
+texture LeftHandTexture;
+
+sampler LeftHandTextureSampler = sampler_state
+{
+	Texture = <LeftHandTexture>;
+};
+
+texture RightHandTexture;
+
+sampler RightHandTextureSampler = sampler_state
+{
+	Texture = <RightHandTexture>;
+};
+
 struct VertexShaderHeadInput
 {
 	float4 Position : POSITION0;
@@ -39,17 +60,101 @@ VertexShaderHeadOutput TransformHead(VertexShaderHeadInput Input)
 	return Output;
 }
 
-float4 PixelShaderFunction(VertexShaderHeadOutput Input) : COLOR0
+VertexShaderHeadOutput TransformAccessory(VertexShaderHeadInput Input)
+{
+	VertexShaderHeadOutput Output;
+
+	float4 WorldPosition = mul(Input.Position, World);
+	float4 ViewPosition = mul(WorldPosition, View);
+	Output.Position = mul(ViewPosition, Projection);
+	Output.Normal = mul(ViewPosition, Projection);
+	Output.TexPosition = Input.TexPosition;
+
+	return Output;
+}
+
+VertexShaderHeadOutput TransformLeftHand(VertexShaderHeadInput Input)
+{
+	VertexShaderHeadOutput Output;
+
+	float4 WorldPosition = mul(Input.Position, World);
+	float4 ViewPosition = mul(WorldPosition, View);
+	Output.Position = mul(ViewPosition, Projection);
+	Output.Normal = mul(ViewPosition, Projection);
+	Output.TexPosition = Input.TexPosition;
+
+	return Output;
+}
+
+VertexShaderHeadOutput TransformRightHand(VertexShaderHeadInput Input)
+{
+	VertexShaderHeadOutput Output;
+
+	float4 WorldPosition = mul(Input.Position, World);
+	float4 ViewPosition = mul(WorldPosition, View);
+	Output.Position = mul(ViewPosition, Projection);
+	Output.Normal = mul(ViewPosition, Projection);
+	Output.TexPosition = Input.TexPosition;
+
+	return Output;
+}
+
+float4 HeadPixelShaderFunction(VertexShaderHeadOutput Input) : COLOR0
 {
 	float4 Color = tex2D(HeadTextureSampler, Input.TexPosition);
 	return Color;
 }
 
-technique TransformVerticesTechnique
+float4 AccessoryPixelShaderFunction(VertexShaderHeadOutput Input) : COLOR0
+{
+	float4 Color = tex2D(AccessoryTextureSampler, Input.TexPosition);
+	return Color;
+}
+
+float4 LeftHandPixelShaderFunction(VertexShaderHeadOutput Input) : COLOR0
+{
+	float4 Color = tex2D(LeftHandTextureSampler, Input.TexPosition);
+	return Color;
+}
+
+float4 RightHandPixelShaderFunction(VertexShaderHeadOutput Input) : COLOR0
+{
+	float4 Color = tex2D(RightHandTextureSampler, Input.TexPosition);
+	return Color;
+}
+
+technique TransformHeadTechnique
 {
 	pass HeadPass
 	{
 		VertexShader = compile vs_3_0 TransformHead();
-		PixelShader = compile ps_3_0 PixelShaderFunction();
+		PixelShader = compile ps_3_0 HeadPixelShaderFunction();
+	}
+}
+
+technique TransformAccessoryTechnique
+{
+	pass HeadPass
+	{
+		VertexShader = compile vs_3_0 TransformAccessory();
+		PixelShader = compile ps_3_0 AccessoryPixelShaderFunction();
+	}
+}
+
+technique TransformLeftHandTechnique
+{
+	pass HeadPass
+	{
+		VertexShader = compile vs_3_0 TransformLeftHand();
+		PixelShader = compile ps_3_0 LeftHandPixelShaderFunction();
+	}
+}
+
+technique TransformRightHandTechnique
+{
+	pass HeadPass
+	{
+		VertexShader = compile vs_3_0 TransformRightHand();
+		PixelShader = compile ps_3_0 RightHandPixelShaderFunction();
 	}
 }
