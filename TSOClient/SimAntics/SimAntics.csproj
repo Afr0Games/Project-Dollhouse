@@ -40,12 +40,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Coroutine.cs" />
     <Compile Include="ObjectModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimanticsThread.cs" />
     <Compile Include="Simulator.cs" />
+    <Compile Include="XMTObject.cs" />
     <Compile Include="XObject.cs" />
     <Compile Include="XPerson.cs" />
-    <Compile Include="XPortal.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Files\Files\Files.csproj">
+      <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
+      <Name>Files</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

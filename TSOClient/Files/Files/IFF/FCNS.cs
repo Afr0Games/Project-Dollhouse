@@ -20,6 +20,9 @@ namespace Files.IFF
         public string Value = "";
     }
 
+    /// <summary>
+    /// This chunk type defines global floating-point tuning constants. It is found exclusively in global.iff.
+    /// </summary>
     public class FCNS : IFFChunk
     {
         public FCNS(IFFChunk BaseChunk) : base(BaseChunk)

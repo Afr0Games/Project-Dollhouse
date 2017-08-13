@@ -105,9 +105,34 @@ namespace Files.IFF
             return (PALT)m_PALTChunks[ID];
         }
 
+        /// <summary>
+        /// Get a specific STR# from this IFF.
+        /// </summary>
+        /// <param name="ID">ID  of the STR# to get.</param>
+        /// <returns>A STR# chunk.</returns>
         public STR GetSTR(ushort ID)
         {
             return (STR)m_STRChunks[ID];
+        }
+
+        /// <summary>
+        /// Get a specific BHAV from this IFF.
+        /// </summary>
+        /// <param name="ID">ID  of the BHAV to get.</param>
+        /// <returns>A BHAV chunk.</returns>
+        public BHAV GetBHAV(ushort ID)
+        {
+            return (BHAV)m_BHAVChunks[ID];
+        }
+
+        /// <summary>
+        /// Get a specific GLOB from this IFF.
+        /// </summary>
+        /// <param name="ID">The ID of the GLOB to get.</param>
+        /// <returns>A GLOB chunk.</returns>
+        public GLOB GetGLOB(ushort ID)
+        {
+            return (GLOB)m_BHAVChunks[ID];
         }
 
         public Iff(Stream Data, GraphicsDevice Device)

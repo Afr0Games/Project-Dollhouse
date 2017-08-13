@@ -15,6 +15,9 @@ using System.IO;
 
 namespace Files.IFF
 {
+    /// <summary>
+    /// Catalog text strings; equivalent in format to STR#
+    /// </summary>
     public class CTSS : IFFChunk
     {
         public short Version = 0;

@@ -61,7 +61,7 @@ namespace Files.IFF
         public ushort GardeningID;
         public ushort TTABID;
         public ushort InteractionGroup;
-        OBJDType ObjectType;
+        public OBJDType ObjectType;
         public ushort MasterID = 0;
         public short SubIndex = 0;
         public ushort WashHandsID = 0;

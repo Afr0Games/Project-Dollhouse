@@ -14,7 +14,6 @@ using System;
 using System.Text;
 using System.IO;
 using Files;
-using Files.AudioLogic;
 
 namespace Sound
 {

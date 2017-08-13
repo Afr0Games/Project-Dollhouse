@@ -551,7 +551,7 @@ namespace Files.Manager
         /// <summary>
         /// Gets an IFF instance from the FileManager.
         /// </summary>
-        /// <param name="Filename">The FileID/InstanceID of the IFF to get.</param>
+        /// <param name="Filename">The name of the IFF to get.</param>
         /// <returns>A new Iff instance.</returns>
         public static Iff GetIFF(string Filename)
         {
