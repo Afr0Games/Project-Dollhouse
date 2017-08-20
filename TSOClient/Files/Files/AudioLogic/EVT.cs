@@ -84,7 +84,10 @@ namespace Files.AudioLogic
                 TrackEvent Event = new TrackEvent();
                 Event.Name = Elements[0];
                 Event.EventType = (HITEvents)Enum.ToObject(typeof(HITEvents), ParseHexString(Elements[1]));
-                Event.TrackID = (Elements[2].Equals("", StringComparison.InvariantCultureIgnoreCase)) ? 0 : uint.Parse(Elements[2].Replace("0x", ""), NumberStyles.HexNumber);
+                if(!Event.Name.Contains("bkground")) //Sigh, Maxis...
+                    Event.TrackID = (Elements[2].Equals("", StringComparison.InvariantCultureIgnoreCase)) ? 0 : uint.Parse(Elements[2].Replace("0x", ""), NumberStyles.HexNumber);
+                else
+                    Event.TrackID = (Elements[2].Equals("", StringComparison.InvariantCultureIgnoreCase)) ? 0 : uint.Parse(Elements[2]);
                 Event.Unknown = ParseHexString(Elements[3]);
                 Event.Unknown2 = ParseHexString(Elements[4]);
                 Event.Unknown3 = ParseHexString(Elements[5]);

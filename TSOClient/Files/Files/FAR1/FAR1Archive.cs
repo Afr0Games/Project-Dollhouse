@@ -78,12 +78,12 @@ namespace Files.FAR1
         /// </summary>
         /// <param name="ID">ID of the entry to grab from archive.</param>
         /// <returns>The entry's data as a Stream instance.</returns>
-        public Stream GrabEntry(string Filename)
+        public Stream GrabEntry(byte[] FilenameHash)
         {
-            if (!ContainsEntry(Filename))
+            if (!ContainsEntry(FilenameHash))
                 throw new FAR1Exception("Couldn't find entry - FAR1Archive.cs!");
 
-            FAR1Entry Entry = m_Entries[Filename];
+            FAR1Entry Entry = m_Entries[FilenameHash];
 
             if(m_Reader == null)
                 m_Reader = new FileReader(File.Open(m_Path, FileMode.Open), false);
@@ -100,7 +100,7 @@ namespace Files.FAR1
         /// </summary>
         /// <param name="Entries">A List of UniqueFileID of entries to grab.</param>
         /// <returns>The entries as a List of Stream instances.</returns>
-        public List<Stream> GrabEntries(List<string> Entries)
+        public List<Stream> GrabEntries(List<byte[]> Entries)
         {
             List<Stream> GrabbedEntries = new List<Stream>();
 
@@ -133,11 +133,11 @@ namespace Files.FAR1
         /// <summary>
         /// Does this archive contain the specified entry?
         /// </summary>
-        /// <param name="ID">ID of the entry to search for.</param>
+        /// <param name="FilenameHash">The hashed filename of the entry to search for.</param>
         /// <returns>True if entry was found, false otherwise.</returns>
-        public bool ContainsEntry(string Filename)
+        public bool ContainsEntry(byte[] FilenameHash)
         {
-            return m_Entries.Contains(Filename);
+            return m_Entries.Contains(FilenameHash);
         }
 
         public void Dispose()

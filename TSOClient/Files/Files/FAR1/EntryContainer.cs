@@ -30,17 +30,15 @@ namespace Files.FAR1
         /// <summary>
         /// Gets an entry from this EntryContainer instance.
         /// </summary>
-        /// <param name="Filename">Filename of entry to get.</param>
+        /// <param name="Filename">Hashed filename of entry to get.</param>
         /// <returns>A FAR1Entry instance if found, null if not found.</returns>
-        public FAR1Entry this[string Filename]
+        public FAR1Entry this[byte[] FilenameHash]
         {
             get
             {
-                byte[] Hash = FileUtilities.GenerateHash(Filename);
-
                 foreach (FAR1Entry Entry in m_Entries)
                 {
-                    if (Entry.FilenameHash.SequenceEqual(Hash))
+                    if (Entry.FilenameHash.SequenceEqual(FilenameHash))
                         return Entry;
                 }
 
@@ -62,13 +60,11 @@ namespace Files.FAR1
         /// </summary>
         /// <param name="Filename">Filename of entry to look for.</param>
         /// <returns>True if found, false if not.</returns>
-        public bool Contains(string Filename)
+        public bool Contains(byte[] FilenameHash)
         {
-            byte[] Hash = FileUtilities.GenerateHash(Filename);
-
             foreach (FAR1Entry Entry in m_Entries)
             {
-                if (Entry.FilenameHash.SequenceEqual(Hash))
+                if (Entry.FilenameHash.SequenceEqual(FilenameHash))
                     return true;
             }
 

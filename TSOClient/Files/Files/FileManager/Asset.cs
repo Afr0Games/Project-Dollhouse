@@ -83,6 +83,7 @@ namespace Files.Manager
         /// Creates a new Asset instance.
         /// </summary>
         /// <param name="AssetID">ID of this asset.</param>
+        /// <param name="Size">The size of this asset.</param>
         /// <param name="Data">Data of asset.</param>
         public Asset(ulong AssetID, uint Size, object Data)
         {

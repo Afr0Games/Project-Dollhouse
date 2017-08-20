@@ -2,8 +2,17 @@
 float4x4 View;
 float4x4 Projection;
 
+//float4x4 AbsoluteBoneMatrix; //The absolute matrix of a specific bone. Set by the AvatarBase class.
+
 float4 AmbientColor = float4(1, 1, 1, 1);
 float AmbientIntensity = 0.1;
+
+texture BodyTexture;
+
+sampler BodyTextureSampler = sampler_state
+{
+	Texture = <BodyTexture>;
+};
 
 texture HeadTexture;
 
@@ -46,6 +55,47 @@ struct VertexShaderHeadOutput
 	float4 Normal : NORMAL0;
 	float4 TexPosition : TEXCOORD0;
 };
+
+//The position in this struct should be a relative vertex (see Avatarbase.cs - TransformVertices())
+struct VertexShaderBodyInput
+{
+	float4 Position : POSITION0;
+	float4 Normal : NORMAL0;
+	float4 TexPosition : TEXCOORD0;
+};
+
+struct VertexShaderBodyOutput
+{
+	float4 Position : POSITION0;
+	float4 Normal : NORMAL0;
+	float4 TexPosition : TEXCOORD0;
+};
+
+float4x4 CreateTranslation(float x, float y, float z)
+{
+	return float4x4(1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		x, y, z, 1);
+}
+
+VertexShaderBodyOutput TransformBody(VertexShaderBodyInput Input)
+{
+	VertexShaderBodyOutput Output;
+
+	//Transforms the relative vertex passed to the shader by the bone's absolute matrix.
+	float4x4 TranslatedMatrix = CreateTranslation(Input.Position.x, Input.Position.y, Input.Position.z) * 
+		/*AbsoluteBoneMatrix*/World;
+	
+	Output.Position = mul(float3(0, 0, 0), TranslatedMatrix);
+	Output.TexPosition = Input.TexPosition;
+
+	TranslatedMatrix = CreateTranslation(Input.Normal.x, Input.Normal.y, Input.Normal.z) * /*AbsoluteBoneMatrix*/ World;
+
+	Output.Normal = mul(float3(0, 0, 0), TranslatedMatrix);
+
+	return Output;
+}
 
 VertexShaderHeadOutput TransformHead(VertexShaderHeadInput Input)
 {
@@ -99,6 +149,12 @@ VertexShaderHeadOutput TransformRightHand(VertexShaderHeadInput Input)
 	return Output;
 }
 
+float4 BodyPixelShaderFunction(VertexShaderBodyOutput Input) : COLOR0
+{
+	float4 Color = tex2D(BodyTextureSampler, Input.TexPosition);
+	return Color;
+}
+
 float4 HeadPixelShaderFunction(VertexShaderHeadOutput Input) : COLOR0
 {
 	float4 Color = tex2D(HeadTextureSampler, Input.TexPosition);
@@ -121,6 +177,15 @@ float4 RightHandPixelShaderFunction(VertexShaderHeadOutput Input) : COLOR0
 {
 	float4 Color = tex2D(RightHandTextureSampler, Input.TexPosition);
 	return Color;
+}
+
+technique TransformBodyTechnique
+{
+	pass HeadPass
+	{
+		VertexShader = compile vs_3_0 TransformBody();
+		PixelShader = compile ps_3_0 BodyPixelShaderFunction();
+	}
 }
 
 technique TransformHeadTechnique

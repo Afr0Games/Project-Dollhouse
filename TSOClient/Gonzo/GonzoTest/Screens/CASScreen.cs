@@ -2,6 +2,7 @@
 using Shared;
 using Files;
 using Files.Manager;
+using Sound;
 using Gonzo;
 using Gonzo.Elements;
 using Gonzo.Dialogs;
@@ -86,6 +87,8 @@ namespace GonzoTest
             m_ExitDialog.Visible = false;
 
             m_DescriptionTextEdit = (UITextEdit)m_PResult.Elements["\"DescriptionTextEdit\""];
+
+            HitVM.PlayEvent("bkground_createasim");
 
             Manager.AddScreen(m_VitaboyScreen);
         }

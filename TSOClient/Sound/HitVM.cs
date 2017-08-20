@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using Files.Manager;
 using Files.AudioLogic;
+using System.Diagnostics;
 
 namespace Sound
 {
@@ -51,6 +52,20 @@ namespace Sound
         }
 
         /// <summary>
+        /// Stops playing any sound associated with an active event and removes the event
+        /// from the active events. This can be used to kill UI music.
+        /// </summary>
+        /// <param name="Event">The event to kill.</param>
+        public static void KillEvent(string Event)
+        {
+            if(IsEventActive(Event))
+            {
+                m_ActiveEvents[Event].Kill();
+                m_ActiveEvents.Remove(Event);
+            }
+        }
+
+        /// <summary>
         /// Reads a global variable.
         /// </summary>
         /// <param name="Location">The location to read from.</param>
@@ -64,6 +79,16 @@ namespace Sound
         /// All playable events registered by the VM.
         /// </summary>
         public static Dictionary<string, RegisteredEvent> Events = new Dictionary<string, RegisteredEvent>();
+
+        /// <summary>
+        /// A dictionary of IDs (as defined in sounddata\eventlist.txt) and names of diffent music modes.
+        /// </summary>
+        public static Dictionary<int, string> MusicModes = new Dictionary<int, string>();
+
+        /// <summary>
+        /// Maps string IDs to station and music mode paths.
+        /// </summary>
+        private static Dictionary<string, string> m_StationPaths = new Dictionary<string, string>();
 
         //The game's directory.
         public static string GameDir = "";
@@ -142,7 +167,40 @@ namespace Sound
             m_GlobalVars.Add(0x86, 0); //OptionMusicVol
             m_GlobalVars.Add(0x87, 0); //CampfireSize
 
+            //credits isn't defined in radio.ini, but manually defined so it can map to a path.
+            MusicModes.Add(6, "credits");
+            MusicModes.Add(11, "KSEL");
+            MusicModes.Add(12, "KCRE");
+            MusicModes.Add(13, "KMAP");
+
+            if (IsLinux)
+            {
+                m_StationPaths.Add("credits", "Music/Stations/Disco");
+                m_StationPaths.Add("KMAP", "Music/Modes/Map/");
+                m_StationPaths.Add("KSEL", "Music/ Modes/Select/");
+                m_StationPaths.Add("KCRE", "Music/ Modes/Create/");
+            }
+            else
+            {
+                m_StationPaths.Add("credits", "Music\\Stations\\Disco");
+                m_StationPaths.Add("KMAP", "Music\\Modes\\Map\\");
+                m_StationPaths.Add("KSEL", "Music\\Modes\\Select\\");
+                m_StationPaths.Add("KCRE", "Music\\Modes\\Create\\");
+            }
+
             IsInitialized = true;
+        }
+
+        /// <summary>
+        /// Returns a path to a mode or station based on a StringID.
+        /// </summary>
+        /// <param name="StringID">A StringID obtained from the MusicModes dictionary.</param>
+        /// <returns>The path to a mode or station.</returns>
+        public static string GetStationPath(string StringID)
+        {
+            if (m_StationPaths.ContainsKey(StringID))
+                return m_StationPaths[StringID];
+            else return "";
         }
 
         /// <summary>
@@ -151,12 +209,15 @@ namespace Sound
         /// <param name="RscGroup">The resource group to go through.</param>
         private void RegisterEvent(HitResourcegroup RscGroup)
         {
-            foreach(TrackEvent TEvent in  RscGroup.Events.Events)
+            foreach(TrackEvent TEvent in RscGroup.Events.Events)
             {
                 RegisteredEvent Event = new RegisteredEvent();
                 Event.Name = TEvent.Name;
                 Event.EventType = TEvent.EventType;
                 Event.TrackID = TEvent.TrackID;
+                if (Event.TrackID == 18)
+                    Debug.Print("TrackID 18: " + Event.Name);
+
                 Event.Rsc = RscGroup;
                 if(!Events.ContainsKey(TEvent.Name))
                     Events.Add(TEvent.Name, Event);
@@ -168,6 +229,9 @@ namespace Sound
         /// </summary>
         public static void Step()
         {
+            foreach (KeyValuePair<string, HITTVOn> KVP in m_ActiveEvents)
+                KVP.Value.Tick();
+
             for(int i = 0; i < m_CurrentlyPlayingTracks.Count; i++)
             {
                 if (!m_CurrentlyPlayingTracks[i].is_complete)

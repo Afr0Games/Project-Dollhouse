@@ -59,9 +59,9 @@
     <Compile Include="HitResourcegroup.cs" />
     <Compile Include="HITTVOn.cs" />
     <Compile Include="HitVM.cs" />
+    <Compile Include="SoundPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisteredEvent.cs" />
-    <Compile Include="SoundPlayer.cs" />
     <Compile Include="SubRoutine.cs" />
   </ItemGroup>
   <ItemGroup>

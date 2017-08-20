@@ -7,6 +7,7 @@ using Files.IFF;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Glide;
+using Sound;
 
 namespace GonzoTest
 {
@@ -66,6 +67,8 @@ namespace GonzoTest
                 m_Tween.Tween(Lbl, new { YPosition = Separation }, 1000);
                 Separation += 15.0f;
             }
+
+            HitVM.PlayEvent("bkground_credits");
         }
 
         #region EventHandlers

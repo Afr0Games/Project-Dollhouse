@@ -56,6 +56,8 @@ namespace Sound
         private List<HITNoteEntry> m_Notes = new List<HITNoteEntry>();
         private uint m_SoundID = 0;
 
+        private SoundPlayer m_Player;
+
         /// <summary>
         /// Creates a new SubRoutine instance.
         /// </summary>
@@ -315,7 +317,8 @@ namespace Sound
                                 m_Notes.Add(new HITNoteEntry(m_SoundID, Snd));
 
                                 SetVariable(Dest, m_Notes.Count - 1);
-                                SoundPlayer.PlaySound(Snd.DecompressedWav(), m_SoundID, Snd.GetSampleRate());
+                                m_Player = new SoundPlayer(Snd.DecompressedWav(), Snd.GetSampleRate());
+                                m_Player.PlaySound();
                             }
                             else
                                 Debug.WriteLine("SubRoutine.cs: Couldn't find sound " + m_SoundID);
@@ -352,6 +355,10 @@ namespace Sound
 
                             break;
                         case 0x8: //return - kill this thread.
+                            m_Player.StopSound();
+                            m_Player.Dispose();
+                            m_Player = null;
+
                             YieldComplete();
                             yield return false;
                             break;
@@ -648,7 +655,9 @@ namespace Sound
                             m_Notes.Add(Note);
 
                             SetVariable(Dest, m_Notes.Count - 1);
-                            SoundPlayer.PlaySound(Note.Sound.DecompressedWav(), m_SoundID, Note.Sound.GetSampleRate(), true);
+
+                            m_Player = new SoundPlayer(Note.Sound.DecompressedWav(), Note.Sound.GetSampleRate());
+                            m_Player.PlaySound();
 
                             break;
                     }
@@ -657,7 +666,9 @@ namespace Sound
             else
             {
                 ISoundCodec Snd = FileManager.GetSound(m_SoundID);
-                SoundPlayer.PlaySound(Snd.DecompressedWav(), m_SoundID, Snd.GetSampleRate(), false);
+
+                m_Player = new SoundPlayer(Snd.DecompressedWav(), Snd.GetSampleRate());
+                m_Player.PlaySound();
                 yield return true;
             }
         }

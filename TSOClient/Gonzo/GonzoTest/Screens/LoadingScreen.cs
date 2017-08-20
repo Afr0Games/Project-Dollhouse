@@ -491,7 +491,7 @@ namespace GonzoTest
             Manager.RemoveScreen(this);
             Manager.AddScreen(new LoginScreen(Manager, m_SBatch));
             if (HitVM.IsEventActive("bkground_load"))
-                SoundPlayer.StopSound(5);
+                HitVM.KillEvent("bkground_load");
         }
 
         public override void Update(InputHelper Input, GameTime GTime)

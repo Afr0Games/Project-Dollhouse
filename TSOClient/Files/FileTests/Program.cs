@@ -152,9 +152,6 @@ namespace FileTests
 
             Console.WriteLine("Attempting to parse TRK...");
             TRK Track = FileManager.GetTRK(Event.Events[2].TrackID);
-
-            Console.WriteLine("Attempting to parse HIT...");
-            Hit Hit = new Hit(File.Open(StartupPath + "\\sounddata\\tsoep5.hit", FileMode.Open, FileAccess.Read, FileShare.Read));
         }
 
         public static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)

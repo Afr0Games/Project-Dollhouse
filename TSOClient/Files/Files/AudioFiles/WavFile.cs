@@ -102,6 +102,10 @@ namespace Files.AudioFiles
             return m_SampleRate;
         }
 
+        /// <summary>
+        /// Gets the decompressed wav data for this WavFile instance.
+        /// </summary>
+        /// <returns>The decompressed wav data as an array of bytes.</returns>
         public byte[] DecompressedWav()
         {
             return m_DecompressedStream.ToArray();

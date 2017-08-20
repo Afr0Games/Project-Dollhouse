@@ -53,8 +53,9 @@ namespace Files.Manager
 
         private static ConcurrentDictionary<ulong, Asset> m_Assets = new ConcurrentDictionary<ulong, Asset>();
         private static ManualResetEvent m_AssetsResetEvent = new ManualResetEvent(false);
-        private static ConcurrentDictionary<byte[], Asset> m_FAR1Assets = new ConcurrentDictionary<byte[], Asset>();
+        private static ConcurrentDictionary<byte[], Asset> m_FAR1Assets = new ConcurrentDictionary<byte[], Asset>(new ByteArrayComparer());
         private static ManualResetEvent m_FAR1AssetsResetEvent = new ManualResetEvent(false);
+        private static ConcurrentDictionary<byte[], Asset> m_MusicAssets = new ConcurrentDictionary<byte[], Asset>(new ByteArrayComparer());
 
         public static event ThirtyThreePercentCompletedDelegate OnThirtyThreePercentCompleted;
         public static event SixtysixPercentCompletedDelegate OnSixtysixPercentCompleted;
@@ -71,11 +72,21 @@ namespace Files.Manager
         private static IEnumerable<string> m_IFFPaths;
         private static IEnumerable<string> m_DBPFPaths;
 
-        //Stores hashes of paths to IFFs outside of archives.
+        //Stores hashed filenames of IFFs outside of archives.
         private static ConcurrentDictionary<byte[], string> m_IFFHashes = new ConcurrentDictionary<byte[], string>();
+        //Stores hashed filenames of music files outside of archives.
+        private static ConcurrentDictionary<byte[], string> m_MusicHashes = new ConcurrentDictionary<byte[], string>();
 
         private static Game m_Game;
-        private static string m_StartupDir = "";
+        private static string m_BaseDir = "";
+
+        /// <summary>
+        /// The directory the game is currently running from.
+        /// </summary>
+        public static string BaseDirectory
+        {
+            get { return m_BaseDir; }
+        }
 
         static FileManager()
         {
@@ -89,7 +100,7 @@ namespace Files.Manager
         public static void Initialize(Game G, string StartupDir)
         {
             m_Game = G;
-            m_StartupDir = StartupDir;
+            m_BaseDir = StartupDir;
 
             m_FAR3Paths = GetFileList("*.dat", StartupDir);
             m_FAR1Paths = GetFileList("*.far", StartupDir);
@@ -104,6 +115,15 @@ namespace Files.Manager
 				else
                 	m_IFFHashes.TryAdd(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
 			}
+
+            //Always precompute hashes...
+            foreach (string Fle in GetFileList("*.mp3", StartupDir))
+            {
+                if (IsLinux)
+                    m_MusicHashes.TryAdd(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("//", "/"));
+                else
+                    m_MusicHashes.TryAdd(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
+            }
 
             Task LoadTask = new Task(new Action(LoadAllArchives));
             LoadTask.Start();
@@ -457,6 +477,23 @@ namespace Files.Manager
         }
 
         /// <summary>
+        /// Gets music (MP3) from the FileManager.
+        /// </summary>
+        /// <param name="Name">The name of the music to get (only for sounds existing outside of archives).</param>
+        /// <returns>A new ISoundCodec instance.</returns>
+        public static ISoundCodec GetMusic(string FileName)
+        {
+            /*byte[] SoundData = File.ReadAllBytes(FileName);
+            MP3File MP3 = new MP3File(new MemoryStream(SoundData));
+            Asset Item = new Asset(GenerateHash(FileName),
+                (uint)SoundData.Length, MP3);
+
+            AddMusic(FileName, Item);
+            return (ISoundCodec)MP3;*/
+            return (ISoundCodec)GrabItem(FileName);
+        }
+
+        /// <summary>
         /// Checks if the supplied data is a UTK.
         /// </summary>
         /// <param name="Data">The data as a Stream.</param>
@@ -555,7 +592,7 @@ namespace Files.Manager
         /// <returns>A new Iff instance.</returns>
         public static Iff GetIFF(string Filename)
         {
-            return new Iff(GrabItem(Filename));
+            return new Iff((Stream)GrabItem(Filename));
         }
 
         /// <summary>
@@ -911,7 +948,7 @@ namespace Files.Manager
             {
                 if (Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID).Contains("road"))
                 {
-                    using (FileStream FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/" : "gamedata\\terrain\\") +
+                    using (FileStream FS = File.Open(m_BaseDir + (IsLinux ? "gamedata/terrain/" : "gamedata\\terrain\\") +
                         Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", FileMode.Open, FileAccess.Read,
                         FileShare.ReadWrite))
                     {
@@ -926,7 +963,7 @@ namespace Files.Manager
                 }
                 else
                 {
-                    using (FileStream FS = File.Open(m_StartupDir + (IsLinux ? "gamedata/terrain/newformat/" : 
+                    using (FileStream FS = File.Open(m_BaseDir + (IsLinux ? "gamedata/terrain/newformat/" : 
                         "gamedata\\terrain\\newformat\\") + Enum.GetName(typeof(FileIDs.TerrainFileIDs), ID) + ".tga", 
                         FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
@@ -954,7 +991,7 @@ namespace Files.Manager
             else if (Enum.IsDefined(typeof(FileIDs.CitiesFileIDs), ID))
             {
                 string[] Split = Enum.GetName(typeof(FileIDs.CitiesFileIDs), ID).Split("_".ToCharArray());
-                using (FileStream FS = File.Open(m_StartupDir + (IsLinux ? "cities/" : "cities\\") +
+                using (FileStream FS = File.Open(m_BaseDir + (IsLinux ? "cities/" : "cities\\") +
                     Split[0] + "_" + Split[1] + (IsLinux ? "/" : "\\") + Split[2] + ".bmp",
                     FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
@@ -981,7 +1018,7 @@ namespace Files.Manager
             }
             else if(Enum.IsDefined(typeof(FileIDs.UIFileIDs), ID))
             {
-                using (FileStream FS = File.Open(m_StartupDir +
+                using (FileStream FS = File.Open(m_BaseDir +
                     (IsLinux ? "uigraphics/holiday/" : "uigraphics\\holiday\\") +
                     Enum.GetName(typeof(FileIDs.UIFileIDs), ID) + 
                     GetExtension(Enum.GetName(typeof(FileIDs.UIFileIDs), ID)), 
@@ -1000,7 +1037,7 @@ namespace Files.Manager
             }
             else if (Enum.IsDefined(typeof(FileIDs.HintsFileIDs), ID))
             {
-                using (FileStream FS = File.Open(m_StartupDir +
+                using (FileStream FS = File.Open(m_BaseDir +
                     (IsLinux ? "uigraphics/hints/" : "uigraphics\\hints\\") + 
                     Enum.GetName(typeof(FileIDs.HintsFileIDs), ID) + ".bmp", 
                     FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -1024,10 +1061,25 @@ namespace Files.Manager
         /// Returns a Stream instance with data from the specified item.
         /// </summary>
         /// <param name="Filename">Filename of item to grab.</param>
-        /// <returns>A Stream instance with data from the specified item.</returns>
-        private static Stream GrabItem(string Filename)
+        /// <returns>An object instance with data from the specified item.</returns>
+        private static object GrabItem(string Filename)
         {
-            byte[] Hash = GenerateHash(Filename);
+            byte[] Hash;
+
+            if (!IsLinux)
+            {
+                if (!Filename.Contains("\\")) //Make sure the hash is only of the filename.
+                    Hash = GenerateHash(Filename);
+                else
+                    Hash = GenerateHash(Path.GetFileName(Filename));
+            }
+            else
+            {
+                if (!Filename.Contains("/")) //Make sure the hash is only of the filename.
+                    Hash = GenerateHash(Filename);
+                else
+                    Hash = GenerateHash(Path.GetFileName(Filename));
+            }
 
             m_StillLoading.WaitOne();
 
@@ -1037,13 +1089,14 @@ namespace Files.Manager
                     return m_FAR1Assets[Hash].AssetData;
             }*/
 
+            //TODO: Verify that hashed filenames work for FAR1 archives.
             foreach (FAR1Archive Archive in m_FAR1Archives)
             {
-                if (Archive.ContainsEntry(Filename))
+                if (Archive.ContainsEntry(Hash))
                 {
-                    Stream Data = Archive.GrabEntry(Filename);
+                    Stream Data = Archive.GrabEntry(Hash);
                     AddItem(Filename, new Asset(Hash, (uint)Data.Length, Data));
-                    return Archive.GrabEntry(Filename);
+                    return Archive.GrabEntry(Hash);
                 }
             }
 
@@ -1054,6 +1107,30 @@ namespace Files.Manager
                     Stream Data = File.Open(KVP.Value, FileMode.Open, FileAccess.Read, FileShare.Read);
                     AddItem(Path.GetFileName(KVP.Value), new Asset(Hash, (uint)Data.Length, Data));
                     return Data;
+                }
+            }
+
+            //If we reached this point, we're looking for musical assets outside of archives...
+            foreach (KeyValuePair<byte[], string> KVP in m_MusicHashes)
+            {
+                if (KVP.Key.SequenceEqual(Hash))
+                {
+                    Stream Data = File.Open(KVP.Value, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    MP3File MP3Fle;
+                    XAFile XA;
+
+                    if (Filename.Contains(".mp3"))
+                    {
+                        MP3Fle = new MP3File(Data);
+                        AddMusic(Filename, new Asset(Hash, (uint)Data.Length, MP3Fle));
+                    }
+                    else if(Filename.Contains("'.xa"))
+                    {
+                        XA = new XAFile(Data);
+                        AddMusic(Filename, new Asset(Hash, (uint)Data.Length, XA));
+                    }
+
+                    return m_MusicAssets[Hash].AssetData;
                 }
             }
 
@@ -1110,6 +1187,29 @@ namespace Files.Manager
             }
 
             m_FAR1AssetsResetEvent.Set();
+        }
+
+        /// <summary>
+        /// Adds a musical asset to the FileManager's cache.
+        /// This method should not be used directly.
+        /// </summary>
+        /// <param name="Filename">The filename of the musical asset to add.</param>
+        /// <param name="Item">The asset to add.</param>
+        private static void AddMusic(string Filename, Asset Item)
+        {
+            if ((m_BytesLoaded + Item.Size) < CACHE_SIZE)
+            {
+                m_MusicAssets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
+                m_BytesLoaded += (uint)Item.Size;
+            }
+            else //Remove oldest and add new entry.
+            {
+                List<Asset> Assets = m_MusicAssets.Values.ToList();
+                Assets.Sort((x, y) => DateTime.Compare(x.LastAccessed, y.LastAccessed));
+                Asset Oldest = Assets[0];
+                m_MusicAssets.TryRemove(Oldest.FilenameHash, out Oldest);
+                m_MusicAssets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
+            }
         }
 
         #endregion

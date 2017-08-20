@@ -35,16 +35,12 @@
       <HintPath>..\..\Gonzo\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MonoGame.Framework, Version=3.5.1.1679, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Gonzo\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\MonoGame.Framework.dll</HintPath>
+    <Reference Include="MonoGame.Framework, Version=3.6.0.1625, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Gonzo\packages\MonoGame.Framework.DesktopGL.3.6.0.1625\lib\net40\MonoGame.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NVorbis, Version=0.8.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Gonzo\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\NVorbis.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\..\Gonzo\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\OpenTK.dll</HintPath>
+    <Reference Include="NAudio, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Gonzo\packages\NAudio.1.8.2\lib\net35\NAudio.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore" />
@@ -64,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioFiles\ISoundCodec.cs" />
+    <Compile Include="AudioFiles\MP3File.cs" />
     <Compile Include="AudioFiles\UTKFile2.cs" />
     <Compile Include="AudioFiles\WavFile.cs" />
     <Compile Include="AudioFiles\XAFile.cs" />
@@ -72,6 +69,7 @@
     <Compile Include="AudioLogic\HSM.cs" />
     <Compile Include="AudioLogic\TRK.cs" />
     <Compile Include="AudioLogic\TRKException.cs" />
+    <Compile Include="ByteArrayComparer.cs" />
     <Compile Include="DBPF\DBPFArchive.cs" />
     <Compile Include="DBPF\DBPFEntry.cs" />
     <Compile Include="DBPF\DBPFException.cs" />
@@ -148,6 +146,7 @@
     <Compile Include="Vitaboy\TimeProperty.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MonoGame.Framework.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

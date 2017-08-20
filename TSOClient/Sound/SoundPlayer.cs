@@ -11,138 +11,189 @@ Contributor(s):
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Timers;
+using Files.Manager;
+using Files.AudioFiles;
 using Microsoft.Xna.Framework.Audio;
 
 namespace Sound
 {
     /// <summary>
-    /// A sounds that is currently being played.
+    /// Represents an active, playable sound.
     /// </summary>
-    public class ActiveSound
+    public class ActiveSound : IDisposable
     {
         public SoundEffectInstance Instance;
-        public bool FadeOut = false;
         public Timer FadeOutTimer;
-    }
+        public bool FadeOut = false;
 
+        /// <summary>
+        /// Disposes of the resources used by this ActiveSound instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this ActiveSound instance.
+        /// <param name="CleanUpNativeAndManagedResources">Should both native and managed resources be cleaned?</param>
+        /// </summary>
+        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        {
+            if (CleanUpNativeAndManagedResources)
+            {
+                if (Instance != null)
+                    Instance.Dispose();
+            }
+        }
+    }
+    
     /// <summary>
-    /// Called upon by HIT subroutines to play sounds.
+    /// A player that can play ActiveSound instances.
     /// </summary>
-    public class SoundPlayer
+    public class SoundPlayer : IDisposable
     {
-        private static Dictionary<uint, ActiveSound> m_ActiveSounds = new Dictionary<uint, ActiveSound>();
+        private ActiveSound m_ASound;
+
+        /// <summary>
+        /// Creates a new SoundPlayer instance.
+        /// </summary>
+        /// <param name="DecompressedWavData">The decompressed wav data that makes up the sound.</param>
+        /// <param name="SampleRate">The sample rate of the sound to play.</param>
+        public SoundPlayer(byte[] DecompressedWavData, uint SampleRate)
+        {
+            SoundEffect Efx = new SoundEffect(DecompressedWavData, (int)SampleRate, AudioChannels.Stereo);
+            SoundEffectInstance Instance = Efx.CreateInstance();
+
+            m_ASound = new ActiveSound();
+            m_ASound.Instance = Instance;
+        }
+
+        /// <summary>
+        /// Creates a new SoundPlayer instance from a string.
+        /// </summary>
+        /// <param name="MP3Sound">The name of an MP3 to play.</param>
+        public SoundPlayer(string MP3Sound)
+        {
+            ISoundCodec Codec = FileManager.GetMusic(MP3Sound);
+            SoundEffect Efx = new SoundEffect(Codec.DecompressedWav(), (int)Codec.GetSampleRate(), AudioChannels.Stereo);
+            SoundEffectInstance Instance = Efx.CreateInstance();
+
+            m_ASound = new ActiveSound();
+            m_ASound.Instance = Instance;
+        }
+
+        /// <summary>
+        /// Creates a new SoundPlayer instance.
+        /// </summary>
+        public SoundPlayer()
+        {
+        }
 
         /// <summary>
         /// Starts playing a sound.
         /// </summary>
-        /// <param name="WavData">The wav data for this sound.</param>
-        /// <param name="SampleRate">The sample rate of the data.</param>
         /// <param name="LoopIt">Wether or not to loop the sound.</param>
         /// <param name="FadeOut">Should this sound fade out?</param>
-        public static void PlaySound(byte[] WavData, uint SoundID, uint SampleRate, bool LoopIt = false,
-            bool FadeOut = false)
+        public void PlaySound(bool LoopIt = false, bool FadeOut = false)
         {
-            if (m_ActiveSounds.ContainsKey(SoundID))
-                m_ActiveSounds[SoundID].Instance.Play();
-            else
-            {
+            if (LoopIt)
+                m_ASound.Instance.IsLooped = true;
 
-                SoundEffect Efx = new SoundEffect(WavData, (int)SampleRate, AudioChannels.Stereo);
-                SoundEffectInstance Inst = Efx.CreateInstance();
+            if (FadeOut)
+                m_ASound.FadeOut = true;
 
-                ActiveSound ASound = new ActiveSound();
-                ASound.Instance = Inst;
-                if (FadeOut) ASound.FadeOut = true;
-
-                m_ActiveSounds.Add(SoundID, ASound);
-
-                if (LoopIt)
-                    Inst.IsLooped = true;
-
-                Inst.Play();
-            }
+            m_ASound.Instance.Play();
         }
 
         /// <summary>
-        /// Gets the sample rate from wav data which includes the RIFF header.
+        /// Is this sound playing?
         /// </summary>
-        /// <param name="FullWavData">Wav data including RIFF header.</param>
-        /// <returns>The wav's sampling rate.</returns>
-        public static uint GetSampleRate(byte[] FullWavData)
+        /// <returns>True if it is, false otherwise.</returns>
+        public bool IsPlaying()
         {
-            BinaryReader Reader = new BinaryReader(new MemoryStream(FullWavData));
-            //SampleRate starts at offset 24 - http://soundfile.sapp.org/doc/WaveFormat/
-            Reader.BaseStream.Seek(24, SeekOrigin.Begin);
-            return Reader.ReadUInt32();
+            if (m_ASound == null)
+                return false;
+
+            return m_ASound.Instance.State == SoundState.Playing;
+        }
+
+        /// <summary>
+        /// Has this sound finished playing?
+        /// </summary>
+        /// <returns>True if it has, false otherwise.</returns>
+        public bool IsEnded()
+        {
+            if (m_ASound == null)
+                return true;
+
+            return m_ASound.Instance.State == SoundState.Stopped;
         }
 
         /// <summary>
         /// Stops playing a sound. If the sound is meant to fade out, it will fade out before stopping.
         /// </summary>
-        /// <param name="SoundID">ID of the sound to stop.</param>
-        public static void StopSound(uint SoundID)
+        public void StopSound()
         {
-            if (!m_ActiveSounds[SoundID].FadeOut)
+            if (m_ASound != null)
             {
-                m_ActiveSounds[SoundID].Instance.Stop();
-                m_ActiveSounds.Remove(SoundID);
-            }
-            else
-            {
-                m_ActiveSounds[SoundID].FadeOutTimer = new Timer();
-                m_ActiveSounds[SoundID].FadeOutTimer.Interval = 200;
-                m_ActiveSounds[SoundID].FadeOutTimer.Enabled = true;
-                m_ActiveSounds[SoundID].FadeOutTimer.Elapsed += FadeOutTimer_Elapsed;
-                m_ActiveSounds[SoundID].FadeOutTimer.Start();
-            }
-        }
-
-        private static void FadeOutTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Timer T = (Timer)sender;
-
-            foreach (KeyValuePair<uint, ActiveSound> KVP in m_ActiveSounds)
-            {
-                if (KVP.Value.FadeOutTimer == T)
+                if (!m_ASound.FadeOut)
+                    m_ASound.Instance.Stop();
+                else
                 {
-                    if (KVP.Value.Instance.Volume > 0)
-                    {
-                        try
-                        {
-                            KVP.Value.Instance.Volume -= 0.10f;
-                        }
-                        catch (ArgumentOutOfRangeException)
-                        {
-                            KVP.Value.Instance.Stop();
-                        }
-                    }
-                    else
-                        KVP.Value.Instance.Stop();
+                    m_ASound.FadeOutTimer = new Timer();
+                    m_ASound.FadeOutTimer.Interval = 200;
+                    m_ASound.FadeOutTimer.Enabled = true;
+                    m_ASound.FadeOutTimer.Elapsed += FadeOutTimer_Elapsed;
+                    m_ASound.FadeOutTimer.Start();
                 }
             }
         }
 
-        /// <summary>
-        /// Holds a SoundEffectInstance and SoundEffect that is used by the SoundPlayer.
-        /// </summary>
-        /*public class SFX
+        private void FadeOutTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            public SoundEffectInstance Instance;
-            public SoundEffect Efx;
+            Timer T = (Timer)sender;
 
-            /// <summary>
-            /// Creates a new SFX instance.
-            /// </summary>
-            /// <param name="Sound">The SoundEffect instance used to store the sound.</param>
-            /// <param name="ID">The InstanceID (from a DBPF) of the sound.</param>
-            public SFX(SoundEffect Sound, SoundEffectInstance Inst)
+            if (m_ASound.FadeOutTimer == T)
             {
-                Instance = Inst;
-                Efx = Sound;
+                if (m_ASound.Instance.Volume > 0)
+                {
+                    try
+                    {
+                        m_ASound.Instance.Volume -= 0.10f;
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        m_ASound.Instance.Stop();
+                    }
+                }
+                else
+                    m_ASound.Instance.Stop();
             }
-        }*/
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this MP3Player instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this MP3Player instance.
+        /// <param name="CleanUpNativeAndManagedResources">Should both native and managed resources be cleaned?</param>
+        /// </summary>
+        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        {
+            if (CleanUpNativeAndManagedResources)
+            {
+                if (m_ASound != null)
+                    m_ASound.Dispose();
+            }
+        }
     }
 }
