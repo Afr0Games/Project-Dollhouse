@@ -32,6 +32,11 @@ namespace Files.AudioLogic
         kGroupVox = 3
     }
 
+    /// <summary>
+    /// TRK is a CSV format that defines a HIT track, analogous to the HOT Track section in the The Sims 1. 
+    /// It may optionally be stored as a Pascal string with a 4-byte little-endian length; if so, it is 
+    /// preceded by the 4-byte magic number "2DKT".
+    /// </summary>
     public class TRK : IDisposable
     {
         private FileReader m_Reader;

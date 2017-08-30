@@ -23,6 +23,10 @@ namespace Sound
     /// </summary>
     public class ActiveSound : IDisposable
     {
+        public bool LoopIt = true; //Should the MP3 be looped?
+        public MP3File MP3;
+        public DynamicSoundEffectInstance DynInstance;
+
         public SoundEffectInstance Instance;
         public Timer FadeOutTimer;
         public bool FadeOut = false;
@@ -46,6 +50,8 @@ namespace Sound
             {
                 if (Instance != null)
                     Instance.Dispose();
+                if (DynInstance != null)
+                    DynInstance.Dispose();
             }
         }
     }
@@ -72,17 +78,46 @@ namespace Sound
         }
 
         /// <summary>
-        /// Creates a new SoundPlayer instance from a string.
+        /// Creates a new SoundPlayer instance from a string,
+        /// for playing MP3 music.
         /// </summary>
         /// <param name="MP3Sound">The name of an MP3 to play.</param>
-        public SoundPlayer(string MP3Sound)
+        public SoundPlayer(string MP3Sound, bool LoopIt = true)
         {
-            ISoundCodec Codec = FileManager.GetMusic(MP3Sound);
-            SoundEffect Efx = new SoundEffect(Codec.DecompressedWav(), (int)Codec.GetSampleRate(), AudioChannels.Stereo);
-            SoundEffectInstance Instance = Efx.CreateInstance();
+            MP3File MP3 = (MP3File)FileManager.GetMusic(MP3Sound);
+            DynamicSoundEffectInstance Instance = new DynamicSoundEffectInstance((int)MP3.GetSampleRate(), AudioChannels.Stereo);
+            Instance.BufferNeeded += Instance_BufferNeeded;
 
             m_ASound = new ActiveSound();
-            m_ASound.Instance = Instance;
+            m_ASound.MP3 = MP3;
+            m_ASound.LoopIt = LoopIt;
+            m_ASound.DynInstance = Instance;
+            Instance.Play();
+        }
+
+        /// <summary>
+        /// A DynamicSoundEffectBuffer needed more data to continue playing an MP3!
+        /// </summary>
+        private void Instance_BufferNeeded(object sender, EventArgs e)
+        {
+            byte[] Buffer = m_ASound.MP3.DecompressedWav();
+            m_ASound.DynInstance.SubmitBuffer(Buffer);
+
+            if (Buffer.Length != m_ASound.MP3.BufferSize)
+            {
+                if (m_ASound.LoopIt == true)
+                {
+                    m_ASound.DynInstance.SubmitBuffer(m_ASound.MP3.Reset(Buffer.Length, 
+                        m_ASound.MP3.BufferSize - Buffer.Length));
+                }
+                else
+                {
+                    if (Buffer.Length == 0)
+                    {
+                        StopSound();
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -140,7 +175,15 @@ namespace Sound
             if (m_ASound != null)
             {
                 if (!m_ASound.FadeOut)
-                    m_ASound.Instance.Stop();
+                {
+                    if (m_ASound.Instance != null)
+                        m_ASound.Instance.Stop();
+                    else
+                    {
+                        m_ASound.DynInstance.Stop();
+                        m_ASound.DynInstance.BufferNeeded -= Instance_BufferNeeded;
+                    }
+                }
                 else
                 {
                     m_ASound.FadeOutTimer = new Timer();

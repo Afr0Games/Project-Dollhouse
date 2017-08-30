@@ -483,13 +483,6 @@ namespace Files.Manager
         /// <returns>A new ISoundCodec instance.</returns>
         public static ISoundCodec GetMusic(string FileName)
         {
-            /*byte[] SoundData = File.ReadAllBytes(FileName);
-            MP3File MP3 = new MP3File(new MemoryStream(SoundData));
-            Asset Item = new Asset(GenerateHash(FileName),
-                (uint)SoundData.Length, MP3);
-
-            AddMusic(FileName, Item);
-            return (ISoundCodec)MP3;*/
             return (ISoundCodec)GrabItem(FileName);
         }
 
@@ -1123,6 +1116,7 @@ namespace Files.Manager
                     {
                         MP3Fle = new MP3File(Data);
                         AddMusic(Filename, new Asset(Hash, (uint)Data.Length, MP3Fle));
+
                     }
                     else if(Filename.Contains("'.xa"))
                     {

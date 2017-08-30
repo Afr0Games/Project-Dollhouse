@@ -65,6 +65,11 @@ namespace Files.AudioLogic
         public uint Unknown4;
     }
 
+    /// <summary>
+    /// EVT is a CSV format that associates names to track/event pairs (which we can call "track events"), 
+    /// analogous to the HOT EventMapping section in the The Sims 1. These named track/event pairs are used 
+    /// by the SimAntics "Play sound event" instruction to pass events to tracks.
+    /// </summary>
     public class EVT : IDisposable
     {
         private FileReader m_Reader;

@@ -1,6 +1,8 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Security.Cryptography;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Files
 {
@@ -55,5 +57,22 @@ namespace Files
             return -1;
         }
 
+        /// <summary>
+        /// An extension method to get the hash code for arrays of intrinsic types.
+        /// </summary>
+        /// <typeparam name="T">The type of array.</typeparam>
+        /// <param name="Enumerable">The array for which to get the hash code.</param>
+        /// <returns>THe hash code for the array.</returns>
+        public static int HashCode<T>(this IEnumerable<T> Enumerable)
+        {
+            int hash = 0x218A9B2C;
+            foreach (var item in Enumerable)
+            {
+                int thisHash = item.GetHashCode();
+                //mix up the bits.
+                hash = thisHash ^ ((hash << 5) + hash);
+            }
+            return hash;
+        }
     }
 }

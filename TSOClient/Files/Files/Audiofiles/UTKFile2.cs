@@ -150,11 +150,16 @@ namespace Files.AudioFiles
         public UTKFile2(string Filepath)
         {
             m_DecompressedStream = new MemoryStream();
-            m_Reader = new FileReader(File.Open(Filepath, FileMode.Open, FileAccess.Read, FileShare.Read), false);
-            m_Reader.Seek(0);
+            if (File.Exists(Filepath))
+            {
+                m_Reader = new FileReader(File.Open(Filepath, FileMode.Open, FileAccess.Read, FileShare.Read), false);
+                m_Reader.Seek(0);
 
-            ReadHeader();
-            UTKDecode();
+                ReadHeader();
+                UTKDecode();
+            }
+            else
+                throw new FileNotFoundException("Couldn't find file: " + Filepath + " , UTKFile2.cs");
         }
 
         /// <summary>

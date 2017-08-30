@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.IO.MemoryMappedFiles;
@@ -279,6 +280,25 @@ namespace Files
         }
 
         /// <summary>
+        /// Peeks the specified number of bytes from the underlying stream.
+        /// </summary>
+        /// <param name="Count">The number of bytes to peek.</param>
+        /// <returns>The number of bytes that were peeked.</returns>
+        public byte[] PeekBytes(int Count)
+        {
+            lock(m_Reader)
+            {
+                byte[] Data = m_Reader.ReadBytes(Count);
+                m_Reader.BaseStream.Position -= Count;
+
+                if (Endian.IsBigEndian != m_IsBigEndian)
+                    Array.Reverse(Data);
+
+                    return Data;
+            }
+        }
+
+        /// <summary>
         /// Reads a specified number of bytes from the underlying stream.
         /// </summary>
         /// <param name="Count">Number of bytes to read.</param>
@@ -336,6 +356,50 @@ namespace Files
         {
             lock(m_Reader)
                 return m_Reader.ReadByte();
+        }
+
+        /// <summary>
+        /// Reads a string terminated by \r\n.
+        /// </summary>
+        /// <param name="KeepLineDelimiters">Should the \r\n delimiters be kept?</param>
+        /// <returns>The string, including \r\n.</returns>
+        public string ReadRNString(bool KeepLineDelimiters)
+        {
+            lock (m_Reader)
+            {
+                string ReturnStr = "";
+                char InChr = '0';
+
+                while (InChr != '\n' && (m_Reader.BaseStream.Length - m_Reader.BaseStream.Position) > 0)
+                {
+                    InChr = m_Reader.ReadChar();
+
+                    if (KeepLineDelimiters)
+                        ReturnStr += InChr;
+                    else
+                    {
+                        if (InChr != '\r' && InChr != '\n')
+                            ReturnStr += InChr;
+                    }
+                }
+
+                return ReturnStr;
+            }
+        }
+
+        /// <summary>
+        /// Reads all the lines, delimited by \r\n, of a stream.
+        /// </summary>
+        /// <param name="KeepLineDelimiters">Should the \r\n delimiters be kept?</param>
+        /// <returns>An array of all the strings (lines) in the stream.</returns>
+        public string[] ReadAllLines(bool KeepLineDelimiters)
+        {
+            List<string> Strings = new List<string>();
+
+            while ((m_Reader.BaseStream.Length - m_Reader.BaseStream.Position) > 0)
+                Strings.Add(ReadRNString(KeepLineDelimiters));
+
+            return Strings.ToArray();
         }
 
         #endregion

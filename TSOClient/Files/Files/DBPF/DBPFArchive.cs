@@ -70,8 +70,11 @@ namespace Files.DBPF
 
         public DBPFArchive(string Path)
         {
-            m_Path = Path;
-        }
+            if(File.Exists(Path))
+                m_Path = Path;
+            else
+                throw new FileNotFoundException("Couldn't find file: " + Path + " , DBPFArchive.cs");
+    }
 
         /// <summary>
         /// Reads all entries in this archive into memory.

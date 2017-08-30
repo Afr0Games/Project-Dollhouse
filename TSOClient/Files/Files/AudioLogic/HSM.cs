@@ -30,15 +30,20 @@ namespace Files.AudioLogic
         /// <param name="Path">The path to the HSM to load.</param>
         public HSM(string Path)
         {
-            string[] Entries = File.ReadAllLines(Path);
-
-            foreach(string Entry in Entries)
+            if (File.Exists(Path))
             {
-                string[] SplitEntry = Entry.Split(" ".ToCharArray());
+                string[] Entries = File.ReadAllLines(Path);
 
-                if(!Constants.ContainsKey(SplitEntry[0]))
-                    Constants.Add(SplitEntry[0], int.Parse(SplitEntry[1]));
+                foreach (string Entry in Entries)
+                {
+                    string[] SplitEntry = Entry.Split(" ".ToCharArray());
+
+                    if (!Constants.ContainsKey(SplitEntry[0]))
+                        Constants.Add(SplitEntry[0], int.Parse(SplitEntry[1]));
+                }
             }
-        }
+            else
+                throw new FileNotFoundException("Couldn't find file: " + Path + " , HSM.cs");
+    }
     }
 }

@@ -89,9 +89,14 @@ namespace Files.AudioFiles
 
         public XAFile(string path)
         {
-            LoadFile(path);
-            DecompressFile();
-        }
+            if (File.Exists(path))
+            {
+                LoadFile(path);
+                DecompressFile();
+            }
+            else
+                throw new FileNotFoundException("Couldn't find file: " + path + " , XAFile.cs");
+    }
 
         /// <summary>
         /// Loads a *.xa file, setting things up for decompression.

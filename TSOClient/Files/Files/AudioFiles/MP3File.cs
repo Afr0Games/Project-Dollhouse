@@ -7,55 +7,104 @@ The Original Code is the Files library.
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
 
-Contributor(s):
+Contributor(s): Rhys Simpson
 */
 
+using System;
 using System.IO;
-using NAudio.Wave;
+using MP3Sharp;
 
 namespace Files.AudioFiles
 {
+    public enum MP3Channels
+    {
+        Stereo = 00,
+        JointStereo = 01,
+        DualChannel = 10,
+        SingleChannel = 11
+    }
+
     public class MP3File : ISoundCodec
     {
-        private Mp3FileReader m_FReader;
+        private int[,,] BITRATES = new int[,,] { { { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 0, },
+                                                   { 0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, 0, },
+                                                   { 0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0, },
+                                                   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+                                                   { { 0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256, 0 },
+                                                   { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0 },
+                                                   { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0, },
+                                                   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } } };
+
+        private int[,] SAMPLE_RATES = new int[,] { { 44100, 48000, 32000, 0 }, { 22050, 24000, 16000, 0 } };
+
+        private MP3Stream m_Stream;
+        private int m_MPEGVersion;
+        private int m_LayerVersion;
+        private MP3Channels m_Channels;
+        private int m_Bitrate;
+        private int m_SampleRate;
+        private int m_Offset; //Current offset in the MP3 file.
 
         /// <summary>
-        /// Creates a new instance of MP3File.
+        /// Which channels does this MP3 support?
         /// </summary>
-        /// <param name="FileData">The stream of data from which to create this instance.</param>
-        public MP3File(Stream FileData)
+        public MP3Channels Channels
         {
-            m_FReader = new Mp3FileReader(FileData);
+            get { return m_Channels; }
         }
 
         /// <summary>
-        /// Creates a new instance of MP3File.
+        /// How many bytes to read when calling DecompressedWav().
         /// </summary>
-        /// <param name="Path">The path to the file from which to create this instance.</param>
+        public int BufferSize = 4096;
+
         public MP3File(string Path)
         {
-            m_FReader = new Mp3FileReader(Path);
+            m_Stream = new MP3Stream(File.Open(Path, FileMode.Open, FileAccess.ReadWrite));
+        }
+
+        public MP3File(Stream Data)
+        {
+            m_Stream = new MP3Stream(Data);
         }
 
         /// <summary>
-        /// Returns the sample rate for the wav data that makes up this sound.
+        /// Sets this MP3 file's stream's position to 0, and starts reading
+        /// from the beginning of the stream.
         /// </summary>
-        /// <returns>A uint denoting the sample rate of the wav data that makes up this sound.</returns>
+        public byte[] Reset(int Offset, int Count)
+        {
+            byte[] ResetBuffer = new byte[Count];
+
+            m_Stream.Position = 0;
+            m_Stream.Read(ResetBuffer, Offset, Count);
+
+            return ResetBuffer;
+        }
+
+        /// <summary>
+        /// The sample rate for this MP3 file.
+        /// </summary>
+        /// <returns>The sample rate for this MP3 file.</returns>
         public uint GetSampleRate()
         {
-            return (uint)m_FReader.Mp3WaveFormat.SampleRate;
+            return (uint)m_SampleRate;
         }
 
         /// <summary>
-        /// Returns the decompressed wav data for this MP3File instance.
+        /// Reads PCM data from this MP3.
         /// </summary>
-        /// <returns>The decompressed wav data as a byte array.</returns>
+        /// <returns>Returns exactly BufferSize (default: 4096) bytes of data.
+        /// If less data is returned, it means the end of the file was reached.</returns>
         public byte[] DecompressedWav()
         {
-            byte[] Outputbuffer = new byte[m_FReader.Length];
-            m_FReader.Read(Outputbuffer, 0, Outputbuffer.Length);
+            byte[] Buffer = new byte[BufferSize];
+            int BytesRead = m_Stream.Read(Buffer, m_Offset, BufferSize);
 
-            return Outputbuffer;
+            if (BytesRead < BufferSize)
+                Array.Resize(ref Buffer, BytesRead);
+
+            return Buffer;
         }
     }
 }

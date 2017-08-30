@@ -63,13 +63,19 @@ namespace Files.AudioFiles
         /// <param name="Filepath">The path to a *.utk file to read from.</param>
         public WavFile(string Filepath)
         {
-            m_DecompressedStream = new MemoryStream();
-            m_Reader = new FileReader(File.Open(Filepath, FileMode.Open, FileAccess.Read, FileShare.Read), false);
-            m_Reader.Seek(0);
+            if (File.Exists(Filepath))
+            {
+                m_DecompressedStream = new MemoryStream();
 
-            ReadHeader();
+                m_Reader = new FileReader(File.Open(Filepath, FileMode.Open, FileAccess.Read, FileShare.Read), false);
+                m_Reader.Seek(0);
 
-            m_DecompressedStream = new MemoryStream(m_Reader.ReadBytes((int)m_Subchunk2Size));
+                ReadHeader();
+
+                m_DecompressedStream = new MemoryStream(m_Reader.ReadBytes((int)m_Subchunk2Size));
+            }
+            else
+                throw new FileNotFoundException("Couldn't find file: " + Filepath + " , WavFile.cs");
         }
 
         public void ReadHeader()

@@ -167,18 +167,19 @@ namespace Sound
             m_GlobalVars.Add(0x86, 0); //OptionMusicVol
             m_GlobalVars.Add(0x87, 0); //CampfireSize
 
-            //credits isn't defined in radio.ini, but manually defined so it can map to a path.
-            MusicModes.Add(6, "credits");
-            MusicModes.Add(11, "KSEL");
-            MusicModes.Add(12, "KCRE");
-            MusicModes.Add(13, "KMAP");
+            Ini Radio = new Ini(FileManager.BaseDirectory + "sys\\radio.ini");
+
+            //Radio.ini actually has the TrackIDs wrong.
+            MusicModes.Add(11, Radio.Sections["Stations"].Entries["13"][0]); //KSEL
+            MusicModes.Add(12, Radio.Sections["Stations"].Entries["14"][0]); //KCRE
+            MusicModes.Add(13, Radio.Sections["Stations"].Entries["12"][0]); //KMAP
 
             if (IsLinux)
             {
-                m_StationPaths.Add("credits", "Music/Stations/Disco");
-                m_StationPaths.Add("KMAP", "Music/Modes/Map/");
-                m_StationPaths.Add("KSEL", "Music/ Modes/Select/");
-                m_StationPaths.Add("KCRE", "Music/ Modes/Create/");
+                m_StationPaths.Add("credits", "Music/Stations/Disco"); //Not defined in radio.ini
+                m_StationPaths.Add("KMAP", Radio.Sections["Stations"].Entries["12"][1].Replace("./", ""));
+                m_StationPaths.Add("KSEL", Radio.Sections["Stations"].Entries["13"][1].Replace("./", ""));
+                m_StationPaths.Add("KCRE", Radio.Sections["Stations"].Entries["12"][1].Replace("./", ""));
             }
             else
             {
@@ -215,8 +216,6 @@ namespace Sound
                 Event.Name = TEvent.Name;
                 Event.EventType = TEvent.EventType;
                 Event.TrackID = TEvent.TrackID;
-                if (Event.TrackID == 18)
-                    Debug.Print("TrackID 18: " + Event.Name);
 
                 Event.Rsc = RscGroup;
                 if(!Events.ContainsKey(TEvent.Name))
