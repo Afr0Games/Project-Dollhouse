@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System;
+using System.Threading.Tasks;
 using System.Timers;
 using Files.Manager;
 using Files.AudioFiles;
@@ -92,7 +93,6 @@ namespace Sound
             m_ASound.MP3 = MP3;
             m_ASound.LoopIt = LoopIt;
             m_ASound.DynInstance = Instance;
-            Instance.Play();
         }
 
         /// <summary>
@@ -100,22 +100,43 @@ namespace Sound
         /// </summary>
         private void Instance_BufferNeeded(object sender, EventArgs e)
         {
-            byte[] Buffer = m_ASound.MP3.DecompressedWav();
-            m_ASound.DynInstance.SubmitBuffer(Buffer);
+            Task StreamingTask = new Task(new Action(ReadFromStream));
+            StreamingTask.Start();
+        }
 
-            if (Buffer.Length != m_ASound.MP3.BufferSize)
+        private object TheLock = new object();
+
+        /// <summary>
+        /// Asynchronously reads data from an MP3.
+        /// </summary>
+        private void ReadFromStream()
+        {
+            int Count = 3;
+
+            lock (TheLock)
             {
-                if (m_ASound.LoopIt == true)
+                while (Count > 0)
                 {
-                    m_ASound.DynInstance.SubmitBuffer(m_ASound.MP3.Reset(Buffer.Length, 
-                        m_ASound.MP3.BufferSize - Buffer.Length));
-                }
-                else
-                {
-                    if (Buffer.Length == 0)
+                    byte[] Buffer = m_ASound.MP3.DecompressedWav();
+
+                    if (Buffer.Length != m_ASound.MP3.BufferSize)
                     {
-                        StopSound();
+                        if (m_ASound.LoopIt == true)
+                        {
+                            m_ASound.DynInstance.SubmitBuffer(m_ASound.MP3.Reset(Buffer.Length,
+                                m_ASound.MP3.BufferSize - Buffer.Length));
+                        }
+                        else
+                        {
+                            if (Buffer.Length == 0)
+                            {
+                                StopSound();
+                            }
+                        }
                     }
+
+                    m_ASound.DynInstance.SubmitBuffer(Buffer);
+                    Count--;
                 }
             }
         }
@@ -140,7 +161,10 @@ namespace Sound
             if (FadeOut)
                 m_ASound.FadeOut = true;
 
-            m_ASound.Instance.Play();
+            if (m_ASound.Instance != null)
+                m_ASound.Instance.Play();
+            else
+                m_ASound.DynInstance.Play();
         }
 
         /// <summary>
@@ -152,7 +176,10 @@ namespace Sound
             if (m_ASound == null)
                 return false;
 
-            return m_ASound.Instance.State == SoundState.Playing;
+            if (m_ASound.DynInstance != null)
+                return m_ASound.Instance.State == SoundState.Playing;
+            else
+                return m_ASound.DynInstance.State == SoundState.Playing;
         }
 
         /// <summary>
@@ -164,7 +191,10 @@ namespace Sound
             if (m_ASound == null)
                 return true;
 
-            return m_ASound.Instance.State == SoundState.Stopped;
+            if (m_ASound.Instance != null)
+                return m_ASound.Instance.State == SoundState.Stopped;
+            else
+                return m_ASound.DynInstance.State == SoundState.Stopped;
         }
 
         /// <summary>
@@ -201,19 +231,38 @@ namespace Sound
 
             if (m_ASound.FadeOutTimer == T)
             {
-                if (m_ASound.Instance.Volume > 0)
+                if (m_ASound.Instance != null)
                 {
-                    try
+                    if (m_ASound.Instance.Volume > 0)
                     {
-                        m_ASound.Instance.Volume -= 0.10f;
+                        try
+                        {
+                            m_ASound.Instance.Volume -= 0.10f;
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            m_ASound.Instance.Stop();
+                        }
                     }
-                    catch (ArgumentOutOfRangeException)
-                    {
+                    else
                         m_ASound.Instance.Stop();
-                    }
                 }
                 else
-                    m_ASound.Instance.Stop();
+                {
+                    if (m_ASound.DynInstance.Volume > 0)
+                    {
+                        try
+                        {
+                            m_ASound.DynInstance.Volume -= 0.10f;
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            m_ASound.DynInstance.Stop();
+                        }
+                    }
+                    else
+                        m_ASound.DynInstance.Stop();
+                }
             }
         }
 

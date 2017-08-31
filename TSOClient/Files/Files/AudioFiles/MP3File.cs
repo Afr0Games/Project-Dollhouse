@@ -27,20 +27,6 @@ namespace Files.AudioFiles
     public class MP3File : ISoundCodec
     {
         private MP3Stream m_Stream;
-        private int m_MPEGVersion;
-        private int m_LayerVersion;
-        private MP3Channels m_Channels;
-        private int m_Bitrate;
-        private int m_SampleRate;
-        private int m_Offset; //Current offset in the MP3 file.
-
-        /// <summary>
-        /// Which channels does this MP3 support?
-        /// </summary>
-        public MP3Channels Channels
-        {
-            get { return m_Channels; }
-        }
 
         /// <summary>
         /// How many bytes to read when calling DecompressedWav().
@@ -88,7 +74,7 @@ namespace Files.AudioFiles
         public byte[] DecompressedWav()
         {
             byte[] Buffer = new byte[BufferSize];
-            int BytesRead = m_Stream.Read(Buffer, m_Offset, BufferSize);
+            int BytesRead = m_Stream.Read(Buffer, 0, BufferSize);
 
             if (BytesRead < BufferSize)
                 Array.Resize(ref Buffer, BytesRead);

@@ -84,9 +84,9 @@ VertexShaderBodyOutput TransformBody(VertexShaderBodyInput Input)
 	VertexShaderBodyOutput Output;
 
 	//Transforms the relative vertex passed to the shader by the bone's absolute matrix.
-	float4x4 TranslatedMatrix = CreateTranslation(Input.Position.x, Input.Position.y, Input.Position.z) * 
+	float4x4 TranslatedMatrix = CreateTranslation(Input.Position.x, Input.Position.y, Input.Position.z) *
 		/*AbsoluteBoneMatrix*/World;
-	
+
 	Output.Position = mul(float3(0, 0, 0), TranslatedMatrix);
 	Output.TexPosition = Input.TexPosition;
 

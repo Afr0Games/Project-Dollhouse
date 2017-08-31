@@ -170,6 +170,7 @@ namespace Sound
             Ini Radio = new Ini(FileManager.BaseDirectory + "sys\\radio.ini");
 
             //Radio.ini actually has the TrackIDs wrong.
+            MusicModes.Add(6, "credits");
             MusicModes.Add(11, Radio.Sections["Stations"].Entries["13"][0]); //KSEL
             MusicModes.Add(12, Radio.Sections["Stations"].Entries["14"][0]); //KCRE
             MusicModes.Add(13, Radio.Sections["Stations"].Entries["12"][0]); //KMAP
