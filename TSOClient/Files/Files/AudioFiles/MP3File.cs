@@ -26,17 +26,6 @@ namespace Files.AudioFiles
 
     public class MP3File : ISoundCodec
     {
-        private int[,,] BITRATES = new int[,,] { { { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 0, },
-                                                   { 0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, 0, },
-                                                   { 0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0, },
-                                                   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
-                                                   { { 0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256, 0 },
-                                                   { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0 },
-                                                   { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0, },
-                                                   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } } };
-
-        private int[,] SAMPLE_RATES = new int[,] { { 44100, 48000, 32000, 0 }, { 22050, 24000, 16000, 0 } };
-
         private MP3Stream m_Stream;
         private int m_MPEGVersion;
         private int m_LayerVersion;
@@ -88,7 +77,7 @@ namespace Files.AudioFiles
         /// <returns>The sample rate for this MP3 file.</returns>
         public uint GetSampleRate()
         {
-            return (uint)m_SampleRate;
+            return (uint)m_Stream.Frequency;
         }
 
         /// <summary>
