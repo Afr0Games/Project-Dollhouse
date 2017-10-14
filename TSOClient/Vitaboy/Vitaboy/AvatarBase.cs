@@ -13,6 +13,7 @@ Contributor(s):
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Collections.Generic;
 using Files.Vitaboy;
 using Files.Manager;
 using Microsoft.Xna.Framework;
@@ -44,7 +45,7 @@ namespace Vitaboy
         protected GraphicsDevice m_Devc;
         public Skeleton Skel;
         protected Effect m_VitaboyShader;
-        protected BasicEffect m_BodyEffect, m_HeadEffect, m_AccessoryEffect, m_LeftHandEffect, RightHandEffect;
+        protected BasicEffect m_BodyEffect, m_HeadEffect, m_AccessoryEffect, m_LeftHandEffect, m_RightHandEffect;
         public Mesh HeadMesh, AccessoryMesh, BodyMesh, LeftHandMesh, RightHandMesh;
         public Texture2D LeftHandTexture, RightHandTexture, BodyTexture, HeadTexture, AccessoryTexture;
         public Anim Animation;
@@ -257,6 +258,7 @@ namespace Vitaboy
             m_AccessoryEffect = new BasicEffect(Devc);
             m_BodyEffect = new BasicEffect(Devc);
             m_LeftHandEffect = new BasicEffect(Devc);
+            m_RightHandEffect = new BasicEffect(Devc);
 
             if (HeadShader != null)
             {
@@ -312,75 +314,61 @@ namespace Vitaboy
                 m_HeadEffect.View = ViewMatrix;
                 m_HeadEffect.Projection = ProjectionMatrix;
                 m_HeadEffect.EnableDefaultLighting();
+
+                if (HeadTexture != null)
+                {
+                    m_HeadEffect.Texture = HeadTexture;
+                    m_HeadEffect.TextureEnabled = true;
+                }
+
+                m_AccessoryEffect.World = WorldMatrix;
+                m_AccessoryEffect.View = ViewMatrix;
+                m_AccessoryEffect.Projection = ProjectionMatrix;
+                m_AccessoryEffect.EnableDefaultLighting();
+
+                if (AccessoryTexture != null)
+                {
+                    m_AccessoryEffect.Texture = AccessoryTexture;
+                    m_AccessoryEffect.TextureEnabled = true;
+                }
+
+                m_LeftHandEffect.World = WorldMatrix;
+                m_LeftHandEffect.View = ViewMatrix;
+                m_LeftHandEffect.Projection = ProjectionMatrix;
+                m_LeftHandEffect.EnableDefaultLighting();
+
+                if (LeftHandTexture != null)
+                {
+                    m_LeftHandEffect.Texture = LeftHandTexture;
+                    m_LeftHandEffect.TextureEnabled = true;
+                }
+
+                m_RightHandEffect.World = WorldMatrix;
+                m_RightHandEffect.View = ViewMatrix;
+                m_RightHandEffect.Projection = ProjectionMatrix;
+                m_RightHandEffect.EnableDefaultLighting();
+
+                if (RightHandTexture != null)
+                {
+                    m_RightHandEffect.Texture = RightHandTexture;
+                    m_RightHandEffect.TextureEnabled = true;
+                }
+
+                m_BodyEffect.World = WorldMatrix;
+                m_BodyEffect.View = ViewMatrix;
+                m_BodyEffect.Projection = ProjectionMatrix;
+                m_BodyEffect.EnableDefaultLighting();
+
+                if (BodyTexture != null)
+                {
+                    m_BodyEffect.Texture = BodyTexture;
+                    m_BodyEffect.TextureEnabled = true;
+                }
             }
             else
             {
                 m_VitaboyShader.Parameters["View"].SetValue(ViewMatrix);
                 m_VitaboyShader.Parameters["Projection"].SetValue(ProjectionMatrix);
-            }
-
-            if (HeadTexture != null)
-            {
-                if (m_GPURender == false)
-                {
-                    m_HeadEffect.Texture = HeadTexture;
-                    m_HeadEffect.TextureEnabled = true;
-                }
-                else
-                    m_VitaboyShader.Parameters["HeadTexture"].SetValue(HeadTexture);
-            }
-
-            if (m_GPURender == false)
-            {
-                m_AccessoryEffect.World = WorldMatrix;
-                m_AccessoryEffect.View = ViewMatrix;
-                m_AccessoryEffect.Projection = ProjectionMatrix;
-                m_AccessoryEffect.EnableDefaultLighting();
-            }
-
-            if (AccessoryTexture != null)
-            {
-                if (m_GPURender == false)
-                {
-                    m_AccessoryEffect.Texture = AccessoryTexture;
-                    m_AccessoryEffect.TextureEnabled = true;
-                }
-                else
-                    m_VitaboyShader.Parameters["AccessoryTexture"].SetValue(AccessoryTexture);
-            }
-
-            m_BodyEffect.World = WorldMatrix;
-            m_BodyEffect.View = ViewMatrix;
-            m_BodyEffect.Projection = ProjectionMatrix;
-            m_BodyEffect.EnableDefaultLighting();
-
-            if (m_BodyEffect != null)
-            {
-                m_BodyEffect.Texture = BodyTexture;
-                m_BodyEffect.TextureEnabled = true;
-            }
-
-            // Configure effects
-            m_LeftHandEffect.World = WorldMatrix;
-            m_LeftHandEffect.View = ViewMatrix;
-            m_LeftHandEffect.Projection = ProjectionMatrix;
-            m_LeftHandEffect.EnableDefaultLighting();
-
-            if (LeftHandTexture != null)
-            {
-                if (m_GPURender == false)
-                {
-                    m_LeftHandEffect.Texture = LeftHandTexture;
-                    m_LeftHandEffect.TextureEnabled = true;
-                }
-                else
-                    m_VitaboyShader.Parameters["LeftHandTexture"].SetValue(LeftHandTexture);
-            }
-
-            if (RightHandTexture != null)
-            {
-                if(m_GPURender)
-                    m_VitaboyShader.Parameters["RightHandTexture"].SetValue(RightHandTexture);
             }
 
             if (HeadMesh != null)
@@ -395,9 +383,9 @@ namespace Vitaboy
                         {
                             // Draw
                             VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = HeadMesh.TransformedVertices[(int)Fce.X];
-                            Vertex[1] = HeadMesh.TransformedVertices[(int)Fce.Y];
-                            Vertex[2] = HeadMesh.TransformedVertices[(int)Fce.Z];
+                            Vertex[0].Position = HeadMesh.TransformedVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = HeadMesh.TransformedVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = HeadMesh.TransformedVertices[(int)Fce.Z].Position;
 
                             Vertex[0].TextureCoordinate = HeadMesh.TransformedVertices[(int)Fce.X].TextureCoordinate;
                             Vertex[1].TextureCoordinate = HeadMesh.TransformedVertices[(int)Fce.Y].TextureCoordinate;
@@ -416,18 +404,21 @@ namespace Vitaboy
                 }
                 else
                 {
+                    m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(HeadTexture);
                     m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("HEAD")].AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(HeadMesh, Skel));
 
-                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformHeadTechnique"].Passes)
+                    //foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformHeadTechnique"].Passes)
+                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformVerticesTechnique"].Passes)
                     {
                         Pass.Apply();
 
                         foreach (Vector3 Fce in HeadMesh.Faces)
                         {
-                            VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = HeadMesh.RealVertices[(int)Fce.X];
-                            Vertex[1] = HeadMesh.RealVertices[(int)Fce.Y];
-                            Vertex[2] = HeadMesh.RealVertices[(int)Fce.Z];
+                            VitaboyVertex[] Vertex = new VitaboyVertex[3];
+                            Vertex[0].Position = HeadMesh.RealVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = HeadMesh.RealVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = HeadMesh.RealVertices[(int)Fce.Z].Position;
 
                             Vertex[0].TextureCoordinate = HeadMesh.RealVertices[(int)Fce.X].TextureCoordinate;
                             Vertex[1].TextureCoordinate = HeadMesh.RealVertices[(int)Fce.Y].TextureCoordinate;
@@ -436,6 +427,10 @@ namespace Vitaboy
                             Vertex[0].Normal = HeadMesh.RealVertices[(int)Fce.X].Normal;
                             Vertex[1].Normal = HeadMesh.RealVertices[(int)Fce.Y].Normal;
                             Vertex[2].Normal = HeadMesh.RealVertices[(int)Fce.Z].Normal;
+
+                            Vertex[0].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
+                            Vertex[1].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
+                            Vertex[2].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
@@ -455,9 +450,9 @@ namespace Vitaboy
                         {
                             // Draw
                             VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = AccessoryMesh.TransformedVertices[(int)Fce.X];
-                            Vertex[1] = AccessoryMesh.TransformedVertices[(int)Fce.Y];
-                            Vertex[2] = AccessoryMesh.TransformedVertices[(int)Fce.Z];
+                            Vertex[0].Position = AccessoryMesh.TransformedVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = AccessoryMesh.TransformedVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = AccessoryMesh.TransformedVertices[(int)Fce.Z].Position;
 
                             Vertex[0].TextureCoordinate = AccessoryMesh.TransformedVertices[(int)Fce.X].TextureCoordinate;
                             Vertex[1].TextureCoordinate = AccessoryMesh.TransformedVertices[(int)Fce.Y].TextureCoordinate;
@@ -475,18 +470,20 @@ namespace Vitaboy
                 }
                 else
                 {
+                    m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(AccessoryTexture);
                     m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("HEAD")].AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(HeadMesh, Skel));
 
-                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformAccessoryTechnique"].Passes)
+                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformVerticesTechnique"].Passes)
                     {
                         Pass.Apply();
 
                         foreach (Vector3 Fce in AccessoryMesh.Faces)
                         {
-                            VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = AccessoryMesh.RealVertices[(int)Fce.X];
-                            Vertex[1] = AccessoryMesh.RealVertices[(int)Fce.Y];
-                            Vertex[2] = AccessoryMesh.RealVertices[(int)Fce.Z];
+                            VitaboyVertex[] Vertex = new VitaboyVertex[3];
+                            Vertex[0].Position = AccessoryMesh.RealVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = AccessoryMesh.RealVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = AccessoryMesh.RealVertices[(int)Fce.Z].Position;
 
                             Vertex[0].TextureCoordinate = AccessoryMesh.RealVertices[(int)Fce.X].TextureCoordinate;
                             Vertex[1].TextureCoordinate = AccessoryMesh.RealVertices[(int)Fce.Y].TextureCoordinate;
@@ -495,6 +492,10 @@ namespace Vitaboy
                             Vertex[0].Normal = AccessoryMesh.RealVertices[(int)Fce.X].Normal;
                             Vertex[1].Normal = AccessoryMesh.RealVertices[(int)Fce.Y].Normal;
                             Vertex[2].Normal = AccessoryMesh.RealVertices[(int)Fce.Z].Normal;
+
+                            Vertex[0].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
+                            Vertex[1].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
+                            Vertex[2].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
@@ -514,9 +515,9 @@ namespace Vitaboy
                         {
                             // Draw
                             VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = BodyMesh.TransformedVertices[(int)Fce.X];
-                            Vertex[1] = BodyMesh.TransformedVertices[(int)Fce.Y];
-                            Vertex[2] = BodyMesh.TransformedVertices[(int)Fce.Z];
+                            Vertex[0].Position = BodyMesh.TransformedVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = BodyMesh.TransformedVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = BodyMesh.TransformedVertices[(int)Fce.Z].Position;
 
                             Vertex[0].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.X].TextureCoordinate;
                             Vertex[1].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.Y].TextureCoordinate;
@@ -534,65 +535,38 @@ namespace Vitaboy
                 }
                 else
                 {
-                    Bone PBone = Skel.Bones[Skel.FindBone("PELVIS")];
-                    BoneBinding boneBinding = BodyMesh.BoneBindings.FirstOrDefault(x => BodyMesh.Bones[(int)x.BoneIndex] == PBone.Name);
+                    CopyBodyVertices(Skel.Bones[Skel.FindBone("PELVIS")]);
 
-                    m_VitaboyShader.Parameters["World"].SetValue(/*WorldMatrix **/ PBone.AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(BodyTexture);
+                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix);
+                    m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(BodyMesh, Skel));
 
-                    if (boneBinding != null)
+                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformVerticesTechnique"].Passes)
                     {
-                        foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformBodyTechnique"].Passes)
+                        foreach (Vector3 Fce in BodyMesh.Faces)
                         {
                             Pass.Apply();
 
-                            foreach (Vector3 Fce in BodyMesh.Faces)
-                            {
-                                // Draw
-                                VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                                Vertex[0] = BodyMesh.TransformedVertices[(int)Fce.X];
-                                Vertex[1] = BodyMesh.TransformedVertices[(int)Fce.Y];
-                                Vertex[2] = BodyMesh.TransformedVertices[(int)Fce.Z];
+                            // Draw
+                            VitaboyVertex[] Vertex = new VitaboyVertex[3];
 
-                                Vertex[0].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.X].TextureCoordinate;
-                                Vertex[1].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.Y].TextureCoordinate;
-                                Vertex[2].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.Z].TextureCoordinate;
+                            Vertex[0].Position = BodyMesh.TransformedVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = BodyMesh.TransformedVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = BodyMesh.TransformedVertices[(int)Fce.Z].Position;
 
-                                Vertex[0].Normal = BodyMesh.TransformedVertices[(int)Fce.X].Normal;
-                                Vertex[1].Normal = BodyMesh.TransformedVertices[(int)Fce.Y].Normal;
-                                Vertex[2].Normal = BodyMesh.TransformedVertices[(int)Fce.Z].Normal;
+                            Vertex[0].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.X].TextureCoordinate;
+                            Vertex[1].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.Y].TextureCoordinate;
+                            Vertex[2].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.Z].TextureCoordinate;
 
-                                m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
-                            }
-                        }
+                            Vertex[0].Normal = BodyMesh.TransformedVertices[(int)Fce.X].Normal;
+                            Vertex[1].Normal = BodyMesh.TransformedVertices[(int)Fce.Y].Normal;
+                            Vertex[2].Normal = BodyMesh.TransformedVertices[(int)Fce.Z].Normal;
 
-                        foreach (var child in PBone.Children)
-                        {
-                            boneBinding = BodyMesh.BoneBindings.FirstOrDefault(x => BodyMesh.Bones[(int)x.BoneIndex] == child.Name);
-                            m_VitaboyShader.Parameters["World"].SetValue(/*WorldMatrix **/ child.AbsoluteMatrix);
+                            Vertex[0].BoneBinding = BodyMesh.TransformedVertices[(int)Fce.X].BoneBinding;
+                            Vertex[1].BoneBinding = BodyMesh.TransformedVertices[(int)Fce.Y].BoneBinding;
+                            Vertex[2].BoneBinding = BodyMesh.TransformedVertices[(int)Fce.Z].BoneBinding;
 
-                            foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformBodyTechnique"].Passes)
-                            {
-                                Pass.Apply();
-
-                                foreach (Vector3 Fce in BodyMesh.Faces)
-                                {
-                                    // Draw
-                                    VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                                    Vertex[0] = BodyMesh.TransformedVertices[(int)Fce.X];
-                                    Vertex[1] = BodyMesh.TransformedVertices[(int)Fce.Y];
-                                    Vertex[2] = BodyMesh.TransformedVertices[(int)Fce.Z];
-
-                                    Vertex[0].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.X].TextureCoordinate;
-                                    Vertex[1].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.Y].TextureCoordinate;
-                                    Vertex[2].TextureCoordinate = BodyMesh.TransformedVertices[(int)Fce.Z].TextureCoordinate;
-
-                                    Vertex[0].Normal = BodyMesh.TransformedVertices[(int)Fce.X].Normal;
-                                    Vertex[1].Normal = BodyMesh.TransformedVertices[(int)Fce.Y].Normal;
-                                    Vertex[2].Normal = BodyMesh.TransformedVertices[(int)Fce.Z].Normal;
-
-                                    m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
-                                }
-                            }
+                            m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
                     }
                 }
@@ -610,9 +584,9 @@ namespace Vitaboy
                         {
                             // Draw
                             VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = LeftHandMesh.TransformedVertices[(int)Fce.X];
-                            Vertex[1] = LeftHandMesh.TransformedVertices[(int)Fce.Y];
-                            Vertex[2] = LeftHandMesh.TransformedVertices[(int)Fce.Z];
+                            Vertex[0].Position = LeftHandMesh.TransformedVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = LeftHandMesh.TransformedVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = LeftHandMesh.TransformedVertices[(int)Fce.Z].Position;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
@@ -622,18 +596,20 @@ namespace Vitaboy
                 }
                 else
                 {
+                    m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(LeftHandTexture);
                     m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("L_HAND")].AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(LeftHandMesh, Skel));
 
-                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformLeftHandTechnique"].Passes)
+                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformVerticesTechnique"].Passes)
                     {
                         Pass.Apply();
 
                         foreach (Vector3 Fce in LeftHandMesh.Faces)
                         {
-                            VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = LeftHandMesh.RealVertices[(int)Fce.X];
-                            Vertex[1] = LeftHandMesh.RealVertices[(int)Fce.Y];
-                            Vertex[2] = LeftHandMesh.RealVertices[(int)Fce.Z];
+                            VitaboyVertex[] Vertex = new VitaboyVertex[3];
+                            Vertex[0].Position = LeftHandMesh.RealVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = LeftHandMesh.RealVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = LeftHandMesh.RealVertices[(int)Fce.Z].Position;
 
                             Vertex[0].TextureCoordinate = LeftHandMesh.RealVertices[(int)Fce.X].TextureCoordinate;
                             Vertex[1].TextureCoordinate = LeftHandMesh.RealVertices[(int)Fce.Y].TextureCoordinate;
@@ -642,6 +618,10 @@ namespace Vitaboy
                             Vertex[0].Normal = LeftHandMesh.RealVertices[(int)Fce.X].Normal;
                             Vertex[1].Normal = LeftHandMesh.RealVertices[(int)Fce.Y].Normal;
                             Vertex[2].Normal = LeftHandMesh.RealVertices[(int)Fce.Z].Normal;
+
+                            Vertex[0].BoneBinding = Skel.Bones[Skel.FindBone("L_HAND")].BoneIndex;
+                            Vertex[1].BoneBinding = Skel.Bones[Skel.FindBone("L_HAND")].BoneIndex;
+                            Vertex[2].BoneBinding = Skel.Bones[Skel.FindBone("L_HAND")].BoneIndex;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
@@ -661,9 +641,9 @@ namespace Vitaboy
                         {
                             // Draw
                             VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = RightHandMesh.TransformedVertices[(int)Fce.X];
-                            Vertex[1] = RightHandMesh.TransformedVertices[(int)Fce.Y];
-                            Vertex[2] = RightHandMesh.TransformedVertices[(int)Fce.Z];
+                            Vertex[0].Position = RightHandMesh.TransformedVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = RightHandMesh.TransformedVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = RightHandMesh.TransformedVertices[(int)Fce.Z].Position;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
@@ -673,18 +653,21 @@ namespace Vitaboy
                 }
                 else
                 {
+                    m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(RightHandTexture);
                     m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("R_HAND")].AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(RightHandMesh, Skel));
 
-                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformRightHandTechnique"].Passes)
+
+                    foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformVerticesTechnique"].Passes)
                     {
                         Pass.Apply();
 
                         foreach (Vector3 Fce in RightHandMesh.Faces)
                         {
-                            VertexPositionNormalTexture[] Vertex = new VertexPositionNormalTexture[3];
-                            Vertex[0] = RightHandMesh.RealVertices[(int)Fce.X];
-                            Vertex[1] = RightHandMesh.RealVertices[(int)Fce.Y];
-                            Vertex[2] = RightHandMesh.RealVertices[(int)Fce.Z];
+                            VitaboyVertex[] Vertex = new VitaboyVertex[3];
+                            Vertex[0].Position = RightHandMesh.RealVertices[(int)Fce.X].Position;
+                            Vertex[1].Position = RightHandMesh.RealVertices[(int)Fce.Y].Position;
+                            Vertex[2].Position = RightHandMesh.RealVertices[(int)Fce.Z].Position;
 
                             Vertex[0].TextureCoordinate = RightHandMesh.RealVertices[(int)Fce.X].TextureCoordinate;
                             Vertex[1].TextureCoordinate = RightHandMesh.RealVertices[(int)Fce.Y].TextureCoordinate;
@@ -694,11 +677,64 @@ namespace Vitaboy
                             Vertex[1].Normal = RightHandMesh.RealVertices[(int)Fce.Y].Normal;
                             Vertex[2].Normal = RightHandMesh.RealVertices[(int)Fce.Z].Normal;
 
+                            Vertex[0].BoneBinding = Skel.Bones[Skel.FindBone("R_HAND")].BoneIndex;
+                            Vertex[1].BoneBinding = Skel.Bones[Skel.FindBone("R_HAND")].BoneIndex;
+                            Vertex[2].BoneBinding = Skel.Bones[Skel.FindBone("R_HAND")].BoneIndex;
+
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
                     }
                 }
             }
+        }
+
+        private void CopyBodyVertices(Bone Bne)
+        {
+            BoneBinding boneBinding = BodyMesh.BoneBindings.FirstOrDefault(x => BodyMesh.Bones[(int)x.BoneIndex] == Bne.Name);
+
+            if (boneBinding != null)
+            {
+                for (int i = 0; i < (boneBinding.RealVertexCount - 2); i += 3)
+                {
+                    int vertexIndex = (int)boneBinding.FirstRealVertexIndex + i;
+
+                    BodyMesh.TransformedVertices[vertexIndex].BoneBinding = boneBinding.BoneIndex;
+                    BodyMesh.TransformedVertices[vertexIndex].Position = BodyMesh.RealVertices[vertexIndex].Position;
+
+                    BodyMesh.TransformedVertices[vertexIndex + 1].BoneBinding = boneBinding.BoneIndex;
+                    BodyMesh.TransformedVertices[vertexIndex + 1].Position = BodyMesh.RealVertices[vertexIndex + 1].Position;
+
+                    BodyMesh.TransformedVertices[vertexIndex + 2].BoneBinding = boneBinding.BoneIndex;
+                    BodyMesh.TransformedVertices[vertexIndex + 2].Position = BodyMesh.RealVertices[vertexIndex + 2].Position;
+
+                    BodyMesh.TransformedVertices[vertexIndex].TextureCoordinate = BodyMesh.RealVertices[vertexIndex].TextureCoordinate;
+                    BodyMesh.TransformedVertices[vertexIndex + 1].TextureCoordinate = BodyMesh.RealVertices[vertexIndex + 1].TextureCoordinate;
+                    BodyMesh.TransformedVertices[vertexIndex + 2].TextureCoordinate = BodyMesh.RealVertices[vertexIndex + 2].TextureCoordinate;
+
+                    BodyMesh.TransformedVertices[vertexIndex].Normal = BodyMesh.RealVertices[vertexIndex].Normal;
+                    BodyMesh.TransformedVertices[vertexIndex + 1].Normal = BodyMesh.RealVertices[vertexIndex + 1].Normal;
+                    BodyMesh.TransformedVertices[vertexIndex + 2].Normal = BodyMesh.RealVertices[vertexIndex + 2].Normal;
+                }
+            }
+
+            foreach (Bone Child in Bne.Children)
+                CopyBodyVertices(Child);
+        }
+
+        /// <summary>
+        /// Gets all the bones' absolute matrices from a mesh.
+        /// </summary>
+        /// <param name="Msh">The mesh containing a list of bone (names).</param>
+        /// <param name="Skel">The skeleton with the bones that the names refer to.</param>
+        /// <returns></returns>
+        public Matrix[] GetAllBones(Mesh Msh, Skeleton Skel)
+        {
+            List<Matrix> AllMatrices = new List<Matrix>();
+
+            foreach (string Bne in Msh.Bones)
+                AllMatrices.Add(Skel.Bones[Skel.FindBone(Bne)].AbsoluteMatrix);
+
+            return AllMatrices.ToArray();
         }
 
         /// <summary>

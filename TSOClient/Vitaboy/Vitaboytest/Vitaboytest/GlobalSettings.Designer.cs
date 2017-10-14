@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WindowsFormsApplication1 {
+namespace Vitaboytest {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

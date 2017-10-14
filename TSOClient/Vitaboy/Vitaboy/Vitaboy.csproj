@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Files, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Files\Files\bin\Debug\Files.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework, Version=3.6.0.1625, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\Gonzo\packages\MonoGame.Framework.DesktopGL.3.6.0.1625\lib\net40\MonoGame.Framework.dll</HintPath>
       <Private>True</Private>
@@ -51,12 +55,6 @@
     <Compile Include="DogAvatar.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Files\Files\Files.csproj">
-      <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
-      <Name>Files</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Shaders\VertexShader.fx" />

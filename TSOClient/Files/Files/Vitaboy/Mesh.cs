@@ -33,7 +33,8 @@ namespace Files.Vitaboy
         public List<BlendVertexProperty> BlendVertexProps = new List<BlendVertexProperty>();
         public uint TotalVertexCount;
         public List<VertexPositionNormalTexture> RealVertices = new List<VertexPositionNormalTexture>();
-        public VertexPositionNormalTexture[] TransformedVertices;
+        //public VertexPositionNormalTexture[] TransformedVertices;
+        public VitaboyVertex[] TransformedVertices;
         public List<VertexPositionNormalTexture> BlendedVertices = new List<VertexPositionNormalTexture>();
 
         public Mesh(Stream Data)
@@ -68,7 +69,8 @@ namespace Files.Vitaboy
                 BlendVertexProps.Add(new BlendVertexProperty(m_Reader));
 
             TotalVertexCount = m_Reader.ReadUInt32();
-            TransformedVertices = new VertexPositionNormalTexture[TotalVertexCount];
+            //TransformedVertices = new VertexPositionNormalTexture[TotalVertexCount];
+            TransformedVertices = new VitaboyVertex[TotalVertexCount];
 
             for (int i = 0; i < RealVertexCount; i++)
             {

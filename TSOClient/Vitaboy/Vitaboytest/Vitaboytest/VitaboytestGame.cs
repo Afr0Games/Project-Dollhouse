@@ -1,20 +1,22 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Files;
 using Files.Manager;
 using Vitaboy;
 
-namespace WindowsFormsApplication1
+namespace Vitaboytest
 {
-    public class CreateASimGame : Game
+    public class VitaboytestGame : Game
     {
         private GraphicsDeviceManager m_Graphics;
         private float m_RotationX = 0.0f, m_RotationY = 0.8f, m_RotationZ = 0.0f;
         private float m_Scale = 0.8f;
         private Matrix mViewMat, mWorldMat, mProjectionMat;
         private AdultAvatar m_Avatar;
+        private Effect m_Shader;
 
-        public CreateASimGame() : base()
+        public VitaboytestGame() : base()
         {
             m_Graphics = new GraphicsDeviceManager(this);
             m_Graphics.DeviceCreated += M_Graphics_DeviceCreated;
@@ -39,6 +41,8 @@ namespace WindowsFormsApplication1
 
             FileManager.OnHundredPercentCompleted += FileManager_OnHundredPercentCompleted;
             FileManager.Initialize(this, GlobalSettings.Default.StartupPath);
+
+            m_Shader = Content.Load<Effect>("Vitaboy");
         }
 
         /// <summary>
@@ -46,7 +50,7 @@ namespace WindowsFormsApplication1
         /// </summary>
         private void FileManager_OnHundredPercentCompleted()
         {
-            m_Avatar = new AdultAvatar(m_Graphics.GraphicsDevice);
+            m_Avatar = new AdultAvatar(m_Graphics.GraphicsDevice, m_Shader);
             //m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
             m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mab000_robin), SkinType.Medium);
             m_Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mah020_willw), SkinType.Medium);

@@ -6,11 +6,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{57C8BCB3-E977-4968-BAD8-EA9EF0843DBD}</ProjectGuid>
+    <ProjectGuid>{94908E97-1E3D-4788-ABC6-27CCBFF10758}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GonzoTest</RootNamespace>
-    <AssemblyName>GonzoTest</AssemblyName>
+    <RootNamespace>Vitaboytest</RootNamespace>
+    <AssemblyName>Vitaboytest</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -43,19 +43,19 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DateRange.cs" />
-    <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="Game1.cs" />
-    <Compile Include="GlobalSettings.Designer.cs" />
+    <Compile Include="GlobalSettings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>GlobalSettings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="VitaboytestGame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Screens\CASScreen.cs" />
-    <Compile Include="Screens\Credits.cs" />
-    <Compile Include="Screens\LoadingScreen.cs" />
-    <Compile Include="Screens\LoginScreen.cs" />
-    <Compile Include="Screens\SASScreen.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Files">
+      <HintPath>..\..\..\Files\Files\bin\Debug\Files.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -115,64 +115,16 @@
     </None>
     <None Include="app.config" />
     <None Include="app.manifest" />
-    <None Include="Content\ProjectDollhouse_10px.spritefont" />
-    <None Include="Content\ProjectDollhouse_10px.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="GlobalSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>GlobalSettings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Content\ProjectDollhouse_11px.spritefont" />
-    <None Include="Content\ProjectDollhouse_11px.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\ProjectDollhouse_12px.spritefont" />
-    <None Include="Content\ProjectDollhouse_12px.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\ProjectDollhouse_14px.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\ProjectDollhouse_16px.spritefont" />
-    <None Include="Content\ProjectDollhouse_16px.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\ProjectDollhouse_9px.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\VertexShader.fx" />
-    <None Include="Content\Vitaboy.fx" />
-    <None Include="GlobalSettings.settings" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Other\libs\Glide\Glide.csproj">
-      <Project>{891f06e8-3851-469c-b1e2-7d1c70c43359}</Project>
-      <Name>Glide</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Other\libs\UIParser\UIParser\UIParser.csproj">
-      <Project>{c58d344e-cb5c-4a61-851b-3cdc9e3f6913}</Project>
-      <Name>UIParser</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Files\Files\Files.csproj">
-      <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
-      <Name>Files</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Shared\Shared.csproj">
-      <Project>{e838507c-3cac-494e-9c23-d3a1c2bdf6a9}</Project>
-      <Name>Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Sound\Sound.csproj">
-      <Project>{b3a3bee4-ec13-48e0-b1d8-e5eebd27a2c9}</Project>
-      <Name>Sound</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Vitaboy\Vitaboy\Vitaboy.csproj">
+    <ProjectReference Include="..\..\Vitaboy\Vitaboy.csproj">
       <Project>{21af42a0-012a-4265-b7df-1cf7588437f3}</Project>
       <Name>Vitaboy</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gonzo\Gonzo.csproj">
-      <Project>{0db1f9a2-7c59-443f-ac56-4d395bd9d0f1}</Project>
-      <Name>Gonzo</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Content\ProjectDollhouse_14px.xpritefont" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

@@ -1,13 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using Microsoft.Win32;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using Microsoft.Win32;
 
-namespace WindowsFormsApplication1
+namespace Vitaboytest
 {
-    static class Program
+#if WINDOWS || LINUX
+    /// <summary>
+    /// The main class.
+    /// </summary>
+    public static class Program
     {
         /// <summary>
         /// The main entry point for the application.
@@ -15,9 +18,6 @@ namespace WindowsFormsApplication1
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
             //Controls whether the application is allowed to start.
             bool Exit = false;
             string Software = "";
@@ -37,7 +37,7 @@ namespace WindowsFormsApplication1
                 {
                     RegistryKey tsoKey = maxisKey.OpenSubKey("The Sims Online");
                     string installDir = (string)tsoKey.GetValue("InstallDir");
-                    installDir += "\\TSOClient\\";
+                    installDir += "TSOClient\\";
                     GlobalSettings.Default.StartupPath = installDir;
                 }
                 else
@@ -54,7 +54,10 @@ namespace WindowsFormsApplication1
             }
 
             if (!Exit)
-                new CreateASimGame().Run();
+            {
+                using (var game = new VitaboytestGame())
+                    game.Run();
+            }
         }
 
         private static bool is64BitProcess = (IntPtr.Size == 8);
@@ -91,4 +94,5 @@ namespace WindowsFormsApplication1
             }
         }
     }
+#endif
 }
