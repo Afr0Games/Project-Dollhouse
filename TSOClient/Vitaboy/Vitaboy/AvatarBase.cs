@@ -249,7 +249,8 @@ namespace Vitaboy
         /// </summary>
         /// <param name="Devc">A GraphicsDevice instance.</param>
         /// <param name="Skel">A Skeleton instance.</param>
-        public AvatarBase(GraphicsDevice Devc, Skeleton Skel, Effect HeadShader = null)
+        /// <param name="Shader">A shader (optional) used to render the avatar on the GPU.</param>
+        public AvatarBase(GraphicsDevice Devc, Skeleton Skel, Effect Shader = null)
         {
             m_Devc = Devc;
             this.Skel = Skel;
@@ -260,10 +261,10 @@ namespace Vitaboy
             m_LeftHandEffect = new BasicEffect(Devc);
             m_RightHandEffect = new BasicEffect(Devc);
 
-            if (HeadShader != null)
+            if (Shader != null)
             {
                 m_GPURender = true;
-                m_VitaboyShader = HeadShader;
+                m_VitaboyShader = Shader;
             }
         }
 
@@ -405,7 +406,7 @@ namespace Vitaboy
                 else
                 {
                     m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(HeadTexture);
-                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("HEAD")].AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix);
                     m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(HeadMesh, Skel));
 
                     //foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformHeadTechnique"].Passes)
@@ -428,9 +429,10 @@ namespace Vitaboy
                             Vertex[1].Normal = HeadMesh.RealVertices[(int)Fce.Y].Normal;
                             Vertex[2].Normal = HeadMesh.RealVertices[(int)Fce.Z].Normal;
 
-                            Vertex[0].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
-                            Vertex[1].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
-                            Vertex[2].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
+                            //All the meshes except the body mesh only references one bone.
+                            Vertex[0].BoneBinding = 0;
+                            Vertex[1].BoneBinding = 0;
+                            Vertex[2].BoneBinding = 0;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
@@ -471,7 +473,7 @@ namespace Vitaboy
                 else
                 {
                     m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(AccessoryTexture);
-                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("HEAD")].AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix);
                     m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(HeadMesh, Skel));
 
                     foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformVerticesTechnique"].Passes)
@@ -493,9 +495,9 @@ namespace Vitaboy
                             Vertex[1].Normal = AccessoryMesh.RealVertices[(int)Fce.Y].Normal;
                             Vertex[2].Normal = AccessoryMesh.RealVertices[(int)Fce.Z].Normal;
 
-                            Vertex[0].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
-                            Vertex[1].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
-                            Vertex[2].BoneBinding = Skel.Bones[Skel.FindBone("HEAD")].BoneIndex;
+                            Vertex[0].BoneBinding = 0;
+                            Vertex[1].BoneBinding = 0;
+                            Vertex[2].BoneBinding = 0;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
@@ -597,7 +599,7 @@ namespace Vitaboy
                 else
                 {
                     m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(LeftHandTexture);
-                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("L_HAND")].AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix);
                     m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(LeftHandMesh, Skel));
 
                     foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformVerticesTechnique"].Passes)
@@ -619,9 +621,10 @@ namespace Vitaboy
                             Vertex[1].Normal = LeftHandMesh.RealVertices[(int)Fce.Y].Normal;
                             Vertex[2].Normal = LeftHandMesh.RealVertices[(int)Fce.Z].Normal;
 
-                            Vertex[0].BoneBinding = Skel.Bones[Skel.FindBone("L_HAND")].BoneIndex;
-                            Vertex[1].BoneBinding = Skel.Bones[Skel.FindBone("L_HAND")].BoneIndex;
-                            Vertex[2].BoneBinding = Skel.Bones[Skel.FindBone("L_HAND")].BoneIndex;
+                            //All the meshes except the body mesh only references one bone.
+                            Vertex[0].BoneBinding = 0;
+                            Vertex[1].BoneBinding = 0;
+                            Vertex[2].BoneBinding = 0;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
@@ -654,7 +657,7 @@ namespace Vitaboy
                 else
                 {
                     m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(RightHandTexture);
-                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix * Skel.Bones[Skel.FindBone("R_HAND")].AbsoluteMatrix);
+                    m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix);
                     m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(RightHandMesh, Skel));
 
 
@@ -677,9 +680,10 @@ namespace Vitaboy
                             Vertex[1].Normal = RightHandMesh.RealVertices[(int)Fce.Y].Normal;
                             Vertex[2].Normal = RightHandMesh.RealVertices[(int)Fce.Z].Normal;
 
-                            Vertex[0].BoneBinding = Skel.Bones[Skel.FindBone("R_HAND")].BoneIndex;
-                            Vertex[1].BoneBinding = Skel.Bones[Skel.FindBone("R_HAND")].BoneIndex;
-                            Vertex[2].BoneBinding = Skel.Bones[Skel.FindBone("R_HAND")].BoneIndex;
+                            //All the meshes except the body mesh only references one bone.
+                            Vertex[0].BoneBinding = 0;
+                            Vertex[1].BoneBinding = 0;
+                            Vertex[2].BoneBinding = 0;
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
