@@ -51,8 +51,7 @@ namespace Vitaboytest
         private void FileManager_OnHundredPercentCompleted()
         {
             m_Avatar = new AdultAvatar(m_Graphics.GraphicsDevice, m_Shader);
-            //m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
-            m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mab000_robin), SkinType.Medium);
+            m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), SkinType.Medium);
             m_Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mah020_willw), SkinType.Medium);
             m_Avatar.Animation = FileManager.GetAnimation(0x5f00000007);
         }

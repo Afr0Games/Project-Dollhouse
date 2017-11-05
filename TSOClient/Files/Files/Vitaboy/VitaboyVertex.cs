@@ -10,7 +10,8 @@ namespace Files.Vitaboy
         public Vector3 Normal;
         public float BoneBinding; //The index of the bone associated with this vertex.
 
-        public VitaboyVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate, float boneBinding)
+        public VitaboyVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate, 
+            float boneBinding)
         {
             Position = position;
             TextureCoordinate = textureCoordinate;

@@ -698,26 +698,16 @@ namespace Vitaboy
 
             if (boneBinding != null)
             {
-                for (int i = 0; i < (boneBinding.RealVertexCount - 2); i += 3)
+                for (int i = 0; i < (boneBinding.RealVertexCount); i++)
                 {
-                    int vertexIndex = (int)boneBinding.FirstRealVertexIndex + i;
+                    int VertexIndex = (int)boneBinding.FirstRealVertexIndex + i;
+                    
+                    BodyMesh.TransformedVertices[VertexIndex].BoneBinding = boneBinding.BoneIndex;
+                    BodyMesh.TransformedVertices[VertexIndex].Position = BodyMesh.RealVertices[VertexIndex].Position;
 
-                    BodyMesh.TransformedVertices[vertexIndex].BoneBinding = boneBinding.BoneIndex;
-                    BodyMesh.TransformedVertices[vertexIndex].Position = BodyMesh.RealVertices[vertexIndex].Position;
+                    BodyMesh.TransformedVertices[VertexIndex].TextureCoordinate = BodyMesh.RealVertices[VertexIndex].TextureCoordinate;
 
-                    BodyMesh.TransformedVertices[vertexIndex + 1].BoneBinding = boneBinding.BoneIndex;
-                    BodyMesh.TransformedVertices[vertexIndex + 1].Position = BodyMesh.RealVertices[vertexIndex + 1].Position;
-
-                    BodyMesh.TransformedVertices[vertexIndex + 2].BoneBinding = boneBinding.BoneIndex;
-                    BodyMesh.TransformedVertices[vertexIndex + 2].Position = BodyMesh.RealVertices[vertexIndex + 2].Position;
-
-                    BodyMesh.TransformedVertices[vertexIndex].TextureCoordinate = BodyMesh.RealVertices[vertexIndex].TextureCoordinate;
-                    BodyMesh.TransformedVertices[vertexIndex + 1].TextureCoordinate = BodyMesh.RealVertices[vertexIndex + 1].TextureCoordinate;
-                    BodyMesh.TransformedVertices[vertexIndex + 2].TextureCoordinate = BodyMesh.RealVertices[vertexIndex + 2].TextureCoordinate;
-
-                    BodyMesh.TransformedVertices[vertexIndex].Normal = BodyMesh.RealVertices[vertexIndex].Normal;
-                    BodyMesh.TransformedVertices[vertexIndex + 1].Normal = BodyMesh.RealVertices[vertexIndex + 1].Normal;
-                    BodyMesh.TransformedVertices[vertexIndex + 2].Normal = BodyMesh.RealVertices[vertexIndex + 2].Normal;
+                    BodyMesh.TransformedVertices[VertexIndex].Normal = BodyMesh.RealVertices[VertexIndex].Normal;
                 }
             }
 
