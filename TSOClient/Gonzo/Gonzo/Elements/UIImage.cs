@@ -97,15 +97,17 @@ namespace Gonzo.Elements
 
             if (Visible)
             {
+                Rectangle DrawRect = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
+
                 if (SourceRect != null)
                 {
-                    SBatch.Draw(Texture, Position, null, SourceRect, new Vector2(0.0f, 0.0f), 0.0f, 
-                        null,  Color.White, SpriteEffects.None, Depth);
+                    SBatch.Draw(Texture, DrawRect, SourceRect, Color.White, 0.0f, new Vector2(0.0f, 0.0f),
+                        SpriteEffects.None, Depth);
                 }
                 else
                 {
-                    SBatch.Draw(Texture, Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, 
-                        null, Color.White, SpriteEffects.None, Depth);
+                    SBatch.Draw(Texture, DrawRect, null, Color.White, 0.0f, new Vector2(0.0f, 0.0f),
+                        SpriteEffects.None, Depth);
                 }
             }
         }
@@ -133,16 +135,10 @@ namespace Gonzo.Elements
 
             if (Visible)
             {
-                if (SourceRect != null)
-                {
-                    SBatch.Draw(Texture, Position, null, SourceRect, new Vector2(0.0f, 0.0f), 0.0f,
-                        Scale, Color.White, SpriteEffects.None, Depth);
-                }
-                else
-                {
-                    SBatch.Draw(Texture, Position, null, null, new Vector2(0.0f, 0.0f), 0.0f,
-                        Scale, Color.White, SpriteEffects.None, Depth);
-                }
+                Rectangle DrawRect = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
+
+                SBatch.Draw(Texture, Position, SourceRect, Color.White, 0.0f, new Vector2(0.0f, 0.0f), 
+                    Scale, SpriteEffects.None, Depth);
             }
         }
 
@@ -164,10 +160,10 @@ namespace Gonzo.Elements
             else
                 Depth = 0.10f;
 
-            if (Scale != null)
-                SBatch.Draw(Texture, To, null, From, new Vector2(0.0f, 0.0f), 0.0f, Scale, Color.White, SpriteEffects.None, Depth);
-            else
-                SBatch.Draw(Texture, To, null, From, new Vector2(0.0f, 0.0f), 0.0f, null, Color.White, SpriteEffects.None, Depth);
+            Vector2 Scl = Scale == null ? new Vector2(1.0f, 1.0f) : (Vector2)Scale;
+
+            SBatch.Draw(Texture, To, From, Color.White, 0.0f, new Vector2(0.0f, 0.0f), Scl, 
+                SpriteEffects.None, Depth);
         }
     }
 

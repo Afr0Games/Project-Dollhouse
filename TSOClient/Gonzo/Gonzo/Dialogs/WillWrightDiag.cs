@@ -36,9 +36,12 @@ namespace Gonzo.Dialogs
             else
                 Depth = 0.10f;
 
+            Rectangle DrawRect = new Rectangle((int)m_WillWrightImg.Position.X, 
+                (int)m_WillWrightImg.Position.Y, m_WillWrightImg.Texture.Width, 
+                m_WillWrightImg.Texture.Height);
+
             if (Visible)
-                SBatch.Draw(m_WillWrightImg.Texture, m_WillWrightImg.Position, null, null, new Vector2(0.0f, 0.0f), 0.0f, null, 
-                    Color.White, SpriteEffects.None, Depth);
+                SBatch.Draw(m_WillWrightImg.Texture, DrawRect, null, Color.White, 0.0f, new Vector2(0, 0), SpriteEffects.None, Depth);
 
             base.Draw(SBatch, LayerDepth);
         }
