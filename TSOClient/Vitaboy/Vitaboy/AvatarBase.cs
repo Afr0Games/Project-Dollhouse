@@ -636,7 +636,7 @@ namespace Vitaboy
             {
                 if (m_GPURender == false)
                 {
-                    foreach (EffectPass Pass in m_LeftHandEffect.CurrentTechnique.Passes)
+                    foreach (EffectPass Pass in m_RightHandEffect.CurrentTechnique.Passes)
                     {
                         Pass.Apply();
 
@@ -659,7 +659,6 @@ namespace Vitaboy
                     m_VitaboyShader.Parameters["VitaboyTexture"].SetValue(RightHandTexture);
                     m_VitaboyShader.Parameters["World"].SetValue(WorldMatrix);
                     m_VitaboyShader.Parameters["ChildBones"].SetValue(GetAllBones(RightHandMesh, Skel));
-
 
                     foreach (EffectPass Pass in m_VitaboyShader.Techniques["TransformVerticesTechnique"].Passes)
                     {

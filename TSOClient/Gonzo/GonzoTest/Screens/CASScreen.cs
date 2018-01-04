@@ -24,7 +24,6 @@ namespace GonzoTest
         private ExitDialog m_ExitDialog;
         private UITextEdit m_DescriptionTextEdit;
 
-        private Camera m_Camera; //Might want to make this globally accessible.
         private Sim m_Avatar;
         VitaboyScreen m_VitaboyScreen;
 
