@@ -13,15 +13,3 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin VertexShader.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:VertexShader.fx
-
-#begin Vitaboy.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Vitaboy.fx
-

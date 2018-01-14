@@ -26,9 +26,9 @@ namespace GonzoTest
             graphics.PreferredBackBufferWidth = GlobalSettings.Default.ScreenWidth;
             graphics.PreferredBackBufferHeight = GlobalSettings.Default.ScreenHeight;
 
-            Resolution.Init(ref graphics);
-            Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, GlobalSettings.Default.Fullscreen);
-            Resolution.SetVirtualResolution(800, 600);
+            Gonzo.Resolution.Init(ref graphics);
+            Gonzo.Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, GlobalSettings.Default.Fullscreen);
+            Gonzo.Resolution.SetVirtualResolution(800, 600);
 
             this.Window.Title = "The Sims Online";
             this.Window.TextInput += Window_TextInput;
@@ -119,10 +119,10 @@ namespace GonzoTest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            Resolution.BeginDraw();
+            Gonzo.Resolution.BeginDraw();
 
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
-                RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
+                RasterizerState.CullCounterClockwise, null, Gonzo.Resolution.getTransformationMatrix());
             m_ScrManager.Draw();
             spriteBatch.End();
 

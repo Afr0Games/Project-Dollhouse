@@ -133,7 +133,7 @@ namespace Files.Manager
 		/// Gets a value indicating if platform is linux.
 		/// </summary>
 		/// <value><c>true</c> if is linux; otherwise, <c>false</c>.</value>
-		private static bool IsLinux
+		public static bool IsLinux
 		{
 			get
 			{
@@ -1116,7 +1116,6 @@ namespace Files.Manager
                     {
                         MP3Fle = new MP3File(Data);
                         AddMusic(Filename, new Asset(Hash, (uint)Data.Length, MP3Fle));
-
                     }
                     else if(Filename.Contains("'.xa"))
                     {

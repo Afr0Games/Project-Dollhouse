@@ -13,6 +13,7 @@ Contributor(s): Rhys Simpson
 using System;
 using System.IO;
 using MP3Sharp;
+using Files.Manager;
 
 namespace Files.AudioFiles
 {
@@ -27,6 +28,12 @@ namespace Files.AudioFiles
     public class MP3File : ISoundCodec
     {
         private MP3Stream m_Stream;
+        public ReadFullyStream RFullyStream;
+
+        /// <summary>
+        /// How many channels in this MP3 file.
+        /// </summary>
+        public int Channels = 0;
 
         /// <summary>
         /// How many bytes to read when calling DecompressedWav().
@@ -35,12 +42,21 @@ namespace Files.AudioFiles
 
         public MP3File(string Path)
         {
-            m_Stream = new MP3Stream(File.Open(Path, FileMode.Open, FileAccess.ReadWrite));
+            if(FileManager.IsLinux)
+                m_Stream = new MP3Stream(File.Open(Path, FileMode.Open, FileAccess.ReadWrite));
+            else //Used by NAudio, only on Windows.
+                RFullyStream = new ReadFullyStream(m_Stream);
         }
 
         public MP3File(Stream Data)
         {
-            m_Stream = new MP3Stream(Data);
+            if (FileManager.IsLinux)
+            {
+                m_Stream = new MP3Stream(Data);
+                Channels = m_Stream.ChannelCount;
+            }
+            else //Used by NAudio, only on Windows.
+                RFullyStream = new ReadFullyStream(Data);
         }
 
         /// <summary>
@@ -73,11 +89,25 @@ namespace Files.AudioFiles
         /// If less data is returned, it means the end of the file was reached.</returns>
         public byte[] DecompressedWav()
         {
-            byte[] Buffer = new byte[BufferSize];
+            /*byte[] Buffer = new byte[BufferSize];
             int BytesRead = m_Stream.Read(Buffer, 0, BufferSize);
 
-            if (BytesRead < BufferSize)
-                Array.Resize(ref Buffer, BytesRead);
+            if (BytesRead != 0)
+            {
+                if (BytesRead < BufferSize)
+                    Array.Resize(ref Buffer, BytesRead);
+
+                return Buffer;
+            }
+
+            return null;*/
+
+            m_Stream.DecodeFrames(1);
+            byte[] Buffer = new byte[m_Stream.Length];
+            int BytesRead = 1;
+
+            while (BytesRead > 0)
+                BytesRead = m_Stream.Read(Buffer, 0, BufferSize);
 
             return Buffer;
         }

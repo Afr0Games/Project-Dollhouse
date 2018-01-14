@@ -13,12 +13,24 @@ Contributor(s):
 using System;
 using System.Threading.Tasks;
 using System.Timers;
+using System.IO;
+using System.Threading;
 using Files.Manager;
 using Files.AudioFiles;
 using Microsoft.Xna.Framework.Audio;
+using NAudio.Wave;
+//using MonogameAudio;
 
 namespace Sound
 {
+    enum StreamingPlaybackState
+    {
+        Stopped,
+        Playing,
+        Buffering,
+        Paused
+    }
+
     /// <summary>
     /// Represents an active, playable sound.
     /// </summary>
@@ -26,11 +38,18 @@ namespace Sound
     {
         public bool LoopIt = true; //Should the MP3 be looped?
         public MP3File MP3;
-        public DynamicSoundEffectInstance DynInstance;
+        //public DynamicSoundEffectInstance DynInstance;
 
         public SoundEffectInstance Instance;
-        public Timer FadeOutTimer;
+        public System.Timers.Timer FadeOutTimer;
+        public System.Timers.Timer PlayTimer;
         public bool FadeOut = false;
+
+        public BufferedWaveProvider WavProvider;
+        public IWavePlayer Player;
+        public WaveOut WOut;
+        public VolumeWaveProvider16 VolumeProvider;
+        public bool FullyStreamed = false;
 
         /// <summary>
         /// Disposes of the resources used by this ActiveSound instance.
@@ -51,8 +70,8 @@ namespace Sound
             {
                 if (Instance != null)
                     Instance.Dispose();
-                if (DynInstance != null)
-                    DynInstance.Dispose();
+                /*if (DynInstance != null)
+                    DynInstance.Dispose();*/
             }
         }
     }
@@ -63,6 +82,8 @@ namespace Sound
     public class SoundPlayer : IDisposable
     {
         private ActiveSound m_ASound;
+        private StreamingPlaybackState m_PlaybackState = StreamingPlaybackState.Stopped;
+        private Task m_StreamingTask;
 
         /// <summary>
         /// Creates a new SoundPlayer instance.
@@ -86,30 +107,152 @@ namespace Sound
         public SoundPlayer(string MP3Sound, bool LoopIt = true)
         {
             MP3File MP3 = (MP3File)FileManager.GetMusic(MP3Sound);
-            DynamicSoundEffectInstance Instance = new DynamicSoundEffectInstance((int)MP3.GetSampleRate(), AudioChannels.Stereo);
-            Instance.BufferNeeded += Instance_BufferNeeded;
+            /*DynamicSoundEffectInstance Instance = new DynamicSoundEffectInstance((int)MP3.GetSampleRate(), AudioChannels.Stereo);
+            Instance.BufferNeeded += Instance_BufferNeeded;*/
 
             m_ASound = new ActiveSound();
             m_ASound.MP3 = MP3;
             m_ASound.LoopIt = LoopIt;
-            m_ASound.DynInstance = Instance;
+            //m_ASound.DynInstance = Instance;
+
+            if (!FileManager.IsLinux)
+            {
+                m_ASound.PlayTimer = new System.Timers.Timer();
+                m_ASound.PlayTimer.Interval = 250;
+                m_ASound.PlayTimer.Elapsed += PlayTimer_Elapsed;
+                m_ASound.PlayTimer.Start();
+
+                m_StreamingTask = new Task(new Action(ReadFromStream));
+                m_PlaybackState = StreamingPlaybackState.Buffering;
+                m_StreamingTask.Start();
+            }
+        }
+
+        private void PlayTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if(m_PlaybackState != StreamingPlaybackState.Stopped)
+            {
+                if(m_ASound.WOut == null && m_ASound.WavProvider != null)
+                {
+                    m_ASound.WOut = new WaveOut();
+                    m_ASound.VolumeProvider = new VolumeWaveProvider16(m_ASound.WavProvider);
+                    m_ASound.VolumeProvider.Volume = 0.5f;
+                    m_ASound.WOut.Init(m_ASound.VolumeProvider);
+                }
+                else if(m_ASound.WavProvider != null)
+                {
+                    double BufferedSeconds = m_ASound.WavProvider.BufferedDuration.TotalSeconds;
+
+                    //Make it stutter less if we buffer up a decent amount before playing
+                    if (BufferedSeconds < 0.5 && m_PlaybackState == StreamingPlaybackState.Playing && !m_ASound.FullyStreamed)
+                    {
+                        m_PlaybackState = StreamingPlaybackState.Buffering;
+                        m_ASound.WOut.Pause();
+                    }
+                    else if (BufferedSeconds > 4 && m_PlaybackState == StreamingPlaybackState.Buffering)
+                    {
+                        m_ASound.WOut.Play();
+                        m_PlaybackState = StreamingPlaybackState.Playing;
+                    }
+                    else if (m_ASound.FullyStreamed && BufferedSeconds == 0)
+                        StopPlayback();
+                }
+            }
+        }
+
+        private void StopPlayback()
+        {
+            if(m_PlaybackState != StreamingPlaybackState.Stopped)
+            {
+                m_PlaybackState = StreamingPlaybackState.Stopped;
+                if (m_ASound.WOut != null)
+                {
+                    m_ASound.WOut.Stop();
+                    m_ASound.WOut.Dispose();
+                    m_ASound.WOut = null;
+                }
+
+                m_ASound.PlayTimer.Stop();
+            }
         }
 
         /// <summary>
         /// A DynamicSoundEffectBuffer needed more data to continue playing an MP3!
         /// </summary>
-        private void Instance_BufferNeeded(object sender, EventArgs e)
+        /*private void Instance_BufferNeeded(object sender, EventArgs e)
         {
             Task StreamingTask = new Task(new Action(ReadFromStream));
             StreamingTask.Start();
+        }*/
+
+        private byte[] m_Buffer = new byte[16384 * 4];
+
+        private void ReadFromStream()
+        {
+            IMp3FrameDecompressor Decompressor = null;
+
+            try
+            {
+                do
+                {
+                    if (IsBufferNearlyFull)
+                        Thread.Sleep(500);
+                    else
+                    {
+                        Mp3Frame Frame;
+
+                        try
+                        {
+                            Frame = Mp3Frame.LoadFromStream(m_ASound.MP3.RFullyStream);
+                        }
+                        catch(EndOfStreamException)
+                        {
+                            m_ASound.FullyStreamed = true;
+                            break;
+                        }
+
+                        if(Decompressor == null)
+                        {
+                            Decompressor = CreateFrameDecompressor(Frame);
+                            m_ASound.WavProvider = new BufferedWaveProvider(Decompressor.OutputFormat);
+                            m_ASound.WavProvider.BufferDuration = TimeSpan.FromSeconds(30);
+                        }
+
+                        int Decompressed = Decompressor.DecompressFrame(Frame, m_Buffer, 0);
+                        m_ASound.WavProvider.AddSamples(m_Buffer, 0, Decompressed);
+                    }
+                } while (m_PlaybackState != StreamingPlaybackState.Stopped);
+            }
+            finally
+            {
+                if (Decompressor != null)
+                    Decompressor.Dispose();
+            }
+        }
+
+        private IMp3FrameDecompressor CreateFrameDecompressor(Mp3Frame Frame)
+        {
+            WaveFormat WaveFormat = new Mp3WaveFormat(Frame.SampleRate, Frame.ChannelMode == ChannelMode.Mono ? 1 : 2,
+                Frame.FrameLength, Frame.BitRate);
+            return new AcmMp3FrameDecompressor(WaveFormat);
+        }
+
+        private bool IsBufferNearlyFull
+        {
+            get
+            {
+                return m_ASound.WavProvider != null &&
+                       m_ASound.WavProvider.BufferLength - m_ASound.WavProvider.BufferedBytes
+                       < m_ASound.WavProvider.WaveFormat.AverageBytesPerSecond / 4;
+            }
         }
 
         private object TheLock = new object();
-
+        
         /// <summary>
         /// Asynchronously reads data from an MP3.
         /// </summary>
-        private void ReadFromStream()
+        /*private void ReadFromStream()
         {
             int Count = 3;
 
@@ -139,7 +282,7 @@ namespace Sound
                     Count--;
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Creates a new SoundPlayer instance.
@@ -163,8 +306,8 @@ namespace Sound
 
             if (m_ASound.Instance != null)
                 m_ASound.Instance.Play();
-            else
-                m_ASound.DynInstance.Play();
+            /*else
+                m_ASound.DynInstance.Play();*/
         }
 
         /// <summary>
@@ -176,10 +319,15 @@ namespace Sound
             if (m_ASound == null)
                 return false;
 
-            if (m_ASound.DynInstance != null)
+            /*if (m_ASound.DynInstance != null)
                 return m_ASound.Instance.State == SoundState.Playing;
             else
-                return m_ASound.DynInstance.State == SoundState.Playing;
+                return m_ASound.DynInstance.State == SoundState.Playing;*/
+
+            if (m_ASound.Instance != null)
+                return m_ASound.Instance.State == SoundState.Playing;
+            else
+                return m_PlaybackState == StreamingPlaybackState.Playing;
         }
 
         /// <summary>
@@ -193,8 +341,10 @@ namespace Sound
 
             if (m_ASound.Instance != null)
                 return m_ASound.Instance.State == SoundState.Stopped;
+            /*else
+                return m_ASound.DynInstance.State == SoundState.Stopped;*/
             else
-                return m_ASound.DynInstance.State == SoundState.Stopped;
+                return m_PlaybackState == StreamingPlaybackState.Stopped;
         }
 
         /// <summary>
@@ -208,15 +358,15 @@ namespace Sound
                 {
                     if (m_ASound.Instance != null)
                         m_ASound.Instance.Stop();
-                    else
+                    /*else
                     {
                         m_ASound.DynInstance.Stop();
                         m_ASound.DynInstance.BufferNeeded -= Instance_BufferNeeded;
-                    }
+                    }*/
                 }
                 else
                 {
-                    m_ASound.FadeOutTimer = new Timer();
+                    m_ASound.FadeOutTimer = new System.Timers.Timer();
                     m_ASound.FadeOutTimer.Interval = 200;
                     m_ASound.FadeOutTimer.Enabled = true;
                     m_ASound.FadeOutTimer.Elapsed += FadeOutTimer_Elapsed;
@@ -227,7 +377,7 @@ namespace Sound
 
         private void FadeOutTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Timer T = (Timer)sender;
+            System.Timers.Timer T = (System.Timers.Timer)sender;
 
             if (m_ASound.FadeOutTimer == T)
             {
@@ -247,7 +397,7 @@ namespace Sound
                     else
                         m_ASound.Instance.Stop();
                 }
-                else
+                /*else
                 {
                     if (m_ASound.DynInstance.Volume > 0)
                     {
@@ -257,11 +407,25 @@ namespace Sound
                         }
                         catch (ArgumentOutOfRangeException)
                         {
-                            m_ASound.DynInstance.Stop();
+                            //m_ASound.DynInstance.Stop();
                         }
                     }
                     else
-                        m_ASound.DynInstance.Stop();
+                        //m_ASound.DynInstance.Stop();
+                }*/
+                else
+                {
+                    if (m_ASound.VolumeProvider.Volume > 0)
+                    {
+                        try
+                        {
+                            m_ASound.VolumeProvider.Volume -= 0.10f;
+                        }
+                        catch(ArgumentOutOfRangeException)
+                        {
+                            StopPlayback();
+                        }
+                    }
                 }
             }
         }
@@ -285,6 +449,9 @@ namespace Sound
             {
                 if (m_ASound != null)
                     m_ASound.Dispose();
+
+                if(m_StreamingTask != null)
+                    m_StreamingTask.Dispose();
             }
         }
     }
