@@ -14,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Reflection;
+using log4net;
 
 namespace Files.FAR1
 {
@@ -22,6 +24,8 @@ namespace Files.FAR1
         private EntryContainer m_Entries = new EntryContainer();
         private string m_Path;
         private FileReader m_Reader;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public FAR1Archive(string Path)
         {
@@ -140,19 +144,35 @@ namespace Files.FAR1
             return m_Entries.Contains(FilenameHash);
         }
 
+        ~FAR1Archive()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR1Archive instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanupNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this FAR1Archive instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if(true)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Close();
+
+                // Prevent the finalizer from calling ~FAR1Archive, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("FAR1Archive not explicitly disposed!");
         }
     }
 }

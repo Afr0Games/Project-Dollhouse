@@ -13,8 +13,10 @@ Contributor(s):
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using log4net;
 
 namespace Files.IFF
 {
@@ -108,6 +110,8 @@ namespace Files.IFF
         public byte[] ZBuffer;
 
         public bool HasZBuffer, HasAlphaChannel;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SPR2Frame(FileReader Reader, GraphicsDevice Device, PALT Palette, uint SpriteVersion)
         {
@@ -256,19 +260,35 @@ namespace Files.IFF
             }
         }
 
+        ~SPR2Frame()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SPR2Frame instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this SPR2Frame instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (Texture != null)
                     Texture.Dispose();
+
+                // Prevent the finalizer from calling ~SPR2Frame, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("SPR2Frame not explicitly disposed!");
         }
     }
 }

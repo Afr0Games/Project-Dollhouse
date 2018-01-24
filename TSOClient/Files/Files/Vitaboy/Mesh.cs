@@ -13,6 +13,8 @@ Contributor(s):
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using log4net;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -36,6 +38,8 @@ namespace Files.Vitaboy
         //public VertexPositionNormalTexture[] TransformedVertices;
         public VitaboyVertex[] TransformedVertices;
         public List<VertexPositionNormalTexture> BlendedVertices = new List<VertexPositionNormalTexture>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public Mesh(Stream Data)
         {
@@ -87,19 +91,35 @@ namespace Files.Vitaboy
             m_Reader.Close();
         }
 
+        ~Mesh()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Mesh instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this Mesh instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Dispose();
+
+                // Prevent the finalizer from calling ~Mesh, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("Mesh not explicitly disposed!");
         }
     }
 

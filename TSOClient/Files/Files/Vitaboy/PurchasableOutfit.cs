@@ -12,6 +12,8 @@ Contributor(s):
 
 using System;
 using System.IO;
+using System.Reflection;
+using log4net;
 
 namespace Files.Vitaboy
 {
@@ -20,6 +22,8 @@ namespace Files.Vitaboy
         private FileReader m_Reader;
         public uint OutfitType;
         public UniqueFileID OutfitID;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Constructs a new instance of the PurchasableOutfit class.
@@ -47,19 +51,35 @@ namespace Files.Vitaboy
             m_Reader.Close();
         }
 
+        ~PurchasableOutfit()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this PurchasableOutfit instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this PurchasableOutfit instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Dispose();
+
+                // Prevent the finalizer from calling ~PurchasableOutfit, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("PurchasableOutfit not explicitly disposed!");
         }
     }
 }

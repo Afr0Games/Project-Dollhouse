@@ -14,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
+using System.Reflection;
+using log4net;
 
 namespace Files.IFF
 {
@@ -28,6 +30,8 @@ namespace Files.IFF
         /// Will be 0 if IFF is not of type SPF.
         /// </summary>
         private GraphicsDevice m_Device;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private FileReader m_Reader;
         private Dictionary<ushort, IFFChunk> m_BHAVChunks = new Dictionary<ushort, IFFChunk>();
@@ -251,19 +255,35 @@ namespace Files.IFF
             }
         }
 
+        ~Iff()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Iff instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this Iff instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Dispose();
+
+                // Prevent the finalizer from calling ~Iff, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("Iff not explicitly disposed!");
         }
     }
 }

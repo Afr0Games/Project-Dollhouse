@@ -13,7 +13,9 @@ Contributor(s):
 using System;
 using System.Text;
 using System.IO;
+using System.Reflection;
 using Files;
+using log4net;
 
 namespace Sound
 {
@@ -23,6 +25,8 @@ namespace Sound
 
         public ExportTable ExTable;
         public byte[] InstructionData;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public Hit(Stream Data)
         {
@@ -48,19 +52,35 @@ namespace Sound
             m_Reader.Close();
         }
 
+        ~Hit()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Hit instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this Hit instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Close();
+
+                // Prevent the finalizer from calling ~Hit, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("Hit not explicitly disposed!");
         }
     }
 }

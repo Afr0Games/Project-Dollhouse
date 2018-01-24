@@ -12,7 +12,9 @@ Contributor(s):
 
 using System;
 using System.IO;
+using System.Reflection;
 using Files.AudioLogic;
+using log4net;
 
 namespace Sound
 {
@@ -25,6 +27,8 @@ namespace Sound
         public EVT Events;
         public HSM Symbols;
 
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         public HitResourcegroup(string HitPath, string EVTPath, string HSMPath)
         {
             HitResource = new Hit(File.Open(HitPath, FileMode.Open, FileAccess.Read, FileShare.Read));
@@ -33,21 +37,37 @@ namespace Sound
                 Symbols = new HSM(HSMPath);
         }
 
+        ~HitResourcegroup()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this HitResourcegroup instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this HitResourcegroup instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (HitResource != null)
                     HitResource.Dispose();
                 if (Events != null)
                     Events.Dispose();
+
+                // Prevent the finalizer from calling ~HitResourcegroup, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("HitResourcegroup not explicitly disposed!");
         }
     }
 }

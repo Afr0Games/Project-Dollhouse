@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Threading;
+using System.Reflection;
+using log4net;
 
 namespace Files.DBPF
 {
@@ -65,6 +67,8 @@ namespace Files.DBPF
         public uint IndexEntryCount;
         public uint IndexOffset;
         public uint IndexSize;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private ManualResetEvent m_FinishedReading = new ManualResetEvent(false);
 
@@ -217,21 +221,37 @@ namespace Files.DBPF
             return m_Entries.ContainsKey(ID);
         }
 
+        ~DBPFArchive()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this DBPFArchive instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this DBPFArchive instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Close();
                 if (m_FinishedReading != null)
                     m_FinishedReading.Close();
+
+                // Prevent the finalizer from calling ~DBPArchive, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("DBPFArchive not explicitly disposed!");
         }
     }
 }

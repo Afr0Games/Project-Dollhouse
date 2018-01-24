@@ -13,15 +13,18 @@ Contributor(s): Rhys Simpson
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
 using Files.Manager;
 using Files.AudioFiles;
+using log4net;
+
 
 namespace Sound
 {
     /// <summary>
     /// Replacement for SubRoutine to handle the kTurnOnTV event. Used by radio, TV and UI music.
     /// </summary>
-    public class HITTVOn
+    public class HITTVOn : IDisposable
     {
         private uint m_ID = 0;
         private List<string> m_Sounds = new List<string>();
@@ -34,6 +37,8 @@ namespace Sound
         private bool m_EverHadOwners = false; //Has this thread ever had owners? If not, don't kill the thread.
 
         List<int> m_Owners = new List<int>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Add an owner for this thread.
@@ -98,6 +103,11 @@ namespace Sound
                 if (Path != "")
                     LoadMusicFromPath(Path);
             }
+        }
+
+        ~HITTVOn()
+        {
+            Dispose(); //Cleans up the sound and music instance.
         }
 
         /// <summary>
@@ -212,6 +222,39 @@ namespace Sound
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this HITTVOn instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this HITTVOn instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (m_MusicInstance != null)
+                    m_MusicInstance.Dispose();
+
+                if (m_SoundInstance != null)
+                    m_SoundInstance.Dispose();
+
+                // Prevent the finalizer from calling ~HITTVOn, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+            {
+                //We're in the finalizer thread - log it!
+                m_Logger.Error("Soundplayer not explicitly disposed!");
+            }
         }
     }
 }

@@ -12,6 +12,8 @@ Contributor(s):
 
 using System;
 using System.IO;
+using System.Reflection;
+using log4net;
 
 namespace Files.IFF
 {
@@ -20,6 +22,7 @@ namespace Files.IFF
     /// </summary>
     public class FBMP : IFFChunk, IDisposable
     {
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public MemoryStream BitmapStream;
 
         public FBMP(IFFChunk BaseChunk) : base(BaseChunk)
@@ -30,19 +33,35 @@ namespace Files.IFF
             Reader.Close();
         }
 
+        ~FBMP()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FBMP instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this FBMP instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (BitmapStream != null)
                     BitmapStream.Dispose();
+
+                // Prevent the finalizer from calling ~FBMP, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("FBMP not explicitly disposed!");
         }
     }
 }

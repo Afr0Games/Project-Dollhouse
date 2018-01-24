@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Globalization;
+using System.Reflection;
+using log4net;
 
 namespace Files.AudioLogic
 {
@@ -74,6 +76,8 @@ namespace Files.AudioLogic
     {
         private FileReader m_Reader;
         public List<TrackEvent> Events = new List<TrackEvent>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public EVT(Stream Data)
         {
@@ -136,19 +140,35 @@ namespace Files.AudioLogic
             }
         }
 
+        ~EVT()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this EVT instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this EVT instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Close();
+
+                // Prevent the finalizer from calling ~EVT, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("EVT not explicitly disposed!");
         }
     }
 }

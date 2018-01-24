@@ -12,6 +12,8 @@ Contributor(s):
 
 using System;
 using System.IO;
+using System.Reflection;
+using log4net;
 
 namespace Files.Vitaboy
 {
@@ -31,6 +33,8 @@ namespace Files.Vitaboy
         public UniqueFileID LightAppearance, MediumAppearance, DarkAppearance;
         private uint m_HandGroup;
         public OutfitRegion Region;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public Outfit(Stream Data)
         {
@@ -62,19 +66,35 @@ namespace Files.Vitaboy
             return new UniqueFileID(TypeID, FileID);
         }
 
+        ~Outfit()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Outfit instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this Outfit instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
-                if(m_Reader != null)
+                if (m_Reader != null)
                     m_Reader.Dispose();
+
+                // Prevent the finalizer from calling ~Outfit, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("Outfit not explicitly disposed!");
         }
     }
 }

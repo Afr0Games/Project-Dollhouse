@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using log4net;
 
 namespace Files.Vitaboy
 {
@@ -8,6 +10,8 @@ namespace Files.Vitaboy
     {
         private FileReader m_Reader;
         public List<UniqueFileID> PurchasableOutfitIDs = new List<UniqueFileID>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public Collection(Stream Data)
         {
@@ -27,19 +31,35 @@ namespace Files.Vitaboy
             }
         }
 
+        ~Collection()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Collection instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this Collection instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Dispose();
+
+                // Prevent the finalizer from calling ~Collection, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("Collection not explicitly disposed!");
         }
     }
 }

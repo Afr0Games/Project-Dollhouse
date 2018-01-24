@@ -12,6 +12,8 @@ Contributor(s):
 
 using System;
 using System.IO;
+using System.Reflection;
+using log4net;
 
 namespace Files.AudioFiles
 {
@@ -27,6 +29,8 @@ namespace Files.AudioFiles
     /// </summary>
     public class XAFile : ISoundCodec, IDisposable
     {
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         private int m_CurSampleLeft = 0;
         private int m_PrevSampleLeft = 0;
 
@@ -340,15 +344,26 @@ namespace Files.AudioFiles
              0xFFFFFFFC
         };
 
+        ~XAFile()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this XAFile instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanupNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this XAFile instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if(true)
+            if(Disposed == true)
             {
                 if (m_Reader != null)
                     m_Reader.Close();
@@ -356,7 +371,12 @@ namespace Files.AudioFiles
                     m_Writer.Close();
                 if (m_DecompressedStream != null)
                     m_DecompressedStream.Close();
+
+                // Prevent the finalizer from calling ~XAFile, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("XAFile not explicitly disposed!");
         }
     }
 }

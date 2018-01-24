@@ -13,6 +13,8 @@ Contributor(s):
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using log4net;
 
 namespace Files.AudioLogic
 {
@@ -26,6 +28,8 @@ namespace Files.AudioLogic
     {
         private FileReader m_Reader;
         public List<uint> SoundsAndHitlists = new List<uint>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public HLS(Stream Data)
         {
@@ -85,19 +89,35 @@ namespace Files.AudioLogic
             m_Reader.Close();
         }
 
+        ~HLS()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this HLS instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this HLS instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Close();
+
+                // Prevent the finalizer from calling ~HLS, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("HLS not explicitly disposed!");
         }
     }
 }

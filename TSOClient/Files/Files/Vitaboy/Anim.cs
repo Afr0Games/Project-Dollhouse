@@ -12,11 +12,10 @@ Contributor(s):
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using Microsoft.Xna.Framework;
+using System.Reflection;
+using log4net;
 
 namespace Files.Vitaboy
 {
@@ -32,7 +31,9 @@ namespace Files.Vitaboy
         public uint RotationsCount;
         public float[,] Rotations;
         public uint MotionCount;
-        public List<Motion> Motions = new List<Motion>(); 
+        public List<Motion> Motions = new List<Motion>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public Anim(Stream Data)
         {
@@ -76,19 +77,35 @@ namespace Files.Vitaboy
             m_Reader.Close();
         }
 
+        ~Anim()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Anim instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this Anim instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Dispose();
+
+                // Prevent the finalizer from calling ~Anim, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("Anim not explicitly disposed!");
         }
     }
 }

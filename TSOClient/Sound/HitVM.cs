@@ -14,16 +14,19 @@ using System;
 using System.Collections.Generic;
 using Files.Manager;
 using Files.AudioLogic;
-using System.Diagnostics;
+using log4net;
+using System.Reflection;
 
 namespace Sound
 {
-    public class HitVM
+    public class HitVM : IDisposable
     {
         private static List<SubRoutine> m_CurrentlyPlayingTracks = new List<SubRoutine>();
 
         private static Dictionary<int, int> m_GlobalVars = new Dictionary<int, int>();
         private static Dictionary<string, HITTVOn> m_ActiveEvents = new Dictionary<string, HITTVOn>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Sets a global variable to a value.
@@ -193,6 +196,11 @@ namespace Sound
             IsInitialized = true;
         }
 
+        ~HitVM()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Returns a path to a mode or station based on a StringID.
         /// </summary>
@@ -328,5 +336,34 @@ namespace Sound
 				return (p == 4) || (p == 6) || (p == 128);
 			}
 		}
+
+        /// <summary>
+        /// Disposes of the resources used by this SoundPlayer instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SoundPlayer instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                foreach (KeyValuePair<string, HITTVOn> KVP in m_ActiveEvents)
+                {
+                    if (KVP.Value != null)
+                        KVP.Value.Dispose();
+                }
+
+                // Prevent the finalizer from calling ~HitVM, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("HitVM not explicitly disposed!");
+        }
     }
 }

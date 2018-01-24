@@ -11,13 +11,14 @@ Contributor(s):
 */
 
 using System;
-using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using Files.Vitaboy;
 using Files.Manager;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using log4net;
 
 namespace Vitaboy
 {
@@ -56,6 +57,8 @@ namespace Vitaboy
         public float RotationStartAngle = 0.0f;
         public float RotationSpeed = new TimeSpan(0, 0, 10).Ticks;
         public float RotationRange = 40.0f;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Should this avatar be rotated when rendered?
@@ -929,17 +932,28 @@ namespace Vitaboy
             }
         }
 
+        ~AvatarBase()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this AvatarBase instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this AvatarBase instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
-                if(m_AccessoryEffect != null)
+                if (m_AccessoryEffect != null)
                     m_AccessoryEffect.Dispose();
                 if(m_BodyEffect != null)
                     m_BodyEffect.Dispose();
@@ -947,7 +961,12 @@ namespace Vitaboy
                     m_HeadEffect.Dispose();
                 if(m_LeftHandEffect != null)
                     m_LeftHandEffect.Dispose();
+
+                // Prevent the finalizer from calling ~AvatarBase, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("AvatarBase not explicitly disposed!");
         }
     }
 }

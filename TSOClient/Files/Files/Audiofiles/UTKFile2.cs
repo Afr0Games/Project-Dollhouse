@@ -12,6 +12,8 @@ Contributor(s):
 
 using System;
 using System.IO;
+using System.Reflection;
+using log4net;
 
 namespace Files.AudioFiles
 {
@@ -21,6 +23,8 @@ namespace Files.AudioFiles
     /// </summary>
     public class UTKFile2 : ISoundCodec, IDisposable
     {
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         public float[] UTKCosine = {
             0.0f, -.99677598476409912109375f, -.99032700061798095703125f, -.983879029750823974609375f, -.977430999279022216796875f,
             -.970982015132904052734375f, -.964533984661102294921875f, -.958085000514984130859375f, -.9516370296478271484375f,
@@ -463,15 +467,26 @@ namespace Files.AudioFiles
             }
         }
 
+        ~UTKFile2()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this UTKFile2 instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this UTKFile2 instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (m_Writer != null)
                     m_Writer.Close();
@@ -481,7 +496,12 @@ namespace Files.AudioFiles
 
                 if (m_DecompressedStream != null)
                     m_DecompressedStream.Close();
+
+                // Prevent the finalizer from calling ~UTKFile2, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("UTKFile2 not explicitly disposed!");
         }
     }
 }

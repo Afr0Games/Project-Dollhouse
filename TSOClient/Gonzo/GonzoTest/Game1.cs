@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Gonzo;
 using Files.Manager;
 using Sound;
+using System.Windows.Forms;
 
 namespace GonzoTest
 {
@@ -26,15 +27,25 @@ namespace GonzoTest
             graphics.PreferredBackBufferWidth = GlobalSettings.Default.ScreenWidth;
             graphics.PreferredBackBufferHeight = GlobalSettings.Default.ScreenHeight;
 
-            Gonzo.Resolution.Init(ref graphics);
-            Gonzo.Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, GlobalSettings.Default.Fullscreen);
-            Gonzo.Resolution.SetVirtualResolution(800, 600);
+            Resolution.Init(ref graphics);
+            Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, GlobalSettings.Default.Fullscreen);
+            Resolution.SetVirtualResolution(800, 600);
 
-            this.Window.Title = "The Sims Online";
-            this.Window.TextInput += Window_TextInput;
-            this.IsFixedTimeStep = true;
+            Window.Title = "The Sims Online";
+            Window.TextInput += Window_TextInput;
+            IsFixedTimeStep = true;
+
+            Application.ApplicationExit += Application_ApplicationExit;
 
             Content.RootDirectory = "Content";
+        }
+
+        private void Application_ApplicationExit(object sender, System.EventArgs e)
+        {
+            if (SoundManager != null)
+                SoundManager.Dispose();
+
+            //TODO: Dispose more stuff here...
         }
 
         private void Window_TextInput(object sender, TextInputEventArgs e)
@@ -105,7 +116,9 @@ namespace GonzoTest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == 
+                Microsoft.Xna.Framework.Input.ButtonState.Pressed || 
+                Keyboard.GetState().IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
                 Exit();
 
             m_ScrManager.Update(gameTime);

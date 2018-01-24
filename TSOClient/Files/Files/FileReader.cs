@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Reflection;
+using log4net;
 
 namespace Files
 {
@@ -23,6 +25,8 @@ namespace Files
         private BinaryReader m_Reader;
         private bool m_IsBigEndian = false;
         private MemoryMappedFile m_MemFile;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Returns the length of this FileReader's underlying stream in bytes.
@@ -426,18 +430,34 @@ namespace Files
             Dispose();
         }
 
+        ~FileReader()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FileReader instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
-
-            return;
         }
 
-        protected virtual void Dispose(bool CleanupNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this FileReader instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (true)
+            if (Disposed)
+            {
                 m_Reader.Dispose();
+
+                // Prevent the finalizer from calling ~FileReader, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("FileReader not explicitly disposed!");
         }
     }
 }

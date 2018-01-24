@@ -15,8 +15,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Collections.Concurrent;
-using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
+using log4net;
 
 namespace Files.FAR3
 {
@@ -29,6 +30,8 @@ namespace Files.FAR3
         private string m_Path;
         private FileReader m_Reader;
         private ManualResetEvent m_FinishedReading = new ManualResetEvent(false);
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public FAR3Archive(string Path)
         {
@@ -193,21 +196,37 @@ namespace Files.FAR3
             return m_Entries.ContainsKey(ID);
         }
 
+        ~FAR3Archive()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Close();
                 if (m_FinishedReading != null)
                     m_FinishedReading.Close();
+
+                // Prevent the finalizer from calling ~FAR3Archive, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("FAR3Archive not explicitly disposed!");
         }
     }
 }

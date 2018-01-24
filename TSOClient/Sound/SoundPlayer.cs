@@ -20,6 +20,8 @@ using Files.AudioFiles;
 using Microsoft.Xna.Framework.Audio;
 using NAudio.Wave;
 //using MonogameAudio;
+using log4net;
+using System.Reflection;
 
 namespace Sound
 {
@@ -51,28 +53,41 @@ namespace Sound
         public VolumeWaveProvider16 VolumeProvider;
         public bool FullyStreamed = false;
 
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        ~ActiveSound()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Disposes of the resources used by this ActiveSound instance.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Disposes of the resources used by this ActiveSound instance.
         /// <param name="CleanUpNativeAndManagedResources">Should both native and managed resources be cleaned?</param>
         /// </summary>
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (Instance != null)
                     Instance.Dispose();
                 /*if (DynInstance != null)
                     DynInstance.Dispose();*/
+                if (WOut != null)
+                    WOut.Dispose();
+
+                // Prevent the finalizer from calling ~ActiveSound, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("ActiveSound instance not explicitly disposed!");
         }
     }
     
@@ -84,6 +99,8 @@ namespace Sound
         private ActiveSound m_ASound;
         private StreamingPlaybackState m_PlaybackState = StreamingPlaybackState.Stopped;
         private Task m_StreamingTask;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Creates a new SoundPlayer instance.
@@ -126,6 +143,11 @@ namespace Sound
                 m_PlaybackState = StreamingPlaybackState.Buffering;
                 m_StreamingTask.Start();
             }
+        }
+
+        ~SoundPlayer()
+        {
+            Dispose(false); //Cleans up the streaming task.
         }
 
         private void PlayTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -431,28 +453,32 @@ namespace Sound
         }
 
         /// <summary>
-        /// Disposes of the resources used by this MP3Player instance.
+        /// Disposes of the resources used by this SoundPlayer instance.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Disposes of the resources used by this MP3Player instance.
-        /// <param name="CleanUpNativeAndManagedResources">Should both native and managed resources be cleaned?</param>
+        /// Disposes of the resources used by this SoundPlayer instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (m_ASound != null)
                     m_ASound.Dispose();
 
                 if(m_StreamingTask != null)
                     m_StreamingTask.Dispose();
+
+                // Prevent the finalizer from calling ~SoundPlayer, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("Soundplayer not explicitly disposed!");
         }
     }
 }

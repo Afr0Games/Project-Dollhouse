@@ -14,6 +14,7 @@ using System;
 using System.Timers;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 using Files;
 using Files.Manager;
 using UIParser;
@@ -21,6 +22,7 @@ using UIParser.Nodes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using log4net;
 
 namespace Gonzo.Elements
 {
@@ -72,6 +74,8 @@ namespace Gonzo.Elements
         private int m_MaxChars = 0;
         private TextEditAlignment m_Alignment = 0;
         private bool m_FlashOnEmpty = false;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         //This is used to index the current line of text to turn invisible when text is scrolling.
         private int m_VisibilityIndex = 0;
@@ -1240,16 +1244,34 @@ namespace Gonzo.Elements
             return false;
         }
 
+        ~UITextEdit()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this UITextEdit instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this UITextEdit instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if(CleanUpManagedResources)
+            if (Disposed)
+            {
                 m_CursorVisibilityTimer.Dispose();
+
+                // Prevent the finalizer from calling ~UITextEdit, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("UITextEdit not explicitly disposed!");
         }
     }
 }

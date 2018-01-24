@@ -11,11 +11,9 @@ Contributor(s):
 */
 
 using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.IO;
 using System.Threading;
+using System.Reflection;
+using log4net;
 
 namespace Files.Manager
 {
@@ -30,6 +28,8 @@ namespace Files.Manager
         private ulong m_AssetID = 0;
         private byte[] m_AssetFilename;
         private object m_AssetData;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public DateTime LastAccessed
         {
@@ -112,16 +112,33 @@ namespace Files.Manager
             m_LastAccessedLock.Set();
         }
 
+        ~Asset()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Asset instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanupNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this Asset instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanupNativeAndManagedResources)
+            if (Disposed)
+            {
                 m_LastAccessedLock.Dispose();
+                // Prevent the finalizer from calling ~Asset, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("Asset not explicitly disposed!");
         }
     }
 }

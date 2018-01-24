@@ -14,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using log4net;
 
 namespace Files.Vitaboy
 {
@@ -24,6 +26,8 @@ namespace Files.Vitaboy
         public ushort BoneCount;
         public List<Bone> Bones = new List<Bone>();
         public Bone RootBone;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public Skeleton(Stream Data)
         {
@@ -57,19 +61,35 @@ namespace Files.Vitaboy
             return Bones.FirstOrDefault(x => x.Name == BoneName).BoneIndex;
         }
 
+        ~Skeleton()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Skeleton instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this Skeleton instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Dispose();
+
+                // Prevent the finalizer from calling ~Skeleton, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("Skeleton not explicitly disposed!");
         }
     }
 }

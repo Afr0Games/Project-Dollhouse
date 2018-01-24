@@ -14,6 +14,8 @@ using System;
 using System.Text;
 using System.IO;
 using System.Globalization;
+using System.Reflection;
+using log4net;
 
 namespace Files.AudioLogic
 {
@@ -48,6 +50,8 @@ namespace Files.AudioLogic
         public int DuckingPriority = 0;
         public bool Looped = false;
         public int Volume = 0;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public TRK(Stream Data)
         {
@@ -98,19 +102,35 @@ namespace Files.AudioLogic
             m_Reader.Close();
         }
 
+        ~TRK()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this TRK instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool CleanUpNativeAndManagedResources)
+        /// <summary>
+        /// Disposes of the resources used by this TRK instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
         {
-            if (CleanUpNativeAndManagedResources)
+            if (Disposed)
             {
                 if (m_Reader != null)
                     m_Reader.Close();
+
+                // Prevent the finalizer from calling ~TRK, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                m_Logger.Error("TRK not explicitly disposed!");
         }
     }
 }
