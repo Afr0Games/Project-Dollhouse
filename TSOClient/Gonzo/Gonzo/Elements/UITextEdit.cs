@@ -604,7 +604,8 @@ namespace Gonzo.Elements
 
             if (m_Mode != TextEditMode.ReadOnly)
             {
-                m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder.ToString()).X);
+                m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(CurrentInput).X);
+
                 m_IsUpperCase = IsUpperCase(Input);
 
                 if (m_HasFocus)
@@ -954,44 +955,52 @@ namespace Gonzo.Elements
                                     }
 
                                     //If the current line is empty, move the cursor up.
-                                    if (m_Lines[m_Cursor.LineIndex].SBuilder.Length == 0)
+                                    if (m_Lines.Count > 0)
                                     {
-                                        if (m_NumLines > 1)
+                                        if (m_Lines[m_Cursor.LineIndex].SBuilder.Length == 0)
                                         {
-                                            if (m_TextPosition.Y > Position.Y)
+                                            if (m_NumLines > 1)
                                             {
-                                                m_TextPosition.Y -= m_Font.LineSpacing;
+                                                if (m_TextPosition.Y > Position.Y)
+                                                {
+                                                    m_TextPosition.Y -= m_Font.LineSpacing;
 
-                                                m_Cursor.Position.X = Position.X + m_Size.X;
-                                                m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                                    m_Cursor.Position.X = Position.X + m_Size.X;
+                                                    m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                                }
+
+                                                if (m_Cursor.LineIndex > 0)
+                                                {
+                                                    m_Cursor.LineIndex--;
+                                                    m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                                }
                                             }
-
-                                            if (m_Cursor.LineIndex > 0)
+                                            else
                                             {
-                                                m_Cursor.LineIndex--;
-                                                m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                                                if (m_Cursor.LineIndex > 0)
+                                                    m_Cursor.LineIndex--;
                                             }
                                         }
                                         else
                                         {
-                                            if (m_Cursor.LineIndex > 0)
+                                            if (m_NumLines > 1)
+                                            {
+                                                m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
+                                                m_Cursor.CharacterIndex--;
+                                                m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                            }
+                                            else
+                                            {
+                                                if (m_Lines[m_Cursor.CharacterIndex].SBuilder.Length == 0)
+                                                    m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex]);
+
+                                                m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex - 1]);
+
+                                                m_Cursor.CharacterIndex--;
                                                 m_Cursor.LineIndex--;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (m_NumLines > 1)
-                                        {
-                                            m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
-                                            m_Cursor.CharacterIndex--;
-                                            m_Cursor.Position.X -= m_Font.MeasureString("a").X;
-                                        }
-                                        else
-                                        {
-                                            m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex]);
-                                            m_Cursor.CharacterIndex--;
-                                            m_Cursor.LineIndex--;
-                                            m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                                if(m_Lines[m_Cursor.CharacterIndex - 1].SBuilder.Length > 0)
+                                                    m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.CharacterIndex - 1].SBuilder[0].ToString()).X;
+                                            }
                                         }
                                     }
 
