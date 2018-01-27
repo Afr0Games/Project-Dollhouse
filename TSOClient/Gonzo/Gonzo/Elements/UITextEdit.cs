@@ -950,7 +950,20 @@ namespace Gonzo.Elements
                                         else
                                         {
                                             if (m_Cursor.Position.X > Position.X)
-                                                m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                            {
+                                                if (m_NumLines > 1)
+                                                {
+                                                    if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
+                                                        m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex - 1].ToString()).X;
+                                                }
+                                                else
+                                                {
+                                                    if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
+                                                        m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
+                                                    else
+                                                        m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex + 1].SBuilder[0].ToString()).X;
+                                                }
+                                            }
                                         }
                                     }
 
@@ -987,7 +1000,7 @@ namespace Gonzo.Elements
                                             {
                                                 m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
                                                 m_Cursor.CharacterIndex--;
-                                                m_Cursor.Position.X -= m_Font.MeasureString("a").X;
+                                                m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex - 1].ToString()).X;
                                             }
                                             else
                                             {
@@ -1025,11 +1038,21 @@ namespace Gonzo.Elements
                                 case Keys.Left:
                                     if (m_Cursor.Position.X > Position.X)
                                     {
-                                        m_Cursor.Position.X -= m_Font.MeasureString("a").X;
-                                        m_Cursor.CharacterIndex--;
-
-                                        if (m_NumLines == 1)
-                                            m_Cursor.LineIndex--;
+                                        if (m_NumLines > 1)
+                                        {
+                                            m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex - 1].ToString()).X;
+                                            m_Cursor.CharacterIndex--;
+                                        }
+                                        else
+                                        {
+                                            if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
+                                            {
+                                                m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
+                                                m_Cursor.LineIndex--;
+                                            }
+                                            else
+                                                m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex + 1].SBuilder[0].ToString()).X;
+                                        }
                                     }
                                     else if (m_Cursor.Position.X <= Position.X)
                                     {
@@ -1061,13 +1084,20 @@ namespace Gonzo.Elements
                                             if (m_Lines[m_Cursor.LineIndex].SBuilder.Length > 0 &&
                                                 m_Cursor.CharacterIndex < m_Lines[m_Cursor.LineIndex].SBuilder.Length)
                                             {
-                                                m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                                m_Cursor.Position.X += m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
                                                 m_Cursor.CharacterIndex++;
                                             }
                                         }
                                         else //Single-line control, simple.
                                         {
-                                            m_Cursor.Position.X += m_Font.MeasureString("a").X;
+                                            if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
+                                            {
+                                                m_Cursor.Position.X += m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
+                                                m_Cursor.LineIndex--;
+                                            }
+                                            else
+                                                m_Cursor.Position.X += m_Font.MeasureString(m_Lines[m_Cursor.LineIndex + 1].SBuilder[0].ToString()).X;
+
                                             m_Cursor.CharacterIndex++;
                                             m_Cursor.LineIndex++;
                                         }
