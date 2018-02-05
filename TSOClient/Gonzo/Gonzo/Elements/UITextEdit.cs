@@ -604,7 +604,10 @@ namespace Gonzo.Elements
 
             if (m_Mode != TextEditMode.ReadOnly)
             {
-                m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(CurrentInput).X);
+                if(CurrentInput != "")
+                    m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(CurrentInput).X);
+                else
+                    m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString("a").X);
 
                 m_IsUpperCase = IsUpperCase(Input);
 
@@ -958,10 +961,8 @@ namespace Gonzo.Elements
                                                 }
                                                 else
                                                 {
-                                                    if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
+                                                    if (CurrentInput != string.Empty)
                                                         m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
-                                                    else
-                                                        m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex + 1].SBuilder[0].ToString()).X;
                                                 }
                                             }
                                         }
@@ -1004,13 +1005,18 @@ namespace Gonzo.Elements
                                             }
                                             else
                                             {
-                                                if (m_Lines[m_Cursor.CharacterIndex].SBuilder.Length == 0)
+                                                /*if (m_Lines[m_Cursor.CharacterIndex].SBuilder.Length == 0)
+                                                    m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex]);*/
+
+                                                if (m_Lines.Count > 1)
+                                                {
+                                                    m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex - 1]);
+                                                    m_Cursor.CharacterIndex--;
+                                                    m_Cursor.LineIndex--;
+                                                }
+                                                else
                                                     m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex]);
 
-                                                m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex - 1]);
-
-                                                m_Cursor.CharacterIndex--;
-                                                m_Cursor.LineIndex--;
                                                 if(m_Lines[m_Cursor.CharacterIndex - 1].SBuilder.Length > 0)
                                                     m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.CharacterIndex - 1].SBuilder[0].ToString()).X;
                                             }
@@ -1186,7 +1192,7 @@ namespace Gonzo.Elements
                     {
                         if (m_Lines.Count > (Input.MousePosition.Y - Position.Y))
                         {
-                            if (m_Lines[(int)(Input.MousePosition.Y - Position.Y)].SBuilder.ToString() != "")
+                            if (m_Lines[(int)(Input.MousePosition.Y - Position.Y)].SBuilder.ToString() != string.Empty)
                             {
                                 m_Cursor.Position = Input.MousePosition;
                                 m_Cursor.CharacterIndex = (int)((Input.MousePosition.X - Position.X) - 1);
@@ -1203,7 +1209,7 @@ namespace Gonzo.Elements
                             int Index = (int)Input.MousePosition.X / ApproxChars;
 
                             //TODO: Figure out how to access an index in the array based on mouse position.
-                            if (m_Lines[Index - 1].SBuilder.ToString() != "")
+                            if (m_Lines[Index - 1].SBuilder.ToString() != string.Empty)
                             {
                                 m_Cursor.Position.X = Input.MousePosition.X;
                                 m_Cursor.CharacterIndex = (int)(Index - 1);
