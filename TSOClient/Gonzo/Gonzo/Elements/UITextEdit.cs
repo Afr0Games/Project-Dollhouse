@@ -63,8 +63,26 @@ namespace Gonzo.Elements
         public string Cursor = "|";
         public Vector2 Position;
         public bool Visible = false;
-        public int LineIndex = 0;       //Which line is the cursor on?
+        private int m_LineIndex = 0;       //Which line is the cursor on?
         public int CharacterIndex = 0;  //Which character is the cursor next to?
+
+        /// <summary>
+        /// Gets or sets this cursor's line index.
+        /// This index will never be set if the value
+        /// causes the index to drop below 0!
+        /// </summary>
+        public int LineIndex
+        {
+            get { return m_LineIndex; }
+            set
+            {
+                int OldValue = m_LineIndex;
+                m_LineIndex = value;
+
+                if (m_LineIndex < 0)
+                    m_LineIndex = OldValue;
+            }
+        }
     }
 
     public class UITextEdit : UIElement, IDisposable
@@ -962,7 +980,10 @@ namespace Gonzo.Elements
                                                 else
                                                 {
                                                     if (CurrentInput != string.Empty)
-                                                        m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
+                                                    {
+                                                        if (m_Lines[m_Cursor.LineIndex].SBuilder.Length > 0)
+                                                            m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
+                                                    }
                                                 }
                                             }
                                         }
@@ -1005,20 +1026,14 @@ namespace Gonzo.Elements
                                             }
                                             else
                                             {
-                                                /*if (m_Lines[m_Cursor.CharacterIndex].SBuilder.Length == 0)
-                                                    m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex]);*/
-
                                                 if (m_Lines.Count > 1)
                                                 {
-                                                    m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex - 1]);
+                                                    RemoveAt(m_Cursor.CharacterIndex - 1);
                                                     m_Cursor.CharacterIndex--;
                                                     m_Cursor.LineIndex--;
                                                 }
                                                 else
-                                                    m_Lines.Remove(m_Lines[m_Cursor.CharacterIndex]);
-
-                                                if(m_Lines[m_Cursor.CharacterIndex - 1].SBuilder.Length > 0)
-                                                    m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.CharacterIndex - 1].SBuilder[0].ToString()).X;
+                                                    RemoveAt(m_Cursor.CharacterIndex);
                                             }
                                         }
                                     }
@@ -1219,6 +1234,25 @@ namespace Gonzo.Elements
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Removes a line at a specific index.
+        /// Also removes all empty lines when called.
+        /// </summary>
+        /// <param name="Index">The index at which to remove a line.</param>
+        private void RemoveAt(int Index)
+        {
+            if (Index < m_Lines.Count)
+                m_Lines.RemoveAt(Index);
+            else
+                m_Lines.RemoveAt(0);
+
+            for(int i = 0; i < m_Lines.Count; i++)
+            {
+                if (m_Lines[i].SBuilder.ToString() == string.Empty)
+                    m_Lines.RemoveAt(i);
             }
         }
 
