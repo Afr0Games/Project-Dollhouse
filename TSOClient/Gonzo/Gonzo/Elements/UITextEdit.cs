@@ -130,6 +130,13 @@ namespace Gonzo.Elements
 
         private bool m_DrawBackground = false;
 
+        //For how long has a key been presseed?
+        private DateTime m_DownSince = DateTime.Now;
+        private float m_TimeUntilRepInMillis = 35f;
+        private int m_RepsPerSec = 15;
+        private DateTime m_LastRep = DateTime.Now;
+        private Keys? m_RepChar; //A character currently being pressed (repeated).
+
         /// <summary>
         /// Gets or sets the font used by this UITextEdit.
         /// </summary>
@@ -622,7 +629,35 @@ namespace Gonzo.Elements
 
             if (m_Mode != TextEditMode.ReadOnly)
             {
-                if(CurrentInput != "")
+                foreach (Keys Key in (Keys[])Enum.GetValues(typeof(Keys)))
+                {
+                    if (Input.IsNewPress(Key))
+                    {
+                        m_DownSince = DateTime.Now;
+                        m_RepChar = Key;
+                    }
+                    else if(Input.IsOldPress(Key))
+                    {
+                        if (m_RepChar == Key)
+                            m_RepChar = null;
+                    }
+
+                    if(m_RepChar != null && m_RepChar == Key && Input.CurrentKeyboardState.IsKeyDown(Key))
+                    {
+                        DateTime Now = DateTime.Now;
+                        TimeSpan DownFor = Now.Subtract(m_DownSince);
+                        if (DownFor.CompareTo(TimeSpan.FromMilliseconds(m_TimeUntilRepInMillis)) > 0)
+                        {
+                            // Should repeat since the wait time is over now.
+                            TimeSpan repeatSince = Now.Subtract(m_LastRep);
+                            if (repeatSince.CompareTo(TimeSpan.FromMilliseconds(1000f / m_RepsPerSec)) > 0)
+                                // Time for another key-stroke.
+                                m_LastRep = Now;
+                        }
+                    }
+                }
+
+                if (CurrentInput != "")
                     m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(CurrentInput).X);
                 else
                     m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString("a").X);
@@ -631,6 +666,9 @@ namespace Gonzo.Elements
 
                 if (m_HasFocus)
                 {
+                    if (m_RepChar == Keys.Back && m_LastRep == DateTime.Now)
+                        RemoveCharacters();
+
                     Keys[] PressedKeys = Input.CurrentKeyboardState.GetPressedKeys();
 
                     foreach (Keys K in PressedKeys)
@@ -656,100 +694,8 @@ namespace Gonzo.Elements
                                     }
                                     break;
                                 case Keys.Back:
-                                    m_RemovingTxt = true;
-
-                                    //Cursor hasn't been moved.
-                                    if (!m_MovingCursor)
-                                    {
-                                        if (m_Cursor.Position.X <= m_VerticalTextBoundary)
-                                            m_Cursor.Position.X = m_VerticalTextBoundary;
-                                        else
-                                        {
-                                            if (m_Cursor.Position.X > Position.X)
-                                            {
-                                                if (m_NumLines > 1)
-                                                {
-                                                    if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
-                                                        m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex - 1].ToString()).X;
-                                                }
-                                                else
-                                                {
-                                                    if (CurrentInput != string.Empty)
-                                                    {
-                                                        if (m_Lines[m_Cursor.LineIndex].SBuilder.Length > 0)
-                                                            m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    //If the current line is empty, move the cursor up.
-                                    if (m_Lines.Count > 0)
-                                    {
-                                        if (m_Lines[m_Cursor.LineIndex].SBuilder.Length == 0)
-                                        {
-                                            if (m_NumLines > 1)
-                                            {
-                                                if (m_TextPosition.Y > Position.Y)
-                                                {
-                                                    m_TextPosition.Y -= m_Font.LineSpacing;
-
-                                                    m_Cursor.Position.X = Position.X + m_Size.X;
-                                                    m_Cursor.Position.Y -= m_Font.LineSpacing;
-                                                }
-
-                                                if (m_Cursor.LineIndex > 0)
-                                                {
-                                                    m_Cursor.LineIndex--;
-                                                    m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (m_Cursor.LineIndex > 0)
-                                                    m_Cursor.LineIndex--;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (m_NumLines > 1)
-                                            {
-                                                m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
-                                                m_Cursor.CharacterIndex--;
-                                                m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex - 1].ToString()).X;
-                                            }
-                                            else
-                                            {
-                                                if (m_Lines.Count > 1)
-                                                {
-                                                    RemoveAt(m_Cursor.CharacterIndex - 1);
-                                                    m_Cursor.CharacterIndex--;
-                                                    m_Cursor.LineIndex--;
-                                                }
-                                                else
-                                                    RemoveAt(m_Cursor.CharacterIndex);
-                                            }
-                                        }
-                                    }
-
-                                    //Cursor moved to the beginning of a line.
-                                    if (m_Cursor.Position.X <= Position.X)
-                                    {
-                                        if (m_TextPosition.Y > Position.Y)
-                                        {
-                                            m_TextPosition.Y -= m_Font.LineSpacing;
-
-                                            m_Cursor.Position.X = Position.X + m_Size.X;
-                                            m_Cursor.Position.Y -= m_Font.LineSpacing;
-                                        }
-
-                                        if (m_Cursor.LineIndex > 0)
-                                        {
-                                            m_Cursor.LineIndex--;
-                                            m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
-                                        }
-                                    }
+                                    if (m_RepChar != Keys.Back || m_LastRep != DateTime.Now)
+                                        RemoveCharacters();
                                     break;
                                 case Keys.Left:
                                     if (m_Cursor.Position.X > Position.X)
@@ -933,6 +879,107 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
+        /// Removes characters from the input.
+        /// </summary>
+        private void RemoveCharacters()
+        {
+            m_RemovingTxt = true;
+
+            //Cursor hasn't been moved.
+            if (!m_MovingCursor)
+            {
+                if (m_Cursor.Position.X <= m_VerticalTextBoundary)
+                    m_Cursor.Position.X = m_VerticalTextBoundary;
+                else
+                {
+                    if (m_Cursor.Position.X > Position.X)
+                    {
+                        if (m_NumLines > 1)
+                        {
+                            if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
+                                m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex - 1].ToString()).X;
+                        }
+                        else
+                        {
+                            if (CurrentInput != string.Empty)
+                            {
+                                if (m_Lines[m_Cursor.LineIndex].SBuilder.Length > 0)
+                                    m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //If the current line is empty, move the cursor up.
+            if (m_Lines.Count > 0)
+            {
+                if (m_Lines[m_Cursor.LineIndex].SBuilder.Length == 0)
+                {
+                    if (m_NumLines > 1)
+                    {
+                        if (m_TextPosition.Y > Position.Y)
+                        {
+                            m_TextPosition.Y -= m_Font.LineSpacing;
+
+                            m_Cursor.Position.X = Position.X + m_Size.X;
+                            m_Cursor.Position.Y -= m_Font.LineSpacing;
+                        }
+
+                        if (m_Cursor.LineIndex > 0)
+                        {
+                            m_Cursor.LineIndex--;
+                            m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                        }
+                    }
+                    else
+                    {
+                        if (m_Cursor.LineIndex > 0)
+                            m_Cursor.LineIndex--;
+                    }
+                }
+                else
+                {
+                    if (m_NumLines > 1)
+                    {
+                        m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
+                        m_Cursor.CharacterIndex--;
+                        m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex - 1].ToString()).X;
+                    }
+                    else
+                    {
+                        if (m_Lines.Count > 1)
+                        {
+                            RemoveAt(m_Cursor.CharacterIndex - 1);
+                            m_Cursor.CharacterIndex--;
+                            m_Cursor.LineIndex--;
+                        }
+                        else
+                            RemoveAt(m_Cursor.CharacterIndex);
+                    }
+                }
+            }
+
+            //Cursor moved to the beginning of a line.
+            if (m_Cursor.Position.X <= Position.X)
+            {
+                if (m_TextPosition.Y > Position.Y)
+                {
+                    m_TextPosition.Y -= m_Font.LineSpacing;
+
+                    m_Cursor.Position.X = Position.X + m_Size.X;
+                    m_Cursor.Position.Y -= m_Font.LineSpacing;
+                }
+
+                if (m_Cursor.LineIndex > 0)
+                {
+                    m_Cursor.LineIndex--;
+                    m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].SBuilder.Length;
+                }
+            }
+        }
+
+        /// <summary>
         /// Removes a line at a specific index.
         /// Also removes all empty lines when called.
         /// </summary>
@@ -1008,7 +1055,7 @@ namespace Gonzo.Elements
         /// <summary>
         /// Returns true if shift is currently being pressed.
         /// </summary>
-        /// <param name="PressedKeys">A list of keys currently being pressed.</param>
+        /// <param name="Helper">An InputHelper instance.</param>
         /// <returns>True if it is being pressed, false otherwise.</returns>
         private bool IsUpperCase(InputHelper Helper)
         {
