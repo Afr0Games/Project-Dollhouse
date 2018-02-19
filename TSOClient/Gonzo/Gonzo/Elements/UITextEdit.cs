@@ -132,7 +132,7 @@ namespace Gonzo.Elements
 
         //For how long has a key been presseed?
         private DateTime m_DownSince = DateTime.Now;
-        private float m_TimeUntilRepInMillis = 35f;
+        private float m_TimeUntilRepInMillis = 100f;
         private int m_RepsPerSec = 15;
         private DateTime m_LastRep = DateTime.Now;
         private Keys? m_RepChar; //A character currently being pressed (repeated).
