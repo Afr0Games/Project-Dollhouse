@@ -63,7 +63,7 @@ namespace Gonzo.Elements
         public string Cursor = "|";
         public Vector2 Position;
         public bool Visible = false;
-        private int m_LineIndex = 0;       //Which line is the cursor on?
+        private int m_LineIndex = 0;    //Which line is the cursor on?
         public int CharacterIndex = 0;  //Which character is the cursor next to?
 
         /// <summary>
@@ -668,6 +668,8 @@ namespace Gonzo.Elements
                 {
                     if (m_RepChar == Keys.Back && m_LastRep == DateTime.Now)
                         RemoveCharacters();
+                    /*if (m_RepChar == Keys.Left && m_LastRep == DateTime.Now)
+                        OnLeftArrow();*/
 
                     Keys[] PressedKeys = Input.CurrentKeyboardState.GetPressedKeys();
 
@@ -713,7 +715,10 @@ namespace Gonzo.Elements
                                                 m_Cursor.LineIndex--;
                                             }
                                             else
+                                            {
                                                 m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex + 1].SBuilder[0].ToString()).X;
+                                                m_Cursor.LineIndex--;
+                                            }
                                         }
                                     }
                                     else if (m_Cursor.Position.X <= Position.X)
@@ -754,14 +759,21 @@ namespace Gonzo.Elements
                                         {
                                             if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
                                             {
-                                                m_Cursor.Position.X += m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
-                                                m_Cursor.LineIndex--;
+                                                if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(CurrentInput).X)
+                                                {
+                                                    m_Cursor.Position.X += m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
+                                                    m_Cursor.LineIndex--;
+                                                }
                                             }
                                             else
-                                                m_Cursor.Position.X += m_Font.MeasureString(m_Lines[m_Cursor.LineIndex + 1].SBuilder[0].ToString()).X;
-
-                                            m_Cursor.CharacterIndex++;
-                                            m_Cursor.LineIndex++;
+                                            {
+                                                if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(CurrentInput).X)
+                                                {
+                                                    m_Cursor.Position.X += m_Font.MeasureString(m_Lines[m_Cursor.LineIndex + 1].SBuilder[0].ToString()).X;
+                                                    m_Cursor.CharacterIndex++;
+                                                    m_Cursor.LineIndex++;
+                                                }
+                                            }
                                         }
                                     }
                                     else if (m_Cursor.Position.X >= (Position.X + m_Size.X))
@@ -879,7 +891,7 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
-        /// Removes characters from the input.
+        /// Removes characters from the input, I.E backspace was pressed.
         /// </summary>
         private void RemoveCharacters()
         {
