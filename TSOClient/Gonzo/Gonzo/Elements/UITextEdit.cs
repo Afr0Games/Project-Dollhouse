@@ -712,11 +712,13 @@ namespace Gonzo.Elements
                                             if (m_Lines[m_Cursor.LineIndex].SBuilder.Length != 0)
                                             {
                                                 m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
+                                                m_Cursor.CharacterIndex--;
                                                 m_Cursor.LineIndex--;
                                             }
                                             else
                                             {
                                                 m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex + 1].SBuilder[0].ToString()).X;
+                                                m_Cursor.CharacterIndex--;
                                                 m_Cursor.LineIndex--;
                                             }
                                         }
@@ -762,7 +764,8 @@ namespace Gonzo.Elements
                                                 if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(CurrentInput).X)
                                                 {
                                                     m_Cursor.Position.X += m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[0].ToString()).X;
-                                                    m_Cursor.LineIndex--;
+                                                    m_Cursor.CharacterIndex++;
+                                                    m_Cursor.LineIndex++;
                                                 }
                                             }
                                             else
@@ -880,8 +883,8 @@ namespace Gonzo.Elements
                             if (m_Lines[Index - 1].SBuilder.ToString() != string.Empty)
                             {
                                 m_Cursor.Position.X = Input.MousePosition.X;
-                                m_Cursor.CharacterIndex = (int)(Index - 1);
-                                m_Cursor.LineIndex = (int)(Index);
+                                m_Cursor.CharacterIndex = Index - 1;
+                                m_Cursor.LineIndex = Index;
                                 m_MovingCursor = true;
                             }
                         }
@@ -954,7 +957,7 @@ namespace Gonzo.Elements
                 {
                     if (m_NumLines > 1)
                     {
-                        m_Lines[m_Cursor.LineIndex].SBuilder.Remove((int)(m_Cursor.CharacterIndex - 1), 1);
+                        m_Lines[m_Cursor.LineIndex].SBuilder.Remove(m_Cursor.CharacterIndex - 1, 1);
                         m_Cursor.CharacterIndex--;
                         m_Cursor.Position.X -= m_Font.MeasureString(m_Lines[m_Cursor.LineIndex].SBuilder[m_Cursor.CharacterIndex - 1].ToString()).X;
                     }
@@ -998,10 +1001,13 @@ namespace Gonzo.Elements
         /// <param name="Index">The index at which to remove a line.</param>
         private void RemoveAt(int Index)
         {
-            if (Index < m_Lines.Count)
-                m_Lines.RemoveAt(Index);
-            else
-                m_Lines.RemoveAt(0);
+            if (Index >= 0)
+            {
+                if (Index < m_Lines.Count)
+                    m_Lines.RemoveAt(Index);
+                else
+                    m_Lines.RemoveAt(0);
+            }
 
             for(int i = 0; i < m_Lines.Count; i++)
             {
