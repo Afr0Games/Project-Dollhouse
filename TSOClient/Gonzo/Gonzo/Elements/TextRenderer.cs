@@ -101,9 +101,10 @@ namespace Gonzo
         /// <summary>
         /// Scrolls the current line of text to the left.
         /// </summary>
-        public void ScrollTextLeft()
+        /// <param name="Index">An optional index. If it's set, only the text from the index onwards will scroll.</param>
+        public void ScrollTextLeft(int Index = 0)
         {
-            for (int i = 0; i < m_CurrentLine.Count; i++)
+            for (int i = Index; i < m_CurrentLine.Count; i++)
             {
                 m_CurrentLine[i].Position.X -= m_ScrollFactor;
 
@@ -134,8 +135,16 @@ namespace Gonzo
         /// <param name="Index">The index at which to remove a renderable character.</param>
         public void RemoveAt(int Index)
         {
-            m_CurrentTextPosition.X -= m_Font.MeasureString(m_CurrentLine[Index].Char).X;
-            m_CurrentLine.Remove(m_CurrentLine[Index]);
+            if (Index > 0 && m_CurrentLine.Count >= 1)
+            {
+                m_CurrentTextPosition.X -= m_Font.MeasureString(m_CurrentLine[Index].Char).X;
+
+                RenderableCharacter RenderChar = m_CurrentLine[Index];
+                RenderChar.Char = "";
+
+                m_CurrentLine.RemoveAt(Index);
+                m_CurrentLine.Insert(Index, RenderChar);
+            }
         }
 
         public void Insert(int Index, string Char)

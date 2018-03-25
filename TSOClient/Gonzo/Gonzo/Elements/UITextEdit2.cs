@@ -752,21 +752,20 @@ namespace Gonzo.Elements
                 }
                 else
                 {
-                    if (m_NumLines > 1)
+                    if (m_Cursor.CharacterIndex > 0)
                     {
-                        m_CurrentLine.RemoveAt(m_Cursor.CharacterIndex - 1);
-                        m_Renderer.RemoveAt(m_Cursor.CharacterIndex - 1);
-                        m_Cursor.CharacterIndex--;
-                        m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1].ToString()).X;
-                    }
-                    else
-                    {
-                        m_CurrentLine.RemoveAt(m_Cursor.CharacterIndex - 1);
-                        m_Renderer.RemoveAt(m_Cursor.CharacterIndex - 1);
-                        m_Cursor.CharacterIndex--;
-
-                        if(m_CurrentLine.Count >= 2)
+                        if (m_NumLines == 1)
+                        {
+                            if (m_CurrentLine.Count >= 2)
+                                m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1].ToString()).X;
+                        }
+                        else
                             m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1].ToString()).X;
+
+                        m_CurrentLine[m_Cursor.CharacterIndex - 1] = "";
+                        m_Renderer.RemoveAt(m_Cursor.CharacterIndex - 1);
+                        m_Renderer.ScrollTextLeft(m_Cursor.CharacterIndex);
+                        m_Cursor.CharacterIndex--;
                     }
                 }
             //}
