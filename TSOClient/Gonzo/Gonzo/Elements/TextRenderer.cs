@@ -147,6 +147,11 @@ namespace Gonzo
             }
         }
 
+        /// <summary>
+        /// Inserts a character into this TextRenderer instance.
+        /// </summary>
+        /// <param name="Index">The index at which to insert text.</param>
+        /// <param name="Char">The character to insert.</param>
         public void Insert(int Index, string Char)
         {
             if (m_MultiLine)
@@ -165,13 +170,21 @@ namespace Gonzo
                 {
                     RenderableText2 Line = new RenderableText2();
                     Line.Text = GetCurrentLine();
-                    Line.Position = m_CurrentTextPosition;
+                    Line.Position = new Vector2(m_TextboxPosition.X + 2, m_CurrentTextPosition.Y);
                     Line.Visible = true;
 
                     m_RenderableLines.Add(Line);
 
                     m_CurrentTextPosition.Y += m_Font.LineSpacing;
                     m_CurrentLine.Clear();
+
+                    m_CurrentTextPosition.X = m_TextboxPosition.X;
+                    RenderableCharacter RenderChar = new RenderableCharacter();
+                    RenderChar.Position = m_CurrentTextPosition;
+                    RenderChar.Visible = true;
+                    RenderChar.Char = Char;
+
+                    m_CurrentLine.Insert(0, RenderChar);
                 }
             }
             else
@@ -269,6 +282,8 @@ namespace Gonzo
 
                     if (MaxScrollup == true)
                         m_MaxScrollup = false;
+
+                    m_VisibilityIndex++;
                 }
             }
         }
@@ -293,7 +308,7 @@ namespace Gonzo
                     if (MaxScrolldown == true)
                         m_MaxScrolldown = false;
 
-                    m_VisibilityIndex++;
+                    m_VisibilityIndex--;
                 }
             }
         }

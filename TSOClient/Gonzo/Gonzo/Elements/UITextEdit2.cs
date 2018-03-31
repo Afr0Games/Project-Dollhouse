@@ -355,29 +355,52 @@ namespace Gonzo.Elements
 
         private void Manager_OnTextInput(object sender, TextInputEventArgs e)
         {
+            bool NewLine = false; //Was a new line created?
+
             if (m_HasFocus)
             {
                 if (m_Mode != TextEditMode.ReadOnly)
                 {
                     if (m_NumLines > 1)
                     {
+                        Vector2 MeasuredString = m_Font.MeasureString(GetCurrentLine());
                         //Check that text doesn't go beyond width of control...
-                        if ((m_Font.MeasureString(GetCurrentLine()).X >=
+                        if (((Position.X + MeasuredString.X) >=
                             m_Size.X) && !m_RemovingTxt && !m_MovingCursor)
                         {
                             if (m_TextPosition.Y <= Position.Y + ((m_NumLines - 2) * m_Font.LineSpacing))
                             {
                                 m_TextPosition.Y += m_Font.LineSpacing;
+
+                                RenderableText2 RenderTxt = new RenderableText2();
+                                RenderTxt.Position = m_TextPosition;
+                                RenderTxt.Text = GetCurrentLine();
+                                RenderTxt.Visible = true;
+                                m_Lines.Add(RenderTxt);
+                                m_CurrentLine.Clear();
+
                                 m_Cursor.Position.Y += m_Font.LineSpacing;
+                                m_Cursor.LineIndex++;
+                                m_Cursor.CharacterIndex = 0;
+                                NewLine = true;
                             }
-                        }
-                        else //Text went beyond the borders of the control...
-                        {
-                            m_Renderer.ScrollTextUp();
+                            else //Text went beyond the borders of the control...
+                            {
+                                ScrollUp();
 
-                            m_ScrollbarHeight -= m_Font.LineSpacing; //TODO: Resize scrollbar...
+                                RenderableText2 RenderTxt = new RenderableText2();
+                                RenderTxt.Position = m_TextPosition;
+                                RenderTxt.Text = GetCurrentLine();
+                                RenderTxt.Visible = true;
+                                m_Lines.Add(RenderTxt);
+                                m_CurrentLine.Clear();
 
-                            m_Cursor.CharacterIndex = 0;
+                                m_ScrollbarHeight -= m_Font.LineSpacing; //TODO: Resize scrollbar...
+
+                                m_Cursor.LineIndex++;
+                                m_Cursor.CharacterIndex = 0;
+                                NewLine = true;
+                            }
                         }
 
                         m_Cursor.Position.X = Position.X;
@@ -429,7 +452,9 @@ namespace Gonzo.Elements
                         }
                     }
 
-                    m_Cursor.CharacterIndex++;
+                    if(!NewLine)
+                        m_Cursor.CharacterIndex++;
+                    
                     m_RemovingTxt = false;
                     m_MovingCursor = false;
                     m_Cursor.Position.X += m_Font.MeasureString(e.Character.ToString()).X;
