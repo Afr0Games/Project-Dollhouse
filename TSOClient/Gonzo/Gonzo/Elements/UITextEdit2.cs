@@ -503,167 +503,201 @@ namespace Gonzo.Elements
         {
             base.Update(Input, GTime);
 
-            if (Text != "")
-                m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(Text).X);
-            else //Keep the text one character away from the beginning of the control
-                 //to make it look nice.
-                m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString("a").X);
-
-            m_IsUpperCase = IsUpperCase(Input);
-
-            if (m_HasFocus)
+            if (m_Mode != TextEditMode.ReadOnly)
             {
-                Keys[] PressedKeys = Input.CurrentKeyboardState.GetPressedKeys();
-
-                foreach (Keys K in PressedKeys)
+                foreach (Keys Key in (Keys[])Enum.GetValues(typeof(Keys)))
                 {
-                    if (Input.IsNewPress(K))
+                    if (Input.IsNewPress(Key))
                     {
-                        switch (K)
+                        m_DownSince = DateTime.Now;
+                        m_RepChar = Key;
+                    }
+                    else if (Input.IsOldPress(Key))
+                    {
+                        if (m_RepChar == Key)
+                            m_RepChar = null;
+                    }
+
+                    if (m_RepChar != null && m_RepChar == Key && Input.CurrentKeyboardState.IsKeyDown(Key))
+                    {
+                        DateTime Now = DateTime.Now;
+                        TimeSpan DownFor = Now.Subtract(m_DownSince);
+                        if (DownFor.CompareTo(TimeSpan.FromMilliseconds(m_TimeUntilRepInMillis)) > 0)
                         {
-                            case Keys.Enter:
-                                if (m_NumLines > 1)
-                                {
-                                    m_TextPosition.X = Position.X;
-                                    m_TextPosition.Y += m_Font.LineSpacing;
-                                    m_CurrentLine.Add("\r\n");
-                                    m_Lines.Add(new RenderableText2() { Text = GetCurrentLine(), Position = m_TextPosition });
-                                    m_CurrentLine.Clear();
+                            // Should repeat since the wait time is over now.
+                            TimeSpan repeatSince = Now.Subtract(m_LastRep);
+                            if (repeatSince.CompareTo(TimeSpan.FromMilliseconds(1000f / m_RepsPerSec)) > 0)
+                                // Time for another key-stroke.
+                                m_LastRep = Now;
+                        }
+                    }
+                }
 
-                                    m_Cursor.Position.X = Position.X;
-                                    m_Cursor.Position.Y += m_Font.LineSpacing;
-                                    m_Cursor.LineIndex += 1;
-                                    m_Cursor.CharacterIndex = 0;
+                if (Text != "")
+                    m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString(Text).X);
+                else //Keep the text one character away from the beginning of the control
+                     //to make it look nice.
+                    m_VerticalTextBoundary = (int)(Position.X + m_Font.MeasureString("a").X);
 
-                                    m_MovingCursor = false;
-                                    m_RemovingTxt = false;
-                                }
-                                break;
-                            case Keys.Left:
-                                if (m_Cursor.Position.X > Position.X && m_Cursor.CharacterIndex > 0)
-                                {
+                m_IsUpperCase = IsUpperCase(Input);
+
+                if (m_HasFocus)
+                {
+                    if (m_RepChar == Keys.Back && m_LastRep == DateTime.Now)
+                        RemoveCharacters();
+
+                    Keys[] PressedKeys = Input.CurrentKeyboardState.GetPressedKeys();
+
+                    foreach (Keys K in PressedKeys)
+                    {
+                        if (Input.IsNewPress(K))
+                        {
+                            switch (K)
+                            {
+                                case Keys.Enter:
                                     if (m_NumLines > 1)
                                     {
-                                        m_Cursor.Position.X -= m_Font.MeasureString(GetCurrentLine()[m_Cursor.CharacterIndex - 1].ToString()).X;
-                                        m_Cursor.CharacterIndex--;
+                                        m_TextPosition.X = Position.X;
+                                        m_TextPosition.Y += m_Font.LineSpacing;
+                                        m_CurrentLine.Add("\r\n");
+                                        m_Lines.Add(new RenderableText2() { Text = GetCurrentLine(), Position = m_TextPosition });
+                                        m_CurrentLine.Clear();
+
+                                        m_Cursor.Position.X = Position.X;
+                                        m_Cursor.Position.Y += m_Font.LineSpacing;
+                                        m_Cursor.LineIndex += 1;
+                                        m_Cursor.CharacterIndex = 0;
+
+                                        m_MovingCursor = false;
+                                        m_RemovingTxt = false;
                                     }
-                                    else
+                                    break;
+                                case Keys.Left:
+                                    if (m_Cursor.Position.X > Position.X && m_Cursor.CharacterIndex > 0)
                                     {
-                                        if (GetCurrentLine().Length != 0)
+                                        if (m_NumLines > 1)
                                         {
-                                            m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1]).X;
+                                            m_Cursor.Position.X -= m_Font.MeasureString(GetCurrentLine()[m_Cursor.CharacterIndex - 1].ToString()).X;
                                             m_Cursor.CharacterIndex--;
                                         }
                                         else
                                         {
-                                            m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex]).X;
-                                            m_Cursor.CharacterIndex--;
-                                        }
-                                    }
-                                }
-                                else if (m_Cursor.Position.X <= Position.X)
-                                {
-                                    if (m_NumLines == 1)
-                                        m_Renderer.ScrollTextRight();
-                                }
-
-                                m_MovingCursor = true;
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Right:
-                                if (m_Cursor.Position.X < (Position.X + m_Size.X))
-                                {
-                                    if (m_NumLines > 1)
-                                    {
-                                        if (GetCurrentLine().Length > 0 && 
-                                            m_Cursor.CharacterIndex < GetCurrentLine().Length)
-                                        {
-                                            m_Cursor.Position.X += m_Font.MeasureString(GetCurrentLine()[0].ToString()).X;
-                                            m_Cursor.CharacterIndex++;
-                                        }
-                                    }
-                                    else //Single-line control, simple.
-                                    {
-                                        if (GetCurrentLine().Length != 0)
-                                        {
-                                            if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(Text).X)
+                                            if (GetCurrentLine().Length != 0)
                                             {
-                                                m_Cursor.Position.X += m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex]).X;
-                                                m_Cursor.CharacterIndex++;
+                                                m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1]).X;
+                                                m_Cursor.CharacterIndex--;
                                             }
-                                        }
-                                        else
-                                        {
-                                            if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(Text).X)
+                                            else
                                             {
-                                                m_Cursor.Position.X += m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex] + 1).X;
-                                                m_Cursor.CharacterIndex++;
+                                                m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex]).X;
+                                                m_Cursor.CharacterIndex--;
                                             }
                                         }
                                     }
-                                }
-                                else if (m_Cursor.Position.X >= (Position.X + m_Size.X))
-                                {
-                                    if (m_NumLines == 1)
-                                        m_Renderer.ScrollTextLeft();
-                                }
-
-                                m_MovingCursor = true;
-                                m_RemovingTxt = false;
-                                break;
-                            case Keys.Up:
-                                if (m_NumLines > 1)
-                                {
-                                    if (m_Cursor.Position.Y > Position.Y)
+                                    else if (m_Cursor.Position.X <= Position.X)
                                     {
-                                        m_Cursor.Position.Y -= m_Font.LineSpacing;
-                                        m_Cursor.LineIndex--;
-                                        ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
-
-                                        //Part of a line was most likely deleted, so readjust the cursor accordingly.
-                                        if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
-                                        {
-                                            m_Cursor.CharacterIndex = GetCurrentLine().Length;
-                                            m_Cursor.Position.X = Position.X +
-                                                m_Font.MeasureString(GetCurrentLine()).X;
-                                        }
+                                        if (m_NumLines == 1)
+                                            m_Renderer.ScrollTextRight();
                                     }
 
                                     m_MovingCursor = true;
                                     m_RemovingTxt = false;
-                                }
-                                break;
-                            case Keys.Down:
-                                if (m_NumLines > 1)
-                                {
-                                    if (m_Cursor.Position.Y < (Position.Y + m_Size.Y))
+                                    break;
+                                case Keys.Right:
+                                    if (m_Cursor.Position.X < (Position.X + m_Size.X))
                                     {
-                                        if (m_Lines.Count >= 2)
+                                        if (m_NumLines > 1)
                                         {
-                                            if (m_Cursor.Position.Y < m_Lines[m_Lines.Count - 1].Position.Y)
+                                            if (GetCurrentLine().Length > 0 &&
+                                                m_Cursor.CharacterIndex < GetCurrentLine().Length)
                                             {
-                                                m_Cursor.Position.Y += m_Font.LineSpacing;
-                                                m_Cursor.LineIndex++;
-                                                ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
-
-                                                //Part of a line was most likely deleted, so readjust the cursor accordingly.
-                                                if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
+                                                m_Cursor.Position.X += m_Font.MeasureString(GetCurrentLine()[0].ToString()).X;
+                                                m_Cursor.CharacterIndex++;
+                                            }
+                                        }
+                                        else //Single-line control, simple.
+                                        {
+                                            if (GetCurrentLine().Length != 0)
+                                            {
+                                                if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(Text).X)
                                                 {
-                                                    m_Cursor.CharacterIndex = GetCurrentLine().Length;
-                                                    m_Cursor.Position.X = Position.X +
-                                                        m_Font.MeasureString(GetCurrentLine()).X;
+                                                    m_Cursor.Position.X += m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex]).X;
+                                                    m_Cursor.CharacterIndex++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(Text).X)
+                                                {
+                                                    m_Cursor.Position.X += m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex] + 1).X;
+                                                    m_Cursor.CharacterIndex++;
                                                 }
                                             }
                                         }
                                     }
+                                    else if (m_Cursor.Position.X >= (Position.X + m_Size.X))
+                                    {
+                                        if (m_NumLines == 1)
+                                            m_Renderer.ScrollTextLeft();
+                                    }
 
                                     m_MovingCursor = true;
                                     m_RemovingTxt = false;
-                                }
-                                break;
-                            case Keys.Back:
-                                RemoveCharacters();
-                                break;
+                                    break;
+                                case Keys.Up:
+                                    if (m_NumLines > 1)
+                                    {
+                                        if (m_Cursor.Position.Y > Position.Y)
+                                        {
+                                            m_Cursor.Position.Y -= m_Font.LineSpacing;
+                                            m_Cursor.LineIndex--;
+                                            ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
+
+                                            //Part of a line was most likely deleted, so readjust the cursor accordingly.
+                                            if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
+                                            {
+                                                m_Cursor.CharacterIndex = GetCurrentLine().Length;
+                                                m_Cursor.Position.X = Position.X +
+                                                    m_Font.MeasureString(GetCurrentLine()).X;
+                                            }
+                                        }
+
+                                        m_MovingCursor = true;
+                                        m_RemovingTxt = false;
+                                    }
+                                    break;
+                                case Keys.Down:
+                                    if (m_NumLines > 1)
+                                    {
+                                        if (m_Cursor.Position.Y < (Position.Y + m_Size.Y))
+                                        {
+                                            if (m_Lines.Count >= 2)
+                                            {
+                                                if (m_Cursor.Position.Y < m_Lines[m_Lines.Count - 1].Position.Y)
+                                                {
+                                                    m_Cursor.Position.Y += m_Font.LineSpacing;
+                                                    m_Cursor.LineIndex++;
+                                                    ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
+
+                                                    //Part of a line was most likely deleted, so readjust the cursor accordingly.
+                                                    if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
+                                                    {
+                                                        m_Cursor.CharacterIndex = GetCurrentLine().Length;
+                                                        m_Cursor.Position.X = Position.X +
+                                                            m_Font.MeasureString(GetCurrentLine()).X;
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        m_MovingCursor = true;
+                                        m_RemovingTxt = false;
+                                    }
+                                    break;
+                                case Keys.Back:
+                                    RemoveCharacters();
+                                    break;
+                            }
                         }
                     }
                 }

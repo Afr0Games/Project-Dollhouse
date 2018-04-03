@@ -93,7 +93,7 @@ namespace Gonzo
                     m_CurrentLine[i].Visible = false;
 
                 if (m_CurrentLine[i].Position.X > m_TextboxPosition.X && 
-                    m_RenderableLines[i].Position.X < (m_TextboxPosition.X + m_TextboxSize.X))
+                    m_CurrentLine[i].Position.X < (m_TextboxPosition.X + m_TextboxSize.X))
                     m_CurrentLine[i].Visible = true;
             }
         }
@@ -108,12 +108,12 @@ namespace Gonzo
             {
                 m_CurrentLine[i].Position.X -= m_ScrollFactor;
 
-                if (m_CurrentLine[i].Position.X < (m_TextboxPosition.X + m_TextboxSize.X))
-                    m_CurrentLine[i].Visible = true;
+                if (m_CurrentLine[i].Position.X < m_TextboxPosition.X)
+                    m_CurrentLine[i].Visible = false;
 
                 if (m_CurrentLine[i].Position.X > (m_TextboxPosition.X + m_TextboxSize.X) &&
                     m_CurrentLine[i].Position.X < m_TextboxPosition.X)
-                    m_CurrentLine[i].Visible = false;
+                    m_CurrentLine[i].Visible = true;
             }
         }
 
