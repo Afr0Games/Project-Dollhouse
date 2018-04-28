@@ -157,7 +157,7 @@ namespace Gonzo.Elements
             }
 
             m_Renderer = new TextRenderer((m_NumLines > 1) ? true : false,
-                Position, Size, m_ScrollFactor, Lineheight, m_Font, TextColor);
+                Position, Size, m_ScrollFactor, Lineheight, m_Font, TextColor, m_NumLines);
 
             if (DrawBackground)
             {
@@ -298,7 +298,7 @@ namespace Gonzo.Elements
             }
 
             m_Renderer = new TextRenderer((m_NumLines > 1) ? true : false, 
-                Position, Size, m_ScrollFactor, Lineheight, m_Font, TextColor);
+                Position, Size, m_ScrollFactor, Lineheight, m_Font, TextColor, m_NumLines);
 
             m_Cursor.Position = Position;
             m_CursorVisibilityTimer = new Timer(100);
@@ -307,50 +307,6 @@ namespace Gonzo.Elements
             m_CursorVisibilityTimer.Start();
 
             m_Screen.Manager.OnTextInput += Manager_OnTextInput;
-        }
-
-        /// <summary>
-        /// Scrolls the text in the textbox upwards.
-        /// Called when clicking a scrollup button for this textbox.
-        /// </summary>
-        /// <returns>True if the text can still be scrolled up, false otherwise.</returns>
-        public bool ScrollUp()
-        {
-            m_Renderer.ScrollTextUp();
-
-            if (!m_Renderer.MaxScrollup)
-            {
-                m_Lines[m_VisibilityIndex].Visible = true;
-
-                if (m_VisibilityIndex > 0)
-                    m_VisibilityIndex--;
-
-                return true;
-            }
-            else
-                return false;
-        }
-
-        /// <summary>
-        /// Scrolls the text in the textbox downwards.
-        /// Called when clicking a scrolldown button for this textbox.
-        /// </summary>
-        /// <returns>True if the text can still be scrolled down, false otherwise.</returns>
-        public bool ScrollDown()
-        {
-            m_Renderer.ScrollTextDown();
-
-            if (!m_Renderer.MaxScrolldown)
-            {
-                m_Lines[m_VisibilityIndex].Visible = true;
-
-                if (m_VisibilityIndex < (m_Lines.Count - 1))
-                    m_VisibilityIndex++;
-
-                return true;
-            }
-            else
-                return false;
         }
 
         private void Manager_OnTextInput(object sender, TextInputEventArgs e)
@@ -386,8 +342,6 @@ namespace Gonzo.Elements
                             }
                             else //Text went beyond the borders of the control...
                             {
-                                ScrollUp();
-
                                 RenderableText2 RenderTxt = new RenderableText2();
                                 RenderTxt.Position = m_TextPosition;
                                 RenderTxt.Text = GetCurrentLine();
@@ -460,6 +414,22 @@ namespace Gonzo.Elements
                     m_Cursor.Position.X += m_Font.MeasureString(e.Character.ToString()).X;
                 }
             }
+        }
+
+        /// <summary>
+        /// Makes this UITextEdit's renderer scroll the text up.
+        /// </summary>
+        public bool ScrollUp()
+        {
+            return m_Renderer.ScrollUp();
+        }
+
+        /// <summary>
+        /// Makes this UITextEdit's renderer scroll the text down.
+        /// </summary>
+        public bool ScrollDown()
+        {
+            return m_Renderer.ScrollDown();
         }
 
         /// <summary>
