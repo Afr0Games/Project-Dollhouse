@@ -36,7 +36,7 @@ namespace Files.FAR1
         /// Reads all entries in the archive into memory.
         /// </summary>
         /// <param name="ThrowException">Wether or not to throw an exception if the archive was not a FAR. If false, function will return.</param>
-        public void ReadArchive(bool ThrowException)
+        public bool ReadArchive(bool ThrowException)
         {
             if (m_Reader == null)
                 m_Reader = new FileReader(m_Path, false);
@@ -53,11 +53,13 @@ namespace Files.FAR1
                     else
                     {
                         m_Reader.Close();
-                        return;
+                        return false;
                     }
                 }
 
-                m_Reader.ReadUInt32(); //Version.
+                if (m_Reader.ReadUInt32() != 1) //Version.
+                    return false;
+
                 m_Reader.Seek(m_Reader.ReadUInt32());
 
                 uint NumFiles = m_Reader.ReadUInt32();
@@ -73,6 +75,8 @@ namespace Files.FAR1
 
                     m_Entries.Add(Entry);
                 }
+
+                return true;
             }
         }
 

@@ -75,8 +75,9 @@ namespace Files
         /// <param name="BigEndian">Is the filed stored as big endian?</param>
         public FileReader(string Path, bool BigEndian)
         {
-            m_MemFile = MemoryMappedFile.CreateFromFile(Path, FileMode.Open, Guid.NewGuid().ToString(), 0, 
-                MemoryMappedFileAccess.Read);
+            m_MemFile = MemoryMappedFile.CreateFromFile(File.Open(Path, FileMode.Open, FileAccess.Read, 
+                FileShare.ReadWrite), null, 0L, MemoryMappedFileAccess.Read, null, 
+                HandleInheritability.None, false);
 
             m_IsBigEndian = BigEndian;
 

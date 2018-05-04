@@ -54,6 +54,12 @@
     <Compile Include="FileReaderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Files\Files\Files.csproj">
+      <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
+      <Name>Files</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
