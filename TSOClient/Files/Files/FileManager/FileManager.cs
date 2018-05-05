@@ -585,7 +585,10 @@ namespace Files.Manager
         /// <returns>A new Iff instance.</returns>
         public static Iff GetIFF(string Filename)
         {
-            return new Iff((Stream)GrabItem(Filename));
+            Iff Item = new Iff();
+            Item.Init((Stream)GrabItem(Filename), true);
+
+            return Item;
         }
 
         /// <summary>

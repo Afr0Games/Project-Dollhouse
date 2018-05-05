@@ -139,25 +139,34 @@ namespace Files.IFF
             return (GLOB)m_BHAVChunks[ID];
         }
 
-        public Iff(Stream Data, GraphicsDevice Device)
+        public Iff(GraphicsDevice Device)
         {
             m_Device = Device;
-            Init(Data);
         }
 
-        public Iff(Stream Data)
+        public Iff()
         {
-            Init(Data);
         }
 
-        private void Init(Stream Data)
+        /// <summary>
+        /// Attempts to read an IFF file from a given stream.
+        /// </summary>
+        /// <param name="Data">The stream from which to open the IFF.</param>
+        /// <param name="ThrowException">Should this method throw an exception if it couldn't open the file?</param>
+        /// <returns>True if successful, false otherwise (if ThrowException is set to false).</returns>
+        public bool Init(Stream Data, bool ThrowException)
         {
             m_Reader = new FileReader(Data, true);
 
             string MagicNumber = m_Reader.ReadString(60);
 
             if (!MagicNumber.Equals("IFF FILE 2.5:TYPE FOLLOWED BY SIZE\0 JAMIE DOORNBOS & MAXIS 1\0", StringComparison.InvariantCultureIgnoreCase))
-                throw new IFFException("MagicNumber was wrong - IFF.cs!");
+            {
+                if (ThrowException)
+                    throw new IFFException("MagicNumber was wrong - IFF.cs!");
+                else
+                    return false;
+            }
 
             m_Reader.ReadUInt32(); //RSMP offset
 
@@ -253,6 +262,8 @@ namespace Files.IFF
                         break;
                 }
             }
+
+            return true;
         }
 
         ~Iff()
