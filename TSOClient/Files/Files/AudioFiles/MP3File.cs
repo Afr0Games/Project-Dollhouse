@@ -14,6 +14,8 @@ using System;
 using System.IO;
 using MP3Sharp;
 using Files.Manager;
+using System.Reflection;
+using log4net;
 
 namespace Files.AudioFiles
 {
@@ -25,10 +27,12 @@ namespace Files.AudioFiles
         SingleChannel = 11
     }
 
-    public class MP3File : ISoundCodec
+    public class MP3File : ISoundCodec, IDisposable
     {
         private MP3Stream m_Stream;
         public ReadFullyStream RFullyStream;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// How many channels in this MP3 file.
@@ -110,6 +114,39 @@ namespace Files.AudioFiles
                 BytesRead = m_Stream.Read(Buffer, 0, BufferSize);
 
             return Buffer;
+        }
+
+        ~MP3File()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (m_Stream != null)
+                    m_Stream.Close();
+                if (RFullyStream != null)
+                    RFullyStream.Close();
+
+                // Prevent the finalizer from calling ~MP3File, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("MP3File not explicitly disposed!");
         }
     }
 }

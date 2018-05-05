@@ -12,7 +12,7 @@ using log4net;
 
 namespace Gonzo.Elements
 {
-    public class UITextEdit2 : UIElement
+    public class UITextEdit2 : UIElement, IDisposable
     {
         private GapBuffer<RenderableText2> m_Lines = new GapBuffer<RenderableText2>();
         private GapBuffer<string> m_CurrentLine = new GapBuffer<string>();

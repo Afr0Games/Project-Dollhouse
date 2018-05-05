@@ -798,7 +798,8 @@ namespace Files.Manager
         private static Stream GrabItem(ulong ID, FAR3TypeIDs TypeID)
         {
             MemoryStream MemStream = new MemoryStream();
-            Bitmap BMap;
+            object TheLock = new object();
+            Bitmap BMap = new Bitmap(1, 1);
 
             m_StillLoading.WaitOne();
 
@@ -840,7 +841,7 @@ namespace Files.Manager
                                 AddItem(ID, new Asset(ID, (uint)Data.Length, new Skeleton(Data)));
                                 break;
                             case FAR3TypeIDs.TGA:
-                                lock (MemStream)
+                                lock (TheLock)
                                 {
                                     using (Paloma.TargaImage TGA = new Paloma.TargaImage(Data))
                                     {
@@ -865,7 +866,6 @@ namespace Files.Manager
                                         BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
                                         BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
                                         BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                                        BMap.Dispose();
                                         MemStream.Seek(0, SeekOrigin.Begin);
                                     }
 
@@ -876,7 +876,6 @@ namespace Files.Manager
                                 {
                                     try
                                     {
-                                        MemStream.Dispose();
                                         AddItem(ID, new Asset(ID, (uint)Data.Length,
                                             Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
                                     }
@@ -887,7 +886,6 @@ namespace Files.Manager
                                         using (Paloma.TargaImage TGA = new Paloma.TargaImage(Data))
                                         {
                                             TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
-                                            TGA.Dispose();
                                             MemStream.Seek(0, SeekOrigin.Begin);
                                             AddItem(ID, new Asset(ID, (uint)MemStream.Length,
                                                 Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
@@ -898,7 +896,7 @@ namespace Files.Manager
                             case FAR3TypeIDs.BMP:
                                 if (IsBMP(Data))
                                 {
-                                    lock (MemStream)
+                                    lock (TheLock)
                                     {
                                         try
                                         {
@@ -916,8 +914,6 @@ namespace Files.Manager
                                         }
                                         catch (Exception)
                                         {
-                                            MemStream.Dispose();
-
                                             AddItem(ID, new Asset(ID, (uint)Data.Length,
                                                 Texture2D.FromStream(m_Game.GraphicsDevice, Data)));
                                         }
@@ -931,6 +927,8 @@ namespace Files.Manager
                                 break;
                         }
                     }
+
+                    MemStream.Dispose();
 
                     return Data;
                 }

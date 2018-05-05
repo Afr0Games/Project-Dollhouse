@@ -107,7 +107,7 @@ namespace Sound
 
         ~HITTVOn()
         {
-            Dispose(); //Cleans up the sound and music instance.
+            Dispose(false); //Cleans up the sound and music instance.
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace Sound
             else
             {
                 //We're in the finalizer thread - log it!
-                m_Logger.Error("Soundplayer not explicitly disposed!");
+                m_Logger.Error("HITTVOn not explicitly disposed!");
             }
         }
     }

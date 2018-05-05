@@ -961,6 +961,8 @@ namespace Vitaboy
                     m_HeadEffect.Dispose();
                 if(m_LeftHandEffect != null)
                     m_LeftHandEffect.Dispose();
+                if (m_RightHandEffect != null)
+                    m_RightHandEffect.Dispose();
 
                 // Prevent the finalizer from calling ~AvatarBase, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);

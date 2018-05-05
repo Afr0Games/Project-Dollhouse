@@ -1,17 +1,21 @@
 ﻿using System;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Gonzo.Elements;
 using Microsoft.Xna.Framework.Graphics;
+using log4net;
 
 namespace Gonzo.Dialogs
 {
-    public class LoginDialog : UIDialog
+    public class LoginDialog : UIDialog, IDisposable
     {
         private UILabel m_LblTitle, m_LblUsername, m_LblPassword;
         private UITextEdit m_TxtUsername, m_TxtPassword;
         private UIButton m_BtnLogin, m_BtnExit;
 
         private CaretSeparatedText m_Cst;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public LoginDialog(UIScreen Screen, Vector2 Pos) : base(Screen, Pos, false, true, false)
         {
@@ -94,6 +98,39 @@ namespace Gonzo.Dialogs
             m_BtnExit.Draw(SBatch, Depth + 0.1f);
 
             base.Draw(SBatch, LayerDepth);
+        }
+
+        ~LoginDialog()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR1Archive instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR1Archive instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (m_TxtUsername != null)
+                    m_TxtUsername.Dispose();
+                if (m_TxtPassword != null)
+                    m_TxtPassword.Dispose();
+
+                // Prevent the finalizer from calling ~FAR1Archive, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("LoginDialog not explicitly disposed!");
         }
     }
 }

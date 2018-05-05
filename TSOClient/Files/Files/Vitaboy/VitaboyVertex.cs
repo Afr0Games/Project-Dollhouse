@@ -45,6 +45,15 @@ namespace Files.Vitaboy
         }
 
         /// <summary>
+        /// The hashcode of this VitaboyVertex instance.
+        /// </summary>
+        /// <returns>The hashcode of this VitaboyVertex instance.</returns>
+        public override int GetHashCode()
+        {
+            return Position.GetHashCode() ^ TextureCoordinate.GetHashCode() ^ Normal.GetHashCode() ^ BoneBinding.GetHashCode();
+        }
+
+        /// <summary>
         /// Is this VitaboyVertex equal to another object?
         /// </summary>
         /// <param name="obj">The object to compare against.</param>
