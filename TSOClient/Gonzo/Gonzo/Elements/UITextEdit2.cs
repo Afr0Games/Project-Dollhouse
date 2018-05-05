@@ -728,24 +728,19 @@ namespace Gonzo.Elements
             //Cursor hasn't been moved.
             if (!m_MovingCursor)
             {
-                if (m_Cursor.Position.X <= m_VerticalTextBoundary)
-                    m_Cursor.Position.X = m_VerticalTextBoundary;
-                else
+                if (m_Cursor.Position.X > Position.X)
                 {
-                    if (m_Cursor.Position.X > Position.X)
+                    if (m_NumLines > 1)
                     {
-                        if (m_NumLines > 1)
+                        if (GetCurrentLine().Length != 0)
+                            MoveCursorLeft();
+                    }
+                    else
+                    {
+                        if (Text != string.Empty)
                         {
-                            if (GetCurrentLine().Length != 0)
-                                m_Cursor.Position.X -= m_Font.MeasureString(GetCurrentLine()[m_Cursor.CharacterIndex - 1].ToString()).X;
-                        }
-                        else
-                        {
-                            if (Text != string.Empty)
-                            {
-                                if (GetCurrentLine().Length > 0)
-                                    m_Cursor.Position.X -= m_Font.MeasureString(GetCurrentLine()[0].ToString()).X;
-                            }
+                            if (GetCurrentLine().Length > 0 && m_VerticalTextBoundary <= (Position.X + Size.X))
+                                m_Cursor.Position.X -= m_Font.MeasureString(GetCurrentLine()[0].ToString()).X;
                         }
                     }
                 }
@@ -773,11 +768,6 @@ namespace Gonzo.Elements
                             m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].Text.Length;
                         }
                     }
-                    else
-                    {
-                        if (m_Cursor.LineIndex > 0)
-                            m_Cursor.LineIndex--;
-                    }
                 }
                 else
                 {
@@ -786,10 +776,10 @@ namespace Gonzo.Elements
                         if (m_NumLines == 1)
                         {
                             if (m_CurrentLine.Count >= 2)
-                                m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1].ToString()).X;
+                                MoveCursorLeft();
                         }
                         else
-                            m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1].ToString()).X;
+                            MoveCursorLeft();
 
                         m_CurrentLine[m_Cursor.CharacterIndex - 1] = "";
                         m_Renderer.RemoveAt(m_Cursor.CharacterIndex - 1);
@@ -816,6 +806,15 @@ namespace Gonzo.Elements
                     m_Cursor.CharacterIndex = m_CurrentLine[m_Cursor.LineIndex].ToString().Length;
                 }
             }
+        }
+
+        /// <summary>
+        /// Moves the cursor to the left by the number of pixels used by the last character in the current input.
+        /// </summary>
+        private void MoveCursorLeft()
+        {
+            if(m_Cursor.Position.X > Position.X)
+                m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1].ToString()).X;
         }
 
         /// <summary>
