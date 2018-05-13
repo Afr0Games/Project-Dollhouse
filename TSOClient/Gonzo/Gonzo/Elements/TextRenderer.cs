@@ -167,6 +167,9 @@ namespace Gonzo
                     RenderChar.Visible = true;
                     RenderChar.Char = Char;
 
+                    if (m_CurrentLine.Capacity <= Index)
+                        m_CurrentLine.Capacity++;
+
                     m_CurrentLine.Insert(Index, RenderChar);
                 }
                 else

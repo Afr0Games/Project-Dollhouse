@@ -338,6 +338,7 @@ namespace Gonzo.Elements
                                 m_Cursor.Position.Y += m_Font.LineSpacing;
                                 m_Cursor.LineIndex++;
                                 m_Cursor.CharacterIndex = 0;
+                                m_Cursor.Position.X = Position.X;
                                 NewLine = true;
                             }
                             else //Text went beyond the borders of the control...
@@ -353,11 +354,10 @@ namespace Gonzo.Elements
 
                                 m_Cursor.LineIndex++;
                                 m_Cursor.CharacterIndex = 0;
+                                m_Cursor.Position.X = Position.X;
                                 NewLine = true;
                             }
                         }
-
-                        m_Cursor.Position.X = Position.X;
                     }
                     else
                     {
@@ -405,14 +405,14 @@ namespace Gonzo.Elements
                             m_Renderer.Insert(m_Cursor.CharacterIndex, e.Character.ToString());
                         }
                     }
-
-                    if(!NewLine)
-                        m_Cursor.CharacterIndex++;
-                    
-                    m_RemovingTxt = false;
-                    m_MovingCursor = false;
-                    m_Cursor.Position.X += m_Font.MeasureString(e.Character.ToString()).X;
                 }
+
+                if (!NewLine)
+                    m_Cursor.CharacterIndex++;
+
+                m_RemovingTxt = false;
+                m_MovingCursor = false;
+                m_Cursor.Position.X += m_Font.MeasureString(e.Character.ToString()).X;
             }
         }
 
@@ -632,6 +632,9 @@ namespace Gonzo.Elements
                                             }
                                         }
 
+                                        if (m_Cursor.Position.Y == Position.Y)
+                                            ScrollUp();
+
                                         m_MovingCursor = true;
                                         m_RemovingTxt = false;
                                     }
@@ -643,22 +646,23 @@ namespace Gonzo.Elements
                                         {
                                             if (m_Lines.Count >= 2)
                                             {
-                                                if (m_Cursor.Position.Y < m_Lines[m_Lines.Count - 1].Position.Y)
-                                                {
-                                                    m_Cursor.Position.Y += m_Font.LineSpacing;
-                                                    m_Cursor.LineIndex++;
-                                                    ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
+                                                m_Cursor.Position.Y += m_Font.LineSpacing;
+                                                m_Cursor.LineIndex++;
+                                                //TODO: Find out why m_Lines[m_Cursor.LineIndex] goes OOB here.
+                                                ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
 
-                                                    //Part of a line was most likely deleted, so readjust the cursor accordingly.
-                                                    if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
-                                                    {
-                                                        m_Cursor.CharacterIndex = GetCurrentLine().Length;
-                                                        m_Cursor.Position.X = Position.X +
-                                                            m_Font.MeasureString(GetCurrentLine()).X;
-                                                    }
+                                                //Part of a line was most likely deleted, so readjust the cursor accordingly.
+                                                if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
+                                                {
+                                                    m_Cursor.CharacterIndex = GetCurrentLine().Length;
+                                                    m_Cursor.Position.X = Position.X +
+                                                        m_Font.MeasureString(GetCurrentLine()).X;
                                                 }
                                             }
                                         }
+
+                                        if (m_Cursor.Position.Y >= (Position.Y + Size.Y))
+                                            ScrollDown();
 
                                         m_MovingCursor = true;
                                         m_RemovingTxt = false;
