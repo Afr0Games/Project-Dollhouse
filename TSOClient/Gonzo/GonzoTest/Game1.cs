@@ -132,12 +132,9 @@ namespace GonzoTest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            Gonzo.Resolution.BeginDraw();
+            Resolution.BeginDraw();
 
-            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
-                RasterizerState.CullCounterClockwise, null, Gonzo.Resolution.getTransformationMatrix());
             m_ScrManager.Draw();
-            spriteBatch.End();
 
             //Reset device to defaults before rendering...
             GraphicsDevice.BlendState = BlendState.Opaque;

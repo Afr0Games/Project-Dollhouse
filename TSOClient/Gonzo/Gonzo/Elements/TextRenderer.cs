@@ -11,7 +11,6 @@ namespace Gonzo
     {
         public string Text = "";
         public Vector2 Position;
-        public bool Visible = true;
     }
 
     /// <summary>
@@ -69,8 +68,8 @@ namespace Gonzo
         /// <param name="LineHeight">The height of a line of text.</param>
         /// <param name="Font">The font used to render the text.</param>
         /// <param name="NumLines">The maximum number of lines supported by this control.</param>
-        public TextRenderer(bool MultiLine, Vector2 TextboxPosition, Vector2 TextboxSize, int ScrollFactor, 
-            float LineHeight, SpriteFont Font, Color TxtColor, int NumLines)
+        public TextRenderer(bool MultiLine, Vector2 TextboxPosition, Vector2 TextboxSize, 
+            int ScrollFactor, float LineHeight, SpriteFont Font, Color TxtColor, int NumLines)
         {
             m_MultiLine = MultiLine;
             m_TextboxPosition = TextboxPosition;
@@ -151,7 +150,7 @@ namespace Gonzo
         }
 
         /// <summary>
-        /// Inserts a character into this TextRenderer instance.
+        /// Inserts a character or a line of text into this TextRenderer instance.
         /// </summary>
         /// <param name="Index">The index at which to insert text.</param>
         /// <param name="Char">The character to insert.</param>
@@ -159,12 +158,12 @@ namespace Gonzo
         {
             if (m_MultiLine)
             {
-                if (m_CurrentTextPosition.X < m_TextboxSize.X)
+                if ((m_CurrentTextPosition.X < m_TextboxSize.X) && Char.Length == 1)
                 {
                     m_CurrentTextPosition.X += m_Font.MeasureString(Char).X;
                     RenderableCharacter RenderChar = new RenderableCharacter();
                     RenderChar.Position = m_CurrentTextPosition;
-                    RenderChar.Visible = true;
+                    //RenderChar.Visible = true;
                     RenderChar.Char = Char;
 
                     if (m_CurrentLine.Capacity <= Index)
@@ -177,7 +176,6 @@ namespace Gonzo
                     RenderableText2 Line = new RenderableText2();
                     Line.Text = GetCurrentLine();
                     Line.Position = new Vector2(m_TextboxPosition.X + 2, m_CurrentTextPosition.Y);
-                    Line.Visible = true;
 
                     m_RenderableLines.Add(Line);
 
@@ -196,9 +194,6 @@ namespace Gonzo
                     {
                         foreach (RenderableText2 Txt in m_RenderableLines)
                             Txt.Position.Y -= m_Font.LineSpacing;
-
-                        m_RenderableLines[m_VisibilityIndex].Visible = false;
-                        m_VisibilityIndex++;
                     }
 
                     m_CurrentLine.Insert(0, RenderChar);
@@ -230,20 +225,14 @@ namespace Gonzo
             {
                 foreach (RenderableCharacter Txt in m_CurrentLine)
                 {
-                    if (Txt.Visible)
-                    {
-                        SBatch.DrawString(m_Font, Txt.Char, new Vector2(Txt.Position.X, Txt.Position.Y),
-                            m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
-                    }
+                    SBatch.DrawString(m_Font, Txt.Char, new Vector2(Txt.Position.X, Txt.Position.Y),
+                        m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
                 }
 
                 foreach (RenderableText2 Txt in m_RenderableLines)
                 {
-                    if (Txt.Visible)
-                    {
-                        SBatch.DrawString(m_Font, Txt.Text, new Vector2(Txt.Position.X, Txt.Position.Y),
-                            m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
-                    }
+                    SBatch.DrawString(m_Font, Txt.Text, new Vector2(Txt.Position.X, Txt.Position.Y),
+                        m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
                 }
             }
             else
@@ -281,6 +270,21 @@ namespace Gonzo
         }
 
         /// <summary>
+        /// Can the text in this TextRenderer be scrolled?
+        /// </summary>
+        public bool CanScrollDown()
+        {
+            if (m_RenderableLines.Count >= 1)
+            {
+                if ((m_RenderableLines[m_RenderableLines.Count - 1].Position.Y - m_TextboxPosition.Y) 
+                    > (m_TextboxPosition.Y - m_TextboxSize.Y))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Scrolls the text in the textbox downwards.
         /// Called when clicking a scrolldown button for this textbox.
         /// </summary>
@@ -289,15 +293,18 @@ namespace Gonzo
         {
             ScrollTextDown();
 
-            if (!MaxScrolldown)
+            if(m_CurrentLine.Count != 0)
             {
-                m_RenderableLines[m_VisibilityIndex].Visible = true;
+                RenderableText2 Line = new RenderableText2();
+                Line.Text = GetCurrentLine();
+                Line.Position = new Vector2(m_TextboxPosition.X + 2, m_CurrentTextPosition.Y + m_Font.LineSpacing);
 
-                if (m_VisibilityIndex < (m_RenderableLines.Count - 1))
-                    m_VisibilityIndex++;
-
-                return true;
+                m_RenderableLines.Add(Line);
+                m_CurrentLine.Clear();
             }
+
+            if (!MaxScrolldown)
+                return true;
             else
                 return false;
         }
@@ -309,20 +316,33 @@ namespace Gonzo
         {
             for (int i = 0; i < m_RenderableLines.Count; i++)
             {
-                if (m_RenderableLines[m_RenderableLines.Count - 1].Visible == true)
+                //TODO: Fix this!
+                if (m_RenderableLines[m_RenderableLines.Count - 1].Position.Y == 
+                    (m_TextboxPosition.Y - m_TextboxSize.Y))
                     m_MaxScrolldown = true;
 
                 if (!MaxScrolldown)
                 {
                     m_RenderableLines[i].Position.Y -= m_Font.LineSpacing;
 
-                    if (m_RenderableLines[i].Position.Y <= m_TextboxPosition.Y && m_RenderableLines[i].Visible)
-                        m_RenderableLines[i].Visible = false;
-
                     if (MaxScrollup == true)
                         m_MaxScrollup = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Can the text in this TextRenderer be scrolled?
+        /// </summary>
+        public bool CanScrollUp()
+        {
+            if (m_RenderableLines.Count >= 1)
+            {
+                if (m_RenderableLines[0].Position.Y < m_TextboxPosition.Y)
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -335,14 +355,7 @@ namespace Gonzo
             ScrollTextUp();
 
             if (!MaxScrollup)
-            {
-                m_RenderableLines[m_VisibilityIndex].Visible = true;
-
-                if (m_VisibilityIndex > 0)
-                    m_VisibilityIndex--;
-
                 return true;
-            }
             else
                 return false;
         }
@@ -354,15 +367,12 @@ namespace Gonzo
         {
             for (int i = 0; i < m_RenderableLines.Count; i++)
             {
-                if (m_RenderableLines[0].Visible == true)
+                if (m_RenderableLines[0].Position.Y >= m_TextboxPosition.Y)
                     m_MaxScrollup = true;
 
                 if (!MaxScrollup)
                 {
                     m_RenderableLines[i].Position.Y += m_Font.LineSpacing;
-
-                    if (m_RenderableLines[i].Position.Y >= ((m_TextboxPosition.Y + m_TextboxSize.Y) - m_Font.LineSpacing) && m_RenderableLines[i].Visible)
-                        m_RenderableLines[i].Visible = false;
 
                     if (MaxScrolldown == true)
                         m_MaxScrolldown = false;

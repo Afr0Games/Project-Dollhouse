@@ -209,13 +209,15 @@ namespace GonzoTest
 
             m_ExitDialog.Update(Input, GTime);
 
-            if (m_DescriptionTextEdit.CurrentNumberOfLines > 10)
-            {
+            if (m_DescriptionTextEdit.CanScrollUp())
                 m_DescriptionScrollUpBtn.Enabled = true;
-                m_DescriptionScrollDownBtn.Enabled = true;
-            }
             else
                 m_DescriptionScrollUpBtn.Enabled = false;
+
+            if (m_DescriptionTextEdit.CanScrollDown())
+                m_DescriptionScrollDownBtn.Enabled = true;
+            else
+                m_DescriptionScrollDownBtn.Enabled = false;
 
             m_Avatar.Update(GTime);
 
@@ -224,6 +226,9 @@ namespace GonzoTest
 
         public override void Draw()
         {
+            m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
+                RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
+
             base.Draw(); //Needs to be drawn first for the ExitDialog to be drawn correctly.
 
             m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
@@ -232,6 +237,25 @@ namespace GonzoTest
 
             //TODO: Find out why the ExitDialog is drawn behind the other buttons on the screen.
             m_ExitDialog.Draw(m_SBatch, 0.9f);
+
+            m_SBatch.End();
+
+            foreach (UIElement Element in m_PResult.Elements.Values)
+            {
+                if (Element.NeedsClipping)
+                {
+                    RasterizerState RasterState = new RasterizerState();
+                    RasterState.ScissorTestEnable = true;
+                    RasterState.CullMode = CullMode.CullCounterClockwiseFace;
+
+                    m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null,
+                       RasterState, null, Resolution.getTransformationMatrix());
+
+                    Element.Draw(m_SBatch, 0.5f);
+
+                    m_SBatch.End();
+                }
+            }
         }
     }
 }

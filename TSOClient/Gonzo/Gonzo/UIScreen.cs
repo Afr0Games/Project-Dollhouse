@@ -166,16 +166,19 @@ namespace Gonzo
             {
                 try
                 {
-                    if (KVP.Value is UIDialog || KVP.Value is WillWrightDiag || KVP.Value is ExitDialog)
-                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.DialogLayer));
-                    else if (KVP.Value is UIButton)
-                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ButtonLayer));
-                    else if (KVP.Value is UIImage)
-                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ImageLayer));
-                    else if (KVP.Value is UILabel)
-                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.TextLayer));
-                    else
-                        KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.Default));
+                    if (KVP.Value.NeedsClipping == false)
+                    {
+                        if (KVP.Value is UIDialog || KVP.Value is WillWrightDiag || KVP.Value is ExitDialog)
+                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.DialogLayer));
+                        else if (KVP.Value is UIButton)
+                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ButtonLayer));
+                        else if (KVP.Value is UIImage)
+                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ImageLayer));
+                        else if (KVP.Value is UILabel)
+                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.TextLayer));
+                        else
+                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.Default));
+                    }
                 }
                 catch(Exception)
                 {

@@ -29,6 +29,7 @@ namespace Gonzo
         private SpriteFont[] m_Fonts;
         private Camera m_Camera;
         private Effect m_Shader; //TODO: Move this elsewhere.
+        private SpriteBatch m_SBatch;
 
         public event EventHandler<TextInputEventArgs> OnTextInput;
 
@@ -92,6 +93,7 @@ namespace Gonzo
         public ScreenManager(GraphicsDevice Graphics, SpriteFont[] Fonts, InputHelper Input)
         {
             m_Graphics = Graphics;
+            m_SBatch = new SpriteBatch(Graphics);
             m_Camera = new Camera(Graphics);
             m_Input = Input;
             m_Fonts = Fonts;
@@ -143,8 +145,10 @@ namespace Gonzo
         {
             for(int i = 0; i < m_Screens.Count; i++)
             {
-                if(!m_Screens[i].IsVitaboyScreen)
+                if (!m_Screens[i].IsVitaboyScreen)
+                {
                     m_Screens[i].Draw();
+                }
             }
         }
 

@@ -52,6 +52,15 @@ namespace Gonzo.Elements
 
         protected bool m_Opaque = false;
         protected Vector2 m_Size;
+        protected bool m_NeedsClipping = false;
+
+        /// <summary>
+        /// Does this UIElement need scissoring/clipping?
+        /// </summary>
+        public bool NeedsClipping
+        {
+            get { return m_NeedsClipping; }
+        }
 
         private Vector2 m_Position;
 

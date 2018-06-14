@@ -113,6 +113,24 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
+        /// Can the text in this UITextEdit instance scroll up?
+        /// </summary>
+        /// <returns>True if it can scroll up, false otherwise.</returns>
+        public bool CanScrollUp()
+        {
+            return m_Renderer.CanScrollUp();
+        }
+
+        /// <summary>
+        /// Can the text in this UITextEdit instance scroll down?
+        /// </summary>
+        /// <returns>True if it can scroll down, false otherwise.</returns>
+        public bool CanScrollDown()
+        {
+            return m_Renderer.CanScrollDown();
+        }
+
+        /// <summary>
         /// Constructs a new UITextEdit control manually (I.E not from a UIScript).
         /// </summary>
         /// <param name="Name">The name of this UITextEdit control.</param>
@@ -123,13 +141,15 @@ namespace Gonzo.Elements
         /// <param name="TextEditSize">The size of this UITextEdit control.</param>
         /// <param name="Screen">A UIScreen instance.</param>
         /// <param name="Tooltip">The tooltip associated with this UITextEdit control (optional).</param>
-        public UITextEdit2(string Name, int ID, bool DrawBackground, int NumLines, Vector2 TextEditPosition,
-            Vector2 TextEditSize, int Font, UIScreen Screen, string Tooltip = "") : base(Screen)
+        public UITextEdit2(string Name, int ID, bool DrawBackground, int NumLines, 
+            Vector2 TextEditPosition, Vector2 TextEditSize, int Font, UIScreen Screen, 
+            string Tooltip = "") : base(Screen)
         {
             this.Name = Name;
             m_ID = ID;
             m_KeyboardInput = true; //UITextEdit needs to receive input from keyboard!
             m_DrawBackground = DrawBackground;
+            m_NeedsClipping = true; //This control needs to clip all the text rendered outside of it!
 
             Position = TextEditPosition;
             m_TextPosition = Position;
@@ -183,6 +203,7 @@ namespace Gonzo.Elements
             Name = Node.Name;
             m_ID = Node.ID;
             m_KeyboardInput = true; //UITextEdit needs to receive input from keyboard!
+            m_NeedsClipping = true; //This control needs to clip all the text rendered outside of it!
 
             if (!State.InSharedPropertiesGroup)
             {
@@ -328,12 +349,7 @@ namespace Gonzo.Elements
                             {
                                 m_TextPosition.Y += m_Font.LineSpacing;
 
-                                RenderableText2 RenderTxt = new RenderableText2();
-                                RenderTxt.Position = m_TextPosition;
-                                RenderTxt.Text = GetCurrentLine();
-                                RenderTxt.Visible = true;
-                                m_Lines.Add(RenderTxt);
-                                m_CurrentLine.Clear();
+                                AddCurrentLine();
 
                                 m_Cursor.Position.Y += m_Font.LineSpacing;
                                 m_Cursor.LineIndex++;
@@ -343,12 +359,7 @@ namespace Gonzo.Elements
                             }
                             else //Text went beyond the borders of the control...
                             {
-                                RenderableText2 RenderTxt = new RenderableText2();
-                                RenderTxt.Position = m_TextPosition;
-                                RenderTxt.Text = GetCurrentLine();
-                                RenderTxt.Visible = true;
-                                m_Lines.Add(RenderTxt);
-                                m_CurrentLine.Clear();
+                                AddCurrentLine();
 
                                 m_ScrollbarHeight -= m_Font.LineSpacing; //TODO: Resize scrollbar...
 
@@ -617,10 +628,15 @@ namespace Gonzo.Elements
                                 case Keys.Up:
                                     if (m_NumLines > 1)
                                     {
-                                        if (m_Cursor.Position.Y > Position.Y)
+                                        if (m_Cursor.Position.Y >= Position.Y)
                                         {
-                                            m_Cursor.Position.Y -= m_Font.LineSpacing;
-                                            m_Cursor.LineIndex--;
+                                            //Never allow the cursor to go beyond the height of the control!
+                                            if(m_Cursor.Position.Y > Position.Y)
+                                                m_Cursor.Position.Y -= m_Font.LineSpacing;
+
+                                            if(m_Cursor.LineIndex > 0)
+                                                m_Cursor.LineIndex--;
+
                                             ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
 
                                             //Part of a line was most likely deleted, so readjust the cursor accordingly.
@@ -647,9 +663,8 @@ namespace Gonzo.Elements
                                             if (m_Lines.Count >= 2)
                                             {
                                                 m_Cursor.Position.Y += m_Font.LineSpacing;
-                                                m_Cursor.LineIndex++;
-                                                //TODO: Find out why m_Lines[m_Cursor.LineIndex] goes OOB here.
                                                 ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
+                                                m_Cursor.LineIndex++;
 
                                                 //Part of a line was most likely deleted, so readjust the cursor accordingly.
                                                 if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
@@ -662,7 +677,16 @@ namespace Gonzo.Elements
                                         }
 
                                         if (m_Cursor.Position.Y >= (Position.Y + Size.Y))
+                                        {
+                                            if (!string.IsNullOrEmpty(GetCurrentLine()))
+                                            {
+                                                //Why does this line fuck up text scrolling??!
+                                                m_Renderer.Insert(m_Cursor.LineIndex, GetCurrentLine());
+                                                AddCurrentLine();
+                                            }
+
                                             ScrollDown();
+                                        }
 
                                         m_MovingCursor = true;
                                         m_RemovingTxt = false;
@@ -688,6 +712,12 @@ namespace Gonzo.Elements
 
             if (Visible)
             {
+                Rectangle ScreenRect = new Rectangle(0, 0, SBatch.GraphicsDevice.Viewport.Width, 
+                    SBatch.GraphicsDevice.Viewport.Height);
+
+                SBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)Position.X, (int)Position.Y, 
+                    (int)Size.X, (int)Size.Y);
+
                 if (m_DrawBackground)
                 {
                     Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
@@ -819,6 +849,20 @@ namespace Gonzo.Elements
         {
             if(m_Cursor.Position.X > Position.X)
                 m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1].ToString()).X;
+        }
+
+        /// <summary>
+        /// Adds the current line of text (m_CurrentLine) to
+        /// the existing lines of text (m_Lines), and clears
+        /// the contents of the current line.
+        /// </summary>
+        private void AddCurrentLine()
+        {
+            RenderableText2 RenderTxt = new RenderableText2();
+            RenderTxt.Position = m_TextPosition;
+            RenderTxt.Text = GetCurrentLine();
+            m_Lines.Add(RenderTxt);
+            m_CurrentLine.Clear();
         }
 
         /// <summary>

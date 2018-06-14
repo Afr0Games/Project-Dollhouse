@@ -91,13 +91,16 @@ namespace GonzoTest
 
         public override void Draw()
         {
+            m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
+                RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
+
             BackgroundImg.Draw(m_SBatch, null, 0.0f);
             TSOLogoImage.Draw(m_SBatch, null, 0.0f);
             BackButtonIndentImage.Draw(m_SBatch, null, 0.0f);
 
             foreach (UILabel Lbl in m_CreditsStrings)
             {
-                //TODO: Figure out how to stop lines from displaying outside of the screen.
+                //TODO: Clip the credits area!
                 if(Lbl.YPosition > m_CreditsArea.Position.Y && (Lbl.YPosition < m_CreditsArea.Size.Y))
                     Lbl.Draw(m_SBatch, 0.3f);
             }
@@ -105,6 +108,25 @@ namespace GonzoTest
             m_WillWrightDiag.Draw(m_SBatch, 0.4f);
 
             base.Draw();
+
+            m_SBatch.End();
+
+            foreach (UIElement Element in m_PResult.Elements.Values)
+            {
+                if (Element.NeedsClipping)
+                {
+                    RasterizerState RasterState = new RasterizerState();
+                    RasterState.ScissorTestEnable = true;
+                    RasterState.CullMode = CullMode.CullCounterClockwiseFace;
+
+                    m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null,
+                       RasterState, null, Resolution.getTransformationMatrix());
+
+                    Element.Draw(m_SBatch, 0.5f);
+
+                    m_SBatch.End();
+                }
+            }
         }
     }
 }
