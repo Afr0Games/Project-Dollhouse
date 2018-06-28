@@ -110,7 +110,7 @@ namespace Files.AudioLogic
         }
 
         /// <summary>
-        /// Disposes of the resources used by this FAR3Archive instance.
+        /// Disposes of the resources used by this Ini instance.
         /// </summary>
         public void Dispose()
         {
@@ -118,7 +118,7 @@ namespace Files.AudioLogic
         }
 
         /// <summary>
-        /// Disposes of the resources used by this FAR3Archive instance.
+        /// Disposes of the resources used by this Ini instance.
         /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
         protected virtual void Dispose(bool Disposed)
@@ -128,11 +128,11 @@ namespace Files.AudioLogic
                 if (m_Reader != null)
                     m_Reader.Close();
 
-                // Prevent the finalizer from calling ~FAR3Archive, since the object is already disposed at this point.
+                // Prevent the finalizer from calling ~Ini, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
             }
             else
-                m_Logger.Error("FAR3Archive not explicitly disposed!");
+                m_Logger.Error("Ini not explicitly disposed!");
         }
     }
 }

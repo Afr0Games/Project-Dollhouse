@@ -79,3 +79,5 @@ UpgradeLog*.htm
 # Visual Studio Code
 .settings
 TSOClient/tso.client/GlobalSettings1.Designer.cs
+TSOClient/Gonzo/.vs/Gonzo/v15/Server/sqlite3/storage.ide
+TSOClient/Gonzo/.vs/Gonzo/v15/Server/sqlite3/storage.ide

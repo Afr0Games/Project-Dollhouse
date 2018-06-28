@@ -59,6 +59,10 @@
       <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
       <Name>Files</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Sound\Sound.csproj">
+      <Project>{b3a3bee4-ec13-48e0-b1d8-e5eebd27a2c9}</Project>
+      <Name>Sound</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

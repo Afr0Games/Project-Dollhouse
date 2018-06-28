@@ -11,7 +11,7 @@ Contributor(s):
 */
 
 using System;
-using System.Text;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,6 +19,8 @@ using Files.FAR1;
 using Files.FAR3;
 using Files.DBPF;
 using Files.IFF;
+using Files.AudioLogic;
+using Sound;
 using Microsoft.Win32;
 
 namespace Files.Tests
@@ -206,6 +208,48 @@ namespace Files.Tests
 
             Iff Obj = new Iff();
             Assert.IsTrue(Obj.Init(Arch.GrabEntry(FileUtilities.GenerateHash("anniversary.iff")), false));
+        }
+
+        /// <summary>
+        /// Tests HIT parsing by attempting to open a HIT.
+        /// Currently hardcoded for Windows because test methods can't take parameters.
+        /// </summary>
+        [TestMethod]
+        public void TestCorrectHITParsing()
+        {
+            string GameDir = GetInstallDir();
+            string Delimiter = (IsLinux) ? "//" : "\\";
+
+            try
+            {
+                Hit Snd = new Hit(File.Open(GameDir + "sounddata" + Delimiter + "newmain.hit",
+                    FileMode.Open, FileAccess.ReadWrite));
+            }
+            catch(HitException)
+            {
+                Assert.Fail();
+            }
+        }
+
+        /// <summary>
+        /// Tests Ini parsing by attempting to open a Ini.
+        /// Currently hardcoded for Windows because test methods can't take parameters.
+        /// </summary>
+        [TestMethod]
+        public void TestCorrectIniParsing()
+        {
+            string GameDir = GetInstallDir();
+            string Delimiter = (IsLinux) ? "//" : "\\";
+
+            try
+            {
+                Ini IniFile = new Ini(File.Open(GameDir + "sys" + Delimiter + "radio.ini",
+                    FileMode.Open, FileAccess.ReadWrite));
+            }
+            catch (FileNotFoundException)
+            {
+                Assert.Fail();
+            }
         }
     }
 }

@@ -20,7 +20,6 @@ namespace Gonzo
     {
         public string Char = "";
         public Vector2 Position;
-        public bool Visible = true;
     }
 
     /// <summary>
@@ -36,7 +35,6 @@ namespace Gonzo
         private Color m_TextColor;
         private SpriteFont m_Font;
         private Vector2 m_CurrentTextPosition = new Vector2(); //Position of the character currently being added.
-        int m_VisibilityIndex = 0; //The index for the line beyond which nothing is rendered.
         private float m_LineHeight;
         private Vector2 m_TextboxPosition;
         private Vector2 m_TextboxSize;
@@ -88,16 +86,7 @@ namespace Gonzo
         public void ScrollTextRight()
         {
             for (int i = 0; i < m_CurrentLine.Count; i++)
-            {
                 m_CurrentLine[i].Position.X += m_ScrollFactor;
-
-                if (m_CurrentLine[i].Position.X > (m_TextboxPosition.X + m_TextboxSize.X))
-                    m_CurrentLine[i].Visible = false;
-
-                if (m_CurrentLine[i].Position.X > m_TextboxPosition.X && 
-                    m_CurrentLine[i].Position.X < (m_TextboxPosition.X + m_TextboxSize.X))
-                    m_CurrentLine[i].Visible = true;
-            }
         }
 
         /// <summary>
@@ -107,16 +96,7 @@ namespace Gonzo
         public void ScrollTextLeft(int Index = 0)
         {
             for (int i = Index; i < m_CurrentLine.Count; i++)
-            {
                 m_CurrentLine[i].Position.X -= m_ScrollFactor;
-
-                if (m_CurrentLine[i].Position.X < m_TextboxPosition.X)
-                    m_CurrentLine[i].Visible = false;
-
-                if (m_CurrentLine[i].Position.X > (m_TextboxPosition.X + m_TextboxSize.X) &&
-                    m_CurrentLine[i].Position.X < m_TextboxPosition.X)
-                    m_CurrentLine[i].Visible = true;
-            }
         }
 
         /// <summary>
@@ -163,7 +143,6 @@ namespace Gonzo
                     m_CurrentTextPosition.X += m_Font.MeasureString(Char).X;
                     RenderableCharacter RenderChar = new RenderableCharacter();
                     RenderChar.Position = m_CurrentTextPosition;
-                    //RenderChar.Visible = true;
                     RenderChar.Char = Char;
 
                     if (m_CurrentLine.Capacity <= Index)
@@ -187,7 +166,6 @@ namespace Gonzo
                     m_CurrentTextPosition.X = m_TextboxPosition.X;
                     RenderableCharacter RenderChar = new RenderableCharacter();
                     RenderChar.Position = m_CurrentTextPosition;
-                    RenderChar.Visible = true;
                     RenderChar.Char = Char;
 
                     if (m_CurrentTextPosition.Y >= m_TextboxPosition.Y + ((m_NumLines - 2) * m_Font.LineSpacing))
@@ -239,11 +217,8 @@ namespace Gonzo
             {
                 foreach (RenderableCharacter Txt in m_CurrentLine)
                 {
-                    if (Txt.Visible)
-                    {
-                        SBatch.DrawString(m_Font, Txt.Char, new Vector2(Txt.Position.X, Txt.Position.Y),
-                            m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
-                    }
+                    SBatch.DrawString(m_Font, Txt.Char, new Vector2(Txt.Position.X, Txt.Position.Y), 
+                        m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
                 }
             }
         }
