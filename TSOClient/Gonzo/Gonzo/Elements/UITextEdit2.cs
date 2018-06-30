@@ -342,8 +342,8 @@ namespace Gonzo.Elements
                     {
                         Vector2 MeasuredString = m_Font.MeasureString(GetCurrentLine());
                         //Check that text doesn't go beyond width of control...
-                        if (((Position.X + MeasuredString.X) >=
-                            m_Size.X) && !m_RemovingTxt && !m_MovingCursor)
+                        if (((Position.X + (MeasuredString.X + m_Renderer.FontSpacing)) >=
+                            (m_Size.X - Position.X)) && !m_RemovingTxt && !m_MovingCursor)
                         {
                             if (m_TextPosition.Y <= Position.Y + ((m_NumLines - 2) * m_Font.LineSpacing))
                             {
@@ -423,7 +423,7 @@ namespace Gonzo.Elements
 
                 m_RemovingTxt = false;
                 m_MovingCursor = false;
-                m_Cursor.Position.X += m_Font.MeasureString(e.Character.ToString()).X;
+                m_Cursor.Position.X += m_Renderer.FontSpacing;
             }
         }
 
@@ -556,24 +556,8 @@ namespace Gonzo.Elements
                                 case Keys.Left:
                                     if (m_Cursor.Position.X > Position.X && m_Cursor.CharacterIndex > 0)
                                     {
-                                        if (m_NumLines > 1)
-                                        {
-                                            m_Cursor.Position.X -= m_Font.MeasureString(GetCurrentLine()[m_Cursor.CharacterIndex - 1].ToString()).X;
-                                            m_Cursor.CharacterIndex--;
-                                        }
-                                        else
-                                        {
-                                            if (GetCurrentLine().Length != 0)
-                                            {
-                                                m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1]).X;
-                                                m_Cursor.CharacterIndex--;
-                                            }
-                                            else
-                                            {
-                                                m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex]).X;
-                                                m_Cursor.CharacterIndex--;
-                                            }
-                                        }
+                                        m_Cursor.Position.X -= m_Renderer.FontSpacing;
+                                        m_Cursor.CharacterIndex--;
                                     }
                                     else if (m_Cursor.Position.X <= Position.X)
                                     {
@@ -587,33 +571,11 @@ namespace Gonzo.Elements
                                 case Keys.Right:
                                     if (m_Cursor.Position.X < (Position.X + m_Size.X))
                                     {
-                                        if (m_NumLines > 1)
+                                        if (GetCurrentLine().Length > 0 &&
+                                            m_Cursor.CharacterIndex < GetCurrentLine().Length)
                                         {
-                                            if (GetCurrentLine().Length > 0 &&
-                                                m_Cursor.CharacterIndex < GetCurrentLine().Length)
-                                            {
-                                                m_Cursor.Position.X += m_Font.MeasureString(GetCurrentLine()[0].ToString()).X;
-                                                m_Cursor.CharacterIndex++;
-                                            }
-                                        }
-                                        else //Single-line control, simple.
-                                        {
-                                            if (GetCurrentLine().Length != 0)
-                                            {
-                                                if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(Text).X)
-                                                {
-                                                    m_Cursor.Position.X += m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex]).X;
-                                                    m_Cursor.CharacterIndex++;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (m_Cursor.Position.X < Position.X + m_Font.MeasureString(Text).X)
-                                                {
-                                                    m_Cursor.Position.X += m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex] + 1).X;
-                                                    m_Cursor.CharacterIndex++;
-                                                }
-                                            }
+                                            m_Cursor.Position.X += m_Renderer.FontSpacing;
+                                            m_Cursor.CharacterIndex++;
                                         }
                                     }
                                     else if (m_Cursor.Position.X >= (Position.X + m_Size.X))
@@ -643,8 +605,7 @@ namespace Gonzo.Elements
                                             if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
                                             {
                                                 m_Cursor.CharacterIndex = GetCurrentLine().Length;
-                                                m_Cursor.Position.X = Position.X +
-                                                    m_Font.MeasureString(GetCurrentLine()).X;
+                                                m_Cursor.Position.X = Position.X + m_Renderer.FontSpacing;
                                             }
                                         }
 
@@ -670,8 +631,7 @@ namespace Gonzo.Elements
                                                 if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
                                                 {
                                                     m_Cursor.CharacterIndex = GetCurrentLine().Length;
-                                                    m_Cursor.Position.X = Position.X +
-                                                        m_Font.MeasureString(GetCurrentLine()).X;
+                                                    m_Cursor.Position.X = Position.X + m_Renderer.FontSpacing;
                                                 }
                                             }
                                         }

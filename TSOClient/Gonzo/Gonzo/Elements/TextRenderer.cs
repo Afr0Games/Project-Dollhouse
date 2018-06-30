@@ -44,6 +44,11 @@ namespace Gonzo
         private int m_NumLines = 0;
 
         /// <summary>
+        /// The spacing between characters in this renderer.
+        /// </summary>
+        public float FontSpacing = 0.0f;
+
+        /// <summary>
         /// The contents of the GapBuffer containing the current line.
         /// </summary>
         /// <returns>The contents of the GapBuffer containing the current line.</returns>
@@ -78,6 +83,7 @@ namespace Gonzo
             m_Font = Font;
             m_TextColor = TxtColor;
             m_NumLines = NumLines;
+            FontSpacing = m_Font.LineSpacing / 2;
         }
 
         /// <summary>
@@ -100,18 +106,6 @@ namespace Gonzo
         }
 
         /// <summary>
-        /// Scrolls all text up.
-        /// </summary>
-        /*public void ScrollTextUp()
-        {
-            foreach (RenderableText2 Txt in m_RenderableLines)
-                Txt.Position.Y -= m_LineHeight;
-
-            m_RenderableLines[m_VisibilityIndex].Visible = false;
-            m_VisibilityIndex++;
-        }*/
-
-        /// <summary>
         /// Removes a character of renderable text from the input at the specified index.
         /// </summary>
         /// <param name="Index">The index at which to remove a renderable character.</param>
@@ -119,7 +113,7 @@ namespace Gonzo
         {
             if (Index > 0 && m_CurrentLine.Count >= 1)
             {
-                m_CurrentTextPosition.X -= m_Font.MeasureString(m_CurrentLine[Index].Char).X;
+                m_CurrentTextPosition.X -= FontSpacing;
 
                 RenderableCharacter RenderChar = m_CurrentLine[Index];
                 RenderChar.Char = "";
@@ -140,7 +134,7 @@ namespace Gonzo
             {
                 if ((m_CurrentTextPosition.X < m_TextboxSize.X) && Char.Length == 1)
                 {
-                    m_CurrentTextPosition.X += m_Font.MeasureString(Char).X;
+                    m_CurrentTextPosition.X += FontSpacing;
                     RenderableCharacter RenderChar = new RenderableCharacter();
                     RenderChar.Position = m_CurrentTextPosition;
                     RenderChar.Char = Char;
@@ -148,7 +142,10 @@ namespace Gonzo
                     if (m_CurrentLine.Capacity <= Index)
                         m_CurrentLine.Capacity++;
 
-                    m_CurrentLine.Insert(Index, RenderChar);
+                    if (Index < m_CurrentLine.Count)
+                        m_CurrentLine.Insert(Index, RenderChar);
+                    else
+                        m_CurrentLine.Insert(0, RenderChar);
                 }
                 else
                 {
@@ -180,7 +177,7 @@ namespace Gonzo
             else
             {
                 if (m_CurrentTextPosition.X < m_TextboxSize.X)
-                    m_CurrentTextPosition.X += m_Font.MeasureString(Char).X;
+                    m_CurrentTextPosition.X += FontSpacing;
                 else
                     ScrollTextLeft();
 
