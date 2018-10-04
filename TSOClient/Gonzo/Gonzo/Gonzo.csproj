@@ -73,6 +73,7 @@
     <Compile Include="Elements\UIHeadBrowser.cs" />
     <Compile Include="Elements\UISkinBrowser.cs" />
     <Compile Include="Elements\UITextEdit2.cs" />
+    <Compile Include="Elements\UITextEdit3.cs" />
     <Compile Include="GabBufferEnumerator.cs" />
     <Compile Include="GapBuffer.cs" />
     <Compile Include="InputHelper.cs" />
@@ -88,7 +89,6 @@
     <Compile Include="TreeWalker.cs" />
     <Compile Include="UIScreen.cs" />
     <Compile Include="Elements\UISlider.cs" />
-    <Compile Include="Elements\UITextEdit.cs" />
     <Compile Include="VitaboyScreen.cs" />
     <Compile Include="Dialogs\UIDialog.cs" />
     <Compile Include="Dialogs\WillWrightDiag.cs" />

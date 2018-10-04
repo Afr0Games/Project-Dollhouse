@@ -26,7 +26,7 @@ namespace GonzoTest
             m_PersonDescriptionScrollDownBtn2, m_PersonDescriptionScrollDownBtn3, m_CreditsButton;
         private ExitDialog m_ExitDialog;
 
-        private UITextEdit m_PersonDescriptionText1, m_PersonDescriptionText2, m_PersonDescriptionText3;
+        private UITextEdit3 m_PersonDescriptionText1, m_PersonDescriptionText2, m_PersonDescriptionText3;
 
         private UILabel m_CityNameText1, m_CityNameText2, m_CityNameText3, 
             m_HouseNameText1, m_HouseNameText2, m_HouseNameText3;
@@ -154,11 +154,11 @@ namespace GonzoTest
             m_DeleteAvatarButton3 = (UIButton)m_PResult.Elements["\"DeleteAvatarButton3\""];
             m_DeleteAvatarButton3.Visible = m_Avatars.Count == 3 ? true : false;
 
-            m_PersonDescriptionText1 = (UITextEdit)m_PResult.Elements["\"PersonDescriptionText1\""];
+            m_PersonDescriptionText1 = (UITextEdit3)m_PResult.Elements["\"PersonDescriptionText1\""];
             m_PersonDescriptionText1.Visible = m_Avatars.Count >= 1 ? true : false;
-            m_PersonDescriptionText2 = (UITextEdit)m_PResult.Elements["\"PersonDescriptionText2\""];
+            m_PersonDescriptionText2 = (UITextEdit3)m_PResult.Elements["\"PersonDescriptionText2\""];
             m_PersonDescriptionText2.Visible = m_Avatars.Count >= 2 ? true : false;
-            m_PersonDescriptionText3 = (UITextEdit)m_PResult.Elements["\"PersonDescriptionText3\""];
+            m_PersonDescriptionText3 = (UITextEdit3)m_PResult.Elements["\"PersonDescriptionText3\""];
             m_PersonDescriptionText3.Visible = m_Avatars.Count == 3 ? true : false;
 
             m_PersonDescriptionScrollUpBtn1 = (UIButton)m_PResult.Elements["\"PersonDescriptionScrollUpButton1\""];

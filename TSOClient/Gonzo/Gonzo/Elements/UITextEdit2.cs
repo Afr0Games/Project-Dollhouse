@@ -12,10 +12,37 @@ using log4net;
 
 namespace Gonzo.Elements
 {
+    internal class TextCursor
+    {
+        public string Cursor = "|";
+        public Vector2 Position;
+        public bool Visible = false;
+        private int m_LineIndex = 0;    //Which line is the cursor on?
+        public int CharacterIndex = 0;  //Which character is the cursor next to?
+
+        /// <summary>
+        /// Gets or sets this cursor's line index.
+        /// This index will never be set if the value
+        /// causes the index to drop below 0!
+        /// </summary>
+        public int LineIndex
+        {
+            get { return m_LineIndex; }
+            set
+            {
+                int OldValue = m_LineIndex;
+                m_LineIndex = value;
+
+                if (m_LineIndex < 0)
+                    m_LineIndex = OldValue;
+            }
+        }
+    }
+
     public class UITextEdit2 : UIElement, IDisposable
     {
-        private GapBuffer<RenderableText2> m_Lines = new GapBuffer<RenderableText2>();
-        private GapBuffer<string> m_CurrentLine = new GapBuffer<string>();
+        private int m_LineCount = 0; //How many lines of text currently exists in the gap buffer?
+        private GapBuffer<string> m_Text = new GapBuffer<string>();
 
         private TextRenderer m_Renderer;
 
@@ -25,12 +52,13 @@ namespace Gonzo.Elements
         /// <returns>The contents of the GapBuffer containing the current line.</returns>
         private string GetCurrentLine()
         {
-            string Output = "";
+            string[] Lines = Text.Split("\r\n".ToCharArray());
+            int Index = Text.LastIndexOf("\r\n");
 
-            foreach (string Char in m_CurrentLine)
-                Output += Char;
-
-            return Output;
+            if (Index != -1)
+                return Text.Substring(Text.LastIndexOf("\r\n"));
+            else
+                return Text;
         }
 
         public bool Transparent = false;
@@ -106,7 +134,7 @@ namespace Gonzo.Elements
             get
             {
                 if (m_NumLines > 1)
-                    return m_Lines.Count;
+                    return m_LineCount;
                 else
                     return 1;
             }
@@ -141,8 +169,8 @@ namespace Gonzo.Elements
         /// <param name="TextEditSize">The size of this UITextEdit control.</param>
         /// <param name="Screen">A UIScreen instance.</param>
         /// <param name="Tooltip">The tooltip associated with this UITextEdit control (optional).</param>
-        public UITextEdit2(string Name, int ID, bool DrawBackground, int NumLines, 
-            Vector2 TextEditPosition, Vector2 TextEditSize, int Font, UIScreen Screen, 
+        public UITextEdit2(string Name, int ID, bool DrawBackground, int NumLines,
+            Vector2 TextEditPosition, Vector2 TextEditSize, int Font, UIScreen Screen,
             string Tooltip = "") : base(Screen)
         {
             this.Name = Name;
@@ -318,7 +346,7 @@ namespace Gonzo.Elements
                     break;
             }
 
-            m_Renderer = new TextRenderer((m_NumLines > 1) ? true : false, 
+            m_Renderer = new TextRenderer((m_NumLines > 1) ? true : false,
                 Position, Size, m_ScrollFactor, Lineheight, m_Font, TextColor, m_NumLines);
 
             m_Cursor.Position = Position;
@@ -348,23 +376,22 @@ namespace Gonzo.Elements
                             if (m_TextPosition.Y <= Position.Y + ((m_NumLines - 2) * m_Font.LineSpacing))
                             {
                                 m_TextPosition.Y += m_Font.LineSpacing;
+                                m_LineCount++;
 
-                                AddCurrentLine();
+                                m_Text.Add("\r\n");
 
                                 m_Cursor.Position.Y += m_Font.LineSpacing;
                                 m_Cursor.LineIndex++;
-                                m_Cursor.CharacterIndex = 0;
                                 m_Cursor.Position.X = Position.X;
                                 NewLine = true;
                             }
                             else //Text went beyond the borders of the control...
                             {
-                                AddCurrentLine();
-
+                                m_Text.Add("\r\n");
+                                m_LineCount++;
                                 m_ScrollbarHeight -= m_Font.LineSpacing; //TODO: Resize scrollbar...
 
                                 m_Cursor.LineIndex++;
-                                m_Cursor.CharacterIndex = 0;
                                 m_Cursor.Position.X = Position.X;
                                 NewLine = true;
                             }
@@ -387,15 +414,15 @@ namespace Gonzo.Elements
                         //If the cursor is in the middle of a line, replace the character.
                         if (m_Cursor.CharacterIndex < GetCurrentLine().Length)
                         {
-                            m_CurrentLine.RemoveAt(m_Cursor.CharacterIndex);
+                            m_Text.RemoveAt(m_Cursor.CharacterIndex);
                             m_Renderer.RemoveAt(m_Cursor.CharacterIndex);
 
-                            m_CurrentLine.Insert(m_Cursor.CharacterIndex, e.Character.ToString());
+                            m_Text.Insert(m_Cursor.CharacterIndex, e.Character.ToString());
                             m_Renderer.Insert(m_Cursor.CharacterIndex, e.Character.ToString());
                         }
                         else
                         {
-                            m_CurrentLine.Add(e.Character.ToString());
+                            m_Text.Add(e.Character.ToString());
                             m_Renderer.Insert(m_Cursor.CharacterIndex, e.Character.ToString());
                         }
                     }
@@ -404,15 +431,15 @@ namespace Gonzo.Elements
                         //If the cursor is in the middle of a line, replace the character.
                         if (m_Cursor.CharacterIndex < GetCurrentLine().Length)
                         {
-                            m_CurrentLine.RemoveAt(m_Cursor.CharacterIndex);
+                            m_Text.RemoveAt(m_Cursor.CharacterIndex);
                             m_Renderer.RemoveAt(m_Cursor.CharacterIndex);
 
-                            m_CurrentLine.Insert(m_Cursor.CharacterIndex, e.Character.ToString().ToUpper());
+                            m_Text.Insert(m_Cursor.CharacterIndex, e.Character.ToString().ToUpper());
                             m_Renderer.Insert(m_Cursor.CharacterIndex, e.Character.ToString().ToUpper());
                         }
                         else
                         {
-                            m_CurrentLine.Add(e.Character.ToString().ToUpper());
+                            m_Text.Add(e.Character.ToString().ToUpper());
                             m_Renderer.Insert(m_Cursor.CharacterIndex, e.Character.ToString());
                         }
                     }
@@ -450,22 +477,12 @@ namespace Gonzo.Elements
         {
             get
             {
-                if (m_NumLines > 1)
-                {
-                    string InputStr = "";
-                    foreach (RenderableText2 Txt in m_Lines)
-                        InputStr += Txt.Text;
+                string InputStr = "";
 
-                    return InputStr;
-                }
-                else
-                {
-                    string InputStr = "";
-                    foreach (string Txt in m_CurrentLine)
-                        InputStr += Txt;
+                foreach (string Str in m_Text)
+                    InputStr += Str;
 
-                    return InputStr;
-                }
+                return InputStr;
             }
         }
 
@@ -540,14 +557,12 @@ namespace Gonzo.Elements
                                     {
                                         m_TextPosition.X = Position.X;
                                         m_TextPosition.Y += m_Font.LineSpacing;
-                                        m_CurrentLine.Add("\r\n");
-                                        m_Lines.Add(new RenderableText2() { Text = GetCurrentLine(), Position = m_TextPosition });
-                                        m_CurrentLine.Clear();
+                                        m_Text.Add("\r\n");
+                                        m_LineCount++;
 
                                         m_Cursor.Position.X = Position.X;
                                         m_Cursor.Position.Y += m_Font.LineSpacing;
                                         m_Cursor.LineIndex += 1;
-                                        m_Cursor.CharacterIndex = 0;
 
                                         m_MovingCursor = false;
                                         m_RemovingTxt = false;
@@ -593,13 +608,13 @@ namespace Gonzo.Elements
                                         if (m_Cursor.Position.Y >= Position.Y)
                                         {
                                             //Never allow the cursor to go beyond the height of the control!
-                                            if(m_Cursor.Position.Y > Position.Y)
+                                            if (m_Cursor.Position.Y > Position.Y)
                                                 m_Cursor.Position.Y -= m_Font.LineSpacing;
 
-                                            if(m_Cursor.LineIndex > 0)
+                                            if (m_Cursor.LineIndex > 0)
                                                 m_Cursor.LineIndex--;
 
-                                            ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
+                                            //TODO: Decrease Cursor.CharacterIndex by a certain amount...
 
                                             //Part of a line was most likely deleted, so readjust the cursor accordingly.
                                             if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
@@ -621,11 +636,11 @@ namespace Gonzo.Elements
                                     {
                                         if (m_Cursor.Position.Y < (Position.Y + m_Size.Y))
                                         {
-                                            if (m_Lines.Count >= 2)
+                                            if (m_LineCount >= 2)
                                             {
                                                 m_Cursor.Position.Y += m_Font.LineSpacing;
-                                                ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
                                                 m_Cursor.LineIndex++;
+                                                //TODO: Increase Cursor.CharacterIndex by a certain amount.
 
                                                 //Part of a line was most likely deleted, so readjust the cursor accordingly.
                                                 if (m_Cursor.CharacterIndex > GetCurrentLine().Length)
@@ -639,11 +654,8 @@ namespace Gonzo.Elements
                                         if (m_Cursor.Position.Y >= (Position.Y + Size.Y))
                                         {
                                             if (!string.IsNullOrEmpty(GetCurrentLine()))
-                                            {
                                                 //Why does this line fuck up text scrolling??!
                                                 m_Renderer.Insert(m_Cursor.LineIndex, GetCurrentLine());
-                                                AddCurrentLine();
-                                            }
 
                                             ScrollDown();
                                         }
@@ -672,10 +684,10 @@ namespace Gonzo.Elements
 
             if (Visible)
             {
-                Rectangle ScreenRect = new Rectangle(0, 0, SBatch.GraphicsDevice.Viewport.Width, 
+                Rectangle ScreenRect = new Rectangle(0, 0, SBatch.GraphicsDevice.Viewport.Width,
                     SBatch.GraphicsDevice.Viewport.Height);
 
-                SBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)Position.X, (int)Position.Y, 
+                SBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)Position.X, (int)Position.Y,
                     (int)Size.X, (int)Size.Y);
 
                 if (m_DrawBackground)
@@ -743,44 +755,49 @@ namespace Gonzo.Elements
             //If the current line is empty, move the cursor up.
             /*if (m_Lines.Count > 0)
             {*/
-                if (GetCurrentLine().Length == 0)
+            if (GetCurrentLine().Length == 0)
+            {
+                if (m_NumLines > 1)
                 {
-                    if (m_NumLines > 1)
+                    if (m_TextPosition.Y > Position.Y)
                     {
-                        if (m_TextPosition.Y > Position.Y)
-                        {
-                            m_TextPosition.Y -= m_Font.LineSpacing;
+                        m_TextPosition.Y -= m_Font.LineSpacing;
 
-                            m_Cursor.Position.X = Position.X + m_Size.X;
-                            m_Cursor.Position.Y -= m_Font.LineSpacing;
-                        }
-
-                        if (m_Cursor.LineIndex > 0)
-                        {
-                            m_Cursor.LineIndex--;
-                            ReplaceCurrentLine(m_Lines[m_Cursor.LineIndex].Text);
-                            m_Cursor.CharacterIndex = m_Lines[m_Cursor.LineIndex].Text.Length;
-                        }
+                        m_Cursor.Position.X = Position.X + m_Size.X;
+                        m_Cursor.Position.Y -= m_Font.LineSpacing;
                     }
-                }
-                else
-                {
-                    if (m_Cursor.CharacterIndex > 0)
+
+                    if (m_Cursor.LineIndex > 0)
                     {
-                        if (m_NumLines == 1)
-                        {
-                            if (m_CurrentLine.Count >= 2)
-                                MoveCursorLeft();
-                        }
+                        m_Cursor.LineIndex--;
+
+                        string[] Lines = Text.Split("\r\n".ToCharArray());
+
+                        if (Lines.Length > 1)
+                            m_Cursor.CharacterIndex = Lines[m_Cursor.LineIndex].Length;
                         else
-                            MoveCursorLeft();
-
-                        m_CurrentLine[m_Cursor.CharacterIndex - 1] = "";
-                        m_Renderer.RemoveAt(m_Cursor.CharacterIndex - 1);
-                        m_Renderer.ScrollTextLeft(m_Cursor.CharacterIndex);
-                        m_Cursor.CharacterIndex--;
+                            m_Cursor.CharacterIndex = Lines[0].Length;
                     }
                 }
+            }
+            else
+            {
+                if (m_Cursor.CharacterIndex > 0)
+                {
+                    if (m_NumLines == 1)
+                    {
+                        if (CurrentLine().Length >= 2)
+                            MoveCursorLeft();
+                    }
+                    else
+                        MoveCursorLeft();
+
+                    m_Text[m_Cursor.CharacterIndex - 1] = "";
+                    m_Renderer.RemoveAt(m_Cursor.CharacterIndex - 1);
+                    m_Renderer.ScrollTextLeft(m_Cursor.CharacterIndex);
+                    m_Cursor.CharacterIndex--;
+                }
+            }
             //}
 
             //Cursor moved to the beginning of a line.
@@ -797,9 +814,19 @@ namespace Gonzo.Elements
                 if (m_Cursor.LineIndex > 0)
                 {
                     m_Cursor.LineIndex--;
-                    m_Cursor.CharacterIndex = m_CurrentLine[m_Cursor.LineIndex].ToString().Length;
+                    m_Cursor.CharacterIndex--;
                 }
             }
+        }
+
+        private string CurrentLine()
+        {
+            string[] Lines = Text.Split("\r\n".ToCharArray());
+
+            if (Lines.Length > 1)
+                return Lines[m_Cursor.LineIndex - 1];
+            else
+                return Lines[0];
         }
 
         /// <summary>
@@ -807,36 +834,10 @@ namespace Gonzo.Elements
         /// </summary>
         private void MoveCursorLeft()
         {
-            if(m_Cursor.Position.X > Position.X)
-                m_Cursor.Position.X -= m_Font.MeasureString(m_CurrentLine[m_Cursor.CharacterIndex - 1].ToString()).X;
-        }
-
-        /// <summary>
-        /// Adds the current line of text (m_CurrentLine) to
-        /// the existing lines of text (m_Lines), and clears
-        /// the contents of the current line.
-        /// </summary>
-        private void AddCurrentLine()
-        {
-            RenderableText2 RenderTxt = new RenderableText2();
-            RenderTxt.Position = m_TextPosition;
-            RenderTxt.Text = GetCurrentLine();
-            m_Lines.Add(RenderTxt);
-            m_CurrentLine.Clear();
-        }
-
-        /// <summary>
-        /// Replaces the contents of m_CurrentLine with the specified text.
-        /// Called when the cursor is moved up or down to a different line 
-        /// of text.
-        /// </summary>
-        /// <param name="Text">The text with which to replace the current line.</param>
-        private void ReplaceCurrentLine(string Text)
-        {
-            m_CurrentLine.Clear();
-
-            for(int i = 0; i < Text.Length; i++)
-                m_CurrentLine.Add(Text[i].ToString());
+            if (m_Cursor.Position.X > Position.X)
+            {
+                 m_Cursor.Position.X -= m_Font.MeasureString(CurrentLine()).X;
+            }
         }
 
         /// <summary>

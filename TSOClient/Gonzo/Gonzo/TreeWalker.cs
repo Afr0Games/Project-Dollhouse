@@ -102,7 +102,7 @@ namespace Gonzo
                     break;
                 case NodeType.AddTextEdit:
                     AddTextEditNode TextEditNode = (AddTextEditNode)UINode.GetNode(node);
-                    UITextEdit2 Txt = new UITextEdit2(TextEditNode, State, m_Screen);
+                    UITextEdit3 Txt = new UITextEdit3(TextEditNode, State, m_Screen);
                     Result.Elements.Add(TextEditNode.Name, Txt);
                     break;
                 case NodeType.AddSlider:
