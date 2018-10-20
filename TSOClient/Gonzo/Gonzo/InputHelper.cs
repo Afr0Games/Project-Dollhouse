@@ -261,6 +261,7 @@ namespace Gonzo
                 return Vector2.Transform(new Vector2(_currentMouseState.X, _currentMouseState.Y) - virtualViewPort, Matrix.Invert(Resolution.getTransformationMatrix()));
             }
         }
+
         /// <summary>
         /// the current mouse velocity.
         /// Expressed as: 

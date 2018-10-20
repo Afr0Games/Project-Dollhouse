@@ -9,10 +9,6 @@
 ////THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -21,11 +17,6 @@ namespace Gonzo
     public static class Resolution
     {
         static private GraphicsDeviceManager _Device = null;
-
-        //From: http://www.discussiongenerator.com/2012/09/15/resolution-independent-2d-rendering-in-xna-4/
-        static private int virtualViewportX;
-        static private int virtualViewportY;
-
         static private int _Width = 800;
         static private int _Height = 600;
         static private int _VWidth = 1024;
@@ -34,8 +25,8 @@ namespace Gonzo
         static private bool _FullScreen = false;
         static private bool _dirtyMatrix = true;
 
-        public static int VirtualViewportX { get { return virtualViewportX; } }
-        public static int VirtualViewportY { get { return virtualViewportY; } }
+        public static int VirtualViewportX { get; private set; }
+        public static int VirtualViewportY { get; private set; }
 
         static public void Init(ref GraphicsDeviceManager device)
         {
@@ -45,7 +36,6 @@ namespace Gonzo
             _dirtyMatrix = true;
             ApplyResolutionSettings();
         }
-
 
         static public Matrix getTransformationMatrix()
         {
@@ -145,7 +135,6 @@ namespace Gonzo
                            1f);
         }
 
-
         static public void FullViewport()
         {
             Viewport vp = new Viewport();
@@ -190,8 +179,8 @@ namespace Gonzo
             viewport.MinDepth = 0;
             viewport.MaxDepth = 1;
 
-            virtualViewportX = viewport.X;
-            virtualViewportY = viewport.Y;
+            VirtualViewportX = viewport.X;
+            VirtualViewportY = viewport.Y;
 
             if (changed)
             {

@@ -69,10 +69,9 @@ namespace Gonzo.Elements
         private List<Rectangle> m_HitBoxes = new List<Rectangle>();
         private bool m_UpdateCharPositions = true;
 
-        private const int NUM_CHARS_IN_LINE = 20;
+        private const int NUM_CHARS_IN_LINE = 30;
         private Timer m_CursorVisibilityTimer = new Timer();
         private Cursor m_Cursor = new Cursor();
-        private InputHelper m_Input = new InputHelper();
         private int m_NumLinesInText = 1;
 
         private Texture2D m_ScrollbarImage;
@@ -116,7 +115,8 @@ namespace Gonzo.Elements
             m_NeedsClipping = true; //This control needs to clip all the text rendered outside of it!
 
             Position = TextEditPosition;
-            m_Size = Size;
+            m_TextPosition = Position;
+            m_Size = Size * Resolution.getVirtualAspectRatio();
             TextColor = m_Screen.StandardTxtColor;
 
             switch (Font)
@@ -187,8 +187,8 @@ namespace Gonzo.Elements
                 else
                 {
                     m_Size = new Vector2();
-                    m_Size.X = Node.Size.Numbers[0];
-                    m_Size.Y = Node.Size.Numbers[1];
+                    m_Size.X = Node.Size.Numbers[0] * Resolution.getVirtualAspectRatio();
+                    m_Size.Y = Node.Size.Numbers[1] * Resolution.getVirtualAspectRatio();
                 }
 
                 if (Node.Tooltip != "")
@@ -419,13 +419,13 @@ namespace Gonzo.Elements
 
         private void ScrollLeft()
         {
-            if (m_TextPosition.X > Position.X)
-                m_TextPosition.Y -= m_Font.LineSpacing;
+            if ((m_TextPosition.X + TextSize().X) >= (Position.X + Size.X))
+                m_TextPosition.X -= m_Font.LineSpacing;
         }
 
         private void ScrollRight()
         {
-            if ((m_TextPosition.X + TextSize().X) < (Position.X + Size.X))
+            if (m_TextPosition.X > Position.X)
                 m_TextPosition.X += m_Font.LineSpacing;
         }
 
@@ -554,21 +554,29 @@ namespace Gonzo.Elements
                     int Index = TextWithLBreaks.LastIndexOf("\n", m_Cursor.CharacterIndex);
                     if (Index == -1) //No occurence was found!!
                     {
-                        if (Text.Length <= NUM_CHARS_IN_LINE)
+                        if (m_MultiLine)
                         {
-                            AddText((m_CapitalLetters == true) ? e.Character.ToString().ToUpper() :
-                                e.Character.ToString());
-                            m_CapitalLetters = false;
-                            m_UpdateCharPositions = true;
-                            return;
-                        }
-                        else
-                        {
-                            if (m_MultiLine)
+                            if (Text.Length <= NUM_CHARS_IN_LINE)
+                            {
+                                AddText((m_CapitalLetters == true) ? e.Character.ToString().ToUpper() :
+                                    e.Character.ToString());
+                                m_CapitalLetters = false;
+                                m_UpdateCharPositions = true;
+                                return;
+                            }
+                            else
                             {
                                 AddNewline();
                                 return;
                             }
+                        }
+                        else
+                        {
+                            AddText((m_CapitalLetters == true) ? e.Character.ToString().ToUpper() : 
+                                e.Character.ToString());
+                            m_CapitalLetters = false;
+                            m_UpdateCharPositions = true;
+                            return;
                         }
                     }
 
@@ -593,7 +601,8 @@ namespace Gonzo.Elements
                     }
                     else
                     {
-                        AddNewline();
+                        if (m_MultiLine)
+                            AddNewline();
                     }
                 }
             }
@@ -607,7 +616,12 @@ namespace Gonzo.Elements
         {
             m_Text.Add(Text);
             m_Cursor.CharacterIndex++;
-            m_Cursor.Position.X += CharacterWidth;
+
+            if((Position.X + m_Cursor.Position.X) < (Position.X + Size.X))
+                m_Cursor.Position.X += CharacterWidth;
+
+            if (!m_MultiLine)
+                ScrollLeft();
         }
 
         //Can the cursor move further down or has it reached the end of the textbox?
@@ -629,6 +643,7 @@ namespace Gonzo.Elements
             {
                 m_TextPosition.Y -= CapitalCharacterHeight;
                 m_CanMoveCursorDown = false;
+                m_UpdateCharPositions = true;
             }
 
             if (m_CanMoveCursorDown)
@@ -768,12 +783,17 @@ namespace Gonzo.Elements
         {
             float Width = 0.0f, Height = 0.0f;
 
-            foreach (string Str in TextWithLBreaks.Split("\n".ToCharArray()))
+            if (m_MultiLine)
             {
-                Vector2 Size = m_Font.MeasureString(Str);
-                Width = Size.X;
-                Height += Size.Y;
+                foreach (string Str in TextWithLBreaks.Split("\n".ToCharArray()))
+                {
+                    Vector2 Size = m_Font.MeasureString(Str) * Resolution.getVirtualAspectRatio();
+                    Width = Size.X;
+                    Height += Size.Y;
+                }
             }
+            else
+                return m_Font.MeasureString(Text) * Resolution.getVirtualAspectRatio();
 
             return new Vector2(Width, Height);
         }
@@ -796,7 +816,7 @@ namespace Gonzo.Elements
                     for (int i = 0; i < m_CharacterPositions.Count; i++)
                     {
                         //Make sure it doesn't go out of bounds...
-                        Height = (int)m_Font.MeasureString(m_Text[i < m_Text.Count ? i : m_Text.Count - 1]).Y;
+                        Height = (int)(m_Font.MeasureString(m_Text[i < m_Text.Count ? i : m_Text.Count - 1]).Y);
 
                         //Create a hitbox for each character if the character isn't the last one.
                         if (i != m_CharacterPositions.Count - 1)
@@ -819,7 +839,7 @@ namespace Gonzo.Elements
         private void UpdateCharacterPositions()
         {
             Vector2 Position = this.Position;
-            float XPosition = 0, YPosition = 0;
+            float XPosition = 0;
             if (m_UpdateCharPositions)
             {
                 m_CharacterPositions.Clear();
@@ -832,15 +852,15 @@ namespace Gonzo.Elements
 
                     for (int i = 0; i < Str.Length; i++)
                     {
-                        float CharWidth = m_Font.MeasureString(Str.Substring(i, 1)).X;
+                        float CharWidth = m_Font.MeasureString(Str.Substring(i, 1)).X * Resolution.getVirtualAspectRatio();
                         XPosition += CharWidth;
 
-                        m_CharacterPositions.Add(CharIndex, new Vector2(XPosition + Position.X, Position.Y + Position.Y));
+                        m_CharacterPositions.Add(CharIndex, new Vector2(XPosition + this.Position.X, Position.Y + 
+                            (m_TextPosition.Y - this.Position.Y))); //Remove the component's position so the text starts out at 0.
                         CharIndex++;
                     }
 
-                    YPosition += CapitalCharacterHeight;
-                    Position.Y = YPosition;
+                    Position.Y += CapitalCharacterHeight * Resolution.getVirtualAspectRatio();
                 }
 
                 ///This shouldn't be set here, because it is set in UpdateHitboxes();
@@ -850,18 +870,15 @@ namespace Gonzo.Elements
 
         public override void Update(InputHelper Input, GameTime GTime)
         {
-            base.Update(Input, GTime);
+            UpdateCharacterPositions();
+            UpdateHitboxes();
 
             if (m_HasFocus)
             {
-                m_Input.Update();
-                UpdateCharacterPositions();
-                UpdateHitboxes();
-
                 foreach (Rectangle Hitbox in m_HitBoxes)
                 {
-                    if (Hitbox.Contains(new Vector2(m_Input.MousePosition.X, m_Input.MousePosition.Y)) &&
-                        m_Input.IsNewPress(MouseButtons.LeftButton))
+                    if (Hitbox.Contains(new Vector2(Input.MousePosition.X, Input.MousePosition.Y)) &&
+                        (Input.IsNewPress(MouseButtons.LeftButton) || Input.IsOldPress(MouseButtons.LeftButton)))
                     {
                         m_Cursor.Position = new Vector2(Hitbox.X, Hitbox.Y);
 
@@ -873,18 +890,18 @@ namespace Gonzo.Elements
 
                 foreach (Keys Key in (Keys[])Enum.GetValues(typeof(Keys)))
                 {
-                    if (m_Input.IsNewPress(Key))
+                    if (Input.IsNewPress(Key))
                     {
                         m_DownSince = DateTime.Now;
                         m_RepChar = Key;
                     }
-                    else if (m_Input.IsOldPress(Key))
+                    else if (Input.IsOldPress(Key))
                     {
                         if (m_RepChar == Key)
                             m_RepChar = null;
                     }
 
-                    if (m_RepChar != null && m_RepChar == Key && m_Input.CurrentKeyboardState.IsKeyDown(Key))
+                    if (m_RepChar != null && m_RepChar == Key && Input.CurrentKeyboardState.IsKeyDown(Key))
                     {
                         DateTime Now = DateTime.Now;
                         TimeSpan DownFor = Now.Subtract(m_DownSince);
@@ -899,7 +916,7 @@ namespace Gonzo.Elements
                     }
                 }
 
-                Keys[] PressedKeys = m_Input.CurrentKeyboardState.GetPressedKeys();
+                Keys[] PressedKeys = Input.CurrentKeyboardState.GetPressedKeys();
 
                 //Are these keys being held down since the last update?
                 if (m_RepChar == Keys.Back && m_LastRep == DateTime.Now)
@@ -917,7 +934,7 @@ namespace Gonzo.Elements
 
                 foreach (Keys K in PressedKeys)
                 {
-                    if (m_Input.IsNewPress(K))
+                    if (Input.IsNewPress(K))
                     {
                         switch (K)
                         {
@@ -960,6 +977,8 @@ namespace Gonzo.Elements
                     }
                 }
             }
+
+            base.Update(Input, GTime);
         }
 
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
@@ -1003,11 +1022,16 @@ namespace Gonzo.Elements
                     SBatch.DrawString(m_Font, m_Cursor.Symbol, m_Cursor.Position, Color.White);
             }
 
-            foreach (string Str in TextWithLBreaks.Split("\n".ToCharArray()))
+            if (m_MultiLine)
             {
-                SBatch.DrawString(m_Font, Str, Position, TextColor);
-                Position.Y += CapitalCharacterHeight;
+                foreach (string Str in TextWithLBreaks.Split("\n".ToCharArray()))
+                {
+                    SBatch.DrawString(m_Font, Str, Position, TextColor);
+                    Position.Y += CapitalCharacterHeight;
+                }
             }
+            else
+                SBatch.DrawString(m_Font, Text, Position, TextColor);
         }
 
         ~UITextEdit3()
