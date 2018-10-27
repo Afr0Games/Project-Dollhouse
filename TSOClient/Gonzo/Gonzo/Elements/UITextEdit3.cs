@@ -187,8 +187,8 @@ namespace Gonzo.Elements
                 else
                 {
                     m_Size = new Vector2();
-                    m_Size.X = Node.Size.Numbers[0] * Resolution.getVirtualAspectRatio();
-                    m_Size.Y = Node.Size.Numbers[1] * Resolution.getVirtualAspectRatio();
+                    m_Size.X = Node.Size.Numbers[0];
+                    m_Size.Y = Node.Size.Numbers[1];
                 }
 
                 if (Node.Tooltip != "")
@@ -419,14 +419,35 @@ namespace Gonzo.Elements
 
         private void ScrollLeft()
         {
-            if ((m_TextPosition.X + TextSize().X) >= (Position.X + Size.X))
-                m_TextPosition.X -= m_Font.LineSpacing;
+            if(m_TextPosition.X < Position.X)
+            {
+                float Diff = (Position.X - m_TextPosition.X);
+                if ((TextSize().X - Diff) >= (Position.X + Size.X))
+                    m_TextPosition.X -= m_Font.LineSpacing;
+            }
+            else
+            {
+                if (TextSize().X > (Position.X + Size.X))
+                    m_TextPosition.X -= m_Font.LineSpacing;
+            }
         }
 
         private void ScrollRight()
         {
-            if (m_TextPosition.X > Position.X)
-                m_TextPosition.X += m_Font.LineSpacing;
+            if (m_TextPosition.X < Position.X)
+            {
+                float Diff = (m_TextPosition.X - Size.X);
+                if ((TextSize().X - Diff) >= (Position.X + Size.X))
+                    m_TextPosition.X += m_Font.LineSpacing;
+            }
+            else
+            {
+                if (TextSize().X > (Position.X + Size.X))
+                {
+                    if(m_TextPosition.X < Position.X)
+                        m_TextPosition.X += m_Font.LineSpacing;
+                }
+            }
         }
 
         /// <summary>
@@ -693,19 +714,34 @@ namespace Gonzo.Elements
         /// </summary>
         private void MoveCursorLeft()
         {
-            if (m_Cursor.Position.X > Position.X)
+            if (m_MultiLine)
             {
-                m_Cursor.CharacterIndex -= (((NUM_CHARS_IN_LINE + 1) -
-                    GetLine(m_Cursor.LineIndex).Length) + GetLine(m_Cursor.LineIndex).Length);
+                if (m_Cursor.Position.X > Position.X)
+                {
+                    m_Cursor.CharacterIndex -= (((NUM_CHARS_IN_LINE + 1) -
+                        GetLine(m_Cursor.LineIndex).Length) + GetLine(m_Cursor.LineIndex).Length);
 
-                m_Cursor.Position.X -= CapitalCharacterHeight;
+                    m_Cursor.Position.X -= CharacterWidth;
+                }
+
+                //Scroll the text right if the cursor is at the beginning of the control.
+                if (m_Cursor.Position.X == Position.X)
+                {
+                    if (m_TextPosition.X > Position.X)
+                        m_TextPosition.X -= m_Font.LineSpacing;
+                }
             }
-
-            //Scroll the text right if the cursor is at the beginning of the control.
-            if (m_Cursor.Position.X == Position.X)
+            else
             {
-                if (m_TextPosition.X > Position.X)
-                    m_TextPosition.X -= m_Font.LineSpacing;
+                if (m_Cursor.Position.X > Position.X)
+                {
+                    m_Cursor.CharacterIndex -= 1;
+
+                    m_Cursor.Position.X -= CharacterWidth;
+                }
+
+                if (m_Cursor.Position.X == Position.X)
+                    ScrollRight();
             }
         }
 
@@ -715,19 +751,34 @@ namespace Gonzo.Elements
         /// </summary>
         private void MoveCursorRight()
         {
-            if (m_Cursor.Position.X < (Position.X + Size.X))
+            if (m_MultiLine)
             {
-                m_Cursor.CharacterIndex += (((NUM_CHARS_IN_LINE + 1) -
-                    GetLine(m_Cursor.LineIndex).Length) + GetLine(m_Cursor.LineIndex).Length);
+                if (m_Cursor.Position.X < (Position.X + Size.X))
+                {
+                    m_Cursor.CharacterIndex += (((NUM_CHARS_IN_LINE + 1) -
+                        GetLine(m_Cursor.LineIndex).Length) + GetLine(m_Cursor.LineIndex).Length);
 
-                m_Cursor.Position.X += CapitalCharacterHeight;
+                    m_Cursor.Position.X += CharacterWidth;
+                }
+
+                //Scroll the text right if the cursor is at the beginning of the control.
+                if (m_Cursor.Position.X == Position.X)
+                {
+                    if (m_TextPosition.X < Position.X)
+                        m_TextPosition.X += m_Font.LineSpacing;
+                }
             }
-
-            //Scroll the text right if the cursor is at the beginning of the control.
-            if (m_Cursor.Position.X == Position.X)
+            else
             {
-                if (m_TextPosition.X < Position.X)
-                    m_TextPosition.X += m_Font.LineSpacing;
+                if (m_Cursor.Position.X < (Position.X + Size.X))
+                {
+                    m_Cursor.CharacterIndex += 1;
+
+                    m_Cursor.Position.X += CharacterWidth;
+                }
+
+                if (m_Cursor.Position.X >= (Position.X + Size.X))
+                    ScrollLeft();
             }
         }
 
@@ -787,13 +838,13 @@ namespace Gonzo.Elements
             {
                 foreach (string Str in TextWithLBreaks.Split("\n".ToCharArray()))
                 {
-                    Vector2 Size = m_Font.MeasureString(Str) * Resolution.getVirtualAspectRatio();
+                    Vector2 Size = m_Font.MeasureString(Str);
                     Width = Size.X;
                     Height += Size.Y;
                 }
             }
             else
-                return m_Font.MeasureString(Text) * Resolution.getVirtualAspectRatio();
+                return m_Font.MeasureString(Text);
 
             return new Vector2(Width, Height);
         }
@@ -953,12 +1004,10 @@ namespace Gonzo.Elements
                                 }
                                 break;
                             case Keys.Left:
-                                if (!m_MultiLine)
-                                    MoveCursorLeft();
+                                MoveCursorLeft();
                                 break;
                             case Keys.Right:
-                                if (m_MultiLine)
-                                    MoveCursorRight();
+                                MoveCursorRight();
                                 break;
                             case Keys.Back:
                                 if (m_RepChar != Keys.Back || m_LastRep != DateTime.Now)
@@ -1011,8 +1060,9 @@ namespace Gonzo.Elements
                 SBatch.Draw(m_ScrollbarImage, new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f,
                     new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight), SpriteEffects.None, Depth);
 
+            //Cut off the width of the scissor to make it look better.
             SBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)this.Position.X,
-                (int)this.Position.Y, (int)Size.X, (int)Size.Y);
+                (int)this.Position.Y, (int)(Size.X - m_Font.LineSpacing), (int)Size.Y);
 
             Vector2 Position = m_TextPosition;
 
