@@ -903,7 +903,7 @@ namespace Gonzo.Elements
 
                     for (int i = 0; i < Str.Length; i++)
                     {
-                        float CharWidth = m_Font.MeasureString(Str.Substring(i, 1)).X * Resolution.getVirtualAspectRatio();
+                        float CharWidth = m_Font.MeasureString(Str.Substring(i, 1)).X;
                         XPosition += CharWidth;
 
                         m_CharacterPositions.Add(CharIndex, new Vector2(XPosition + this.Position.X, Position.Y + 
@@ -911,7 +911,7 @@ namespace Gonzo.Elements
                         CharIndex++;
                     }
 
-                    Position.Y += CapitalCharacterHeight * Resolution.getVirtualAspectRatio();
+                    Position.Y += CapitalCharacterHeight;
                 }
 
                 ///This shouldn't be set here, because it is set in UpdateHitboxes();
