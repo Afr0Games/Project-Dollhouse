@@ -82,6 +82,7 @@ namespace Gonzo.Elements
 
         private bool m_MultiLine = true;
         private bool m_CapitalLetters = false;
+        private bool m_HasCursorMoved = false; //Has the cursor been moved by clicking the mouse?
 
         //For how long has a key been presseed?
         private DateTime m_DownSince = DateTime.Now;
@@ -679,7 +680,12 @@ namespace Gonzo.Elements
         private void RemoveText()
         {
             FixCursorIndex();
-            FixCursorPosition();
+
+            if (!m_HasCursorMoved)
+                //This screws up positioning when called after the cursor has been moved by the mouse.
+                FixCursorPosition(); 
+            else
+                m_HasCursorMoved = false;
 
             if (m_Cursor.Position.X > Position.X)
             {
@@ -891,6 +897,7 @@ namespace Gonzo.Elements
         {
             Vector2 Position = this.Position;
             float XPosition = 0;
+
             if (m_UpdateCharPositions)
             {
                 m_CharacterPositions.Clear();
@@ -935,7 +942,10 @@ namespace Gonzo.Elements
 
                         int CharIndex = m_CharacterPositions.FirstOrDefault(x => x.Value == m_Cursor.Position).Key;
                         if (CharIndex != -1)
+                        {
                             m_Cursor.CharacterIndex = CharIndex;
+                            m_HasCursorMoved = true;
+                        }
                     }
                 }
 
