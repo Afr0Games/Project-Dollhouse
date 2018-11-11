@@ -610,6 +610,17 @@ namespace Gonzo.Elements
                             //... insert it at the cursor's position.
                             m_Text.Insert(m_Cursor.CharacterIndex, (m_CapitalLetters == true) ? e.Character.ToString().ToUpper() :
                                 e.Character.ToString());
+                            m_Cursor.CharacterIndex++;
+                            if ((Position.X + m_Cursor.Position.X) < (Position.X + Size.X))
+                                m_Cursor.Position.X += CharacterWidth;
+
+                            //Insert a newline if there's no space for additional characters on this line.
+                            if (GetLine(m_Cursor.LineIndex).Length >= NUM_CHARS_IN_LINE && 
+                                m_Text[m_Cursor.CharacterIndex + 1] != "\n")
+                                m_Text.Insert(m_Cursor.CharacterIndex, "\n");
+                            else if(m_Text[m_Cursor.CharacterIndex + 1] == "\n")
+                                AddNewline();
+
                             m_CapitalLetters = false;
                             m_UpdateCharPositions = true;
                         }
@@ -880,6 +891,7 @@ namespace Gonzo.Elements
                         {
                             Rectangle Hitbox = new Rectangle((int)m_CharacterPositions[i].X, (int)m_CharacterPositions[i].Y,
                                 (int)(m_CharacterPositions[i + 1].X - m_CharacterPositions[i].X), Height);
+
                             m_HitBoxes.Add(Hitbox);
                         }
                     }
@@ -941,6 +953,24 @@ namespace Gonzo.Elements
                         m_Cursor.Position = new Vector2(Hitbox.X, Hitbox.Y);
 
                         int CharIndex = m_CharacterPositions.FirstOrDefault(x => x.Value == m_Cursor.Position).Key;
+
+                        if (m_MultiLine)
+                        {
+                            //Find the correct line index for the cursor.
+                            if (CharIndex < m_Cursor.CharacterIndex)
+                            {
+                                string SelectedText = TextWithLBreaks.Substring(CharIndex, (m_Cursor.CharacterIndex - CharIndex));
+                                int NumLines = SelectedText.Count(f => f == '\n');
+                                m_Cursor.LineIndex -= NumLines;
+                            }
+                            else
+                            {
+                                string SelectedText = TextWithLBreaks.Substring(m_Cursor.CharacterIndex, (CharIndex - m_Cursor.CharacterIndex));
+                                int NumLines = SelectedText.Count(f => f == '\n');
+                                m_Cursor.LineIndex += NumLines;
+                            }
+                        }
+
                         if (CharIndex != -1)
                         {
                             m_Cursor.CharacterIndex = CharIndex;
