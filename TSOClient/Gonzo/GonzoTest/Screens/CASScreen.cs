@@ -34,7 +34,7 @@ namespace GonzoTest
         private UIHeadBrowser m_HeadSkinBrowser;
         private UIBodyBrowser m_BodySkinBrowser;
         private ExitDialog m_ExitDialog;
-        private UITextEdit3 m_DescriptionTextEdit;
+        private UITextEdit m_DescriptionTextEdit;
 
         private Sim m_Avatar;
         VitaboyScreen m_VitaboyScreen;
@@ -97,7 +97,7 @@ namespace GonzoTest
                 GlobalSettings.Default.StartupPath + "gamedata\\uiscripts\\exitdialog.uis");
             m_ExitDialog.Visible = false;
 
-            m_DescriptionTextEdit = (UITextEdit3)m_PResult.Elements["\"DescriptionTextEdit\""];
+            m_DescriptionTextEdit = (UITextEdit)m_PResult.Elements["\"DescriptionTextEdit\""];
 
             HitVM.PlayEvent("bkground_createasim");
 

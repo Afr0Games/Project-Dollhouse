@@ -66,14 +66,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CaretSeparatedText.cs" />
-    <Compile Include="Elements\TextRenderer.cs" />
     <Compile Include="CollectionDebugView.cs" />
     <Compile Include="Dialogs\LoginDialog.cs" />
     <Compile Include="Elements\UIBodyBrowser.cs" />
     <Compile Include="Elements\UIHeadBrowser.cs" />
     <Compile Include="Elements\UISkinBrowser.cs" />
-    <Compile Include="Elements\UITextEdit2.cs" />
-    <Compile Include="Elements\UITextEdit3.cs" />
+    <Compile Include="Elements\UITextEdit.cs" />
     <Compile Include="GabBufferEnumerator.cs" />
     <Compile Include="GapBuffer.cs" />
     <Compile Include="InputHelper.cs" />

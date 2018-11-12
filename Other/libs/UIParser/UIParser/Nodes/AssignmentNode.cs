@@ -295,7 +295,7 @@ namespace UIParser.Nodes
                     TypeOfAssignment = AssignmentType.BackgroundColorAssignment;
                     Value = (ArrayListNode)nodes[2].ChildNodes[1].AstNode;
                     break;
-                case "framecolor":
+                case "frameColor":
                     TypeOfAssignment = AssignmentType.FrameColorAssignment;
                     Value = (ArrayListNode)nodes[2].ChildNodes[1].AstNode;
                     break;

@@ -102,7 +102,7 @@ namespace Gonzo
                     break;
                 case NodeType.AddTextEdit:
                     AddTextEditNode TextEditNode = (AddTextEditNode)UINode.GetNode(node);
-                    UITextEdit3 Txt = new UITextEdit3(TextEditNode, State, m_Screen);
+                    UITextEdit Txt = new UITextEdit(TextEditNode, State, m_Screen);
                     Result.Elements.Add(TextEditNode.Name, Txt);
                     break;
                 case NodeType.AddSlider:
@@ -126,58 +126,82 @@ namespace Gonzo
 
                     if (SharedPropsNode.Color != null)
                     {
-                        State.Color = new Color();
-                        State.Color.R = (byte)SharedPropsNode.Color.Numbers[0];
-                        State.Color.G = (byte)SharedPropsNode.Color.Numbers[1];
-                        State.Color.B = (byte)SharedPropsNode.Color.Numbers[2];
+                        State.Color = new Color
+                        {
+                            R = (byte)SharedPropsNode.Color.Numbers[0],
+                            G = (byte)SharedPropsNode.Color.Numbers[1],
+                            B = (byte)SharedPropsNode.Color.Numbers[2]
+                        };
                     }
 
                     if (SharedPropsNode.TextColor != null)
                     {
-                        State.TextColor = new Color();
-                        State.TextColor.R = (byte)SharedPropsNode.TextColor.Numbers[0];
-                        State.TextColor.G = (byte)SharedPropsNode.TextColor.Numbers[1];
-                        State.TextColor.B = (byte)SharedPropsNode.TextColor.Numbers[2];
+                        State.TextColor = new Color
+                        {
+                            R = (byte)SharedPropsNode.TextColor.Numbers[0],
+                            G = (byte)SharedPropsNode.TextColor.Numbers[1],
+                            B = (byte)SharedPropsNode.TextColor.Numbers[2]
+                        };
                     }
 
                     if (SharedPropsNode.TextColorSelected != null)
                     {
-                        State.TextColorSelected = new Color();
-                        State.TextColorSelected.R = (byte)SharedPropsNode.TextColorSelected.Numbers[0];
-                        State.TextColorSelected.G = (byte)SharedPropsNode.TextColorSelected.Numbers[1];
-                        State.TextColorSelected.B = (byte)SharedPropsNode.TextColorSelected.Numbers[2];
+                        State.TextColorSelected = new Color
+                        {
+                            R = (byte)SharedPropsNode.TextColorSelected.Numbers[0],
+                            G = (byte)SharedPropsNode.TextColorSelected.Numbers[1],
+                            B = (byte)SharedPropsNode.TextColorSelected.Numbers[2]
+                        };
                     }
 
                     if (SharedPropsNode.TextColorHighlighted != null)
                     {
-                        State.TextColorHighlighted = new Color();
-                        State.TextColorHighlighted.R = (byte)SharedPropsNode.TextColorHighlighted.Numbers[0];
-                        State.TextColorHighlighted.G = (byte)SharedPropsNode.TextColorHighlighted.Numbers[1];
-                        State.TextColorHighlighted.B = (byte)SharedPropsNode.TextColorHighlighted.Numbers[2];
+                        State.TextColorHighlighted = new Color
+                        {
+                            R = (byte)SharedPropsNode.TextColorHighlighted.Numbers[0],
+                            G = (byte)SharedPropsNode.TextColorHighlighted.Numbers[1],
+                            B = (byte)SharedPropsNode.TextColorHighlighted.Numbers[2]
+                        };
                     }
 
                     if (SharedPropsNode.TextColorDisabled != null)
                     {
-                        State.TextColorDisabled = new Color();
-                        State.TextColorDisabled.R = (byte)SharedPropsNode.TextColorDisabled.Numbers[0];
-                        State.TextColorDisabled.G = (byte)SharedPropsNode.TextColorDisabled.Numbers[1];
-                        State.TextColorDisabled.B = (byte)SharedPropsNode.TextColorDisabled.Numbers[2];
+                        State.TextColorDisabled = new Color
+                        {
+                            R = (byte)SharedPropsNode.TextColorDisabled.Numbers[0],
+                            G = (byte)SharedPropsNode.TextColorDisabled.Numbers[1],
+                            B = (byte)SharedPropsNode.TextColorDisabled.Numbers[2]
+                        };
                     }
 
                     if (SharedPropsNode.BackColor != null)
                     {
-                        State.BackColor = new Color();
-                        State.BackColor.R = (byte)SharedPropsNode.BackColor.Numbers[0];
-                        State.BackColor.G = (byte)SharedPropsNode.BackColor.Numbers[1];
-                        State.BackColor.B = (byte)SharedPropsNode.BackColor.Numbers[2];
+                        State.BackColor = new Color
+                        {
+                            R = (byte)SharedPropsNode.BackColor.Numbers[0],
+                            G = (byte)SharedPropsNode.BackColor.Numbers[1],
+                            B = (byte)SharedPropsNode.BackColor.Numbers[2]
+                        };
                     }
 
                     if (SharedPropsNode.CursorColor != null)
                     {
-                        State.CursorColor = new Color();
-                        State.CursorColor.R = (byte)SharedPropsNode.CursorColor.Numbers[0];
-                        State.CursorColor.G = (byte)SharedPropsNode.CursorColor.Numbers[1];
-                        State.CursorColor.B = (byte)SharedPropsNode.CursorColor.Numbers[2];
+                        State.CursorColor = new Color
+                        {
+                            R = (byte)SharedPropsNode.CursorColor.Numbers[0],
+                            G = (byte)SharedPropsNode.CursorColor.Numbers[1],
+                            B = (byte)SharedPropsNode.CursorColor.Numbers[2]
+                        };
+                    }
+
+                    if(SharedPropsNode.FrameColor != null)
+                    {
+                        State.FrameColor = new Color
+                        {
+                            R = (byte)SharedPropsNode.FrameColor.Numbers[0],
+                            G = (byte)SharedPropsNode.FrameColor.Numbers[1],
+                            B = (byte)SharedPropsNode.FrameColor.Numbers[2]
+                        };
                     }
 
                     if (SharedPropsNode.TextButton)

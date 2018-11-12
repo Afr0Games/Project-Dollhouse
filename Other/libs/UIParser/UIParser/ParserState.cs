@@ -24,7 +24,7 @@ namespace UIParser
         public int[] Position = new int[2];
         //Text colors.
         public Color TextColor, TextColorSelected, TextColorHighlighted, TextColorDisabled;
-        public Color Color, BackColor, CursorColor;
+        public Color Color, BackColor, CursorColor, FrameColor;
         //Text properties.
         public bool TextButton = false;
         public bool IsOpaque = false, IsTransparent = false;

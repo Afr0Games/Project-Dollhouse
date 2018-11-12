@@ -27,6 +27,7 @@ namespace UIParser.Nodes
         public ArrayListNode TextColorDisabled;
         public ArrayListNode BackColor;
         public ArrayListNode CursorColor;
+        public ArrayListNode FrameColor;
         public int? Opaque;
         public int? Transparent;
         public int? Alignment;
@@ -77,6 +78,9 @@ namespace UIParser.Nodes
                         break;
                     case AssignmentType.BackColorAssignment:
                         BackColor = ANode.Array;
+                        break;
+                    case AssignmentType.FrameColorAssignment:
+                        FrameColor = ANode.Array;
                         break;
                     case AssignmentType.CursorAssignment:
                         CursorColor = ANode.Array;

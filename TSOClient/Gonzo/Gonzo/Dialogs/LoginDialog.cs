@@ -10,7 +10,7 @@ namespace Gonzo.Dialogs
     public class LoginDialog : UIDialog, IDisposable
     {
         private UILabel m_LblTitle, m_LblUsername, m_LblPassword;
-        private UITextEdit3 m_TxtUsername, m_TxtPassword;
+        private UITextEdit m_TxtUsername, m_TxtPassword;
         private UIButton m_BtnLogin, m_BtnExit;
 
         private CaretSeparatedText m_Cst;
@@ -30,10 +30,10 @@ namespace Gonzo.Dialogs
             m_LblPassword = new UILabel(m_Cst[5], 3, new Vector2(Pos.X + 20, Pos.Y - 110), m_Font.MeasureString(m_Cst[4]), 
                 m_Screen.StandardTxtColor, 9, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
 
-            m_TxtUsername = new UITextEdit3("TxtUsername", 4, true, new Vector2(Pos.X + 20, Pos.Y - 85), 
+            m_TxtUsername = new UITextEdit("TxtUsername", 4, true, new Vector2(Pos.X + 20, Pos.Y - 85), 
                 new Vector2(250, 25), 10, m_Screen);
             RegistrableUIElements.Add(m_TxtUsername.Name, m_TxtUsername);
-            m_TxtPassword = new UITextEdit3("TxtPassword", 5, true, new Vector2(Pos.X + 20, Pos.Y - 145), 
+            m_TxtPassword = new UITextEdit("TxtPassword", 5, true, new Vector2(Pos.X + 20, Pos.Y - 145), 
                 new Vector2(250, 25), 10, m_Screen);
             RegistrableUIElements.Add(m_TxtPassword.Name, m_TxtPassword);
 

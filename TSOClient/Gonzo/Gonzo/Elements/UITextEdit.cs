@@ -45,25 +45,31 @@ namespace Gonzo.Elements
         public bool Visible = true;
     }
 
-    public class UITextEdit3 : UIElement, IDisposable
+    public class UITextEdit : UIElement, IDisposable
     {
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public bool Transparent = false;
-        private int m_NumLines = 0; //Maximum number of lines that this control can hold.
+        private readonly bool Transparent = false;
+
+        /// Maximum number of lines that this control can hold. Set by script, but ignored, because it isn't needed.
+        private int m_NumLines = 0;
         private int m_MaxChars = 0;
         private TextEditAlignment m_Alignment = 0;
+
+        /// Should the frame flash when it is empty? Set by script.
         private bool m_FlashOnEmpty = false;
+        // Should the frame be displayed? Set to true intermittently by a timer.
+        private bool m_DisplayFlash = false;
+        /// Defines whether this text edit control will receive a frame on focus. 1=Yes, 0=No.Default is yes.
+        /// Set by script.
+        private bool m_FrameOnFocus = true;
+        private Timer m_FrameTimer;
+
         private Color m_BackColor, m_CursorColor, m_FrameColor;
         private bool m_ResizeForExactLineHeight = false;
         private bool m_EnableInputModeEditing = false;
 
         private GapBuffer<string> m_Text = new GapBuffer<string>();
-
-        /// <summary>
-        /// Defines whether this text edit control will receive a border on focus. 1=Yes, 0=No.Default is yes.
-        /// </summary>
-        private bool m_FrameOnFocus = true;
 
         private Dictionary<int, Vector2> m_CharacterPositions = new Dictionary<int, Vector2>();
         private List<Rectangle> m_HitBoxes = new List<Rectangle>();
@@ -106,7 +112,7 @@ namespace Gonzo.Elements
         /// <param name="Size">The size of this UITextEdit instance.</param>
         /// <param name="Screen">A UIScreen instance.</param>
         /// <param name="Tooltip">The tooltip associated with this UITextEdit control (optional).</param>
-        public UITextEdit3(string Name, int ID, bool DrawBackground, Vector2 TextEditPosition, Vector2 Size, 
+        public UITextEdit(string Name, int ID, bool DrawBackground, Vector2 TextEditPosition, Vector2 Size, 
             int Font, UIScreen Screen, string Tooltip = "") : base(Name, TextEditPosition, Size, Screen, null)
         {
             this.Name = Name;
@@ -145,6 +151,11 @@ namespace Gonzo.Elements
             m_CursorVisibilityTimer.Elapsed += CursorVisibilityTimer_Elapsed;
             m_CursorVisibilityTimer.Start();
 
+            m_FrameTimer = new Timer(500);
+            m_FrameTimer.Enabled = true;
+            m_FrameTimer.Elapsed += M_FrameTimer_Elapsed;
+            m_FrameTimer.Start();
+
             m_Screen.Manager.OnTextInput += Window_TextInput;
 
             m_TextPosition = Position;
@@ -167,7 +178,7 @@ namespace Gonzo.Elements
         /// <param name="Node">The AddTextEditNode that defines this UITextEdit control.</param>
         /// <param name="State">The ParserState returned when parsing the UIScript.</param>
         /// <param name="Screen">A UIScreen instance.</param>
-        public UITextEdit3(AddTextEditNode Node, ParserState State, UIScreen Screen) :
+        public UITextEdit(AddTextEditNode Node, ParserState State, UIScreen Screen) :
             base(Screen)
         {
             Name = Node.Name;
@@ -263,6 +274,8 @@ namespace Gonzo.Elements
                     TextColor = State.Color;
                 if (State.CursorColor != null)
                     m_CursorColor = State.CursorColor;
+                if (State.FrameColor != null)
+                    m_FrameColor = State.FrameColor;
                 if (State.Position != null)
                 {
                     Position = new Vector2(State.Position[0], State.Position[1]) + Screen.Position;
@@ -303,9 +316,17 @@ namespace Gonzo.Elements
             m_CursorVisibilityTimer.Elapsed += CursorVisibilityTimer_Elapsed;
             m_CursorVisibilityTimer.Start();
 
+            m_FrameTimer = new Timer(190);
+            m_FrameTimer.Enabled = true;
+            m_FrameTimer.Elapsed += M_FrameTimer_Elapsed;
+            m_FrameTimer.Start();
+
             m_Screen.Manager.OnTextInput += Window_TextInput;
         }
 
+        /// <summary>
+        /// The timer for the cursor's visibility went off.
+        /// </summary>
         private void CursorVisibilityTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             if (m_HasFocus)
@@ -314,6 +335,18 @@ namespace Gonzo.Elements
                     m_Cursor.Visible = false;
                 else
                     m_Cursor.Visible = true;
+            }
+        }
+
+        /// <summary>
+        /// The timer for the frame's visibility went off.
+        /// </summary>
+        private void M_FrameTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (m_FlashOnEmpty)
+            {
+                if (m_Text.Count == 0)
+                    m_DisplayFlash = true;
             }
         }
 
@@ -608,18 +641,22 @@ namespace Gonzo.Elements
                         if (m_Cursor.CharacterIndex < (m_Text.Count - (1 + m_NumLinesInText)))
                         {
                             //... insert it at the cursor's position.
+                            //TODO: FIX FOR SINGLE LINE
                             m_Text.Insert(m_Cursor.CharacterIndex, (m_CapitalLetters == true) ? e.Character.ToString().ToUpper() :
                                 e.Character.ToString());
                             m_Cursor.CharacterIndex++;
                             if ((Position.X + m_Cursor.Position.X) < (Position.X + Size.X))
                                 m_Cursor.Position.X += CharacterWidth;
 
-                            //Insert a newline if there's no space for additional characters on this line.
-                            if (GetLine(m_Cursor.LineIndex).Length >= NUM_CHARS_IN_LINE && 
-                                m_Text[m_Cursor.CharacterIndex + 1] != "\n")
-                                m_Text.Insert(m_Cursor.CharacterIndex, "\n");
-                            else if(m_Text[m_Cursor.CharacterIndex + 1] == "\n")
-                                AddNewline();
+                            if (m_MultiLine)
+                            {
+                                //Insert a newline if there's no space for additional characters on this line.
+                                if (GetLine(m_Cursor.LineIndex).Length >= NUM_CHARS_IN_LINE &&
+                                    m_Text[m_Cursor.CharacterIndex + 1] != "\n")
+                                    m_Text.Insert(m_Cursor.CharacterIndex, "\n");
+                                else if (m_Text[m_Cursor.CharacterIndex + 1] == "\n")
+                                    AddNewline();
+                            }
 
                             m_CapitalLetters = false;
                             m_UpdateCharPositions = true;
@@ -938,6 +975,37 @@ namespace Gonzo.Elements
             }
         }
 
+        /// <summary>
+        /// Will draw a border (hollow rectangle) of the given 'thicknessOfBorder' (in pixels)
+        /// of the specified color.
+        ///
+        /// By Sean Colombo, from http://bluelinegamestudios.com/blog
+        /// </summary>
+        /// <param name="rectangleToDraw"></param>
+        /// <param name="thicknessOfBorder"></param>
+        private void DrawBorder(SpriteBatch SBatch, Texture2D TexData, Rectangle rectangleToDraw, 
+            int thicknessOfBorder, Color borderColor)
+        {
+            // Draw top line
+            SBatch.Draw(TexData, new Rectangle(rectangleToDraw.X, rectangleToDraw.Y, rectangleToDraw.Width, 
+                thicknessOfBorder), borderColor);
+
+            // Draw left line
+            SBatch.Draw(TexData, new Rectangle(rectangleToDraw.X, rectangleToDraw.Y, thicknessOfBorder, 
+                rectangleToDraw.Height), borderColor);
+
+            // Draw right line
+            SBatch.Draw(TexData, new Rectangle((rectangleToDraw.X + rectangleToDraw.Width - thicknessOfBorder),
+                                            rectangleToDraw.Y,
+                                            thicknessOfBorder,
+                                            rectangleToDraw.Height), borderColor);
+            // Draw bottom line
+            SBatch.Draw(TexData, new Rectangle(rectangleToDraw.X,
+                                            rectangleToDraw.Y + rectangleToDraw.Height - thicknessOfBorder,
+                                            rectangleToDraw.Width,
+                                            thicknessOfBorder), borderColor);
+        }
+
         public override void Update(InputHelper Input, GameTime GTime)
         {
             UpdateCharacterPositions();
@@ -1101,15 +1169,36 @@ namespace Gonzo.Elements
                     new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight), SpriteEffects.None, Depth);
 
             //Cut off the width of the scissor to make it look better.
-            SBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)this.Position.X,
-                (int)this.Position.Y, (int)(Size.X - m_Font.LineSpacing), (int)Size.Y);
+            SBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(this.Position.X * Resolution.getVirtualAspectRatio()),
+                (int)(this.Position.Y * Resolution.getVirtualAspectRatio()), (int)((Size.X - 5) * Resolution.getVirtualAspectRatio()), 
+                (int)(Size.Y * Resolution.getVirtualAspectRatio()));
 
             Vector2 Position = m_TextPosition;
+
+            //TODO: Is this crashing??
+            Texture2D FrameTex;
+            FrameTex = new Texture2D(SBatch.GraphicsDevice, 1, 1);
+            FrameTex.SetData(new Color[] { m_CursorColor });
 
             if (m_HasFocus)
             {
                 if (m_Cursor.Visible)
                     SBatch.DrawString(m_Font, m_Cursor.Symbol, m_Cursor.Position, Color.White);
+
+                if (m_FrameOnFocus && m_Text.Count > 0)
+                    DrawBorder(SBatch, FrameTex, new Rectangle((int)(Position.X * Resolution.getVirtualAspectRatio()), 
+                        (int)(Position.Y * Resolution.getVirtualAspectRatio()),
+                        (int)(Size.X * Resolution.getVirtualAspectRatio()), 
+                        (int)(Size.Y * Resolution.getVirtualAspectRatio())), 3, m_FrameColor);
+            }
+
+            if (m_DisplayFlash)
+            {
+                DrawBorder(SBatch, FrameTex, new Rectangle((int)(Position.X),
+                        (int)(Position.Y),
+                        (int)(Size.X * Resolution.getVirtualAspectRatio()),
+                        (int)(Size.Y * Resolution.getVirtualAspectRatio())), 3, m_FrameColor);
+                m_DisplayFlash = false;
             }
 
             if (m_MultiLine)
@@ -1124,7 +1213,7 @@ namespace Gonzo.Elements
                 SBatch.DrawString(m_Font, Text, Position, TextColor);
         }
 
-        ~UITextEdit3()
+        ~UITextEdit()
         {
             Dispose(false);
         }
