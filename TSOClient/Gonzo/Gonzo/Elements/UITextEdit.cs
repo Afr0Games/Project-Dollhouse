@@ -101,6 +101,8 @@ namespace Gonzo.Elements
 
         private Vector2 m_TextPosition = new Vector2(0, 0); //Coordinate for anchoring the text.
 
+        private Texture2D m_FrameTex; //Texture for storing the pixel used to draw the blinking frame around the textedit.
+
         /// <summary>
         /// Constructs a new UITextEdit element.
         /// </summary>
@@ -125,6 +127,8 @@ namespace Gonzo.Elements
             m_TextPosition = Position;
             m_Size = Size * Resolution.getVirtualAspectRatio();
             TextColor = m_Screen.StandardTxtColor;
+
+            m_FrameTex = new Texture2D(m_Screen.Manager.Device, 1, 1);
 
             switch (Font)
             {
@@ -185,6 +189,8 @@ namespace Gonzo.Elements
             m_ID = Node.ID;
             m_KeyboardInput = true; //UITextEdit needs to receive input from keyboard!
             m_NeedsClipping = true; //This control needs to clip all the text rendered outside of it!
+
+            m_FrameTex = new Texture2D(m_Screen.Manager.Device, 1, 1);
 
             if (!State.InSharedPropertiesGroup)
             {
@@ -1175,10 +1181,7 @@ namespace Gonzo.Elements
 
             Vector2 Position = m_TextPosition;
 
-            //TODO: Is this crashing??
-            Texture2D FrameTex;
-            FrameTex = new Texture2D(SBatch.GraphicsDevice, 1, 1);
-            FrameTex.SetData(new Color[] { m_CursorColor });
+            m_FrameTex.SetData(new Color[] { m_CursorColor });
 
             if (m_HasFocus)
             {
@@ -1186,7 +1189,7 @@ namespace Gonzo.Elements
                     SBatch.DrawString(m_Font, m_Cursor.Symbol, m_Cursor.Position, Color.White);
 
                 if (m_FrameOnFocus && m_Text.Count > 0)
-                    DrawBorder(SBatch, FrameTex, new Rectangle((int)(Position.X * Resolution.getVirtualAspectRatio()), 
+                    DrawBorder(SBatch, m_FrameTex, new Rectangle((int)(Position.X * Resolution.getVirtualAspectRatio()), 
                         (int)(Position.Y * Resolution.getVirtualAspectRatio()),
                         (int)(Size.X * Resolution.getVirtualAspectRatio()), 
                         (int)(Size.Y * Resolution.getVirtualAspectRatio())), 3, m_FrameColor);
@@ -1194,7 +1197,7 @@ namespace Gonzo.Elements
 
             if (m_DisplayFlash)
             {
-                DrawBorder(SBatch, FrameTex, new Rectangle((int)(Position.X),
+                DrawBorder(SBatch, m_FrameTex, new Rectangle((int)(Position.X),
                         (int)(Position.Y),
                         (int)(Size.X * Resolution.getVirtualAspectRatio()),
                         (int)(Size.Y * Resolution.getVirtualAspectRatio())), 3, m_FrameColor);
