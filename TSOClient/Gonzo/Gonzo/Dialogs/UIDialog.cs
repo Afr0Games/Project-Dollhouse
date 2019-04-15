@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Files;
 using Files.Manager;
-using Microsoft.Xna.Framework.Input;
 
 namespace Gonzo.Dialogs
 {
@@ -17,26 +16,6 @@ namespace Gonzo.Dialogs
         /// UIDialogs can have elements that need to be registered for rendering and updates.
         /// </summary>
         public Dictionary<string, UIElement> RegistrableUIElements = new Dictionary<string, UIElement>();
-
-        /// <summary>
-        /// Is this dialog draggable?
-        /// </summary>
-        protected bool m_IsDraggable;
-
-        /// <summary>
-        /// Is the dialog being dragged by the user?
-        /// </summary>
-        protected bool m_DoDrag = false;
-
-        /// <summary>
-        /// Offset from mouse cursor when dragging.
-        /// </summary>
-        protected Vector2 m_DragOffset;
-
-        /// <summary>
-        /// How far off the screen a dialog can be dragged.
-        /// </summary>
-        protected int m_DragTolerance = 20;
 
         private bool m_HasExitBtn = false;
 
@@ -87,19 +66,24 @@ namespace Gonzo.Dialogs
 
         public override void MouseEvents(InputHelper Helper)
         {
-            switch(Helper.CurrentMouseState.LeftButton)
+            //Left button has been pressed.
+            if(Helper.IsNewPress(MouseButtons.LeftButton) == true && 
+                Helper.IsOldPress(MouseButtons.LeftButton) == false)
             {
-                case ButtonState.Pressed:
-                    if (IsMouseOver(Helper))
-                    {
-                        m_DragOffset = Helper.CurrentMouseState.Position.ToVector2();
-                        m_DoDrag = true;
-                    }
-                    break;
-                case ButtonState.Released:
-                    m_DoDrag = false;
-                    break;
+                if (IsMouseOver(Helper))
+                {
+                    m_DragOffset = Helper.MousePosition / 5.0f;
+                    m_DoDrag = true;
+                }
             }
+
+            //Left button has been released.
+            if (Helper.IsNewPress(MouseButtons.LeftButton) == false &&
+                Helper.IsOldPress(MouseButtons.LeftButton) == true)
+            {
+                m_DoDrag = false;
+            }
+
         }
 
         /// <summary>
@@ -134,7 +118,7 @@ namespace Gonzo.Dialogs
                         }
                     }
 
-                    this.MouseEvents(Helper);
+                    MouseEvents(Helper);
                 }
 
                 m_CloseButton.Update(Helper, GTime);

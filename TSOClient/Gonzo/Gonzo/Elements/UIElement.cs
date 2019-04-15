@@ -10,8 +10,6 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -39,6 +37,26 @@ namespace Gonzo.Elements
 
         protected bool m_HasFocus = false; //Does this UIElement have focus so it can receive keyboard input?
         protected bool m_KeyboardInput = false; //Should this UIElement receive keyboard input?
+
+        /// <summary>
+        /// Is the UIElement being dragged by the user?
+        /// </summary>
+        protected bool m_DoDrag = false;
+
+        /// <summary>
+        /// Is this UIElement draggable?
+        /// </summary>
+        protected bool m_IsDraggable;
+
+        /// <summary>
+        /// Offset from mouse cursor when dragging.
+        /// </summary>
+        protected Vector2 m_DragOffset;
+
+        /// <summary>
+        /// How far off the screen a UIElement can be dragged.
+        /// </summary>
+        protected int m_DragTolerance = 20;
 
         /// <summary>
         /// Gets or sets whether this UIElement has focus so it can receive keyboard input.
@@ -89,6 +107,12 @@ namespace Gonzo.Elements
         /// <param name="Helper">InputHelper instance for input data.</param>
         public virtual void Update(InputHelper Helper, GameTime GTime)
         {
+            if (m_Parent != null)
+            {
+                if(m_Parent.m_DoDrag)
+                    Position = m_Parent.Position + Position;
+            }
+
             if (IsMouseOver(Helper))
             {
                 if (Helper.IsNewPress(MouseButtons.LeftButton))
@@ -147,6 +171,15 @@ namespace Gonzo.Elements
             }
         }
 
+        /// <summary>
+        /// Constructs an instance of UIElement.
+        /// </summary>
+        /// <param name="Name">A Screen instance.</param>
+        /// <param name="Position">The position of this UIElement. 
+        /// The position of the parent will be added to it if Parent isn't null.</param>
+        /// <param name="Size">The size of this UIElement.</param>
+        /// <param name="Screen">A Screen instance.</param>
+        /// <param name="Parent">(Optional) UIElement that acts as a parent.</param>
         public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null)
         {
             this.Name = Name;
@@ -174,7 +207,12 @@ namespace Gonzo.Elements
             m_Screen = Screen;
 
             if (Parent != null)
+            {
                 m_Parent = Parent;
+                m_Position += Parent.m_Position;
+            }
+            else
+                m_Position = Position;
         }
 
         /// <summary>

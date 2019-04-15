@@ -1,4 +1,16 @@
-﻿using System;
+﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at
+http://mozilla.org/MPL/2.0/.
+
+The Original Code is the Gonzo library.
+
+The Initial Developer of the Original Code is
+Mats 'Afr0' Vederhus. All Rights Reserved.
+
+Contributor(s):
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -80,6 +92,19 @@ namespace Gonzo.Elements
         private Cursor m_Cursor = new Cursor();
         private int m_NumLinesInText = 1;
 
+        /// <summary>
+        /// Gets or sets the position of this UITextEdit instance's cursor.
+        /// </summary>
+        public Vector2 CursorPosition
+        {
+            get { return m_Cursor.Position; }
+            set
+            {
+                Vector2 RelativePosition = m_Cursor.Position - Position;
+                m_Cursor.Position = value + RelativePosition;
+            }
+        }
+
         private Texture2D m_ScrollbarImage;
         private int m_ScrollbarWidth = 0, m_ScrollbarHeight = 0;
         private ScrollbarType m_ScrollbarType;
@@ -108,19 +133,23 @@ namespace Gonzo.Elements
         /// </summary>
         /// <param name="Name">The name of this UITextElement instance.</param>
         /// <param name="ID">The ID of this UITextEdlement instance.</param>
-        /// <param name="DrawBackground">Should this UITextElement instance draw a background?</param>
+        /// <param name="DrawBackground">Should this UITextEdit instance draw a background?</param>
+        /// <param name="Multiline">Does this UITextEdit instance support multiple lines?</param>
         /// <param name="TextEditPosition">The position of this UITextEdit instance.</param>
         /// <param name="Font">The size of the font to use, from 9-16.</param>
         /// <param name="Size">The size of this UITextEdit instance.</param>
         /// <param name="Screen">A UIScreen instance.</param>
         /// <param name="Tooltip">The tooltip associated with this UITextEdit control (optional).</param>
-        public UITextEdit(string Name, int ID, bool DrawBackground, Vector2 TextEditPosition, Vector2 Size, 
-            int Font, UIScreen Screen, string Tooltip = "") : base(Name, TextEditPosition, Size, Screen, null)
+        /// 
+        public UITextEdit(string Name, int ID, bool DrawBackground, bool Multiline, Vector2 TextEditPosition, 
+            Vector2 Size, int Font, UIScreen Screen, string Tooltip = "", UIElement Parent = null) : 
+            base(Name, TextEditPosition, Size, Screen, Parent)
         {
             this.Name = Name;
             m_ID = ID;
             m_KeyboardInput = true; //UITextEdit needs to receive input from keyboard!
             m_DrawBackground = DrawBackground;
+            m_MultiLine = Multiline;
             m_NeedsClipping = true; //This control needs to clip all the text rendered outside of it!
 
             Position = TextEditPosition;
@@ -196,18 +225,13 @@ namespace Gonzo.Elements
             {
                 if (Node.TextEditPosition.Numbers.Count > 0)
                 {
-                    Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]) + Screen.Position;
+                    Position = new Vector2(Node.TextEditPosition.Numbers[0], Node.TextEditPosition.Numbers[1]);
                     m_TextPosition = Position;
                 }
 
-                if (State.InSharedPropertiesGroup)
-                    m_Size = State.Size;
-                else
-                {
-                    m_Size = new Vector2();
-                    m_Size.X = Node.Size.Numbers[0];
-                    m_Size.Y = Node.Size.Numbers[1];
-                }
+                m_Size = new Vector2();
+                m_Size.X = Node.Size.Numbers[0];
+                m_Size.Y = Node.Size.Numbers[1];
 
                 if (Node.Tooltip != "")
                     Tooltip = m_Screen.GetString(Node.Tooltip);
@@ -227,7 +251,7 @@ namespace Gonzo.Elements
                 }
 
                 if (Node.Capacity != null)
-                    m_MaxChars = (int)Node.Capacity;
+                m_MaxChars = (int)Node.Capacity;
 
                 if (Node.Alignment != null)
                     m_Alignment = (TextEditAlignment)Node.Alignment;
@@ -238,10 +262,7 @@ namespace Gonzo.Elements
                 if (Node.FrameOnFocus != null)
                     m_FrameOnFocus = (Node.FrameOnFocus == 1) ? true : false;
 
-                if (State.InSharedPropertiesGroup)
-                    TextColor = State.Color;
-                else
-                    TextColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
+                TextColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
 
                 if (Node.BackColor != null)
                     m_BackColor = new Color(Node.Color.Numbers[0], Node.Color.Numbers[1], Node.Color.Numbers[2]);
@@ -284,11 +305,13 @@ namespace Gonzo.Elements
                     m_FrameColor = State.FrameColor;
                 if (State.Position != null)
                 {
-                    Position = new Vector2(State.Position[0], State.Position[1]) + Screen.Position;
+                    Position = new Vector2(State.Position[0], State.Position[1]);
                     m_TextPosition = Position;
                 }
                 if (State.Tooltip != "")
                     Tooltip = State.Tooltip;
+                if(State.Size.X != 0 && State.Size.Y != 0)
+                    m_Size = State.Size;
             }
 
             int Font = 0;
@@ -1144,6 +1167,8 @@ namespace Gonzo.Elements
             base.Update(Input, GTime);
         }
 
+        private static Rectangle m_CurrentRect = new Rectangle();
+
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
             base.Draw(SBatch, LayerDepth);
@@ -1174,14 +1199,17 @@ namespace Gonzo.Elements
                 SBatch.Draw(m_ScrollbarImage, new Vector2(m_Size.X - m_ScrollbarWidth, 0), null, Color.White, 0.0f,
                     new Vector2(0.0f, 0.0f), new Vector2(0.0f, m_ScrollbarHeight), SpriteEffects.None, Depth);
 
+            m_FrameTex.SetData(new Color[] { m_CursorColor });
+
             //Cut off the width of the scissor to make it look better.
-            SBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(this.Position.X * Resolution.getVirtualAspectRatio()),
-                (int)(this.Position.Y * Resolution.getVirtualAspectRatio()), (int)((Size.X - 5) * Resolution.getVirtualAspectRatio()), 
-                (int)(Size.Y * Resolution.getVirtualAspectRatio()));
+            m_CurrentRect = SBatch.GraphicsDevice.ScissorRectangle;
+            SBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(this.Position.X), (int)(this.Position.Y),
+                (int)((Size.X) - 5), (int)(Size.Y));
+            DrawBorder(SBatch, m_FrameTex, new Rectangle((int)(this.Position.X), (int)(this.Position.Y),
+                (int)(Size.X - 5), (int)(Size.Y)), 3, Color.Red);
+
 
             Vector2 Position = m_TextPosition;
-
-            m_FrameTex.SetData(new Color[] { m_CursorColor });
 
             if (m_HasFocus)
             {
@@ -1189,18 +1217,17 @@ namespace Gonzo.Elements
                     SBatch.DrawString(m_Font, m_Cursor.Symbol, m_Cursor.Position, Color.White);
 
                 if (m_FrameOnFocus && m_Text.Count > 0)
-                    DrawBorder(SBatch, m_FrameTex, new Rectangle((int)(Position.X * Resolution.getVirtualAspectRatio()), 
-                        (int)(Position.Y * Resolution.getVirtualAspectRatio()),
-                        (int)(Size.X * Resolution.getVirtualAspectRatio()), 
-                        (int)(Size.Y * Resolution.getVirtualAspectRatio())), 3, m_FrameColor);
+                    DrawBorder(SBatch, m_FrameTex, new Rectangle((int)(Position.X), 
+                        (int)(Position.Y),
+                        (int)(Size.X - 5), (int)(Size.Y)), 3, m_FrameColor);
             }
 
             if (m_DisplayFlash)
             {
                 DrawBorder(SBatch, m_FrameTex, new Rectangle((int)(Position.X),
                         (int)(Position.Y),
-                        (int)(Size.X * Resolution.getVirtualAspectRatio()),
-                        (int)(Size.Y * Resolution.getVirtualAspectRatio())), 3, m_FrameColor);
+                        (int)(Size.X - 5),
+                        (int)(Size.Y)), 3, m_FrameColor);
                 m_DisplayFlash = false;
             }
 
@@ -1214,6 +1241,9 @@ namespace Gonzo.Elements
             }
             else
                 SBatch.DrawString(m_Font, Text, Position, TextColor);
+
+            //When this is commented out, the other scissor rect is working...
+            //SBatch.GraphicsDevice.ScissorRectangle = m_CurrentRect;
         }
 
         ~UITextEdit()
