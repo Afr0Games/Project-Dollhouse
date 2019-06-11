@@ -281,9 +281,17 @@ namespace Files.Tests
             }
             else
             {
-                SoundPlayer Player = new SoundPlayer(GameDir + "music" + Delimiter + "modes" + Delimiter +
-                        "map" + Delimiter + "tsobuild3.mp3");
-                Player.PlaySound(false, true);
+                try
+                {
+                    SoundPlayer Player = new SoundPlayer(GameDir + "music" + Delimiter + "modes" + Delimiter +
+                            "map" + Delimiter + "tsobuild3.mp3");
+                    Player.PlaySound(false, true);
+                }
+                catch (Exception E)
+                {
+                    Debug.WriteLine(E.ToString());
+                    Assert.Fail();
+                }
             }
         }
 
