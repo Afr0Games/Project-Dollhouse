@@ -7,7 +7,7 @@ The Original Code is the Files library.
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
 
-Contributor(s): Rhys Simpson
+Contributor(s): Rhys Simpson, Mats Vederhus
 */
 
 using System;
@@ -16,21 +16,15 @@ using MP3Sharp;
 using Files.Manager;
 using System.Reflection;
 using log4net;
+using NAudio.Wave;
 
 namespace Files.AudioFiles
 {
-    public enum MP3Channels
-    {
-        Stereo = 00,
-        JointStereo = 01,
-        DualChannel = 10,
-        SingleChannel = 11
-    }
-
     public class MP3File : ISoundCodec, IDisposable
     {
         private MP3Stream m_Stream;
         public ReadFullyStream RFullyStream;
+        private BufferedWaveProvider m_BufWavProvider;
 
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -42,14 +36,15 @@ namespace Files.AudioFiles
         /// <summary>
         /// How many bytes to read when calling DecompressedWav().
         /// </summary>
-        public int BufferSize = 4096;
+        //public int BufferSize = 4096;
+        public int BufferSize = 16384 * 4; //Changed to this - should be enough to hold 4 frames.
 
         public MP3File(string Path)
         {
             if(FileManager.IsLinux)
                 m_Stream = new MP3Stream(File.Open(Path, FileMode.Open, FileAccess.ReadWrite));
             else //Used by NAudio, only on Windows.
-                RFullyStream = new ReadFullyStream(m_Stream);
+                RFullyStream = new ReadFullyStream(File.Open(Path, FileMode.Open, FileAccess.ReadWrite));
         }
 
         public MP3File(Stream Data)
@@ -83,13 +78,16 @@ namespace Files.AudioFiles
         /// <returns>The sample rate for this MP3 file.</returns>
         public uint GetSampleRate()
         {
-            return (uint)m_Stream.Frequency;
+            if (FileManager.IsLinux)
+                return (uint)m_Stream.Frequency;
+            else
+                return (uint)m_BufWavProvider.WaveFormat.SampleRate;
         }
 
         /// <summary>
         /// Reads PCM data from this MP3.
         /// </summary>
-        /// <returns>Returns exactly BufferSize (default: 4096) bytes of data.
+        /// <returns>Returns exactly BufferSize (default: 16384 * 4) bytes of data.
         /// If less data is returned, it means the end of the file was reached.</returns>
         public byte[] DecompressedWav()
         {
@@ -106,14 +104,22 @@ namespace Files.AudioFiles
 
             return null;*/
 
-            m_Stream.DecodeFrames(1);
-            byte[] Buffer = new byte[m_Stream.Length];
-            int BytesRead = 1;
+            if (FileManager.IsLinux)
+            {
 
-            while (BytesRead > 0)
-                BytesRead = m_Stream.Read(Buffer, 0, BufferSize);
+                m_Stream.DecodeFrames(1);
+                byte[] Buffer = new byte[m_Stream.Length];
+                int BytesRead = 1;
 
-            return Buffer;
+                while (BytesRead > 0)
+                    BytesRead = m_Stream.Read(Buffer, 0, BufferSize);
+
+                return Buffer;
+            }
+            else
+            {
+                throw new MP3Exception("Attempted to play MP3 directly on Windows! Use SoundPlayer.cs to do this!");
+            }
         }
 
         ~MP3File()
@@ -147,6 +153,17 @@ namespace Files.AudioFiles
             }
             else
                 m_Logger.Error("MP3File not explicitly disposed!");
+        }
+    }
+
+    /// <summary>
+    /// An exception thrown by the MP3File class.
+    /// </summary>
+    public class MP3Exception : Exception
+    {
+        public MP3Exception(string Message) : base(Message)
+        {
+
         }
     }
 }

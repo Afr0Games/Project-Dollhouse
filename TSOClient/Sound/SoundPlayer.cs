@@ -120,10 +120,16 @@ namespace Sound
         /// Creates a new SoundPlayer instance from a string,
         /// for playing MP3 music.
         /// </summary>
-        /// <param name="MP3Sound">The name of an MP3 to play.</param>
+        /// <param name="MP3Sound">The name of an MP3 to play, or the path of a file to play if called by a test.</param>
         public SoundPlayer(string MP3Sound, bool LoopIt = true)
         {
-            MP3File MP3 = (MP3File)FileManager.GetMusic(MP3Sound);
+            MP3File MP3;
+
+            if (FileManager.IsInitialized) //Only used by Files.Tests!
+                MP3 = (MP3File)FileManager.GetMusic(MP3Sound);
+            else
+                MP3 = new MP3File(MP3Sound);
+
             /*DynamicSoundEffectInstance Instance = new DynamicSoundEffectInstance((int)MP3.GetSampleRate(), AudioChannels.Stereo);
             Instance.BufferNeeded += Instance_BufferNeeded;*/
 

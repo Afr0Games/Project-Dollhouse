@@ -15,11 +15,13 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Files.Manager;
 using Files.FAR1;
 using Files.FAR3;
 using Files.DBPF;
 using Files.IFF;
 using Files.AudioLogic;
+using Files.AudioFiles;
 using Sound;
 using Microsoft.Win32;
 
@@ -228,6 +230,60 @@ namespace Files.Tests
             catch(HitException)
             {
                 Assert.Fail();
+            }
+        }
+
+        /// <summary>
+        /// Tests XA parsing by attempting to open a XA.
+        /// Currently hardcoded for Windows because test methods can't take parameters.
+        /// </summary>
+        [TestMethod]
+        public void TestCorrectXAParsing()
+        {
+            string GameDir = GetInstallDir();
+            string Delimiter = (IsLinux) ? "//" : "\\";
+
+            try
+            {
+                XAFile Snd = new XAFile(File.Open(GameDir + "sounddata" + Delimiter + "tvstations" + Delimiter + 
+                    "tv_romance" + Delimiter +  "tv_r1.xa", FileMode.Open, FileAccess.ReadWrite));
+            }
+            catch (Exception E)
+            {
+                Debug.WriteLine(E.ToString());
+                Assert.Fail();
+            }
+        }
+
+        /// <summary>
+        /// Tests MP3 parsing by attempting to open a MP3.
+        /// Currently hardcoded for Windows because test methods can't take parameters.
+        /// </summary>
+        [TestMethod]
+        public void TestCorrectMP3Parsing()
+        {
+            string GameDir = GetInstallDir();
+            string Delimiter = (IsLinux) ? "//" : "\\";
+
+            if (FileManager.IsLinux)
+            {
+                try
+                {
+                    MP3File Snd = new MP3File(File.Open(GameDir + "music" + Delimiter + "modes" + Delimiter +
+                        "map" + Delimiter + "tsomap4_v1.mp3", FileMode.Open, FileAccess.ReadWrite));
+                    Snd.DecompressedWav();
+                }
+                catch (Exception E)
+                {
+                    Debug.WriteLine(E.ToString());
+                    Assert.Fail();
+                }
+            }
+            else
+            {
+                SoundPlayer Player = new SoundPlayer(GameDir + "music" + Delimiter + "modes" + Delimiter +
+                        "map" + Delimiter + "tsobuild3.mp3");
+                Player.PlaySound(false, true);
             }
         }
 

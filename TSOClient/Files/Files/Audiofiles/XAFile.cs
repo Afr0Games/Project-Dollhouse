@@ -85,7 +85,8 @@ namespace Files.AudioFiles
 
         public XAFile(Stream data)
         {
-            MemoryStream MemStream = (MemoryStream)data;
+            MemoryStream MemStream = new MemoryStream();
+            data.CopyTo(MemStream);
 
             LoadFile(MemStream.ToArray());
             DecompressFile();

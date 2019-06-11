@@ -81,6 +81,11 @@ namespace Files.Manager
         private static string m_BaseDir = "";
 
         /// <summary>
+        /// Has Initialize() been called? If not, loading files WILL NOT BE POSSIBLE!
+        /// </summary>
+        public static bool IsInitialized = false;
+
+        /// <summary>
         /// The directory the game is currently running from.
         /// </summary>
         public static string BaseDirectory
@@ -124,6 +129,8 @@ namespace Files.Manager
                 else
                     m_MusicHashes.TryAdd(GenerateHash(Path.GetFileName(Fle)), Fle.Replace("\\\\", "\\"));
             }
+
+            IsInitialized = true;
 
             Task LoadTask = new Task(new Action(LoadAllArchives));
             LoadTask.Start();
@@ -1139,7 +1146,7 @@ namespace Files.Manager
         {
             m_AssetsResetEvent.Reset();
 
-            if ((m_BytesLoaded + Item.Size) < CACHE_SIZE)
+            if ((m_BytesLoaded + Item.Size) <= CACHE_SIZE)
             {
                 m_Assets.AddOrUpdate(ID, Item, (Key, ExistingValue) => ExistingValue = Item);
                 m_BytesLoaded += (uint)Item.Size;
@@ -1166,7 +1173,7 @@ namespace Files.Manager
         {
             m_FAR1AssetsResetEvent.Reset();
 
-            if((m_BytesLoaded + Item.Size) < CACHE_SIZE)
+            if((m_BytesLoaded + Item.Size) <= CACHE_SIZE)
             {
                 m_FAR1Assets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
                 m_BytesLoaded += (uint)Item.Size;
@@ -1191,7 +1198,7 @@ namespace Files.Manager
         /// <param name="Item">The asset to add.</param>
         private static void AddMusic(string Filename, Asset Item)
         {
-            if ((m_BytesLoaded + Item.Size) < CACHE_SIZE)
+            if ((m_BytesLoaded + Item.Size) <= CACHE_SIZE)
             {
                 m_MusicAssets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
                 m_BytesLoaded += (uint)Item.Size;
