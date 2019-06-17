@@ -23,6 +23,7 @@ namespace Gonzo.Elements
     /// </summary>
     public class UIHeadBrowser : UISkinBrowser
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event UISkinButtonClicked OnButtonClicked;
         private Vector2 HeadTileSize = new Vector2(37, 42);
         private Texture2D m_EditHeadSkinBtnTex;

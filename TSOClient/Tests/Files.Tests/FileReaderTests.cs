@@ -12,7 +12,6 @@ Contributor(s):
 
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Files.Manager;
@@ -23,85 +22,12 @@ using Files.IFF;
 using Files.AudioLogic;
 using Files.AudioFiles;
 using Sound;
-using Microsoft.Win32;
 
 namespace Files.Tests
 {
     [TestClass]
-    public class FileReaderTest
+    public class FileReaderTests
     {
-        private static bool is64BitProcess = (IntPtr.Size == 8);
-        private static bool is64BitOperatingSystem = is64BitProcess || InternalCheckIsWow64();
-
-        [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool IsWow64Process(
-            [In] IntPtr hProcess,
-            [Out] out bool wow64Process);
-
-        /// <summary>
-        /// Determines if this process is run on a 64bit OS.
-        /// </summary>
-        /// <returns>True if it is, false otherwise.</returns>
-        private static bool InternalCheckIsWow64()
-        {
-            if ((Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor >= 1) ||
-                Environment.OSVersion.Version.Major >= 6)
-            {
-                using (Process p = Process.GetCurrentProcess())
-                {
-                    bool retVal;
-                    if (!IsWow64Process(p.Handle, out retVal))
-                    {
-                        return false;
-                    }
-                    return retVal;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private string GetInstallDir()
-        {
-            string Software = "";
-
-            if ((is64BitOperatingSystem == false) && (is64BitProcess == false))
-                Software = "SOFTWARE";
-            else
-                Software = "SOFTWARE\\Wow6432Node";
-
-            //Find the path to TSO on the user's system.
-            RegistryKey softwareKey = Registry.LocalMachine.OpenSubKey(Software);
-
-            if (Array.Exists(softwareKey.GetSubKeyNames(), delegate (string s) { return s.Equals("Maxis", StringComparison.InvariantCultureIgnoreCase); }))
-            {
-                RegistryKey maxisKey = softwareKey.OpenSubKey("Maxis");
-                if (Array.Exists(maxisKey.GetSubKeyNames(), delegate (string s) { return s.Equals("The Sims Online", StringComparison.InvariantCultureIgnoreCase); }))
-                {
-                    RegistryKey tsoKey = maxisKey.OpenSubKey("The Sims Online");
-                    return (string)tsoKey.GetValue("InstallDir") + "\\TSOClient\\";
-                }
-            }
-
-            return "";
-        }
-
-        /// <summary>
-        /// Gets a value indicating if platform is Linux.
-        /// </summary>
-        /// <value><c>true</c> if is Linux; otherwise, <c>false</c>.</value>
-        private bool IsLinux
-        {
-            get
-            {
-                int p = (int)Environment.OSVersion.Platform;
-                return (p == 4) || (p == 6) || (p == 128);
-            }
-        }
-
         /// <summary>
         /// Tests FAR1 parsing by attempting to open a FAR1 as a FAR3 archive.
         /// Currently hardcoded for Windows because test methods can't take parameters.
@@ -109,8 +35,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestIncorrectFAR1Parsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             FAR1Archive Arch = new FAR1Archive(GameDir + "uigraphics" + Delimiter + "credits" + Delimiter +
                 "credits.dat");
@@ -125,7 +51,7 @@ namespace Files.Tests
         [TestMethod]
         public void TestIncorrectFAR3Parsing()
         {
-            string GameDir = GetInstallDir();
+            string GameDir = CommonMethods.GetInstallDir();
 
             FAR3Archive Arch = new FAR3Archive(GameDir + "EP2.dat");
 
@@ -139,8 +65,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestIncorrectDBPFParsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             DBPFArchive Arch = new DBPFArchive(GameDir + "uigraphics" + Delimiter + "credits" + Delimiter + 
                 "credits.dat");
@@ -155,8 +81,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestCorrectFAR1Parsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             FAR1Archive Arch = new FAR1Archive(GameDir + "objectdata" + Delimiter + "objects" + Delimiter +
                 "objiff.far");
@@ -171,8 +97,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestCorrectFAR3Parsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             FAR3Archive Arch = new FAR3Archive(GameDir + "uigraphics" + Delimiter + "credits" + Delimiter +
                 "credits.dat");
@@ -187,7 +113,7 @@ namespace Files.Tests
         [TestMethod]
         public void TestCorrectDBPFParsing()
         {
-            string GameDir = GetInstallDir();
+            string GameDir = CommonMethods.GetInstallDir();
             
             DBPFArchive Arch = new DBPFArchive(GameDir + "EP2.dat");
 
@@ -201,8 +127,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestCorrectIFFParsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             FAR1Archive Arch = new FAR1Archive(GameDir + "objectdata" + Delimiter + "objects" + Delimiter +
                 "objiff.far");
@@ -219,8 +145,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestCorrectHITParsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             try
             {
@@ -240,8 +166,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestCorrectXAParsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             try
             {
@@ -262,8 +188,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestCorrectMP3Parsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             if (FileManager.IsLinux)
             {
@@ -302,8 +228,8 @@ namespace Files.Tests
         [TestMethod]
         public void TestCorrectIniParsing()
         {
-            string GameDir = GetInstallDir();
-            string Delimiter = (IsLinux) ? "//" : "\\";
+            string GameDir = CommonMethods.GetInstallDir();
+            string Delimiter = (CommonMethods.IsLinux) ? "//" : "\\";
 
             try
             {

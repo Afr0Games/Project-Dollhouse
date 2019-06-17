@@ -173,12 +173,12 @@ namespace Gonzo.Elements
             m_SkinBrowserArrowRight.OnButtonClicked += M_SkinBrowserArrowRight_OnButtonClicked;
         }
 
-        private void M_SkinBrowserArrowLeft_OnButtonClicked(object Sender)
+        private void M_SkinBrowserArrowLeft_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_Index++;
         }
 
-        private void M_SkinBrowserArrowRight_OnButtonClicked(object Sender)
+        private void M_SkinBrowserArrowRight_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             if(Index >= 1)
                 m_Index--;

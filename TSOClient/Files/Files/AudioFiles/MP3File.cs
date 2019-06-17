@@ -41,10 +41,13 @@ namespace Files.AudioFiles
 
         public MP3File(string Path)
         {
-            if(FileManager.IsLinux)
+            if (FileManager.IsLinux)
                 m_Stream = new MP3Stream(File.Open(Path, FileMode.Open, FileAccess.ReadWrite));
             else //Used by NAudio, only on Windows.
+            {
                 RFullyStream = new ReadFullyStream(File.Open(Path, FileMode.Open, FileAccess.ReadWrite));
+                m_BufWavProvider = new BufferedWaveProvider(new WaveFormat(new BinaryReader(RFullyStream)));
+            }
         }
 
         public MP3File(Stream Data)
@@ -55,7 +58,10 @@ namespace Files.AudioFiles
                 Channels = m_Stream.ChannelCount;
             }
             else //Used by NAudio, only on Windows.
+            {
                 RFullyStream = new ReadFullyStream(Data);
+                m_BufWavProvider = new BufferedWaveProvider(new WaveFormat(new BinaryReader(RFullyStream)));
+            }
         }
 
         /// <summary>
@@ -159,6 +165,7 @@ namespace Files.AudioFiles
     /// <summary>
     /// An exception thrown by the MP3File class.
     /// </summary>
+    [Serializable]
     public class MP3Exception : Exception
     {
         public MP3Exception(string Message) : base(Message)

@@ -685,8 +685,8 @@ namespace Gonzo
 
             if (!IsCompatibleObject(value))
             {
-                string message = String.Format(CultureInfo.CurrentCulture, "The value { 0}" +
-                " is not of type { 1}" +
+                string message = String.Format(CultureInfo.CurrentCulture, "The value {0}" +
+                " is not of type {1}" +
                 " and cannot be used in this generic collection", value, typeof(T));
                 throw new ArgumentException(message, "value");
             }

@@ -110,7 +110,7 @@ namespace GonzoTest
         /// User tried to scroll the text in the description textbox down.
         /// </summary>
         /// <param name="Sender"></param>
-        private void M_DescriptionScrollDownBtn_OnButtonClicked(object Sender)
+        private void M_DescriptionScrollDownBtn_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             if (!m_DescriptionTextEdit.ScrollDown())
                 m_DescriptionScrollDownBtn.Enabled = false;
@@ -119,7 +119,7 @@ namespace GonzoTest
         /// <summary>
         /// User tried to scroll the text in the description textbox up.
         /// </summary>
-        private void M_DescriptionScrollUpBtn_OnButtonClicked(object Sender)
+        private void M_DescriptionScrollUpBtn_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             if (!m_DescriptionTextEdit.ScrollUp())
                 m_DescriptionScrollUpBtn.Enabled = false;
@@ -128,7 +128,7 @@ namespace GonzoTest
         /// <summary>
         /// User wanted to exit the application.
         /// </summary>
-        private void M_ExitBtn_OnButtonClicked(object Sender)
+        private void M_ExitBtn_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_ExitDialog.Visible = true;
         }
@@ -136,7 +136,7 @@ namespace GonzoTest
         /// <summary>
         /// User wanted to change the sex of the avatar to male.
         /// </summary>
-        private void M_MaleBtn_OnButtonClicked(object Sender)
+        private void M_MaleBtn_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_HeadSkinBrowser.Sex = AvatarSex.Male;
             m_BodySkinBrowser.Sex = AvatarSex.Male;
@@ -148,7 +148,7 @@ namespace GonzoTest
         /// <summary>
         /// User wanted to change the sex of the avatar to female.
         /// </summary>
-        private void M_FemaleBtn_OnButtonClicked(object Sender)
+        private void M_FemaleBtn_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_HeadSkinBrowser.Sex = AvatarSex.Female;
             m_BodySkinBrowser.Sex = AvatarSex.Female;
@@ -161,7 +161,7 @@ namespace GonzoTest
         /// The player clicked the SkinLightButton.
         /// This causes the browsers' skin type to change to light.
         /// </summary>
-        private void M_SkinLightBtn_OnButtonClicked(object Sender)
+        private void M_SkinLightBtn_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_HeadSkinBrowser.SkinType = 0;
             m_BodySkinBrowser.SkinType = 0;
@@ -172,7 +172,7 @@ namespace GonzoTest
         /// The player clicked the SkinMediumButton.
         /// This causes the browsers' skin type to change to medium.
         /// </summary>
-        private void M_SkinMediumBtn_OnButtonClicked(object Sender)
+        private void M_SkinMediumBtn_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_HeadSkinBrowser.SkinType = 1;
             m_BodySkinBrowser.SkinType = 1;
@@ -183,7 +183,7 @@ namespace GonzoTest
         /// The player clicked the SkinDarkButton.
         /// This causes the browsers' skin type to change to dark.
         /// </summary>
-        private void M_SkinDarkBtn_OnButtonClicked(object Sender)
+        private void M_SkinDarkBtn_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_HeadSkinBrowser.SkinType = 2;
             m_BodySkinBrowser.SkinType = 2;

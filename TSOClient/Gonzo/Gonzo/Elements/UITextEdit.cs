@@ -1267,7 +1267,12 @@ namespace Gonzo.Elements
         {
             if (Disposed)
             {
-                m_CursorVisibilityTimer.Dispose();
+                if(m_CursorVisibilityTimer != null)
+                    m_CursorVisibilityTimer.Dispose();
+                if(m_FrameTimer != null)
+                    m_FrameTimer.Dispose();
+                if(m_FrameTex != null)
+                    m_FrameTex.Dispose();
 
                 // Prevent the finalizer from calling ~UITextEdit, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);

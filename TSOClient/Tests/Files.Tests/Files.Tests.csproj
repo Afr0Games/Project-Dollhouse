@@ -50,8 +50,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CommonMethods.cs" />
     <Compile Include="Endian.cs" />
-    <Compile Include="FileReaderTest.cs" />
+    <Compile Include="FileManagerTests.cs" />
+    <Compile Include="FileReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

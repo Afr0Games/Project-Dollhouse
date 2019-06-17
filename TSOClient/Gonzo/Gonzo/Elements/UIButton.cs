@@ -10,16 +10,29 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System;
 using Files;
 using Files.Manager;
-using UIParser;
 using UIParser.Nodes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gonzo.Elements
 {
-    public delegate void ButtonClickDelegate(object Sender);
+    public delegate void ButtonClickDelegate(object Sender, ButtonClickEventArgs E);
+
+    /// <summary>
+    /// A class based on EventArgs that contains information about a button click.
+    /// </summary>
+    public class ButtonClickEventArgs : EventArgs
+    {
+        public MouseButtons WhichButtonWasClicked;
+
+        public ButtonClickEventArgs(MouseButtons MButton) : base()
+        {
+            WhichButtonWasClicked = MButton;
+        }
+    }
 
     /// <summary>
     /// A clickable button that can trigger an event.
@@ -51,6 +64,7 @@ namespace Gonzo.Elements
         public bool Enabled = true;
 
         public bool m_IsButtonClicked = false;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event ButtonClickDelegate OnButtonClicked;
 
         public UIButton(AddButtonNode Node, ParseResult Result, UIScreen Screen) : base(Screen)
@@ -436,7 +450,7 @@ namespace Gonzo.Elements
                         TextDrawingColor = TextColorHighlighted;
                         m_SourcePosition.X += m_Size.X;
 
-                        OnButtonClicked?.Invoke(this);
+                        OnButtonClicked?.Invoke(this, new ButtonClickEventArgs(MouseButtons.LeftButton));
 
                         m_IsButtonClicked = true;
                     }

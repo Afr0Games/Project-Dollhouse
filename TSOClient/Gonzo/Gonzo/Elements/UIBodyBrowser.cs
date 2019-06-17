@@ -23,6 +23,7 @@ namespace Gonzo.Elements
     /// </summary>
     public class UIBodyBrowser : UISkinBrowser
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event UISkinButtonClicked OnButtonClicked;
         private Vector2 BodyTileSize = new Vector2(37, 76);
         private Texture2D m_EditBodySkinBtnTex;

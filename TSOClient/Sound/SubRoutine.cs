@@ -67,6 +67,7 @@ namespace Sound
         public SubRoutine(uint TID, uint Address, Hit Parent)
         {
             HitParent = Parent;
+            Initialize();
 
             TrackID = TID;
 

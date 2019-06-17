@@ -59,7 +59,7 @@ namespace Gonzo.Dialogs
             m_CloseButton.OnButtonClicked += CloseButton_OnButtonClicked;
         }
 
-        private void CloseButton_OnButtonClicked(object Sender)
+        private void CloseButton_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             Visible = false;
         }

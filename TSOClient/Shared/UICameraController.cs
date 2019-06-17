@@ -10,7 +10,6 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-
 using Microsoft.Xna.Framework;
 
 namespace Shared
@@ -36,7 +35,13 @@ namespace Shared
                 m_Camera.ProjectionOrigin = new Vector2(145, 80);
             else
                 m_Camera.ProjectionOrigin = new Vector2(175, 100);
+        }
 
+        /// <summary>
+        /// Initializes this UICameraController by calculating the projection and view.
+        /// </summary>
+        public void Initialize()
+        {
             CalculateProjection();
             CalculateView();
         }

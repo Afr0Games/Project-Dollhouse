@@ -15,14 +15,18 @@ using Shared;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using log4net;
+using System.Reflection;
 
 namespace Gonzo
 {
     /// <summary>
     /// Manager responsible for updating and drawing UIScreen instances.
     /// </summary>
-    public class ScreenManager
+    public class ScreenManager : IDisposable
     {
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         private GraphicsDevice m_Graphics;
         private List<UIScreen> m_Screens = new List<UIScreen>();
         private InputHelper m_Input;
@@ -162,6 +166,37 @@ namespace Gonzo
                 if (m_Screens[i].IsVitaboyScreen)
                     m_Screens[i].Draw();
             }
+        }
+
+        ~ScreenManager()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this ScreenManager instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this ScreenManager instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (m_SBatch != null)
+                    m_SBatch.Dispose();
+
+                // Prevent the finalizer from calling ~ScreenManager, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("ScreenManager not explicitly disposed!");
         }
     }
 }

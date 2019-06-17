@@ -41,6 +41,7 @@ namespace Shared
             m_Avatar = Avatar;
 
             CameraController = new UICameraController(Cam);
+            CameraController.Initialize();
         }
 
         /// <summary>

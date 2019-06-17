@@ -17,7 +17,15 @@ namespace Sound
         public bool can_move_next = true;
         private object _sub_input = null;
 
+        //Constructs this Coroutine instance. PLEASE CALL INITIALIZE() AFTER CONSTRUCTION!
         public Coroutine()
+        {
+        }
+
+        /// <summary>
+        /// Initializes this Coroutine instance.
+        /// </summary>
+        public void Initialize()
         {
             this._enumerator = this.process().GetEnumerator();
         }

@@ -74,7 +74,7 @@ namespace GonzoTest
         #region EventHandlers
 
 
-        private void MaxisButton_OnButtonClicked(object Sender)
+        private void MaxisButton_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_WillWrightDiag.Visible = true;
         }

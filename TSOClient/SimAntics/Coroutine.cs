@@ -14,7 +14,17 @@ namespace SimAntics
         public bool can_move_next = true;
         private object _sub_input = null;
 
+        /// <summary>
+        /// Constructs this Coroutine instance. CALL INITIALIZE() AFTER CALLING THE CONSTRUCTOR!
+        /// </summary>
         public Coroutine()
+        {
+        }
+
+        /// <summary>
+        /// Initializes this Coroutine. Should be called after constructing the object!
+        /// </summary>
+        public void Initialize()
         {
             this._enumerator = this.process().GetEnumerator();
         }

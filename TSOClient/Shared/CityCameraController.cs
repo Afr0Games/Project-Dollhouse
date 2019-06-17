@@ -24,7 +24,7 @@ namespace Shared
 
         private float m_ScreenWidth, m_ScreenHeight;
 
-        public CityCameraController(Camera Cam)
+        public CityCameraController(Camera Cam, float ScreenWidth, float ScreenHeight)
         {
             m_Camera = Cam;
             m_Camera.RotationX = 45f;
@@ -35,6 +35,16 @@ namespace Shared
             m_Camera.FarZoomScale = 5.10f;
             m_Camera.NearZoomScale = 144.0f;
 
+            m_ScreenWidth = ScreenWidth;
+            m_ScreenHeight = ScreenHeight;
+        }
+
+        /// <summary>
+        /// Initializes this CityCameraController by calling CalculateProjection() and CalculateView()
+        /// Should be called after constructing this object.
+        /// </summary>
+        public void Initialize()
+        {
             CalculateProjection();
             CalculateView();
         }

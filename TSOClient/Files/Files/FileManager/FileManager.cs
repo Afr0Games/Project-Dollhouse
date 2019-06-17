@@ -162,8 +162,10 @@ namespace Files.Manager
                 if (!Path.Contains("packingslips.dat"))
                 {
                     FAR3Archive Archive = new FAR3Archive(Path);
-                    if(Archive.ReadArchive(false))
+                    if (Archive.ReadArchive(false))
                         m_FAR3Archives.Add(Archive);
+                    else
+                        Archive.Dispose();
                 }
             }
 
@@ -181,8 +183,10 @@ namespace Files.Manager
             foreach (string Path in m_DBPFPaths)
             {
                 DBPFArchive Archive = new DBPFArchive(Path);
-                if(Archive.ReadArchive(false))
+                if (Archive.ReadArchive(false))
                     m_DBPFArchives.Add(Archive);
+                else
+                    Archive.Dispose();
             }
 
             m_StillLoading.Set();
@@ -1241,6 +1245,13 @@ namespace Files.Manager
             return "";
         }
 
+        /// <summary>
+        /// Generates a list of strings containing all the files having the supplied extension in the specified path.
+        /// </summary>
+        /// <param name="fileSearchPattern">The extension to search for.</param>
+        /// <param name="rootFolderPath">The path to search.</param>
+        /// <returns>An IEnumerable instance containing a list of strings with the qualified path to the file
+        /// corresponding to the <paramref name="fileSearchPattern"/> in the <paramref name="rootFolderPath"/></returns>
         private static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)
         {
             Queue<string> pending = new Queue<string>();

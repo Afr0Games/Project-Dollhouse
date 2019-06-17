@@ -213,12 +213,12 @@ namespace GonzoTest
 
         #region Eventhandlers
 
-        private void M_ExitButton_OnButtonClicked(object Sender)
+        private void M_ExitButton_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_ExitDialog.Visible = true;
         }
 
-        private void DescriptionTabBtn3_OnButtonClicked(object Sender)
+        private void DescriptionTabBtn3_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_HouseButton3.Visible = false;
             m_CityButton3.Visible = false;
@@ -239,7 +239,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void DescriptionTabBtn2_OnButtonClicked(object Sender)
+        private void DescriptionTabBtn2_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_HouseButton2.Visible = false;
             m_CityButton2.Visible = false;
@@ -260,7 +260,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void DescriptionTabBtn1_OnButtonClicked(object Sender)
+        private void DescriptionTabBtn1_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             m_HouseButton1.Visible = false;
             m_CityButton1.Visible = false;
@@ -281,7 +281,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void EnterTabBtn3_OnButtonClicked(object Sender)
+        private void EnterTabBtn3_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             if (m_Avatars.Count < 3)
             {
@@ -311,7 +311,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void EnterTabBtn2_OnButtonClicked(object Sender)
+        private void EnterTabBtn2_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             if (m_Avatars.Count < 2)
             {
@@ -341,7 +341,7 @@ namespace GonzoTest
             HitVM.PlayEvent("vox_teasee_giggle");
         }
 
-        private void EnterTabBtn1_OnButtonClicked(object Sender)
+        private void EnterTabBtn1_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
             if (m_Avatars.Count == 0)
             {
