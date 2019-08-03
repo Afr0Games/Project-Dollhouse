@@ -1,4 +1,16 @@
-﻿using System;
+﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at
+http://mozilla.org/MPL/2.0/.
+
+The Original Code is the Gonzo library.
+
+The Initial Developer of the Original Code is
+Mats 'Afr0' Vederhus. All Rights Reserved.
+
+Contributor(s):
+*/
+
+using System;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Gonzo.Elements;
@@ -115,7 +127,7 @@ namespace Gonzo.Dialogs
         }
 
         /// <summary>
-        /// Disposes of the resources used by this FAR1Archive instance.
+        /// Disposes of the resources used by this LoginDialog instance.
         /// </summary>
         public void Dispose()
         {
@@ -123,7 +135,7 @@ namespace Gonzo.Dialogs
         }
 
         /// <summary>
-        /// Disposes of the resources used by this FAR1Archive instance.
+        /// Disposes of the resources used by this LoginDialog instance.
         /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
         protected virtual void Dispose(bool Disposed)
@@ -135,7 +147,7 @@ namespace Gonzo.Dialogs
                 if (m_TxtPassword != null)
                     m_TxtPassword.Dispose();
 
-                // Prevent the finalizer from calling ~FAR1Archive, since the object is already disposed at this point.
+                // Prevent the finalizer from calling ~LoginDialog, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
             }
             else

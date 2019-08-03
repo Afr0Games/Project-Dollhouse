@@ -136,7 +136,7 @@ namespace Gonzo
         /// Gets a UIImage instance.
         /// </summary>
         /// <param name="Name">Name of the UIImage instance to get.</param>
-        /// <param name="Copy">Should this element be deep copied?</param>
+        /// <param name="Copy">Should this element be deep copied? Defaults to false.</param>
         /// <returns>A shallow or deep copy of the specified UIImage instance.</returns>
         public UIImage GetImage(string Name, bool Copy = false)
         {

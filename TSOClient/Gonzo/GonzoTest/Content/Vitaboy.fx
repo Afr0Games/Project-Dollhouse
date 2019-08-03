@@ -24,7 +24,7 @@ struct VitaboyInput
 
 struct VitaboyOutput
 {
-	float4 Position : POSITION0;
+	float4 Position : SV_POSITION;
 	float4 TexPosition : TEXCOORD0;
 	float4 Normal : NORMAL0;
 };
@@ -62,7 +62,7 @@ technique TransformVerticesTechnique
 {
 	pass HeadPass
 	{
-		VertexShader = compile vs_3_0 TransformVertices();
-		PixelShader = compile ps_3_0 VitaboyPixelShaderFunction();
+		VertexShader = compile vs_4_0_level_9_1 TransformVertices();
+		PixelShader = compile ps_4_0_level_9_1 VitaboyPixelShaderFunction();
 	}
 }
