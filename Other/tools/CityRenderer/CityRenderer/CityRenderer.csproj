@@ -39,12 +39,14 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Blend.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="CameraController.cs" />
     <Compile Include="CityCameraController.cs" />
-    <Content Include="Content\VTFDisplacement.fx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Content\CityPixelShader.fx" />
+    <Content Include="Content\CityVertexShader.fx" />
+    <Content Include="Content\Effects.fx" />
+    <Compile Include="CityRenderer.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GlobalSettings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -53,6 +55,7 @@
     </Compile>
     <Compile Include="Grid.cs" />
     <Compile Include="InputHelper.cs" />
+    <Compile Include="MeshVertex.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

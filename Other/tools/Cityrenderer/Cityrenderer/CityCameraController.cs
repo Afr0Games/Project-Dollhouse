@@ -99,8 +99,14 @@ namespace Cityrenderer
                     m_TargetViewOffsetY -= (Input.CurrentMouseState.Y - m_MouseStart.Y) / 1000;
                 }
 
-                m_TargetViewOffsetX = Math.Max(-135, Math.Min(m_TargetViewOffsetX, 138));
-                m_TargetViewOffsetY = Math.Max(-100, Math.Min(m_TargetViewOffsetY, 103));
+                /*m_TargetViewOffsetX = Math.Max(-135, Math.Min(m_TargetViewOffsetX, 138));
+                m_TargetViewOffsetY = Math.Max(-100, Math.Min(m_TargetViewOffsetY, 103));*/
+            }
+
+            if (m_MouseMoved)
+            {
+                m_TargetViewOffsetX += (Input.CurrentMouseState.X - m_MouseStart.X) / 1000; //move by fraction of distance between the mouse and where it started in both axis
+                m_TargetViewOffsetY -= (Input.CurrentMouseState.Y - m_MouseStart.Y) / 1000;
             }
         }
 

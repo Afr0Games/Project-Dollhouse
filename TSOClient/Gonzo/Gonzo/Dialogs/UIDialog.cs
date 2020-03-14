@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Diagnostics;
+using System.Collections.Generic;
 using Gonzo.Elements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -146,7 +147,7 @@ namespace Gonzo.Dialogs
         {
             Vector2 TopLeft = Element.Position; 
 
-            this.Position = new Vector2(OffsetX + TopLeft.X + ((Element.Size.X - m_Size.X) / 2), 
+            Position = new Vector2(OffsetX + TopLeft.X + ((Element.Size.X - m_Size.X) / 2), 
                 OffsetY + TopLeft.Y + ((Element.Size.Y - m_Size.Y) / 2));
 
             if(m_HasExitBtn)
@@ -178,6 +179,13 @@ namespace Gonzo.Dialogs
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY), null);
                 Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY), Depth);
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY), Depth);
+
+                if(m_DoDrag)
+                {
+                    if(Debugger.IsAttached) //Are we in debug mode?
+                        SBatch.DrawString(m_Font, "Position: " + Position.X.ToString() + ", " + Position.Y.ToString(), 
+                            new Vector2(0, 0), Color.Wheat);
+                }
 
                 if (m_HasExitBtn)
                 {

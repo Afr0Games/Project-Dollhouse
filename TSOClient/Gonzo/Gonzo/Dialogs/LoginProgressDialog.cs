@@ -40,9 +40,10 @@ namespace Gonzo.Dialogs
                 m_Screen.StandardTxtColor, 11, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
 
             RelativePosition = new Vector2(20, 85);
-            m_ProgressBar = new UIProgressBar(m_Screen, Pos + RelativePosition, 250);
+            m_ProgressBar = new UIProgressBar(m_Screen, Pos + RelativePosition, 250, this);
+            RegistrableUIElements.Add("ProgressBar", m_ProgressBar);
 
-            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 40) * Resolution.getVirtualAspectRatio()),
+            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 100) * Resolution.getVirtualAspectRatio()),
                 (int)(175 * Resolution.getVirtualAspectRatio()));
         }
 
@@ -52,6 +53,8 @@ namespace Gonzo.Dialogs
 
             if (Visible)
             {
+                //m_ProgressBar.Update(Helper, GTime);
+
                 if (m_DoDrag)
                 {
                     Vector2 OffsetFromMouse = new Vector2(60, 0);

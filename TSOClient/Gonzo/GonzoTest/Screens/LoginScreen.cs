@@ -20,10 +20,12 @@ namespace GonzoTest
             new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight))
         {
             m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
-            m_LoginDiag = new LoginDialog(this, new Vector2(GlobalSettings.Default.ScreenWidth / 2, 
-                GlobalSettings.Default.ScreenHeight / 2));
-            m_LoginProgressDiag = new LoginProgressDialog(this, new Vector2(GlobalSettings.Default.ScreenWidth / 2,
-                (GlobalSettings.Default.ScreenHeight / 2) + 50));
+            m_LoginDiag = new LoginDialog(this, new Vector2(
+                (GlobalSettings.Default.ScreenWidth / 2) * Resolution.getVirtualAspectRatio(), 
+                ((GlobalSettings.Default.ScreenHeight / 2) - 150) * Resolution.getVirtualAspectRatio()));
+            m_LoginProgressDiag = new LoginProgressDialog(this, new Vector2(
+                (GlobalSettings.Default.ScreenWidth - 350) * Resolution.getVirtualAspectRatio(),
+                (GlobalSettings.Default.ScreenHeight / 2) * Resolution.getVirtualAspectRatio()));
 
             foreach (KeyValuePair<string, UIElement> KVP in m_LoginDiag.RegistrableUIElements)
                 m_PResult.Elements.Add(KVP.Key, KVP.Value);

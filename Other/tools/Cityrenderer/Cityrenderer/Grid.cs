@@ -78,7 +78,6 @@ namespace Cityrenderer
             device.SetVertexBuffer(vb, 0);
             device.Indices = ib;
             device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, (m_Dimension + 1) * (m_Dimension + 1), 0, 2 * m_Dimension * m_Dimension);
-
         }
 
         public void LoadGraphicsContent()

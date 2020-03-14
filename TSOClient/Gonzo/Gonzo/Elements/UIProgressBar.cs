@@ -48,7 +48,7 @@ namespace Gonzo.Elements
 
             string InitialValue = m_ProgressInPercentage.ToString() + " %";
 
-            m_LblProgressInPercentage = new UILabel(InitialValue, 1, new Vector2(Width / 2, 0), 
+            m_LblProgressInPercentage = new UILabel(InitialValue, 1, Position + new Vector2(Width / 2, 0), 
                 m_Font.MeasureString(InitialValue), Color.Black, 11, m_Screen); 
 
             Position = ProgressBarPosition;
@@ -67,14 +67,39 @@ namespace Gonzo.Elements
             m_LblProgressInPercentage.Caption = m_ProgressInPercentage.ToString() + " %";
         }
 
+        public override void Update(InputHelper Helper, GameTime GTime)
+        {
+            m_LblProgressInPercentage.Position = Position + new Vector2(Size.X / 2, 0);
+
+            base.Update(Helper, GTime);
+        }
+
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
-            SBatch.Draw(m_ProgressBarBack, new Rectangle((int)Position.X, (int)Position.Y, (int)m_Size.X, (int)m_Size.Y), 
-                Color.White);
+            //Texture is 45px / 3 = 15px wide
+            SBatch.Draw(m_ProgressBarBack, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_Size.Y),
+                new Rectangle(0, 0, 15, (int)m_Size.Y), Color.White);
+
+            SBatch.Draw(m_ProgressBarBack, new Rectangle((int)(Position.X + 15), (int)Position.Y, (int)(Size.X - 30), 
+                (int)m_Size.Y), new Rectangle(15, 0, 15, (int)m_Size.Y), Color.White);
+
+            SBatch.Draw(m_ProgressBarBack, new Rectangle((int)((Position.X + Size.X) - 15), (int)Position.Y, 15, 
+                (int)m_Size.Y), new Rectangle(30, 0, 15, (int)m_Size.Y), Color.White);
 
             if (m_ProgressInPercentage > 0)
-                SBatch.Draw(m_ProgressBarFront, new Rectangle((int)Position.X, (int)Position.Y, (int)m_Size.X, 
-                    (int)(m_ProgressInPercentage / 100) * TotalProgressInPercentage), Color.White);
+            {
+                //Texture is 45px / 3 = 15px wide
+                SBatch.Draw(m_ProgressBarFront, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_Size.Y),
+                    new Rectangle(0, 0, 15, (int)m_Size.Y), Color.White);
+
+                SBatch.Draw(m_ProgressBarFront, new Rectangle((int)Position.X + 15, (int)Position.Y, 15, (int)m_Size.Y),
+                    new Rectangle(15, 0, (m_ProgressInPercentage / 100) * TotalProgressInPercentage, 
+                    (int)m_Size.Y), Color.White);
+
+                SBatch.Draw(m_ProgressBarFront, 
+                    new Rectangle((int)(Position.X + (m_ProgressInPercentage / 100) * TotalProgressInPercentage) - 15, 
+                    (int)Position.Y, 15, (int)m_Size.Y), new Rectangle(30, 0, 15, (int)m_Size.Y), Color.White);
+            }
 
             m_LblProgressInPercentage.Draw(SBatch, LayerDepth);
 
