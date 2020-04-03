@@ -17,7 +17,8 @@ namespace Cityrenderer
         GraphicsDevice device;
         VertexBuffer vb;
         IndexBuffer ib;
-        VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[4];
+        //VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[4];
+        CityVertex[] vertices = new CityVertex[4];
         int[] m_Indices = new int[6];
 
         private VertexDeclaration m_VertexDecl;
@@ -40,16 +41,24 @@ namespace Cityrenderer
 
         public void GenerateStructures()
         {
-            vertices = new VertexPositionNormalTexture[(m_Dimension) * (m_Dimension)];
+            /*vertices = new VertexPositionNormalTexture[(m_Dimension) * (m_Dimension)];*/
+            vertices = new CityVertex[(m_Dimension) * (m_Dimension)];
             m_Indices = new int[m_Dimension * m_Dimension * 6];
             for (int i = 0; i < m_Dimension; i++)
             {
                 for (int j = 0; j < m_Dimension; j++)
                 {
-                    VertexPositionNormalTexture vert = new VertexPositionNormalTexture();
+                    //VertexPositionNormalTexture vert = new VertexPositionNormalTexture();
+                    CityVertex vert = new CityVertex();
                     vert.Position = new Vector3((i - m_Dimension / 2.0f) * m_CellSize, 0, (j - m_Dimension / 2.0f) * m_CellSize);
                     vert.Normal = Vector3.Up;
-                    vert.TextureCoordinate = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
+                    vert.GrassCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
+                    vert.RockCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
+                    vert.SnowCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
+                    vert.SandCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
+                    vert.WaterCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
+                    vert.BlendCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
+                    vert.TerrainTypeCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
                     vertices[i * (m_Dimension) + j] = vert;
                 }
             }
@@ -87,7 +96,7 @@ namespace Cityrenderer
             IGraphicsDeviceService igs = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
             device = igs.GraphicsDevice;
 
-            vb = new VertexBuffer(device, typeof(VertexPositionNormalTexture), (m_Dimension) * (m_Dimension), BufferUsage.WriteOnly);
+            vb = new VertexBuffer(device, /* typeof(VertexPositionNormalTexture)*/typeof(CityVertex), (m_Dimension) * (m_Dimension), BufferUsage.WriteOnly);
             ib = new IndexBuffer(device, IndexElementSize.ThirtyTwoBits, 6 * m_Dimension * m_Dimension * sizeof(int), BufferUsage.WriteOnly);
             vb.SetData(vertices);
             ib.SetData(m_Indices);

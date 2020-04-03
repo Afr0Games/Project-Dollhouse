@@ -34,7 +34,7 @@ namespace Cityrenderer
         private int m_TerrainWidth, m_TerrainHeight;
         private float[,] m_HeightData;
         private int[] m_Indices;
-        private /*VertexPositionNormalTexture[]*/CityVertex[] m_Vertices;
+        private CityVertex[] m_Vertices;
         private Matrix m_ViewMatrix, m_ProjectionMatrix;
 
         public CityRenderer(GraphicsDevice Device, string CityPath, string TerrainPath)
@@ -49,11 +49,11 @@ namespace Cityrenderer
             m_Effect = FX;
 
             m_Elevation = LoadTexture(m_CityPath + "\\elevation.bmp");
-            m_Elevation = RotateTexture(m_Elevation, 293);
+            m_Elevation = RotateTexture(m_Elevation, 256);
             m_TerrainType = LoadTexture(m_CityPath + "\\terraintype.bmp");
-            m_TerrainType = RotateTexture(m_TerrainType);
+            m_TerrainType = RotateTexture(m_TerrainType, 256);
             m_VertexColor = LoadTexture(m_CityPath + "\\vertexcolor.bmp");
-            m_VertexColor = RotateTexture(m_VertexColor);
+            m_VertexColor = RotateTexture(m_VertexColor, 256);
 
             m_Grass = LoadTexture(m_TerrainPath + "gr.tga");
             m_Rock = LoadTexture(m_TerrainPath + "rk.tga");
@@ -65,9 +65,9 @@ namespace Cityrenderer
             m_CController = new CityCameraController(m_Camera);
 
             LoadHeightData(m_Elevation);
-            //SetUpCamera();
             SetUpVertices();
             SetUpIndices();
+            InitializeNormals();
 
             m_Elevation.Dispose();
         }
@@ -89,10 +89,10 @@ namespace Cityrenderer
                 //HeightMapColors[i + 1] = InitialHeightMapColors[i];
             }
 
-            m_HeightData = new float[m_TerrainWidth /** 2*/, m_TerrainHeight /** 2*/];
-            for (int x = 0; x < ((m_TerrainWidth) - 1); x++ /*+= 2*/)
+            m_HeightData = new float[m_TerrainWidth, m_TerrainHeight];
+            for (int x = 0; x < ((m_TerrainWidth) - 1); x++)
             {
-                for (int y = 0; y < ((m_TerrainHeight) - 1); y++ /*+= 2*/)
+                for (int y = 0; y < ((m_TerrainHeight) - 1); y++)
                 {
                     m_HeightData[x, y] = HeightMapColors[x + y * m_TerrainWidth].R / 12.0f;
                     m_HeightData[x + 1, y + 1] = HeightMapColors[(x + 1) + (y + 1) * m_TerrainWidth].R / 12.0f;
@@ -102,21 +102,78 @@ namespace Cityrenderer
 
         private void SetUpVertices()
         {
-            m_Vertices = new CityVertex[(m_TerrainWidth /** 2*/) * (m_TerrainHeight /** 2*/)];
-            for (int x = 0; x < (m_TerrainWidth /** 2*/); x++)
+            m_Vertices = new CityVertex[(m_TerrainWidth) * (m_TerrainHeight)];
+            for (int x = 0; x < (m_TerrainWidth); x++)
             {
-                for (int y = 0; y < (m_TerrainHeight /** 2*/); y++)
+                for (int y = 0; y < (m_TerrainHeight); y++)
                 {
                     m_Vertices[x + y * (m_TerrainWidth /** 2*/)].Position = new Vector3(x, m_HeightData[x, y], -y);
                     m_Vertices[x + y * (m_TerrainWidth /** 2*/)].Normal = Vector3.Up;
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].TerrainTypeCoord = new Vector2((float)x / (m_TerrainWidth /** 2*/), (float)y / (m_TerrainHeight /** 2*/));
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].BlendCoord = new Vector2((float)x / (m_TerrainWidth /** 2*/), (float)y / (m_TerrainHeight /** 2*/));
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].GrassCoord = new Vector2((float)x / (m_TerrainWidth /** 2*/), (float)y / (m_TerrainHeight /** 2*/));
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].RockCoord = new Vector2((float)x / (m_TerrainWidth /** 2*/), (float)y / (m_TerrainHeight /** 2*/));
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].SandCoord = new Vector2((float)x / (m_TerrainWidth /** 2*/), (float)y / (m_TerrainHeight /** 2*/));
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].SnowCoord = new Vector2((float)x / (m_TerrainWidth /** 2*/), (float)y / (m_TerrainHeight /** 2*/));
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].WaterCoord = new Vector2((float)x / (m_TerrainWidth /** 2*/), (float)y / (m_TerrainHeight /** 2*/));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].TerrainTypeCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].BlendCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].GrassCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].RockCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].SandCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].SnowCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].WaterCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
                 }
+            }
+        }
+
+        private void SetUpIndices()
+        {
+            m_Indices = new int[((m_TerrainWidth) - 1) * ((m_TerrainHeight) - 1) * 6];
+            int counter = 0;
+            for (int y = 0; y < (m_TerrainHeight) - 1; y++)
+            {
+                for (int x = 0; x < (m_TerrainWidth) - 1; x++)
+                {
+                    int lowerLeft = x + y * (m_TerrainWidth);
+                    int lowerRight = (x + 1) + y * (m_TerrainWidth);
+                    int topLeft = x + (y + 1) * (m_TerrainWidth);
+                    int topRight = (x + 1) + (y + 1) * (m_TerrainWidth);
+
+                    m_Indices[counter++] = topLeft;
+                    m_Indices[counter++] = lowerRight;
+                    m_Indices[counter++] = lowerLeft;
+
+                    m_Indices[counter++] = topLeft;
+                    m_Indices[counter++] = topRight;
+                    m_Indices[counter++] = lowerRight;
+                }
+            }
+        }
+
+        private void InitializeNormals()
+        {
+            for (int i = 0; i < m_Vertices.Length - 1; i++)
+                m_Vertices[i].Normal = Vector3.Zero;
+
+            for (int i = 0; i < m_Indices.Length - 1; i += 6)
+            {
+                int index0 = m_Indices[i];
+                int index1 = m_Indices[i + 1];
+                int index2 = m_Indices[i + 2];
+
+                int index3 = m_Indices[i + 3];
+                int index4 = m_Indices[i + 4];
+                int index5 = m_Indices[i + 5];
+
+                Vector3 side0 = m_Vertices[index0].Position - m_Vertices[index2].Position;
+                Vector3 side1 = m_Vertices[index0].Position - m_Vertices[index1].Position;
+                Vector3 normal = Vector3.Cross(side0, side1);
+
+                Vector3 side2 = m_Vertices[index3].Position - m_Vertices[index5].Position;
+                Vector3 side3 = m_Vertices[index3].Position - m_Vertices[index4].Position;
+                Vector3 normal2 = Vector3.Cross(side2, side3);
+
+                m_Vertices[index0].Normal += normal;
+                m_Vertices[index1].Normal += normal;
+                m_Vertices[index2].Normal += normal;
+
+                m_Vertices[index3].Normal += normal2;
+                m_Vertices[index4].Normal += normal2;
+                m_Vertices[index5].Normal += normal2;
             }
         }
 
@@ -132,7 +189,7 @@ namespace Cityrenderer
             m_Device.Clear(Color.Black);
             SBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullCounterClockwise, null);
             m_Device.SetRenderTarget(RTarget);
-            SBatch.Draw(TextureToRotate, new Vector2(-275, 250), null, Color.White, (float)-44.77, new Vector2(0, 0), 1.26f, SpriteEffects.None, 0);
+            SBatch.Draw(TextureToRotate, new Vector2(-275, 250), null, Color.White, (float)MathHelper.ToRadians(-44.77f), new Vector2(0, 0), 1.26f, SpriteEffects.None, 0);
             SBatch.End();
 
             m_Device.SetRenderTarget(null);
@@ -140,36 +197,6 @@ namespace Cityrenderer
 
             return RTarget;
         }
-
-        private void SetUpIndices()
-        {
-            m_Indices = new int[((m_TerrainWidth /** 2*/) - 1) * ((m_TerrainHeight /** 2*/) - 1) * 6];
-            int counter = 0;
-            for (int y = 0; y < (m_TerrainHeight /** 2*/) - 1; y++)
-            {
-                for (int x = 0; x < (m_TerrainWidth /** 2*/) - 1; x++)
-                {
-                    int lowerLeft = x + y * (m_TerrainWidth /** 2*/);
-                    int lowerRight = (x + 1) + y * (m_TerrainWidth /** 2*/);
-                    int topLeft = x + (y + 1) * (m_TerrainWidth /** 2*/);
-                    int topRight = (x + 1) + (y + 1) * (m_TerrainWidth /** 2*/);
-
-                    m_Indices[counter++] = topLeft;
-                    m_Indices[counter++] = lowerRight;
-                    m_Indices[counter++] = lowerLeft;
-
-                    m_Indices[counter++] = topLeft;
-                    m_Indices[counter++] = topRight;
-                    m_Indices[counter++] = lowerRight;
-                }
-            }
-        }
-
-        /*private void SetUpCamera()
-        {
-            m_ViewMatrix = Matrix.CreateLookAt(new Vector3(60, 80, -80), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-            m_ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, m_Device.Viewport.AspectRatio, 1.0f, 300.0f);
-        }*/
 
         /// <summary>
         /// Loads a texture from the specified path.
@@ -195,29 +222,22 @@ namespace Cityrenderer
             Input.Update();
             m_CController.Update(Input);
         }
-        
+
         public void Draw()
         {
-            Matrix WorldMatrix = Matrix.CreateTranslation((-m_TerrainWidth /** 2*/) / 2.0f, 0, (m_TerrainHeight /** 2*/) / 2.0f);
+            Matrix WorldMatrix = Matrix.CreateTranslation((-m_TerrainWidth) / 2.0f, 0, (m_TerrainHeight) / 2.0f);
 
             m_Effect.CurrentTechnique = m_Effect.Techniques["Textured"];
-            //m_Effect.Parameters["TerrainTypeSampler"].SetValue(m_TerrainType);
             m_Effect.Parameters["Blend"].SetValue(m_VertexColor);
-            /*m_Effect.Parameters["GrassSampler"].SetValue(m_Grass);
-            m_Effect.Parameters["RockSampler"].SetValue(m_Rock);
-            m_Effect.Parameters["SandSampler"].SetValue(m_Sand);
-            //m_Effect.Parameters["SnowSampler"].SetValue(m_Snow);
-            m_Effect.Parameters["WaterSampler"].SetValue(m_Water);*/
-            //m_Effect.Parameters["xTexture"].SetValue(m_Grass);
             m_Effect.Parameters["TerrainType"].SetValue(m_TerrainType);
             m_Effect.Parameters["Grass"].SetValue(m_Grass);
             m_Effect.Parameters["Rock"].SetValue(m_Rock);
             m_Effect.Parameters["Sand"].SetValue(m_Sand);
             m_Effect.Parameters["Snow"].SetValue(m_Snow);
             m_Effect.Parameters["Water"].SetValue(m_Water);
-            m_Effect.Parameters["xView"].SetValue(m_CController.View/*m_ViewMatrix*/);
-            m_Effect.Parameters["xProjection"].SetValue(m_CController.Projection/*m_ProjectionMatrix*/);
-            m_Effect.Parameters["xWorld"].SetValue(WorldMatrix/*Matrix.Identity*/);
+            m_Effect.Parameters["xView"].SetValue(m_CController.View);
+            m_Effect.Parameters["xProjection"].SetValue(m_CController.Projection);
+            m_Effect.Parameters["xWorld"].SetValue(WorldMatrix);
 
             RasterizerState RS = new RasterizerState();
             RS.CullMode = CullMode.None;
@@ -231,9 +251,8 @@ namespace Cityrenderer
                 Pass.Apply();
 
                 m_Device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, m_Vertices, 0, m_Vertices.Length,
-                    m_Indices, 0, m_Indices.Length / 3, /*VertexPositionNormalTexture.VertexDeclaration*/CityVertex.VertexElements);
+                    m_Indices, 0, m_Indices.Length / 3, CityVertex.VertexElements);
             }
         }
     }
 }
- 

@@ -57,10 +57,12 @@ namespace Cityrenderer
             m_MouseMoved = Input.IsCurPress(MouseButtons.RightButton);
 
             if (Input.IsNewPress(MouseButtons.RightButton))
-                m_MouseStart = new Vector2(Input.CurrentMouseState.X, Input.CurrentMouseState.Y);
-            else if(Input.IsOldPress(MouseButtons.LeftButton))
             {
-                if(!m_Zoomed)
+                m_MouseStart = new Vector2(Input.CurrentMouseState.X, Input.CurrentMouseState.Y);
+            }
+            else if (Input.IsOldPress(MouseButtons.LeftButton))
+            {
+                if (!m_Zoomed)
                 {
                     m_Zoomed = true;
                     double ResScale = 768.0 / m_ScreenHeight;
