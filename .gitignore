@@ -81,3 +81,7 @@ UpgradeLog*.htm
 TSOClient/tso.client/GlobalSettings1.Designer.cs
 TSOClient/Gonzo/.vs/Gonzo/v15/Server/sqlite3/storage.ide
 TSOClient/Gonzo/.vs/Gonzo/v15/Server/sqlite3/storage.ide
+Other/tools/FarExtractor/FarExtractor/bin/Debug/FarExtractor.exe
+Other/tools/FarExtractor/FarExtractor/bin/Debug/FarExtractor.exe
+Other/tools/FarExtractor/FarExtractor/obj/Debug/FarExtractor.exe
+Other/tools/FarExtractor/FarExtractor/obj/Debug/FarExtractor.pdb
