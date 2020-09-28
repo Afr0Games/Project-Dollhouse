@@ -16,13 +16,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 using log4net;
 
 namespace Files.FAR1
 {
     public class FAR1Archive : IDisposable
     {
-        private EntryContainer m_Entries = new EntryContainer();
+        private Dictionary<byte[], FAR1Entry> m_Entries = new Dictionary<byte[], FAR1Entry>(new ByteArrayComparer());
         private string m_Path;
         private FileReader m_Reader;
 
@@ -72,13 +73,50 @@ namespace Files.FAR1
                     Entry.DecompressedDataSize = m_Reader.ReadUInt32();
                     Entry.DataOffset = m_Reader.ReadUInt32();
                     Entry.FilenameLength = m_Reader.ReadUShort();
-                    Entry.FilenameHash = FileUtilities.GenerateHash(Enc.GetString(m_Reader.ReadBytes(Entry.FilenameLength)));
 
-                    m_Entries.Add(Entry);
+                    if (IsAssemblyDebugBuild(Assembly.GetExecutingAssembly()))
+                    {
+                        string Filename = Enc.GetString(m_Reader.ReadBytes(Entry.FilenameLength));
+                        Entry.Filename = Filename;
+                        Entry.EntryType = GetEntryType(Filename);
+                        Entry.FilenameHash = FileUtilities.GenerateHash(Filename);
+                    }
+                    else
+                        Entry.FilenameHash = FileUtilities.GenerateHash(Enc.GetString(m_Reader.ReadBytes(Entry.FilenameLength)));
+
+                    m_Entries.Add(Entry.FilenameHash, Entry);
                 }
 
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Gets the entry type for an entry. Only used in debug builds, because string search/parsing is SLOW.
+        /// </summary>
+        /// <param name="Filename">The filename to check.</param>
+        /// <returns>The type of the entry, based on the filename.</returns>
+        private FAR1EntryType GetEntryType(string Filename)
+        {
+            if (Filename.Contains(".iff"))
+                return FAR1EntryType.IFF;
+            else if (Filename.Contains(".otf"))
+                return FAR1EntryType.OTF;
+            else if (Filename.Contains(".spf"))
+                return FAR1EntryType.SPF;
+            else if (Filename.Contains(".flr"))
+                return FAR1EntryType.FLR;
+            else if (Filename.Contains(".wll"))
+                return FAR1EntryType.WLL;
+            else if (Filename.Contains(".bmp"))
+                return FAR1EntryType.BMP;
+
+            return FAR1EntryType.UNK; //Unknown
+        }
+
+        private bool IsAssemblyDebugBuild(Assembly assembly)
+        {
+            return assembly.GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
         }
 
         /// <summary>
@@ -115,7 +153,7 @@ namespace Files.FAR1
 
             for (int i = 0; i < Entries.Count; i++)
             {
-                if (!m_Entries.Contains(Entries[i]))
+                if (!m_Entries.ContainsKey(Entries[i]))
                     throw new FAR1Exception("Couldn't find entry - FAR1Archive.cs!");
             }
 
@@ -133,8 +171,8 @@ namespace Files.FAR1
         {
             List<FAR1Entry> GrabbedEntries = new List<FAR1Entry>();
 
-            foreach (FAR1Entry Entry in m_Entries)
-                GrabbedEntries.Add(Entry);
+            foreach (KeyValuePair<byte[], FAR1Entry> Entry in m_Entries)
+                GrabbedEntries.Add(Entry.Value);
 
             return GrabbedEntries;
         }
@@ -146,7 +184,7 @@ namespace Files.FAR1
         /// <returns>True if entry was found, false otherwise.</returns>
         public bool ContainsEntry(byte[] FilenameHash)
         {
-            return m_Entries.Contains(FilenameHash);
+            return m_Entries.ContainsKey(FilenameHash);
         }
 
         ~FAR1Archive()
@@ -178,6 +216,57 @@ namespace Files.FAR1
             }
             else
                 m_Logger.Error("FAR1Archive not explicitly disposed!");
+        }
+    }
+
+    /// <summary>
+    /// A simple ByteArrayComparer that can be passed to a Dictionary.
+    /// </summary>
+    public class ByteArrayComparer : EqualityComparer<byte[]>
+    {
+        public override bool Equals(byte[] first, byte[] second)
+        {
+            if (first == null || second == null)
+            {
+                // null == null returns true.
+                // non-null == null returns false.
+                return first == second;
+            }
+            if (ReferenceEquals(first, second))
+            {
+                return true;
+            }
+            if (first.Length != second.Length)
+            {
+                return false;
+            }
+            // Linq extension method is based on IEnumerable, must evaluate every item.
+            return first.SequenceEqual(second);
+        }
+
+        /// <summary>
+        /// Gets the hash code for a byte array. Only works with cryptographic hashes!
+        /// </summary>
+        /// <param name="obj">The byte array, a crypto hash.</param>
+        /// <returns>The hash code.</returns>
+        public override int GetHashCode(byte[] obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+            if (obj.Length >= 4)
+            {
+                return BitConverter.ToInt32(obj, 0);
+            }
+            // Length occupies at most 2 bits. Might as well store them in the high order byte
+            int value = obj.Length;
+            foreach (var b in obj)
+            {
+                value <<= 8;
+                value += b;
+            }
+            return value;
         }
     }
 }
