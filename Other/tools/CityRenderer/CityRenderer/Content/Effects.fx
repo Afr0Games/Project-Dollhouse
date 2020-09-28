@@ -12,8 +12,15 @@ struct VertexToPixel
 {
 	float4 Position   	: POSITION;
 	float4 Color		: COLOR0;
-	float2 TextureCoords : TEXCOORD0;
-	float4 LightingFactor : NORMAL0;
+	//float2 TextureCoords : TEXCOORD0;
+	float2 TerrainTypeCoords : TEXCOORD0;
+	float2 GrassCoords : TEXCOORD1;
+	float2 RockCoords : TEXCOORD2;
+	float2 SandCoords : TEXCOORD3;
+	float2 BlendCoords : TEXCOORD4;
+	float2 SnowCoords : TEXCOORD5;
+	float2 WaterCoords : TEXCOORD6;
+	float3 LightingFactor : NORMAL0;
 };
 
 struct PixelToFrame
@@ -207,15 +214,22 @@ technique Colored
 
 //------- Technique: Textured --------
 
-VertexToPixel TexturedVS(float4 inPos : POSITION, /*float4 inColor : COLOR0,*/ float2 inTexCoords : TEXCOORD0, float3 inNormal : NORMAL)
+VertexToPixel TexturedVS(float4 inPos : POSITION, float4 inColor : COLOR0, float2 inTexCoords : TEXCOORD0, float2 inGrassCoords : TEXCOORD1, float2 inRockCoords : TEXCOORD2, float2 inSandCoords : TEXCOORD3, float2 inBlendCoords : TEXCOORD4, float2 inSnowCoords : TEXCOORD5, float2 inWaterCoords : TEXCOORD6, float3 inNormal : NORMAL)
 {
 	VertexToPixel Output = (VertexToPixel)0;
 	float4x4 preViewProjection = mul(xView, xProjection);
 	float4x4 preWorldViewProjection = mul(xWorld, preViewProjection);
 
 	Output.Position = mul(inPos, preWorldViewProjection);
-	//Output.Color = inColor;
-	Output.TextureCoords = inTexCoords;
+	Output.Color = inColor;
+	//Output.TextureCoords = inTexCoords;
+	Output.TerrainTypeCoords = inTexCoords;
+	Output.GrassCoords = inGrassCoords;
+	Output.RockCoords = inRockCoords;
+	Output.SandCoords = inSandCoords;
+	Output.BlendCoords = inBlendCoords;
+	Output.SnowCoords = inSnowCoords;
+	Output.WaterCoords = inWaterCoords;
 
 	float3 Normal = normalize(mul(normalize(inNormal), xWorld));
 	Output.LightingFactor = 1;
@@ -225,7 +239,7 @@ VertexToPixel TexturedVS(float4 inPos : POSITION, /*float4 inColor : COLOR0,*/ f
 	return Output;
 }
 
-PixelToFrame TexturedPS(VertexToPixel PSIn) : COLOR0
+PixelToFrame TexturedPS(VertexToPixel PSIn)
 {
 	PixelToFrame Output = (PixelToFrame)0;
 	/*float4 Color = TerrainType.Sample(TerrainTypeSampler, PSIn.TextureCoords);
@@ -258,20 +272,20 @@ PixelToFrame TexturedPS(VertexToPixel PSIn) : COLOR0
 	//Output.Color = tex2D(TextureSampler, PSIn.TextureCoords);
 
 	//float4 Color = tex2D(TerrainTypeSampler, PSIn.TerrainTypeCoords);
-	float4 Color = TerrainType.Sample(TerrainTypeSampler, PSIn.TextureCoords);
+	float4 Color = TerrainType.Sample(TerrainTypeSampler, PSIn.TerrainTypeCoords);
 	float4 GrassClr = float4(0, 255, 0, 255);
 	float4 RockClr = float4(255, 0, 0, 255);
 	float4 SandClr = float4(255, 255, 0, 255);
 	float4 SnowClr = float4(255, 255, 255, 255);
 	float4 WaterClr = float4(12, 0, 255, 255);
 
-	float4 GrassResult = tex2D(GrassSampler, PSIn.TextureCoords);
-	float4 RockResult = tex2D(RockSampler, PSIn.TextureCoords);
-	float4 SandResult = tex2D(SandSampler, PSIn.TextureCoords);
-	float4 SnowResult = tex2D(SnowSampler, PSIn.TextureCoords);
-	float4 WaterResult = tex2D(WaterSampler, PSIn.TextureCoords);
+	float4 GrassResult = tex2D(GrassSampler, PSIn.GrassCoords);
+	float4 RockResult = tex2D(RockSampler, PSIn.RockCoords);
+	float4 SandResult = tex2D(SandSampler, PSIn.SandCoords);
+	float4 SnowResult = tex2D(SnowSampler, PSIn.SnowCoords);
+	float4 WaterResult = tex2D(WaterSampler, PSIn.WaterCoords);
 
-	float4 BaseColor = TerrainType.Sample(TerrainTypeSampler, PSIn.TextureCoords);
+	float4 BaseColor = TerrainType.Sample(TerrainTypeSampler, PSIn.TerrainTypeCoords);
 
 	if (all(Color == GrassClr))
 		BaseColor = GrassResult;
@@ -291,13 +305,13 @@ PixelToFrame TexturedPS(VertexToPixel PSIn) : COLOR0
 	//Does color need to be assigned before control leaves the function???
 	//Output.Color = tex2D(TerrainTypeSampler, PSIn.TerrainTypeCoords);
 
-	float4 BlendColor = Blend.Sample(BlendSampler, PSIn.TextureCoords);
+	float4 BlendColor = Blend.Sample(BlendSampler, PSIn.BlendCoords);
 	//float4 BaseColor = xTexture.Sample(TextureSampler, PSIn.TextureCoords);
 
 	Output.Color = lerp(BaseColor, BlendColor, BlendColor.r);
 	Output.Color *= lerp(BaseColor, BlendColor, BlendColor.g);
 	Output.Color *= lerp(BaseColor, BlendColor, BlendColor.b);
-	Output.Color *= saturate(PSIn.LightingFactor + xAmbient);
+	Output.Color.rgb *= saturate(PSIn.LightingFactor + xAmbient);
 
 	return Output;
 }

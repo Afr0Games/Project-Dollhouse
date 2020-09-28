@@ -43,8 +43,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="CameraController.cs" />
     <Compile Include="CityCameraController.cs" />
-    <Compile Include="QuadTreeLeaf.cs" />
-    <Compile Include="QuadTreeNode.cs" />
+    <Compile Include="Terrain.cs" />
     <Content Include="Content\CityPixelShader.fx" />
     <Content Include="Content\CityVertexShader.fx" />
     <Content Include="Content\Effects.fx" />
@@ -71,6 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Terrain.fx" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

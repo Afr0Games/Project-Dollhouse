@@ -37,8 +37,6 @@ namespace Cityrenderer
         private CityVertex[] m_Vertices;
         private Matrix m_ViewMatrix, m_ProjectionMatrix;
 
-        private QuadTreeNode m_QuadTreeRoot; 
-
         public CityRenderer(GraphicsDevice Device, string CityPath, string TerrainPath)
         {
             m_CityPath = CityPath;
@@ -71,8 +69,6 @@ namespace Cityrenderer
             SetUpIndices();
             InitializeNormals();
 
-            m_QuadTreeRoot = BuildQuadtree(m_Elevation);
-
             m_Elevation.Dispose();
         }
 
@@ -104,70 +100,6 @@ namespace Cityrenderer
             }
         }
 
-        /// <summary>
-        /// Recursively subdivides the terrain quadtree.
-        /// </summary>
-        /// <param name="depth">The current zero-based depth of the algorithm.</param>
-        /// <param name="heightMapColors">The array of heightmap colors.</param>
-        /// <param name="node">The node of the quadtree that will be subdivided.</param>
-        protected void BuildQuadtree(Color[] heightMapColors, QuadTreeNode node, int depth = 0)
-        {
-            Vector3 min = node.boundingBox.Min;
-            Vector3 max = node.boundingBox.Max;
-            Vector3 middle = (min + max) / 2;
-            BoundingBox topLeft = new BoundingBox(min, middle);
-            BoundingBox topRight = new BoundingBox(new Vector3(middle.X, 0, min.Z), new Vector3(max.X, 0, middle.Z));
-            BoundingBox bottomLeft = new BoundingBox(new Vector3(min.X, 0, middle.Z), new Vector3(middle.X, 0, max.Z));
-            BoundingBox bottomRight = new BoundingBox(middle, max);
-
-            if (depth < 5)
-            {
-                BuildQuadtree(heightMapColors, node.topLeft = new QuadTreeNode(topLeft), depth + 1);
-                BuildQuadtree(heightMapColors, node.topRight = new QuadTreeNode(topRight), depth + 1);
-                BuildQuadtree(heightMapColors, node.bottomLeft = new QuadTreeNode(bottomLeft), depth + 1);
-                BuildQuadtree(heightMapColors, node.bottomRight = new QuadTreeNode(bottomRight), depth + 1);
-            }
-            else
-            {
-                node.topLeft = new QuadtreeLeaf(m_CellSize, topLeft, heightMapColors, m_Device);
-                node.topRight = new QuadtreeLeaf(m_CellSize, topRight, heightMapColors, m_Device);
-                node.bottomLeft = new QuadtreeLeaf(m_CellSize, bottomLeft, heightMapColors, m_Device);
-                node.bottomRight = new QuadtreeLeaf(m_CellSize, bottomRight, heightMapColors, m_Device);
-            }
-
-            float[] mins = new float[4] { node.topLeft.boundingBox.Min.Y,
-                node.topRight.boundingBox.Min.Y,
-                node.bottomLeft.boundingBox.Min.Y,
-                node.bottomRight.boundingBox.Min.Y };
-            Array.Sort(mins);
-            float[] maxes = new float[4] { node.topLeft.boundingBox.Max.Y,
-                node.topRight.boundingBox.Max.Y,
-                node.bottomLeft.boundingBox.Max.Y,
-                node.bottomRight.boundingBox.Max.Y };
-            Array.Sort(maxes);
-
-            node.boundingBox.Min.Y = MathHelper.Min(100.0f, mins[0]);
-            node.boundingBox.Max.Y = MathHelper.Max(node.boundingBox.Max.Y, maxes[3]);
-        }
-
-        /// <summary>
-        /// Builds a terrain quadtree from the heightmap.
-        /// </summary>
-        /// <param name="heightMap">The heightmap of the terrain.</param>
-        protected QuadTreeNode BuildQuadtree(Texture2D heightMap)
-        {
-            QuadTreeNode root = new QuadTreeNode(new BoundingBox(Vector3.Zero, new Vector3(heightMap.Width * m_CellSize, 0.0f, heightMap.Height * m_CellSize)));
-
-            Color[] heightMapColors = new Color[heightMap.Width * heightMap.Height];
-            heightMap.GetData(heightMapColors);
-
-            BuildQuadtree(heightMapColors, root);
-
-            return root;
-        }
-
-        private float m_CellSize = 4.5f;
-
         private void SetUpVertices()
         {
             m_Vertices = new CityVertex[(m_TerrainWidth) * (m_TerrainHeight)];
@@ -175,10 +107,15 @@ namespace Cityrenderer
             {
                 for (int y = 0; y < (m_TerrainHeight); y++)
                 {
-                    //m_Vertices[x + y * (m_TerrainWidth /** 2*/)].Position = new Vector3(x, m_HeightData[x, y], -y);
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].Position = new Vector3((x - 256 / 2.0f) * m_CellSize, (m_HeightData[x, y]) * m_CellSize, (y - 512 / 2.0f) * m_CellSize);
-                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].TextureCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].Position = new Vector3(x, m_HeightData[x, y], -y);
                     m_Vertices[x + y * (m_TerrainWidth /** 2*/)].Normal = Vector3.Up;
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].TerrainTypeCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].BlendCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].GrassCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].RockCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].SandCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].SnowCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
+                    m_Vertices[x + y * (m_TerrainWidth /** 2*/)].WaterCoord = new Vector2((float)x / (m_TerrainWidth), (float)y / (m_TerrainHeight));
                 }
             }
         }
@@ -286,33 +223,6 @@ namespace Cityrenderer
             m_CController.Update(Input);
         }
 
-        /// <summary>
-        /// Recursively draws the quadtree terrain nodes that are in the viewing frustum.
-        /// </summary>
-        /// <param name="node">The node or leaf to draw.</param>
-        protected void DrawQuadtree(QuadTreeNode node)
-        {
-            if (!(new BoundingFrustum(Matrix.Identity * m_CController.View * m_CController.Projection)).Intersects(node.boundingBox))
-                return;
-
-            if (node.GetType() == typeof(QuadtreeLeaf))
-            {
-                QuadtreeLeaf leaf = (QuadtreeLeaf)node;
-
-                m_Device.SetVertexBuffer(leaf.vertexBuffer);
-                m_Device.Indices = leaf.indexBuffer;
-
-                m_Device.DrawIndexedPrimitives(PrimitiveType.TriangleStrip, 0, 0, leaf.indexBuffer.IndexCount - 4);
-            }
-            else
-            {
-                DrawQuadtree(node.topLeft);
-                DrawQuadtree(node.topRight);
-                DrawQuadtree(node.bottomLeft);
-                DrawQuadtree(node.bottomRight);
-            }
-        }
-
         public void Draw()
         {
             Matrix WorldMatrix = Matrix.CreateTranslation((-m_TerrainWidth) / 2.0f, 0, (m_TerrainHeight) / 2.0f);
@@ -342,7 +252,6 @@ namespace Cityrenderer
 
                 m_Device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, m_Vertices, 0, m_Vertices.Length,
                     m_Indices, 0, m_Indices.Length / 3, CityVertex.VertexElements);
-                //DrawQuadtree(m_QuadTreeRoot);
             }
         }
     }

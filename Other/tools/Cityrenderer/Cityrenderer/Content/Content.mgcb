@@ -5,7 +5,7 @@
 /intermediateDir:obj/$(Platform)
 /platform:Windows
 /config:
-/profile:HiDef
+/profile:Reach
 /compress:False
 
 #-------------------------------- References --------------------------------#
@@ -30,4 +30,10 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Effects.fx
+
+#begin Terrain.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Terrain.fx
 
