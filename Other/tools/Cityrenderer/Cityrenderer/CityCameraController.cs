@@ -89,13 +89,22 @@ namespace Cityrenderer
         /// <param name="Input">An InputHelper instance.</param>
         private void FixedTimeUpdate(InputHelper Input)
         {
-            if(!m_Zoomed)
+            if (!m_Zoomed)
+            {
                 m_Camera.ZoomProgress += (0 - m_Camera.ZoomProgress) / 5.0f;
+
+                //new...
+                if (m_MouseMoved)
+                {
+                    m_TargetViewOffsetX += (Input.CurrentMouseState.X - m_MouseStart.X) / 1000;
+                    m_TargetViewOffsetY -= (Input.CurrentMouseState.Y - m_MouseStart.Y) / 1000;
+                }
+            }
             else
             {
                 m_Camera.ZoomProgress += (1.0f - m_Camera.ZoomProgress) / 5.0f;
 
-                if(m_MouseMoved)
+                if (m_MouseMoved)
                 {
                     m_TargetViewOffsetX += (Input.CurrentMouseState.X - m_MouseStart.X) / 1000;
                     m_TargetViewOffsetY -= (Input.CurrentMouseState.Y - m_MouseStart.Y) / 1000;
