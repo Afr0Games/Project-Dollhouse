@@ -52,13 +52,7 @@ namespace Cityrenderer
                     CityVertex vert = new CityVertex();
                     vert.Position = new Vector3((i - m_Dimension / 2.0f) * m_CellSize, 0, (j - m_Dimension / 2.0f) * m_CellSize);
                     vert.Normal = Vector3.Up;
-                    vert.GrassCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
-                    vert.RockCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
-                    vert.SnowCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
-                    vert.SandCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
-                    vert.WaterCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
-                    vert.BlendCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
-                    vert.TerrainTypeCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
+                    vert.TextureCoord = new Vector2((float)i / m_Dimension, (float)j / m_Dimension);
                     vertices[i * (m_Dimension) + j] = vert;
                 }
             }
