@@ -16,6 +16,8 @@ using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 using System.Reflection;
 using log4net;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Files.IFF
 {
@@ -25,11 +27,12 @@ namespace Files.IFF
     /// </summary>
     public class Iff : IDisposable
     {
+        GraphicsDevice m_Device;
+
         /// <summary>
         /// Graphicsdevice used to construct SPR# and SPR2 chunks.
-        /// Will be 0 if IFF is not of type SPF.
         /// </summary>
-        private GraphicsDevice m_Device;
+        public GraphicsDevice Device { get { return m_Device; } }
 
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -54,6 +57,95 @@ namespace Files.IFF
         private Dictionary<ushort, IFFChunk> m_CSTChunks = new Dictionary<ushort, IFFChunk>();
         private List<OBJD> m_OBJDs = new List<OBJD>();
 
+
+#if DEBUG
+
+        /// <summary>
+        /// The chunks in this IFF. Only used by Iffinator.
+        /// </summary>
+        public List<IFFChunk> Chunks = new List<IFFChunk>();
+
+        /// <summary>
+        /// This *.iff file's list of SPR chunks.
+        /// Used by Iffinator.
+        /// </summary>
+        public List<SPR> SPRs
+        {
+            get
+            {
+                List<SPR> Sprites = new List<SPR>();
+                foreach (KeyValuePair<ushort, IFFChunk> KVP in m_SPRChunks)
+                    Sprites.Add((SPR)KVP.Value);
+
+                return Sprites;
+            }
+        }
+
+        /// <summary>
+        /// This *.iff file's list of SPR2 chunks.
+        /// Used by Iffinator.
+        /// </summary>
+        public List<SPR2> SPR2s
+        {
+            get
+            {
+                List<SPR2> Sprites = new List<SPR2>();
+                foreach (KeyValuePair<ushort, IFFChunk> KVP in m_SPR2Chunks)
+                    Sprites.Add((SPR2)KVP.Value);
+
+                return Sprites;
+            }
+        }
+
+        /// <summary>
+        /// This *.iff file's list of DGRP chunks.
+        /// Used by Iffinator.
+        /// </summary>
+        public List<DGRP> DrawGroups
+        {
+            get
+            {
+                List<DGRP> DrawGroups = new List<DGRP>();
+                foreach (KeyValuePair<ushort, IFFChunk> KVP in m_DGRPChunks)
+                    DrawGroups.Add((DGRP)KVP.Value);
+
+                return DrawGroups;
+            }
+        }
+
+        /// <summary>
+        /// This *.iff file's list of BHAV chunks.
+        /// Used by Iffinator.
+        /// </summary>
+        public List<BHAV> BHAVs
+        {
+            get
+            {
+                List<BHAV> Behaviours = new List<BHAV>();
+                foreach (KeyValuePair<ushort, IFFChunk> KVP in m_BHAVChunks)
+                    Behaviours.Add((BHAV)KVP.Value);
+
+                return Behaviours;
+            }
+        }
+
+        /// <summary>
+        /// This *.iff file's list of STR# chunks.
+        /// Used by Iffinator.
+        /// </summary>
+        public List<STR> StringTables
+        {
+            get
+            {
+                List<STR> STables = new List<STR>();
+                foreach (KeyValuePair<ushort, IFFChunk> KVP in m_STRChunks)
+                    STables.Add((STR)KVP.Value);
+
+                return STables;
+            }
+        }
+#endif
+
         /// <summary>
         /// Is this a multi-tile object?
         /// </summary>
@@ -77,7 +169,8 @@ namespace Files.IFF
         /// <summary>
         /// Gets the master OBJD for a multi tile object.
         /// If this object isn't multi tile, this will simply
-        /// return the first OBJD found in the IFF.
+        /// return the first OBJD found in the IFF. If the IFF
+        /// doesn't have any OBJDs, this will return null.
         /// </summary>
         public OBJD Master
         {
@@ -95,7 +188,11 @@ namespace Files.IFF
                     return m_OBJDs[0];
                 }
                 else
-                    return m_OBJDs[0];
+                {
+                    if (m_OBJDs.Count > 0)
+                        return m_OBJDs[0];
+                    else return null;
+                }
             }
         }
 
@@ -117,6 +214,29 @@ namespace Files.IFF
         public STR GetSTR(ushort ID)
         {
             return (STR)m_STRChunks[ID];
+        }
+
+        /// <summary>
+        /// Gets a specific DGRP from this IFF.
+        /// </summary>
+        /// <param name="ID">ID of the DGRP to get.</param>
+        /// <returns>A DGRP chunk.</returns>
+        public DGRP GetDGRP(ushort ID)
+        {
+            return (DGRP)m_DGRPChunks[ID];
+        }
+
+        /// <summary>
+        /// Gets a specific SPR or SPR2 from this IFF.
+        /// </summary>
+        /// <param name="ID">ID of the SPR or SPR2 to get.</param>
+        /// <returns>A SPR or SPR2 chunk.</returns>
+        public iSprite GetSprite(ushort ID)
+        {
+            if (m_SPRChunks.ContainsKey(ID))
+                return (iSprite)m_SPRChunks[ID];
+            else
+                return (iSprite)m_SPR2Chunks[ID];
         }
 
         /// <summary>
@@ -195,7 +315,7 @@ namespace Files.IFF
                         m_BMP_Chunks.Add(Chunk.ID, BMPChunk);
                         break;
                     case IFFChunkTypes.DGRP:
-                        DGRP DGRPChunk = new DGRP(Chunk);
+                        DGRP DGRPChunk = new DGRP(m_Device, Chunk);
                         m_DGRPChunks.Add(Chunk.ID, DGRPChunk);
                         break;
                     case IFFChunkTypes.BCON:
@@ -261,9 +381,17 @@ namespace Files.IFF
                         m_CSTChunks.Add(Chunk.ID, CSTChunk);
                         break;
                 }
+
+                if (IsAssemblyDebugBuild(Assembly.GetExecutingAssembly()))
+                    Chunks.Add(Chunk);
             }
 
             return true;
+        }
+
+        private bool IsAssemblyDebugBuild(Assembly assembly)
+        {
+            return assembly.GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
         }
 
         ~Iff()

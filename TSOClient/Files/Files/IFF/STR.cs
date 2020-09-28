@@ -13,6 +13,7 @@ Contributor(s):
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System;
 
 namespace Files.IFF
 {
@@ -63,7 +64,14 @@ namespace Files.IFF
         /// <returns>A string.</returns>
         public string GetString(LanguageCodes LangCode, int Index)
         {
-            return Strings[LangCode][Index].TranslatedStr;
+            try
+            {
+                return Strings[LangCode][Index].TranslatedStr;
+            }
+            catch(Exception)
+            {
+                return "";
+            }
         }
 
         /// <summary>
@@ -73,7 +81,10 @@ namespace Files.IFF
         /// <returns>A list of strings for the specified language code.</returns>
         public List<TranslatedString> GetStringList(LanguageCodes LangCode)
         {
-            return Strings[LangCode];
+            if (Strings.ContainsKey(LangCode))
+                return Strings[LangCode];
+            else
+                return new List<TranslatedString>();
         }
 
         public STR(IFFChunk BaseChunk) : base(BaseChunk)

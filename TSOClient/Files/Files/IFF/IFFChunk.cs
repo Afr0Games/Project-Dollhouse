@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Files.IFF
@@ -50,6 +51,10 @@ namespace Files.IFF
         public ushort ID;
         protected byte[] m_Data;
 
+#if DEBUG
+        public string NameString = "";
+#endif
+
         public IFFChunk(FileReader Reader, GraphicsDevice Device, Iff Parent)
         {
             m_Parent = Parent;
@@ -66,6 +71,8 @@ namespace Files.IFF
 
         public IFFChunk(IFFChunk BaseChunk)
         {
+            m_Parent = BaseChunk.m_Parent;
+            m_Device = BaseChunk.m_Parent.Device;
             m_Data = BaseChunk.m_Data;
             Size = BaseChunk.Size;
             ID = BaseChunk.ID;
@@ -74,7 +81,14 @@ namespace Files.IFF
 
         private void ReadHeader(FileReader Reader)
         {
-            Type = (IFFChunkTypes)Enum.Parse(typeof(IFFChunkTypes), Reader.ReadString(4).Replace("#", "").Replace("\0", ""));
+            if (Debugger.IsAttached)
+                Type = (IFFChunkTypes)Enum.Parse(typeof(IFFChunkTypes), Reader.ReadString(4).Replace("#", "").Replace("\0", ""));
+            else
+            {
+                NameString = Reader.ReadString(4);
+                Type = (IFFChunkTypes)Enum.Parse(typeof(IFFChunkTypes), NameString.Replace("#", "").Replace("\0", ""));
+            }
+            
             Size = Reader.ReadUInt32();
             ID = Reader.ReadUShort();
             Reader.ReadUShort();  //Flags

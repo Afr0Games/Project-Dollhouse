@@ -15,6 +15,9 @@ using Microsoft.Xna.Framework;
 
 namespace Files.IFF
 {
+    /// <summary>
+    /// This chunk type holds a color palette.
+    /// </summary>
     public class PALT : IFFChunk
     {
         private Color[] m_Colors;
@@ -42,7 +45,7 @@ namespace Files.IFF
             Reader.ReadBytes(8); //Reserved
 
             for (int i = 0; i < m_Colors.Length; i++)
-                m_Colors[i] = new Color(new Vector3(Reader.ReadByte(), Reader.ReadByte(), Reader.ReadByte()));
+                m_Colors[i] = new Color(Reader.ReadByte(), Reader.ReadByte(), Reader.ReadByte());
 
             Reader.Close();
             m_Data = null;
