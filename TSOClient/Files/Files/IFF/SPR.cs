@@ -25,13 +25,16 @@ namespace Files.IFF
     /// SPR# chunks can be either big-endian or little-endian, which must be determined by comparing the first two bytes to zero 
     /// (since no version number uses more than two bytes).
     /// </summary>
-    public class SPR : IFFChunk, iSprite
+    public class SPR : IFFChunk, iSprite, IDisposable
     {
         public ushort Version1 = 0, Version2 = 0;
         public uint Version = 0;
         private List<uint> m_OffsetTable = new List<uint>();
         private uint m_PaletteID;
         public uint FrameCount = 0;
+        private List<SPRFrame> m_Frames = new List<SPRFrame>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SPR(IFFChunk BaseChunk) : base(BaseChunk)
         {
@@ -84,7 +87,44 @@ namespace Files.IFF
 
             Reader.Seek(m_OffsetTable[ID]);
 
-            return new SPRFrame(Reader, m_Device, m_Parent.GetPalette((ushort)m_PaletteID), Version);
+            SPRFrame Frame = new SPRFrame(Reader, m_Device, m_Parent.GetPalette((ushort)m_PaletteID), Version);
+            m_Frames.Add(Frame); //Keep track of it, so it can be disposed.
+
+            return Frame;
+        }
+
+        ~SPR()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SPRFrame instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SPRFrame instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                foreach(SPRFrame Frame in m_Frames)
+                {
+                    if (Frame != null)
+                        Frame.Dispose();
+                }
+
+                // Prevent the finalizer from calling ~SPRFrame, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("SPRFrame not explicitly disposed!");
         }
     }
 

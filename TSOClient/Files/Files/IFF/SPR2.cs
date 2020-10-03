@@ -23,12 +23,15 @@ namespace Files.IFF
     /// <summary>
     /// This chunk type holds a number of paletted sprites that may have z-buffer and/or alpha channels.
     /// </summary>
-    public class SPR2 : IFFChunk, iSprite
+    public class SPR2 : IFFChunk, iSprite, IDisposable
     {
         public uint Version = 0;
         private List<uint> m_OffsetTable = new List<uint>();
         private uint m_PaletteID;
         public uint FrameCount = 0;
+        private List<SPR2Frame> m_Frames = new List<SPR2Frame>();
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SPR2(IFFChunk BaseChunk) : base(BaseChunk)
         {
@@ -86,7 +89,44 @@ namespace Files.IFF
 
             Reader.Seek(m_OffsetTable[ID]);
 
-            return new SPR2Frame(Reader, m_Device, m_Parent.GetPalette((ushort)m_PaletteID), Version);
+            SPR2Frame Frame = new SPR2Frame(Reader, m_Device, m_Parent.GetPalette((ushort)m_PaletteID), Version);
+            m_Frames.Add(Frame); //Keep track of it, so it can be disposed.
+
+            return Frame;
+        }
+
+        ~SPR2()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SPR2Frame instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SPR2Frame instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                foreach(SPR2Frame Frame in m_Frames)
+                {
+                    if (Frame != null)
+                        Frame.Dispose();
+                }
+
+                // Prevent the finalizer from calling ~SPR2Frame, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("SPR2 not explicitly disposed!");
         }
     }
 

@@ -418,6 +418,38 @@ namespace Files.IFF
                 if (m_Reader != null)
                     m_Reader.Dispose();
 
+                foreach(KeyValuePair<ushort, IFFChunk> KVP in m_SPR2Chunks)
+                {
+                    SPR2 Sprite = (SPR2)KVP.Value;
+
+                    if (Sprite != null)
+                        Sprite.Dispose();
+                }
+
+                foreach (KeyValuePair<ushort, IFFChunk> KVP in m_SPRChunks)
+                {
+                    SPR Sprite = (SPR)KVP.Value;
+
+                    if (Sprite != null)
+                        Sprite.Dispose();
+                }
+
+                foreach (KeyValuePair<ushort, IFFChunk> KVP in m_BMP_Chunks)
+                {
+                    BMP_ Bitmap = (BMP_)KVP.Value;
+
+                    if (Bitmap != null)
+                        Bitmap.Dispose();
+                }
+
+                foreach (KeyValuePair<ushort, IFFChunk> KVP in m_FBMPChunks)
+                {
+                    FBMP Bitmap = (FBMP)KVP.Value;
+
+                    if (Bitmap != null)
+                        Bitmap.Dispose();
+                }
+
                 // Prevent the finalizer from calling ~Iff, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
             }

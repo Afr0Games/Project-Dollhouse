@@ -29,6 +29,15 @@ namespace Files.FAR1
 
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        /// <summary>
+        /// The fully qualified path to this archive.
+        /// Used by Iffinator.
+        /// </summary>
+        public string Path
+        {
+            get { return m_Path; }
+        }
+
         public FAR1Archive(string Path)
         {
             m_Path = Path;
@@ -267,6 +276,58 @@ namespace Files.FAR1
                 value += b;
             }
             return value;
+        }
+
+        public void CreateNew(List<FAR1Entry> Entries, List<byte[]> Data)
+        {
+            string RandomFile = Path.GetTempFileName();
+
+            //No need for other apps to access this file, so drop the FileAccess parameter.
+            BinaryWriter Writer = new BinaryWriter(File.Open(RandomFile, FileMode.Open));
+            //TODO: Will this work?
+            Writer.Write(ASCIIEncoding.ASCII.GetBytes("FAR!byAZ"));
+            Writer.Write((uint)1); //Version
+
+            Writer.Write((uint)0); //Offset to first entry.
+            //This isn't *actually* the first entry offset, but the offset of where to store that offset...
+            int FirstEntryOffset = (int)Writer.BaseStream.Position;
+
+            Writer.Write((uint)Entries.Count);
+            //THIS is the *actual* first entry offset.
+            int StartOfEntries = (int)Writer.BaseStream.Position;
+
+            Writer.Seek(FirstEntryOffset, SeekOrigin.Begin);
+            Writer.Write((uint)StartOfEntries);
+            Writer.Seek(StartOfEntries, SeekOrigin.Begin);
+
+            List<int> EntryOffsets = new List<int>();
+
+            foreach (FAR1Entry Entry in Entries)
+            {
+                Writer.Write(Entry.CompressedDataSize);
+                Writer.Write(Entry.DecompressedDataSize);
+
+                EntryOffsets.Add((int)Writer.BaseStream.Position);
+
+                Writer.Write((uint)0); //Dataoffset.
+                Writer.Write(Entry.FilenameLength);
+                Writer.Write(ASCIIEncoding.ASCII.GetBytes(Entry.Filename)); //TODO: Will this work?
+            }
+
+            List<uint> DataOffsets = new List<uint>();
+            int Index = 0;
+
+            foreach (byte[] DataEntry in Data)
+            {
+                DataOffsets.Add((uint)Writer.BaseStream.Position);
+                Writer.Write(DataEntry);
+
+                Writer.Seek(EntryOffsets[Index], SeekOrigin.Begin);
+                Writer.Write(DataOffsets[Index]);
+                Writer.Seek((int)(DataOffsets[Index] + (DataEntry.Length - 1)), SeekOrigin.Begin);
+
+                Index++;
+            }
         }
     }
 }

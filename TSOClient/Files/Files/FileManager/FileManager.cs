@@ -43,7 +43,7 @@ namespace Files.Manager
     /// Provides access to all of the game's files.
     /// Also takes care of loading archives.
     /// </summary>
-    public class FileManager
+    public class FileManager : IDisposable
     {
         public const uint CACHE_SIZE = 350000000; //~350mb
         private static uint m_BytesLoaded = 0;
@@ -1285,5 +1285,51 @@ namespace Files.Manager
         }
 
         #endregion
+
+        ~FileManager()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FileManager instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                foreach(FAR3Archive Archive in m_FAR3Archives)
+                {
+                    if (Archive != null)
+                        Archive.Dispose();
+                }
+
+                foreach (FAR1Archive Archive in m_FAR1Archives)
+                {
+                    if (Archive != null)
+                        Archive.Dispose();
+                }
+
+                foreach (DBPFArchive Archive in m_DBPFArchives)
+                {
+                    if (Archive != null)
+                        Archive.Dispose();
+                }
+
+                // Prevent the finalizer from calling ~FileManager, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("FileManager not explicitly disposed!");
+        }
     }
 }

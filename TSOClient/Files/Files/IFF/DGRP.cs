@@ -10,10 +10,13 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using log4net;
 
 namespace Files.IFF
 {
@@ -23,11 +26,12 @@ namespace Files.IFF
     /// chunk for each tile. A DGRP chunk always consists of 12 images (one for every direction/zoom level combination), 
     /// which in turn contain info about one or more sprites.
     /// </summary>
-    public class DGRP : IFFChunk
+    public class DGRP : IFFChunk, IDisposable
     {
         private ushort m_Version;
         public uint ImageCount;
         public List<DGRPImg> Images = new List<DGRPImg>();
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public iSprite GetSprite(ushort ID)
         {
@@ -64,9 +68,43 @@ namespace Files.IFF
             Reader.Close();
             m_Data = null;
         }
+
+        ~DGRP()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this DGRP instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                foreach(DGRPImg Img in Images)
+                {
+                    if (Img != null)
+                        Img.Dispose();
+                }
+
+                // Prevent the finalizer from calling ~DGRP, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("DGRP not explicitly disposed!");
+        }
     }
 
-    public class SpriteInfo
+    public class SpriteInfo : IDisposable
     {
         private DGRPImg m_Img;
         public short Type = 0;
@@ -75,6 +113,7 @@ namespace Files.IFF
         public int Flags = 0;
         public Vector2 SpriteOffset = new Vector2();
         public Vector3 ObjectOffset = new Vector3();
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public SpriteInfo(FileReader Reader, DGRPImg Img, uint Version)
         {
@@ -104,13 +143,45 @@ namespace Files.IFF
                 }
             }
         }
+
+        ~SpriteInfo()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SpriteInfo instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (m_Img != null)
+                    m_Img.Dispose();
+
+                // Prevent the finalizer from calling ~SpriteInfo, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("SpriteInfo not explicitly disposed!");
+        }
     }
 
-    public class DrawGroupSprite
+    public class DrawGroupSprite : IDisposable
     {
         private SpriteInfo m_SprInfo;
-        private Texture2D m_Texture;
-        private iSpriteFrame m_Sprite;
+        private readonly Texture2D m_Texture;
+        private readonly iSpriteFrame m_Sprite;
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public ushort Type { get { return (ushort)m_SprInfo.Type; } }
         public uint Flags { get { return (uint)m_SprInfo.Flags; } }
@@ -160,6 +231,37 @@ namespace Files.IFF
 
             return flipped;
         }
+
+        ~DrawGroupSprite()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this DrawGroupSprite instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (m_Texture != null)
+                    m_Texture.Dispose();
+
+                // Prevent the finalizer from calling ~DrawGroupImage, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("DrawGroupSprite not explicitly disposed!");
+        }
     }
 
     /// <summary>
@@ -176,7 +278,7 @@ namespace Files.IFF
     /// <summary>
     /// A drawgroup image, which can reference multiple sprites.
     /// </summary>
-    public class DGRPImg
+    public class DGRPImg : IDisposable
     {
         private GraphicsDevice m_Graphics;
         private SpriteBatch m_SBatch;
@@ -186,6 +288,8 @@ namespace Files.IFF
         public uint ZoomLevel;
         private List<DrawGroupSprite> m_Sprites = new List<DrawGroupSprite>();
         public Texture2D CompiledTexture;
+
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public DGRPImg(GraphicsDevice Device, Iff Parent, FileReader Reader, uint Version)
         {
@@ -249,6 +353,43 @@ namespace Files.IFF
 
             CompiledTexture = RTarget;
             m_Graphics.SetRenderTarget(null);
+        }
+
+        ~DGRPImg()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this DGRPImg instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this FAR3Archive instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (CompiledTexture != null)
+                    CompiledTexture.Dispose();
+
+                foreach(DrawGroupSprite Sprite in m_Sprites)
+                {
+                    if (Sprite != null)
+                        Sprite.Dispose();
+                }
+
+                // Prevent the finalizer from calling ~DGRPImg, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("DGRPImg not explicitly disposed!");
         }
     }
 }
