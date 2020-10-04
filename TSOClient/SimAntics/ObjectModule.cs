@@ -17,7 +17,7 @@ namespace SimAntics
 
         public ObjectModule()
         {
-            Globals = FileManager.GetIFF("globals.iff");
+            Globals = FileManager.Instance.GetIFF("globals.iff");
         }
 
         /// <summary>

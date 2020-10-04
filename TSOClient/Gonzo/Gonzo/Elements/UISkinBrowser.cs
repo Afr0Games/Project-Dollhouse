@@ -42,14 +42,14 @@ namespace Gonzo.Elements
         public OutfitContainer(Outfit OFT)
         {
             Oft = OFT;
-            Appearance Apr = FileManager.GetAppearance(Oft.LightAppearance.UniqueID);
+            Appearance Apr = FileManager.Instance.GetAppearance(Oft.LightAppearance.UniqueID);
 
             if (Apr.ThumbnailID.TypeID != 0)
                 LightAppearance = Apr;
-            Apr = FileManager.GetAppearance(Oft.MediumAppearance.UniqueID);
+            Apr = FileManager.Instance.GetAppearance(Oft.MediumAppearance.UniqueID);
             if (Apr.ThumbnailID.TypeID != 0)
                 MediumAppearance = Apr;
-            Apr = FileManager.GetAppearance(Oft.DarkAppearance.UniqueID);
+            Apr = FileManager.Instance.GetAppearance(Oft.DarkAppearance.UniqueID);
             if (Apr.ThumbnailID.TypeID != 0)
                 DarkAppearance = Apr;
         }
@@ -165,11 +165,11 @@ namespace Gonzo.Elements
 
             m_SkinBrowserArrowLeft = new UIButton("SkinBrowserArrowLeft",
                 Position + new Vector2(5, Size.Y - 70), Screen,
-                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft));
+                FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft));
             m_SkinBrowserArrowLeft.OnButtonClicked += M_SkinBrowserArrowLeft_OnButtonClicked;
             m_SkinBrowserArrowRight = new UIButton("SkinBrowserArrowRight", 
                 Position + new Vector2(Size.X - 45, Size.Y - 70), Screen, 
-                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright));
+                FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright));
             m_SkinBrowserArrowRight.OnButtonClicked += M_SkinBrowserArrowRight_OnButtonClicked;
         }
 

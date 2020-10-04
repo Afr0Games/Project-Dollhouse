@@ -41,7 +41,7 @@ namespace GonzoTest
             m_WillWrightDiag.Visible = false;
             //m_PResult.Elements.Add("WillWrightDiag", m_WillWrightDiag);
 
-            m_Credits = FileManager.GetIFF("credits.iff");
+            m_Credits = FileManager.Instance.GetIFF("credits.iff");
             m_CreditsArea = (UIControl)m_PResult.Controls["\"CreditsArea\""];
             m_CreditsY = m_CreditsArea.Size.Y;
 

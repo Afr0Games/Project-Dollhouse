@@ -43,8 +43,8 @@ namespace Gonzo.Elements
         {
             m_Font = m_Screen.Font11px;
 
-            m_ProgressBarBack = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback);
-            m_ProgressBarFront = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront);
+            m_ProgressBarBack = FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback);
+            m_ProgressBarFront = FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront);
 
             string InitialValue = m_ProgressInPercentage.ToString() + " %";
 

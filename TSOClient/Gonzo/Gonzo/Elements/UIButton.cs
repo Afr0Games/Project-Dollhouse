@@ -89,7 +89,7 @@ namespace Gonzo.Elements
                 }
                 else
                 {
-                    Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                    Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
                     //Initialize to second frame in the image.
                     m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
@@ -118,7 +118,7 @@ namespace Gonzo.Elements
                     {
                         m_Text = Result.State.Caption;
                         //Text buttons always use this image.
-                        Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                        Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
                         //Initialize to second frame in the image.
                         if(Result.State.Size == null)
                             m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
@@ -132,7 +132,7 @@ namespace Gonzo.Elements
                         if(Node.Image != null)
                             Image = m_Screen.GetImage(Node.Image, false);
                         else
-                            Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                            Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
                         //Initialize to second frame in the image.
                         m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
 
@@ -303,7 +303,7 @@ namespace Gonzo.Elements
                 Image.Position = new Vector2(Pos.X, Pos.Y);
             }
             else
-                Image = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
 
             //Initialize to second frame in the image.
             m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);

@@ -32,11 +32,11 @@ namespace Gonzo.Elements
         public UIHeadBrowser(UIScreen Screen, UIControl Ctrl, int SkinType, AvatarSex Sex) :
             base(Screen, Ctrl, SkinType, Sex)
         {
-            m_EditHeadSkinBtnTex = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_headskinbtn);
+            m_EditHeadSkinBtnTex = FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_headskinbtn);
 
-            m_Collections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_male_heads));
-            m_FemaleCollections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_female_heads));
-            m_Collections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.eainternalheads_unisex));
+            m_Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_male_heads));
+            m_FemaleCollections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_female_heads));
+            m_Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.eainternalheads_unisex));
 
             OutfitContainer OftContainer;
 
@@ -45,8 +45,8 @@ namespace Gonzo.Elements
             {
                 foreach (UniqueFileID PO in Col.PurchasableOutfitIDs)
                 {
-                    OftContainer = new OutfitContainer(FileManager.GetOutfit(
-                        FileManager.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
+                    OftContainer = new OutfitContainer(FileManager.Instance.GetOutfit(
+                        FileManager.Instance.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
 
                     //Load all appearances where available, if the player wishes to switch skin type (see CASScreen.cs)
                     if (OftContainer.LightAppearance != null) m_LightAppearances.Add(OftContainer);
@@ -62,8 +62,8 @@ namespace Gonzo.Elements
                 {
                     m_NumberOfHeads++;
 
-                    OftContainer = new OutfitContainer(FileManager.GetOutfit(
-                        FileManager.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
+                    OftContainer = new OutfitContainer(FileManager.Instance.GetOutfit(
+                        FileManager.Instance.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
 
                     //Load all appearances where available, if the player wishes to switch skin type (see CASScreen.cs)
                     if (OftContainer.LightAppearance != null) m_LightFemaleAppearances.Add(OftContainer);
@@ -212,7 +212,7 @@ namespace Gonzo.Elements
                     {
                         for (int Y = 0; Y <= m_Map.GetUpperBound(0); Y++)
                         {
-                            m_Thumb = FileManager.GetTexture(m_Sex == AvatarSex.Male ? 
+                            m_Thumb = FileManager.Instance.GetTexture(m_Sex == AvatarSex.Male ? 
                                 m_LightAppearances[(Y * X) + m_Counter].LightAppearance.ThumbnailID.UniqueID :
                                 m_LightFemaleAppearances[(Y * X) + m_Counter].LightAppearance.ThumbnailID.UniqueID);
                             m_BtnWidth = m_SkinBtns[m_Counter + Y].BtnTex.Width / 4;
@@ -244,7 +244,7 @@ namespace Gonzo.Elements
                     {
                         for (int Y = 0; Y <= m_Map.GetUpperBound(0); Y++)
                         {
-                            m_Thumb = FileManager.GetTexture(m_Sex == AvatarSex.Male ?
+                            m_Thumb = FileManager.Instance.GetTexture(m_Sex == AvatarSex.Male ?
                                 m_MediumAppearances[(Y * X) + m_Counter].MediumAppearance.ThumbnailID.UniqueID :
                                 m_MediumFemaleAppearances[(Y * X) + m_Counter].MediumAppearance.ThumbnailID.UniqueID);
                             m_BtnWidth = m_SkinBtns[m_Counter + Y].BtnTex.Width / 4;
@@ -275,7 +275,7 @@ namespace Gonzo.Elements
                     {
                         for (int Y = 0; Y <= m_Map.GetUpperBound(0); Y++)
                         {
-                            m_Thumb = FileManager.GetTexture(m_Sex == AvatarSex.Male ?
+                            m_Thumb = FileManager.Instance.GetTexture(m_Sex == AvatarSex.Male ?
                                 m_DarkAppearances[(Y * X) + m_Counter].DarkAppearance.ThumbnailID.UniqueID :
                                 m_DarkFemaleAppearances[(Y * X) + m_Counter].DarkAppearance.ThumbnailID.UniqueID);
                             m_BtnWidth = m_SkinBtns[m_Counter + Y].BtnTex.Width / 4;

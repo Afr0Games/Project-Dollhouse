@@ -19,6 +19,9 @@ using System.Reflection;
 
 namespace Sound
 {
+    /// <summary>
+    /// The HIT virtual machine.
+    /// </summary>
     public class HitVM : IDisposable
     {
         private static List<SubRoutine> m_CurrentlyPlayingTracks = new List<SubRoutine>();
@@ -170,7 +173,7 @@ namespace Sound
             m_GlobalVars.Add(0x86, 0); //OptionMusicVol
             m_GlobalVars.Add(0x87, 0); //CampfireSize
 
-            Ini Radio = new Ini(FileManager.BaseDirectory + "sys\\radio.ini");
+            Ini Radio = new Ini(FileManager.Instance.BaseDirectory + "sys\\radio.ini");
 
             //Radio.ini actually has the TrackIDs wrong.
             MusicModes.Add(6, "credits");
@@ -298,7 +301,7 @@ namespace Sound
                     m_CurrentlyPlayingTracks.Add(new SubRoutine(TrackID, SubroutinePointer, Events[Event].Rsc.HitResource));
                     return;
                 }
-                else if (TrackID != 0 && FileManager.TrackExists(TrackID))
+                else if (TrackID != 0 && FileManager.Instance.TrackExists(TrackID))
                     m_CurrentlyPlayingTracks.Add(new SubRoutine(TrackID, 0, Events[Event].Rsc.HitResource));
                 else
                 {

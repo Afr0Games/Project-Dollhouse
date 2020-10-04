@@ -49,15 +49,15 @@ namespace GonzoTest
             DateRange Christmas = new DateRange(new DateTime(Now.Year, 12, 25), new DateTime(Now.Year, 12, 30));
 
             if (!Now.IsSameDay(Halloween) && !Now.IsSameDay(Valentine) && !Now.IsSameDay(StPaddys) && !Christmas.Includes(Now))
-                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
+                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
             else if (Now.IsSameDay(Halloween))
-                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_halloween), this);
+                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_halloween), this);
             else if (Now.IsSameDay(Valentine))
-                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_valentine), this);
+                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_valentine), this);
             else if (Now.IsSameDay(StPaddys))
-                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_paddys_day), this);
+                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_paddys_day), this);
             else if (Christmas.Includes(Now))
-                m_BackgroundImg = new UIImage(FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_xmas), this);
+                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_xmas), this);
 
             m_Txt = StringManager.StrTable(155);
 
@@ -123,228 +123,228 @@ namespace GonzoTest
         {
             //Cache textures.
 
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_headskinbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_bodyskinbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_acceptbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_arrowdownbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_arrowupbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_acceptbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_background);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_cancelbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_closebtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_descriptionslider);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_femalebtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_malebtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skindarkbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinlightbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinmediumbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_headskinbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_bodyskinbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_acceptbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_arrowdownbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_arrowupbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_acceptbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_background);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_cancelbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_closebtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_descriptionslider);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_femalebtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_malebtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skindarkbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinlightbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinmediumbtn);
 
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_background);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_cityhouseiconalpha);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_cityiconbusy);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_descriptionback);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_descriptiontab);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_descriptiontabbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_entertabbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_exitbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_helpback);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_iconsindents);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_icontab);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_scrollbar);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_scrollbarnotch);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_scrollbarthumb);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_simcreatebtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_simselectbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_tab2tabback);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_tabsback);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_whosonlineback);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_whosonlinetab);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.person_select_whosonlinetabbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_background);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_cityhouseiconalpha);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_cityiconbusy);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_descriptionback);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_descriptiontab);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_descriptiontabbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_entertabbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_exitbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_helpback);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_iconsindents);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_icontab);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_scrollbar);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_scrollbarnotch);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_scrollbarthumb);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_simcreatebtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_simselectbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_tab2tabback);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_tabsback);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_whosonlineback);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_whosonlinetab);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_select_whosonlinetabbtn);
 
-            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint1);
-            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint2);
-            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint3);
-            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint4);
-            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint5);
-            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint6);
-            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint7);
-            FileManager.GetTexture((ulong)FileIDs.HintsFileIDs.hint8);
+            FileManager.Instance.GetTexture((ulong)FileIDs.HintsFileIDs.hint1);
+            FileManager.Instance.GetTexture((ulong)FileIDs.HintsFileIDs.hint2);
+            FileManager.Instance.GetTexture((ulong)FileIDs.HintsFileIDs.hint3);
+            FileManager.Instance.GetTexture((ulong)FileIDs.HintsFileIDs.hint4);
+            FileManager.Instance.GetTexture((ulong)FileIDs.HintsFileIDs.hint5);
+            FileManager.Instance.GetTexture((ulong)FileIDs.HintsFileIDs.hint6);
+            FileManager.Instance.GetTexture((ulong)FileIDs.HintsFileIDs.hint7);
+            FileManager.Instance.GetTexture((ulong)FileIDs.HintsFileIDs.hint8);
 
-            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.gr);
-            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.rk);
-            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.sn);
-            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.wt);
-            FileManager.GetTexture((ulong)FileIDs.TerrainFileIDs.sd);
+            FileManager.Instance.GetTexture((ulong)FileIDs.TerrainFileIDs.gr);
+            FileManager.Instance.GetTexture((ulong)FileIDs.TerrainFileIDs.rk);
+            FileManager.Instance.GetTexture((ulong)FileIDs.TerrainFileIDs.sn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.TerrainFileIDs.wt);
+            FileManager.Instance.GetTexture((ulong)FileIDs.TerrainFileIDs.sd);
 
-            //Load some city data.
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_vertexcolor);
+            //Cache some city data.
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0001_vertexcolor);
+            
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_vertexcolor);
 
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0002_vertexcolor);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_vertexcolor);
 
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0003_vertexcolor);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_vertexcolor);
 
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0004_vertexcolor);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_vertexcolor);
 
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0005_vertexcolor);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_vertexcolor);
 
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0006_vertexcolor);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_vertexcolor);
 
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0007_vertexcolor);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_vertexcolor);
 
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0008_vertexcolor);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_vertexcolor);
 
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0009_vertexcolor);
-
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_elevation);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_forestdensity);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_foresttype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_roadmap);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_terraintype);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_thumbnail);
-            FileManager.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_vertexcolor);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_elevation);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_forestdensity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_foresttype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_roadmap);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_terraintype);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_thumbnail);
+            FileManager.Instance.GetTexture((ulong)FileIDs.CitiesFileIDs.city_0010_vertexcolor);
 
             //TODO: Apply these as backgrounds on the appropriate dates.
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.setup_thanksgiving);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_thanksgiving);
 
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog);
 
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_creditsbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_creditsindent);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_proxycity);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_proxyhouse);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_templatecity);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_creditsbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_templatehouse);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_creditsbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_creditsindent);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_proxycity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_proxyhouse);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_templatecity);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_creditsbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cas_sas_templatehouse);
 
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cityselector_cityicon);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cityselector_sortbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cityselector_thumbnailalpha);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.cityselector_thumbnailbackground);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cityselector_cityicon);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cityselector_sortbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cityselector_thumbnailalpha);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.cityselector_thumbnailbackground);
 
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_backbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_backbtnindent);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_background);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_exitbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_maxisbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_tsologo_english);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_will);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_backbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_backbtnindent);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_background);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_exitbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_maxisbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_tsologo_english);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.creditscreen_will);
 
             OnFinishedExtrudingTerrainWeb();
 
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackgroundtall);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplatetall, true);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplate, true);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_dwnrightcorner_wbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_iconselectionbutton);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_menuiconback);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_okcheckbtn);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront);
-            FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackgroundtall);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplatetall, true);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplate, true);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_dwnrightcorner_wbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_iconselectionbutton);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_menuiconback);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_okcheckbtn);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront);
+            FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground);
 
             //Cache some meshes.
 
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb001fafat_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb001fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb002fafat_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb002fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003fafat_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003faskn_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb001fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb001fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb002fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb002fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb003faskn_01_pelvis_body);
 
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb004fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb006fafat_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb007fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008fafat_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008faskn_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb004fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb006fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb007fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb008faskn_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009fafat_01_pelvis_body);
 
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009faskn_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb010fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011fafat_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011faskn_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb009faskn_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb010fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb011faskn_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012fafat_01_pelvis_body);
 
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012faskn_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb013fafat_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb013fafit_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb017fafat_01_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb017fafit_retro_pelvis_body);
-            FileManager.GetMesh((ulong)FileIDs.MeshFileIDs.fabb021fafit_jennifer_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb012faskn_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb013fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb013fafit_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb017fafat_01_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb017fafit_retro_pelvis_body);
+            FileManager.Instance.GetMesh((ulong)FileIDs.MeshFileIDs.fabb021fafit_jennifer_pelvis_body);
 
             //Cache collections.
 
             List<Collection> Collections = new List<Collection>();
-            Collections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_male));
-            Collections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_female));
-            Collections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.eainternal_unisex));
-            Collections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_male_heads));
-            Collections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_female_heads));
-            Collections.Add(FileManager.GetCollection((ulong)FileIDs.CollectionsFileIDs.eainternalheads_unisex));
+            Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_male));
+            Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_female));
+            Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.eainternal_unisex));
+            Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_male_heads));
+            Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_female_heads));
+            Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.eainternalheads_unisex));
             OutfitContainer Container;
 
             OnFinishedCalculatingDomesticCoefficients();
@@ -379,10 +379,10 @@ namespace GonzoTest
                 foreach (UniqueFileID PO in Col.PurchasableOutfitIDs)
                 {
                     Container = new OutfitContainer(
-                        FileManager.GetOutfit(FileManager.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
-                    FileManager.GetTexture(Container.LightAppearance.ThumbnailID.UniqueID);
-                    FileManager.GetTexture(Container.MediumAppearance.ThumbnailID.UniqueID);
-                    FileManager.GetTexture(Container.DarkAppearance.ThumbnailID.UniqueID);
+                        FileManager.Instance.GetOutfit(FileManager.Instance.GetPurchasableOutfit(PO.UniqueID).OutfitID.UniqueID));
+                        FileManager.Instance.GetTexture(Container.LightAppearance.ThumbnailID.UniqueID);
+                        FileManager.Instance.GetTexture(Container.MediumAppearance.ThumbnailID.UniqueID);
+                        FileManager.Instance.GetTexture(Container.DarkAppearance.ThumbnailID.UniqueID);
                 }
 
                 ColCounter++;

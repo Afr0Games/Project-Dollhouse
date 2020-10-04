@@ -41,8 +41,8 @@ namespace GonzoTest
             BackgroundImg = (UIImage)m_PResult.Elements["\"BackgroundImage\""];
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device, Manager.HeadShader);
-            Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
-            Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), Vitaboy.SkinType.Medium);
+            Avatar.ChangeOutfit(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
+            Avatar.SetHead(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), Vitaboy.SkinType.Medium);
             AddAvatar(Avatar, 1);
 
             VitaboyScreen VScreen = new VitaboyScreen(Manager, new Vector2(0, 0),

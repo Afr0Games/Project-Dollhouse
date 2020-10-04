@@ -86,7 +86,7 @@ namespace Sound
 
             if (ID == 5) //Loadloop, play the sound directly.
             {
-                ISoundCodec Loadloop = FileManager.GetSound(0x00004f85);
+                ISoundCodec Loadloop = FileManager.Instance.GetSound(0x00004f85);
                 m_IsMusic = true;
                 m_MusicInstance = new SoundPlayer(Loadloop.DecompressedWav(), Loadloop.GetSampleRate());
                 m_MusicInstance.PlaySound(true, true);
@@ -145,11 +145,11 @@ namespace Sound
         {
             Random Rand = new Random();
 
-            string[] Files = Directory.GetFiles(FileManager.BaseDirectory + MusicOrStationPath, "*.xa", SearchOption.AllDirectories);
+            string[] Files = Directory.GetFiles(FileManager.Instance.BaseDirectory + MusicOrStationPath, "*.xa", SearchOption.AllDirectories);
 
             if (Files.Length > 0) //tvstations
             {
-                string BaseDir = Path.GetDirectoryName(FileManager.BaseDirectory + MusicOrStationPath);
+                string BaseDir = Path.GetDirectoryName(FileManager.Instance.BaseDirectory + MusicOrStationPath);
 
                 int Index = BaseDir.LastIndexOf('/'); //Linux
                 if (Index == -1) Index = BaseDir.LastIndexOf('\\');
@@ -162,7 +162,7 @@ namespace Sound
             else //Music
             {
                 m_IsMusic = true;
-                Files = Directory.GetFiles(FileManager.BaseDirectory + MusicOrStationPath, "*.mp3", SearchOption.AllDirectories);
+                Files = Directory.GetFiles(FileManager.Instance.BaseDirectory + MusicOrStationPath, "*.mp3", SearchOption.AllDirectories);
             }
 
             foreach (string Fle in Files)

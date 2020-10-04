@@ -77,8 +77,8 @@ namespace GonzoTest
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            FileManager.OnHundredPercentCompleted += FileManager_OnHundredPercentCompleted;
-            FileManager.Initialize(this, GlobalSettings.Default.StartupPath);
+            FileManager.Instance.OnHundredPercentCompleted += FileManager_OnHundredPercentCompleted;
+            FileManager.Instance.Initialize(this, GlobalSettings.Default.StartupPath);
 
             m_Fonts[0] = Content.Load<SpriteFont>("ProjectDollhouse_9px");
             m_Fonts[1] = Content.Load<SpriteFont>("ProjectDollhouse_10px");

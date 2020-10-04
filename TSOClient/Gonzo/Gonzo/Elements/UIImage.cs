@@ -36,7 +36,7 @@ namespace Gonzo.Elements
         public UIImage(DefineImageNode Node, UIScreen Screen) : base(Screen)
         {
             Name = Node.Name;
-            Texture = FileManager.GetTexture(ulong.Parse(Node.AssetID, System.Globalization.NumberStyles.HexNumber));
+            Texture = FileManager.Instance.GetTexture(ulong.Parse(Node.AssetID, System.Globalization.NumberStyles.HexNumber));
 
             m_Loaded = true;
         }

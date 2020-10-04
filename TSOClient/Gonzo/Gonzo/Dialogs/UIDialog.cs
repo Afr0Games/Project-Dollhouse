@@ -35,12 +35,12 @@ namespace Gonzo.Dialogs
             m_HasExitBtn = HasExitButton;
 
             Texture2D Tex = (IsTall != false) ? 
-                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplatetall, true) : 
-                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplate, true);
+                FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplatetall, true) : 
+                FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_backgroundtemplate, true);
 
             Texture2D CloseBtnBackground = (IsTall != false) ? 
-                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackgroundtall) : 
-                FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
+                FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackgroundtall) : 
+                FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
 
             Image = new UIImage(Tex, Screen, null);
 
@@ -54,7 +54,7 @@ namespace Gonzo.Dialogs
             m_CloseBtnBack = new UIImage(CloseBtnBackground, Screen, null);
             m_CloseBtnBack.Position = Position + new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 0);
 
-            Texture2D CloseButtonTex = FileManager.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
+            Texture2D CloseButtonTex = FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
             m_CloseButton = new UIButton("CloseBtn", 
                 Position + new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex);
             m_CloseButton.OnButtonClicked += CloseButton_OnButtonClicked;

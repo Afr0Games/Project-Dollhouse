@@ -18,7 +18,7 @@ namespace Vitaboy
 {
     public class ChildAvatar : AvatarBase
     {
-        public ChildAvatar(GraphicsDevice Devc, Effect HeadShader) : base(Devc, FileManager.GetSkeleton(0x200000005), HeadShader)
+        public ChildAvatar(GraphicsDevice Devc, Effect HeadShader) : base(Devc, FileManager.Instance.GetSkeleton(0x200000005), HeadShader)
         {
 
         }

@@ -114,51 +114,51 @@ namespace Vitaboy
 
             if (Oft.HandgroupID.FileID != 0)
             {
-                HandGroup Hag = FileManager.GetHandgroup(Oft.HandgroupID.UniqueID);
+                HandGroup Hag = FileManager.Instance.GetHandgroup(Oft.HandgroupID.UniqueID);
                 Appearance LeftHandApr, RightHandApr;
 
                 switch (Type)
                 {
                     case SkinType.Light:
-                        LeftHandApr = FileManager.GetAppearance(Hag.Light.Left.Idle.AppearanceID.UniqueID);
-                        RightHandApr = FileManager.GetAppearance(Hag.Light.Right.Idle.AppearanceID.UniqueID);
+                        LeftHandApr = FileManager.Instance.GetAppearance(Hag.Light.Left.Idle.AppearanceID.UniqueID);
+                        RightHandApr = FileManager.Instance.GetAppearance(Hag.Light.Right.Idle.AppearanceID.UniqueID);
                         break;
                     case SkinType.Medium:
-                        LeftHandApr = FileManager.GetAppearance(Hag.Medium.Left.Idle.AppearanceID.UniqueID);
-                        RightHandApr = FileManager.GetAppearance(Hag.Medium.Right.Idle.AppearanceID.UniqueID);
+                        LeftHandApr = FileManager.Instance.GetAppearance(Hag.Medium.Left.Idle.AppearanceID.UniqueID);
+                        RightHandApr = FileManager.Instance.GetAppearance(Hag.Medium.Right.Idle.AppearanceID.UniqueID);
                         break;
                     case SkinType.Dark:
-                        LeftHandApr = FileManager.GetAppearance(Hag.Dark.Left.Idle.AppearanceID.UniqueID);
-                        RightHandApr = FileManager.GetAppearance(Hag.Dark.Right.Idle.AppearanceID.UniqueID);
+                        LeftHandApr = FileManager.Instance.GetAppearance(Hag.Dark.Left.Idle.AppearanceID.UniqueID);
+                        RightHandApr = FileManager.Instance.GetAppearance(Hag.Dark.Right.Idle.AppearanceID.UniqueID);
                         break;
                     default:
-                        LeftHandApr = FileManager.GetAppearance(Hag.Light.Left.Idle.AppearanceID.UniqueID);
-                        RightHandApr = FileManager.GetAppearance(Hag.Light.Right.Idle.AppearanceID.UniqueID);
+                        LeftHandApr = FileManager.Instance.GetAppearance(Hag.Light.Left.Idle.AppearanceID.UniqueID);
+                        RightHandApr = FileManager.Instance.GetAppearance(Hag.Light.Right.Idle.AppearanceID.UniqueID);
                         break;
                 }
 
-                Bindings = FileManager.GetBindings(LeftHandApr.BindingIDs);
+                Bindings = FileManager.Instance.GetBindings(LeftHandApr.BindingIDs);
 
                 foreach (Binding Bnd in Bindings)
                 {
                     switch (Bnd.Bone)
                     {
                         case "L_HAND":
-                            LeftHandMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                            LeftHandTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                            LeftHandMesh = FileManager.Instance.GetMesh(Bnd.MeshID.UniqueID);
+                            LeftHandTexture = FileManager.Instance.GetTexture(Bnd.TextureID.UniqueID);
                             break;
                     }
                 }
 
-                Bindings = FileManager.GetBindings(RightHandApr.BindingIDs);
+                Bindings = FileManager.Instance.GetBindings(RightHandApr.BindingIDs);
 
                 foreach (Binding Bnd in Bindings)
                 {
                     switch (Bnd.Bone)
                     {
                         case "R_HAND":
-                            RightHandMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                            RightHandTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                            RightHandMesh = FileManager.Instance.GetMesh(Bnd.MeshID.UniqueID);
+                            RightHandTexture = FileManager.Instance.GetTexture(Bnd.TextureID.UniqueID);
                             break;
                     }
                 }
@@ -169,20 +169,20 @@ namespace Vitaboy
             switch (Type)
             {
                 case SkinType.Light:
-                    Apr = FileManager.GetAppearance(Oft.LightAppearance.UniqueID);
+                    Apr = FileManager.Instance.GetAppearance(Oft.LightAppearance.UniqueID);
                     break;
                 case SkinType.Medium:
-                    Apr = FileManager.GetAppearance(Oft.MediumAppearance.UniqueID);
+                    Apr = FileManager.Instance.GetAppearance(Oft.MediumAppearance.UniqueID);
                     break;
                 case SkinType.Dark:
-                    Apr = FileManager.GetAppearance(Oft.DarkAppearance.UniqueID);
+                    Apr = FileManager.Instance.GetAppearance(Oft.DarkAppearance.UniqueID);
                     break;
                 default:
-                    Apr = FileManager.GetAppearance(Oft.LightAppearance.UniqueID);
+                    Apr = FileManager.Instance.GetAppearance(Oft.LightAppearance.UniqueID);
                     break;
             }
 
-            Bindings = FileManager.GetBindings(Apr.BindingIDs);
+            Bindings = FileManager.Instance.GetBindings(Apr.BindingIDs);
 
             if(Oft.Region == OutfitRegion.Head)
                 HeadMesh = null; //IMPORTANT: Reset the head mesh before loading a new one.
@@ -192,19 +192,19 @@ namespace Vitaboy
                 switch (Bnd.Bone)
                 {
                     case "PELVIS":
-                        BodyMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                        BodyTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                        BodyMesh = FileManager.Instance.GetMesh(Bnd.MeshID.UniqueID);
+                        BodyTexture = FileManager.Instance.GetTexture(Bnd.TextureID.UniqueID);
                         break;
                     case "HEAD":
                         if (HeadMesh == null)
                         {
-                            HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                            HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                            HeadMesh = FileManager.Instance.GetMesh(Bnd.MeshID.UniqueID);
+                            HeadTexture = FileManager.Instance.GetTexture(Bnd.TextureID.UniqueID);
                         }
                         else
                         {
-                            AccessoryMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-                            AccessoryTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+                            AccessoryMesh = FileManager.Instance.GetMesh(Bnd.MeshID.UniqueID);
+                            AccessoryTexture = FileManager.Instance.GetTexture(Bnd.TextureID.UniqueID);
                         }
                         break;
                 }
@@ -221,16 +221,16 @@ namespace Vitaboy
             switch (Type)
             {
                 case SkinType.Light:
-                    Apr = FileManager.GetAppearance(HeadOutfit.LightAppearance.UniqueID);
+                    Apr = FileManager.Instance.GetAppearance(HeadOutfit.LightAppearance.UniqueID);
                     break;
                 case SkinType.Medium:
-                    Apr = FileManager.GetAppearance(HeadOutfit.MediumAppearance.UniqueID);
+                    Apr = FileManager.Instance.GetAppearance(HeadOutfit.MediumAppearance.UniqueID);
                     break;
                 case SkinType.Dark:
-                    Apr = FileManager.GetAppearance(HeadOutfit.DarkAppearance.UniqueID);
+                    Apr = FileManager.Instance.GetAppearance(HeadOutfit.DarkAppearance.UniqueID);
                     break;
                 default:
-                    Apr = FileManager.GetAppearance(HeadOutfit.LightAppearance.UniqueID);
+                    Apr = FileManager.Instance.GetAppearance(HeadOutfit.LightAppearance.UniqueID);
                     break;
             }
 
@@ -238,13 +238,13 @@ namespace Vitaboy
             AccessoryTexture = null;
 
             //I think that heads are always 0...
-            Binding Bnd = FileManager.GetBinding(Apr.BindingIDs[0].UniqueID);
+            Binding Bnd = FileManager.Instance.GetBinding(Apr.BindingIDs[0].UniqueID);
 
-            HeadMesh = FileManager.GetMesh(Bnd.MeshID.UniqueID);
-            HeadTexture = FileManager.GetTexture(Bnd.TextureID.UniqueID);
+            HeadMesh = FileManager.Instance.GetMesh(Bnd.MeshID.UniqueID);
+            HeadTexture = FileManager.Instance.GetTexture(Bnd.TextureID.UniqueID);
 
             if(Apr.BindingIDs.Count > 1) //This head has accessories.
-                Bnd = FileManager.GetBinding(Apr.BindingIDs[1].UniqueID);
+                Bnd = FileManager.Instance.GetBinding(Apr.BindingIDs[1].UniqueID);
         }
 
         /// <summary>

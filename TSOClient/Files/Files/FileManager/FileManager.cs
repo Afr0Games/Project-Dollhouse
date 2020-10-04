@@ -45,55 +45,62 @@ namespace Files.Manager
     /// </summary>
     public class FileManager : IDisposable
     {
-        public const uint CACHE_SIZE = 350000000; //~350mb
-        private static uint m_BytesLoaded = 0;
+        private static Lazy<FileManager> m_Instance = new Lazy<FileManager>(() => new FileManager());
 
-        private static readonly ILog m_Logger = 
+        /// <summary>
+        /// Gets an instance of this FileManager.
+        /// </summary>
+        public static FileManager Instance { get { return m_Instance.Value; } }
+
+        public const uint CACHE_SIZE = 350000000; //~350mb
+        private uint m_BytesLoaded = 0;
+
+        private readonly ILog m_Logger = 
             LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private static ConcurrentDictionary<ulong, Asset> m_Assets = new ConcurrentDictionary<ulong, Asset>();
-        private static ManualResetEvent m_AssetsResetEvent = new ManualResetEvent(false);
-        private static ConcurrentDictionary<byte[], Asset> m_FAR1Assets = new ConcurrentDictionary<byte[], Asset>(new ByteArrayComparer());
-        private static ManualResetEvent m_FAR1AssetsResetEvent = new ManualResetEvent(false);
-        private static ConcurrentDictionary<byte[], Asset> m_MusicAssets = new ConcurrentDictionary<byte[], Asset>(new ByteArrayComparer());
+        private ConcurrentDictionary<ulong, Asset> m_Assets = new ConcurrentDictionary<ulong, Asset>();
+        private ManualResetEvent m_AssetsResetEvent = new ManualResetEvent(false);
+        private ConcurrentDictionary<byte[], Asset> m_FAR1Assets = new ConcurrentDictionary<byte[], Asset>(new ByteArrayComparer());
+        private ManualResetEvent m_FAR1AssetsResetEvent = new ManualResetEvent(false);
+        private ConcurrentDictionary<byte[], Asset> m_MusicAssets = new ConcurrentDictionary<byte[], Asset>(new ByteArrayComparer());
 
-        public static event ThirtyThreePercentCompletedDelegate OnThirtyThreePercentCompleted;
-        public static event SixtysixPercentCompletedDelegate OnSixtysixPercentCompleted;
-        public static event HundredPercentCompletedDelegate OnHundredPercentCompleted;
+        public event ThirtyThreePercentCompletedDelegate OnThirtyThreePercentCompleted;
+        public event SixtysixPercentCompletedDelegate OnSixtysixPercentCompleted;
+        public event HundredPercentCompletedDelegate OnHundredPercentCompleted;
 
-        private static ManualResetEvent m_StillLoading = new ManualResetEvent(false);
+        private ManualResetEvent m_StillLoading = new ManualResetEvent(false);
 
-        private static ConcurrentBag<FAR3Archive> m_FAR3Archives = new ConcurrentBag<FAR3Archive>();
-        private static ConcurrentBag<FAR1Archive> m_FAR1Archives = new ConcurrentBag<FAR1Archive>();
-        private static ConcurrentBag<DBPFArchive> m_DBPFArchives = new ConcurrentBag<DBPFArchive>();
+        private ConcurrentBag<FAR3Archive> m_FAR3Archives = new ConcurrentBag<FAR3Archive>();
+        private ConcurrentBag<FAR1Archive> m_FAR1Archives = new ConcurrentBag<FAR1Archive>();
+        private ConcurrentBag<DBPFArchive> m_DBPFArchives = new ConcurrentBag<DBPFArchive>();
 
-        private static IEnumerable<string> m_FAR3Paths;
-        private static IEnumerable<string> m_FAR1Paths;
-        private static IEnumerable<string> m_IFFPaths;
-        private static IEnumerable<string> m_DBPFPaths;
+        private IEnumerable<string> m_FAR3Paths;
+        private IEnumerable<string> m_FAR1Paths;
+        private IEnumerable<string> m_IFFPaths;
+        private IEnumerable<string> m_DBPFPaths;
 
         //Stores hashed filenames of IFFs outside of archives.
-        private static ConcurrentDictionary<byte[], string> m_IFFHashes = new ConcurrentDictionary<byte[], string>();
+        private ConcurrentDictionary<byte[], string> m_IFFHashes = new ConcurrentDictionary<byte[], string>();
         //Stores hashed filenames of music files outside of archives.
-        private static ConcurrentDictionary<byte[], string> m_MusicHashes = new ConcurrentDictionary<byte[], string>();
+        private ConcurrentDictionary<byte[], string> m_MusicHashes = new ConcurrentDictionary<byte[], string>();
 
-        private static Game m_Game;
-        private static string m_BaseDir = "";
+        private Game m_Game;
+        private string m_BaseDir = "";
 
         /// <summary>
         /// Has Initialize() been called? If not, loading files WILL NOT BE POSSIBLE!
         /// </summary>
-        public static bool IsInitialized = false;
+        public bool IsInitialized = false;
 
         /// <summary>
         /// The directory the game is currently running from.
         /// </summary>
-        public static string BaseDirectory
+        public string BaseDirectory
         {
             get { return m_BaseDir; }
         }
 
-        static FileManager()
+        private FileManager()
         {
         }
 
@@ -102,7 +109,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="G">A Game instance.</param>
         /// <param name="StartupDir">Path of the directory where game has its resources.</param>
-        public static void Initialize(Game G, string StartupDir)
+        public void Initialize(Game G, string StartupDir)
         {
             m_Game = G;
             m_BaseDir = StartupDir;
@@ -152,7 +159,7 @@ namespace Files.Manager
         /// <summary>
         /// Loads all archives into memory.
         /// </summary>
-        private static void LoadAllArchives()
+        private void LoadAllArchives()
         {
             m_StillLoading.Reset();
 
@@ -203,7 +210,7 @@ namespace Files.Manager
         /// <param name="IsTGA">Do you know ahead of time that the resource is a TGA?
         /// Set this to true to avoid a lot of try/catch branches.</param>
         /// <returns>A Texture2D instance.</returns>
-        public static Texture2D GetTexture(ulong AssetID, bool IsTGA = false)
+        public Texture2D GetTexture(ulong AssetID, bool IsTGA = false)
         {
             if (!IsTGA)
             {
@@ -239,7 +246,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="Data">The data as a Stream.</param>
         /// <returns>True if data was BMP, false otherwise.</returns>
-        private static bool IsBMP(Stream Data)
+        private bool IsBMP(Stream Data)
         {
             if (Data == null)
                 return false;
@@ -256,7 +263,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">ID of the outfit to get.</param>
         /// <returns>An Outfit instance.</returns>
-        public static Outfit GetOutfit(ulong AssetID)
+        public Outfit GetOutfit(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -275,7 +282,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">ID of the outfit to get.</param>
         /// <returns>An PurchasableOutfit instance.</returns>
-        public static PurchasableOutfit GetPurchasableOutfit(ulong AssetID)
+        public PurchasableOutfit GetPurchasableOutfit(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -294,7 +301,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the skeleton to get.</param>
         /// <returns>A Skeleton instance.</returns>
-        public static Skeleton GetSkeleton(ulong AssetID)
+        public Skeleton GetSkeleton(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -313,7 +320,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the Handgroup to get.</param>
         /// <returns>A Handgroup instance.</returns>
-        public static HandGroup GetHandgroup(ulong AssetID)
+        public HandGroup GetHandgroup(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -332,7 +339,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the Appearance to get.</param>
         /// <returns>An Appearance instance.</returns>
-        public static Appearance GetAppearance(ulong AssetID)
+        public Appearance GetAppearance(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -351,7 +358,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the Binding to get.</param>
         /// <returns>An Binding instance.</returns>
-        public static Binding GetBinding(ulong AssetID)
+        public Binding GetBinding(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -369,7 +376,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="BindingIDs">A List<> of IDs of bindings.</param>
         /// <returns>An array of Binding instances.</returns>
-        public static Binding[] GetBindings(List<UniqueFileID> BindingIDs)
+        public Binding[] GetBindings(List<UniqueFileID> BindingIDs)
         {
             Binding[] Bindings = new Binding[BindingIDs.Count];
 
@@ -384,7 +391,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the Collection to get.</param>
         /// <returns>An Collection instance.</returns>
-        public static Collection GetCollection(ulong AssetID)
+        public Collection GetCollection(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -403,7 +410,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the mesh to get.</param>
         /// <returns>A Mesh instance.</returns>
-        public static Mesh GetMesh(ulong AssetID)
+        public Mesh GetMesh(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -422,7 +429,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="AssetID">The FileID/InstanceID of the animation to get.</param>
         /// <returns>A Anim instance.</returns>
-        public static Anim GetAnimation(ulong AssetID)
+        public Anim GetAnimation(ulong AssetID)
         {
             if (m_Assets.ContainsKey(AssetID))
             {
@@ -441,7 +448,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="ID">The FileID/InstanceID of the sound to get.</param>
         /// <returns>A new ISoundCodec instance.</returns>
-        public static ISoundCodec GetSound(uint ID)
+        public ISoundCodec GetSound(uint ID)
         {
             UniqueFileID UID = new UniqueFileID((uint)TypeIDs.UTK, ID);
 
@@ -492,7 +499,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="Name">The name of the music to get (only for sounds existing outside of archives).</param>
         /// <returns>A new ISoundCodec instance.</returns>
-        public static ISoundCodec GetMusic(string FileName)
+        public ISoundCodec GetMusic(string FileName)
         {
             return (ISoundCodec)GrabItem(FileName);
         }
@@ -541,7 +548,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="ID">The FileID/InstanceID of the track to get.</param>
         /// <returns>A new TRK instance.</returns>
-        public static TRK GetTRK(uint ID)
+        public TRK GetTRK(uint ID)
         {
             UniqueFileID UID = new UniqueFileID((uint)TypeIDs.TRK, ID);
 
@@ -559,7 +566,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="ID">ID of the track.</param>
         /// <returns>True if found, false otherwise.</returns>
-        public static bool TrackExists(uint ID)
+        public bool TrackExists(uint ID)
         {
             TRK Track = GetTRK(ID);
 
@@ -576,7 +583,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="ID">The FileID/InstanceID of the hitlist to get.</param>
         /// <returns>A new HLS instance.</returns>
-        public static HLS GetHLS(uint ID)
+        public HLS GetHLS(uint ID)
         {
             UniqueFileID UID = new UniqueFileID((uint)TypeIDs.HIT, ID);
 
@@ -594,7 +601,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="Filename">The name of the IFF to get.</param>
         /// <returns>A new Iff instance.</returns>
-        public static Iff GetIFF(string Filename)
+        public Iff GetIFF(string Filename)
         {
             Iff Item = new Iff();
             Item.Init((Stream)GrabItem(Filename), true);
@@ -608,7 +615,7 @@ namespace Files.Manager
         /// <param name="ID">ID of the item to grab.</param>
         /// <param name="TypeID">TypeID of the the item to grab.</param>
         /// <returns>An object that can be casted to the instance corresponding to the TypeID.</returns>
-        private static object GrabItem(uint ID, TypeIDs TypeID)
+        private object GrabItem(uint ID, TypeIDs TypeID)
         {
             Stream Data;
 
@@ -809,7 +816,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="ID">ID of the item to grab.</param>
         /// <returns>A Stream instance with data from the specified item.</returns>
-        private static Stream GrabItem(ulong ID, FAR3TypeIDs TypeID)
+        private Stream GrabItem(ulong ID, FAR3TypeIDs TypeID)
         {
             MemoryStream MemStream = new MemoryStream();
             object TheLock = new object();
@@ -1067,7 +1074,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="Filename">Filename of item to grab.</param>
         /// <returns>An object instance with data from the specified item.</returns>
-        private static object GrabItem(string Filename)
+        private object GrabItem(string Filename)
         {
             byte[] Hash;
 
@@ -1146,7 +1153,7 @@ namespace Files.Manager
 
         #region Adding
 
-        private static void AddItem(ulong ID, Asset Item)
+        private void AddItem(ulong ID, Asset Item)
         {
             m_AssetsResetEvent.Reset();
 
@@ -1173,7 +1180,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="Filename">The filename of the asset to add.</param>
         /// <param name="Item">The asset to add.</param>
-        private static void AddItem(string Filename, Asset Item)
+        private void AddItem(string Filename, Asset Item)
         {
             m_FAR1AssetsResetEvent.Reset();
 
@@ -1200,7 +1207,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="Filename">The filename of the musical asset to add.</param>
         /// <param name="Item">The asset to add.</param>
-        private static void AddMusic(string Filename, Asset Item)
+        private void AddMusic(string Filename, Asset Item)
         {
             if ((m_BytesLoaded + Item.Size) <= CACHE_SIZE)
             {
@@ -1227,7 +1234,7 @@ namespace Files.Manager
         /// </summary>
         /// <param name="Filename">Filename without extension.</param>
         /// <returns>A string indicating the filename.</returns>
-        private static string GetExtension(string Filename)
+        private string GetExtension(string Filename)
         {
             if (Filename.Contains("paddys_day"))
                 return ".png";
@@ -1252,7 +1259,7 @@ namespace Files.Manager
         /// <param name="rootFolderPath">The path to search.</param>
         /// <returns>An IEnumerable instance containing a list of strings with the qualified path to the file
         /// corresponding to the <paramref name="fileSearchPattern"/> in the <paramref name="rootFolderPath"/></returns>
-        private static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)
+        private IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)
         {
             Queue<string> pending = new Queue<string>();
             pending.Enqueue(rootFolderPath);
@@ -1273,7 +1280,7 @@ namespace Files.Manager
             }
         }
 
-        private static byte[] GenerateHash(string Filename)
+        private byte[] GenerateHash(string Filename)
         {
             byte[] tmpSource;
             byte[] Hash;
@@ -1300,7 +1307,7 @@ namespace Files.Manager
         }
 
         /// <summary>
-        /// Disposes of the resources used by this FAR3Archive instance.
+        /// Disposes of the resources used by this FileManager instance.
         /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
         protected virtual void Dispose(bool Disposed)

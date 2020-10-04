@@ -75,7 +75,7 @@ namespace Sound
                 m_InstCounter = Address;
             else
             {
-                m_Track = FileManager.GetTRK(TrackID);
+                m_Track = FileManager.Instance.GetTRK(TrackID);
                 m_SoundID = m_Track.SoundID;
                 SimpleMode = true;
             }
@@ -277,8 +277,8 @@ namespace Sound
         /// <returns>The ID of the track that was set.</returns>
         private uint SetTrack(uint Index)
         {
-            m_Hitlist = FileManager.GetHLS(Index);
-            m_Track = FileManager.GetTRK(m_Hitlist.SoundsAndHitlists[(int)Index]);
+            m_Hitlist = FileManager.Instance.GetHLS(Index);
+            m_Track = FileManager.Instance.GetTRK(m_Hitlist.SoundsAndHitlists[(int)Index]);
             m_SoundID = m_Track.SoundID;
 
             return m_Hitlist.SoundsAndHitlists[(int)Index];
@@ -311,7 +311,7 @@ namespace Sound
                             if (m_SoundID == 0)
                                 m_SoundID = m_Track.SoundID;
 
-                            ISoundCodec Snd = FileManager.GetSound(m_SoundID);
+                            ISoundCodec Snd = FileManager.Instance.GetSound(m_SoundID);
 
                             if (Snd != null)
                             {
@@ -545,18 +545,18 @@ namespace Sound
                             Src = ReadByte();
 
                             if (Src != 0)
-                                m_Hitlist = FileManager.GetHLS((uint)GetVariable(Src));
+                                m_Hitlist = FileManager.Instance.GetHLS((uint)GetVariable(Src));
                             else
                             {
-                                uint SoundID = FileManager.GetTRK(TrackID).SoundID;
+                                uint SoundID = FileManager.Instance.GetTRK(TrackID).SoundID;
 
                                 try
                                 {
-                                    FileManager.GetSound(SoundID);
+                                    FileManager.Instance.GetSound(SoundID);
                                 }
                                 catch
                                 {
-                                    m_Hitlist = FileManager.GetHLS(SoundID);
+                                    m_Hitlist = FileManager.Instance.GetHLS(SoundID);
                                 }
                             }
 
@@ -652,7 +652,7 @@ namespace Sound
                                    //it indefinitely.
                             Dest = ReadByte();
 
-                            HITNoteEntry Note = new HITNoteEntry(m_SoundID, FileManager.GetSound(m_SoundID));
+                            HITNoteEntry Note = new HITNoteEntry(m_SoundID, FileManager.Instance.GetSound(m_SoundID));
                             m_Notes.Add(Note);
 
                             SetVariable(Dest, m_Notes.Count - 1);
@@ -666,7 +666,7 @@ namespace Sound
             }
             else
             {
-                ISoundCodec Snd = FileManager.GetSound(m_SoundID);
+                ISoundCodec Snd = FileManager.Instance.GetSound(m_SoundID);
 
                 m_Player = new SoundPlayer(Snd.DecompressedWav(), Snd.GetSampleRate());
                 m_Player.PlaySound();

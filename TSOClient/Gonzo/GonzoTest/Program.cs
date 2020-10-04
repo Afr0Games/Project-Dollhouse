@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Microsoft.Win32;
+using Files.Manager;
 
 namespace GonzoTest
 {
@@ -42,9 +43,18 @@ namespace GonzoTest
                 }
                 else
                 {
-                    MessageBox.Show("Error TSO was not found on your system.");
-                    //TODO: Change messagebox to ask "Do you want to download it?"
-                    Exit = true;
+                    //TODO: Maybe change messagebox to ask "Do you want to download it?"
+                    if (MessageBox.Show("No Maxis products were found on your system. Do you want to find it manually?", 
+                        "Error", MessageBoxButtons.YesNo) == DialogResult.No)
+                        Exit = true;
+                    else
+                    {
+                        FolderBrowserDialog FBrowser = new FolderBrowserDialog();
+                        if (FBrowser.ShowDialog() == DialogResult.OK)
+                            GlobalSettings.Default.StartupPath = FBrowser.SelectedPath;
+                        else
+                            Exit = true;
+                    }
                 }
             }
             else
@@ -56,8 +66,19 @@ namespace GonzoTest
             if (!Exit)
             {
                 using (var game = new Game1())
+                {
+                    Application.ApplicationExit += Application_ApplicationExit;
                     game.Run();
+                }
             }
+        }
+
+        /// <summary>
+        /// The application is exiting, so dispose of resources.
+        /// </summary>
+        private static void Application_ApplicationExit(object sender, EventArgs e)
+        {
+            FileManager.Instance.Dispose();
         }
 
         private static bool is64BitProcess = (IntPtr.Size == 8);

@@ -125,8 +125,8 @@ namespace Sound
         {
             MP3File MP3;
 
-            if (FileManager.IsInitialized) //Only used by Files.Tests!
-                MP3 = (MP3File)FileManager.GetMusic(MP3Sound);
+            if (FileManager.Instance.IsInitialized) //Only used by Files.Tests!
+                MP3 = (MP3File)FileManager.Instance.GetMusic(MP3Sound);
             else
                 MP3 = new MP3File(MP3Sound);
 

@@ -83,8 +83,8 @@ namespace GonzoTest
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device, Manager.HeadShader);
-            Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
-            Avatar.SetHead(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), (Vitaboy.SkinType)m_CurrentSkinType);
+            Avatar.ChangeOutfit(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
+            Avatar.SetHead(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), (Vitaboy.SkinType)m_CurrentSkinType);
             Avatar.ShouldRotate = true;
 
             m_Avatar = new Sim(Manager.Device, Manager.RenderCamera, Avatar);
@@ -141,8 +141,8 @@ namespace GonzoTest
             m_HeadSkinBrowser.Sex = AvatarSex.Male;
             m_BodySkinBrowser.Sex = AvatarSex.Male;
 
-            m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mab000_robin), (Vitaboy.SkinType)m_CurrentSkinType);
-            m_Avatar.Head(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mah003_antony), (Vitaboy.SkinType)m_CurrentSkinType);
+            m_Avatar.ChangeOutfit(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mab000_robin), (Vitaboy.SkinType)m_CurrentSkinType);
+            m_Avatar.Head(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.mah003_antony), (Vitaboy.SkinType)m_CurrentSkinType);
         }
 
         /// <summary>
@@ -153,8 +153,8 @@ namespace GonzoTest
             m_HeadSkinBrowser.Sex = AvatarSex.Female;
             m_BodySkinBrowser.Sex = AvatarSex.Female;
 
-            m_Avatar.ChangeOutfit(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), (Vitaboy.SkinType)m_CurrentSkinType);
-            m_Avatar.Head(FileManager.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), (Vitaboy.SkinType)m_CurrentSkinType);
+            m_Avatar.ChangeOutfit(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), (Vitaboy.SkinType)m_CurrentSkinType);
+            m_Avatar.Head(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fah002_mom), (Vitaboy.SkinType)m_CurrentSkinType);
         }
 
         /// <summary>

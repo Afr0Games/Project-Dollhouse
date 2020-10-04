@@ -17,7 +17,7 @@ namespace Vitaboy
 {
     public class AdultAvatar : AvatarBase
     {
-        public AdultAvatar(GraphicsDevice Devc, Effect HeadShader = null) : base(Devc, FileManager.GetSkeleton(0x100000005), HeadShader)
+        public AdultAvatar(GraphicsDevice Devc, Effect HeadShader = null) : base(Devc, FileManager.Instance.GetSkeleton(0x100000005), HeadShader)
         {
 
         }

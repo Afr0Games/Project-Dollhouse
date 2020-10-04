@@ -33,7 +33,7 @@ namespace SimAntics
             else if(Obj.Master.MainID > 8192) //The main subroutine is semi-global.
             {
                 //TODO: Is this the correct ID of the GLOB chunk?
-                Iff SemiGlobal = FileManager.GetIFF(Obj.GetGLOB(Obj.Master.Global).SemiGlobalIFF);
+                Iff SemiGlobal = FileManager.Instance.GetIFF(Obj.GetGLOB(Obj.Master.Global).SemiGlobalIFF);
                 Main = SemiGlobal.GetBHAV(Obj.Master.MainID);
             }
         }
