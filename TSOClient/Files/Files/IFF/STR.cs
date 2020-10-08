@@ -42,6 +42,16 @@ namespace Files.IFF
         Korean = 20 
     }
 
+    /// <summary>
+    /// String indices for objects. These might be different for strings in different IFFs.
+    /// </summary>
+    public enum ObjectStringIndices
+    {
+        Name = 0,
+        Price = 1,
+        Description = 2
+    }
+
     public struct TranslatedString
     {
         public LanguageCodes LangCode;
@@ -62,16 +72,28 @@ namespace Files.IFF
         /// <param name="LangCode">The language code.</param>
         /// <param name="Index">The index of the string to retrieve.</param>
         /// <returns>A string.</returns>
-        public string GetString(LanguageCodes LangCode, int Index)
+        public string GetString(LanguageCodes LangCode, ObjectStringIndices Index)
         {
             try
             {
-                return Strings[LangCode][Index].TranslatedStr;
+                return Strings[LangCode][(int)Index].TranslatedStr;
             }
             catch(Exception)
             {
                 return "";
             }
+        }
+
+        /// <summary>
+        /// Adds a string to this STR chunk.
+        /// If it exists, it will be replaced
+        /// </summary>
+        /// <param name="Str">The TranslatedString instance to add.</param>
+        /// <param name="Index">The index of the string to add. Typically 0 through 2 for objects
+        /// where 0 is the name, 1 is the price and 2 is the description.</param>
+        public void AddString(TranslatedString Str, ObjectStringIndices Index)
+        {
+            Strings[Str.LangCode][(int)Index] = Str;
         }
 
         /// <summary>

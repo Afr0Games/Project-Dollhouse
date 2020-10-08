@@ -217,6 +217,20 @@ namespace Files.IFF
         }
 
         /// <summary>
+        /// Adds a STR chunk to this IFF.
+        /// If the chunk already exists, it will be replaced.
+        /// </summary>
+        /// <param name="ID">The ID of the chunk.</param>
+        /// <param name="Strings">The chunk to add.</param>
+        public void AddSTR(ushort ID, STR Strings)
+        {
+            if (m_STRChunks.ContainsKey(ID))
+                m_STRChunks[ID] = Strings;
+            else
+                m_STRChunks.Add(ID, Strings);
+        }
+
+        /// <summary>
         /// Gets a specific DGRP from this IFF.
         /// </summary>
         /// <param name="ID">ID of the DGRP to get.</param>
