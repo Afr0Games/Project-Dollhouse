@@ -21,6 +21,9 @@ using log4net;
 
 namespace Files.FAR1
 {
+    /// <summary>
+    /// Class for reading and writing FAR1 archives.
+    /// </summary>
     public class FAR1Archive : IDisposable
     {
         private Dictionary<byte[], FAR1Entry> m_Entries = new Dictionary<byte[], FAR1Entry>(new ByteArrayComparer());
@@ -130,9 +133,9 @@ namespace Files.FAR1
 
         /// <summary>
         /// Returns an entry in this archive as a Stream instance.
-        /// Throws a FAR3Exception if entry was not found.
+        /// Throws a FAR1Exception if entry was not found.
         /// </summary>
-        /// <param name="ID">ID of the entry to grab from archive.</param>
+        /// <param name="FilenameHash">The hash of the filename to grab from the archive.</param>
         /// <returns>The entry's data as a Stream instance.</returns>
         public Stream GrabEntry(byte[] FilenameHash)
         {
@@ -152,9 +155,9 @@ namespace Files.FAR1
 
         /// <summary>
         /// Returns the given entries as a List of Stream instances.
-        /// Throws a FAR3Exception if an entry wasn't found.
+        /// Throws a FAR1Exception if an entry wasn't found.
         /// </summary>
-        /// <param name="Entries">A List of UniqueFileID of entries to grab.</param>
+        /// <param name="Entries">A List of filename hashes of entries to grab.</param>
         /// <returns>The entries as a List of Stream instances.</returns>
         public List<Stream> GrabEntries(List<byte[]> Entries)
         {
@@ -194,6 +197,125 @@ namespace Files.FAR1
         public bool ContainsEntry(byte[] FilenameHash)
         {
             return m_Entries.ContainsKey(FilenameHash);
+        }
+
+        public void AddEntry(FAR1Entry Entry, Stream EntryData, bool Backup = true)
+        {
+            m_Entries.Add(Entry.FilenameHash, Entry);
+
+            List<Stream> DataOfEntries = GrabEntries(GetHashList());
+            DataOfEntries.Add(EntryData);
+
+            CreateNew(Path, DataOfEntries, Backup);
+        }
+
+        /// <summary>
+        /// A helper function for getting all the hashes for all the entries in this archive.
+        /// </summary>
+        /// <returns>A list of hashes.</returns>
+        public List<byte[]> GetHashList()
+        {
+            List<byte[]> Hashes = new List<byte[]>();
+
+            foreach(KeyValuePair<byte[], FAR1Entry> KVP in m_Entries)
+                Hashes.Add(KVP.Key);
+
+            return Hashes;
+        }
+
+        /// <summary>
+        /// Creates a new FAR archive at the designated path. The archive will contain all the entries in
+        /// this FAR1Archive instance. If this function is not passed a list of byte arrays for the entries'
+        /// data, it will use the data read from this FAR1Archive instance.
+        /// </summary>
+        /// <param name="ArchivePath">The fully qualified path to the archive to create.</param>
+        /// <param name="Entries">The entries in the archive.</param>
+        /// <param name="Data">(Optional) The data of the entries.</param>
+        /// <param name="Backup">(Optional) Will the original archive be backed up if <paramref name="ArchivePath"/>
+        /// coincides with an already existing archive? Set to true by default.</param>
+        public void CreateNew(string ArchivePath, List<Stream> Data = null, bool Backup = true)
+        {
+            string RandomFile = System.IO.Path.GetTempFileName();
+
+            //No need for other apps to access this file, so drop the FileAccess parameter.
+            BinaryWriter Writer = new BinaryWriter(File.Open(RandomFile, FileMode.Open));
+            //TODO: Will this work?
+            Writer.Write(ASCIIEncoding.ASCII.GetBytes("FAR!byAZ"));
+            Writer.Write((uint)1); //Version
+
+            Writer.Write((uint)0); //Offset to first entry.
+            //This isn't *actually* the first entry offset, but the offset of where to store that offset...
+            int FirstEntryOffset = (int)Writer.BaseStream.Position;
+
+            Writer.Write((uint)m_Entries.Count);
+            //THIS is the *actual* first entry offset.
+            int StartOfEntries = (int)Writer.BaseStream.Position;
+
+            Writer.Seek(FirstEntryOffset, SeekOrigin.Begin);
+            Writer.Write((uint)StartOfEntries);
+            Writer.Seek(StartOfEntries, SeekOrigin.Begin);
+
+            List<int> EntryOffsets = new List<int>();
+
+            foreach (KeyValuePair<byte[], FAR1Entry> Entry in m_Entries)
+            {
+                Writer.Write(Entry.Value.CompressedDataSize);
+                Writer.Write(Entry.Value.DecompressedDataSize);
+
+                EntryOffsets.Add((int)Writer.BaseStream.Position);
+
+                Writer.Write((uint)0); //Dataoffset.
+                Writer.Write(Entry.Value.FilenameLength);
+                Writer.Write(ASCIIEncoding.ASCII.GetBytes(Entry.Value.Filename)); //TODO: Will this work?
+            }
+
+            List<uint> DataOffsets = new List<uint>();
+            int Index = 0;
+
+            if (Data != null)
+            {
+                foreach (Stream DataEntry in Data)
+                {
+                    DataOffsets.Add((uint)Writer.BaseStream.Position);
+                    MemoryStream MemStream = new MemoryStream();
+                    DataEntry.CopyTo(MemStream);
+                    Writer.Write(MemStream.ToArray());
+
+                    Writer.Seek(EntryOffsets[Index], SeekOrigin.Begin);
+                    Writer.Write(DataOffsets[Index]);
+                    Writer.Seek((int)(DataOffsets[Index] + (DataEntry.Length - 1)), SeekOrigin.Begin);
+
+                    Index++;
+                }
+            }
+            else
+            {
+                foreach (Stream DataEntry in GrabEntries(GetHashList()))
+                {
+                    DataOffsets.Add((uint)Writer.BaseStream.Position);
+
+                    MemoryStream MemStream = new MemoryStream();
+                    DataEntry.CopyTo(MemStream);
+                    Writer.Write(MemStream.ToArray());
+
+                    Writer.Seek(EntryOffsets[Index], SeekOrigin.Begin);
+                    Writer.Write(DataOffsets[Index]);
+                    Writer.Seek((int)(DataOffsets[Index] + (DataEntry.Length - 1)), SeekOrigin.Begin);
+
+                    Index++;
+                }
+            }
+
+            Writer.Flush();
+            Writer.Close();
+
+            if (File.Exists(ArchivePath))
+            {
+                if(Backup)
+                    File.Move(ArchivePath, ArchivePath + ".bak");
+            }
+
+            File.Move(RandomFile, ArchivePath);
         }
 
         ~FAR1Archive()
@@ -276,58 +398,6 @@ namespace Files.FAR1
                 value += b;
             }
             return value;
-        }
-
-        public void CreateNew(List<FAR1Entry> Entries, List<byte[]> Data)
-        {
-            string RandomFile = Path.GetTempFileName();
-
-            //No need for other apps to access this file, so drop the FileAccess parameter.
-            BinaryWriter Writer = new BinaryWriter(File.Open(RandomFile, FileMode.Open));
-            //TODO: Will this work?
-            Writer.Write(ASCIIEncoding.ASCII.GetBytes("FAR!byAZ"));
-            Writer.Write((uint)1); //Version
-
-            Writer.Write((uint)0); //Offset to first entry.
-            //This isn't *actually* the first entry offset, but the offset of where to store that offset...
-            int FirstEntryOffset = (int)Writer.BaseStream.Position;
-
-            Writer.Write((uint)Entries.Count);
-            //THIS is the *actual* first entry offset.
-            int StartOfEntries = (int)Writer.BaseStream.Position;
-
-            Writer.Seek(FirstEntryOffset, SeekOrigin.Begin);
-            Writer.Write((uint)StartOfEntries);
-            Writer.Seek(StartOfEntries, SeekOrigin.Begin);
-
-            List<int> EntryOffsets = new List<int>();
-
-            foreach (FAR1Entry Entry in Entries)
-            {
-                Writer.Write(Entry.CompressedDataSize);
-                Writer.Write(Entry.DecompressedDataSize);
-
-                EntryOffsets.Add((int)Writer.BaseStream.Position);
-
-                Writer.Write((uint)0); //Dataoffset.
-                Writer.Write(Entry.FilenameLength);
-                Writer.Write(ASCIIEncoding.ASCII.GetBytes(Entry.Filename)); //TODO: Will this work?
-            }
-
-            List<uint> DataOffsets = new List<uint>();
-            int Index = 0;
-
-            foreach (byte[] DataEntry in Data)
-            {
-                DataOffsets.Add((uint)Writer.BaseStream.Position);
-                Writer.Write(DataEntry);
-
-                Writer.Seek(EntryOffsets[Index], SeekOrigin.Begin);
-                Writer.Write(DataOffsets[Index]);
-                Writer.Seek((int)(DataOffsets[Index] + (DataEntry.Length - 1)), SeekOrigin.Begin);
-
-                Index++;
-            }
         }
     }
 }
