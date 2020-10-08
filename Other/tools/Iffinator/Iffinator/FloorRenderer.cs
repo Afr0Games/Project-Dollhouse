@@ -35,10 +35,14 @@ namespace Iffinator
             base.Draw();
 
             m_SBatch.Begin(SpriteSortMode.BackToFront);
-            GraphicsDevice.Clear(Color.LightSlateGray);
+            GraphicsDevice.Clear(Color.White);
 
             if (m_Sprite != null)
-                m_SBatch.Draw(m_Frame.GetTexture(), new Rectangle(0, 0, m_Frame.Width, m_Frame.Height), Color.White);
+            {
+                int X = (GraphicsDevice.Viewport.Width - m_Frame.Width) / 2;
+                int Y = (GraphicsDevice.Viewport.Height - m_Frame.Height) / 2;
+                m_SBatch.Draw(m_Frame.GetTexture(), new Rectangle(X, Y, m_Frame.Width, m_Frame.Height), Color.White);
+            }
 
             m_SBatch.End();
         }

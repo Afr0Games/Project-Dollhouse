@@ -1168,6 +1168,8 @@ namespace Files.Manager
                 Assets.Sort((x, y) => DateTime.Compare(x.LastAccessed, y.LastAccessed));
                 Asset Oldest = Assets[0];
                 m_Assets.TryRemove(Oldest.AssetID, out Oldest);
+                Oldest.Dispose();
+
                 m_Assets.AddOrUpdate(Assets[0].AssetID, Item, (Key, ExistingValue) => ExistingValue = Item);
             }
 
@@ -1195,6 +1197,8 @@ namespace Files.Manager
                 Assets.Sort((x, y) => DateTime.Compare(x.LastAccessed, y.LastAccessed));
                 Asset Oldest = Assets[0];
                 m_FAR1Assets.TryRemove(Oldest.FilenameHash, out Oldest);
+                Oldest.Dispose();
+
                 m_FAR1Assets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
             }
 
@@ -1220,6 +1224,8 @@ namespace Files.Manager
                 Assets.Sort((x, y) => DateTime.Compare(x.LastAccessed, y.LastAccessed));
                 Asset Oldest = Assets[0];
                 m_MusicAssets.TryRemove(Oldest.FilenameHash, out Oldest);
+                Oldest.Dispose();
+
                 m_MusicAssets.AddOrUpdate(GenerateHash(Filename), Item, (Key, ExistingValue) => ExistingValue = Item);
             }
         }
@@ -1330,6 +1336,24 @@ namespace Files.Manager
                 {
                     if (Archive != null)
                         Archive.Dispose();
+                }
+
+                foreach(KeyValuePair<ulong, Asset> KVP in m_Assets)
+                {
+                    if(KVP.Value != null)
+                        KVP.Value.Dispose();
+                }
+
+                foreach (KeyValuePair<byte[], Asset> KVP in m_FAR1Assets)
+                {
+                    if (KVP.Value != null)
+                        KVP.Value.Dispose();
+                }
+
+                foreach (KeyValuePair<byte[], Asset> KVP in m_MusicAssets)
+                {
+                    if (KVP.Value != null)
+                        KVP.Value.Dispose();
                 }
 
                 // Prevent the finalizer from calling ~FileManager, since the object is already disposed at this point.

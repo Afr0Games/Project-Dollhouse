@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
+using System.Text;
 using MaterialSkin;
 using MaterialSkin.Controls;
 using Files;
@@ -20,7 +21,11 @@ namespace Iffinator
         private List<FAR1Entry> m_FloorEntries = new List<FAR1Entry>();
         private List<FAR1Entry> m_WallEntries = new List<FAR1Entry>();
 
+        //Zoom level at which to draw walls and floors.
+        private int m_ZoomLevel = 0;
+
         private Iff m_CurrentIff;
+        private LanguageCodes m_CurrentLanguage;
 
         public Form1()
         {
@@ -37,6 +42,10 @@ namespace Iffinator
             LstFloors.MouseClick += LstFloors_MouseClick;
             LstLanguages.MouseClick += LstLanguages_MouseClick;
             LstLanguages.Visible = false;
+
+            TxtStrings.TextChanged += TxtStrings_TextChanged;
+            TxtName.TextChanged += TxtName_TextChanged;
+            BtnUpdateText.Click += BtnUpdateText_Click;
 
             LoadArchives();
         }
@@ -77,6 +86,11 @@ namespace Iffinator
         /// </summary>
         private void LstFloors_MouseClick(object sender, MouseEventArgs e)
         {
+            BtnZoomIn.Visible = true;
+            BtnZoomOut.Visible = true;
+
+            HideTextInterface();
+
             foreach (ListViewItem Item in LstFloors.Items)
             {
                 //We only support selecting one item at a time.
@@ -88,14 +102,16 @@ namespace Iffinator
                     //This is NOT effective, but it's a tool so it doesn't have to be super fast...
                     foreach (FAR1Archive Archive in m_Archives)
                     {
+                        ArchiveIndex++;
+
                         if (Archive.ContainsEntry(Hash))
                         {
                             m_CurrentIff = new Iff(RndFloors.GraphicsDevice);
                             m_CurrentIff.Init(Archive.GrabEntry(Hash), false);
                             RndFloors.AddSprite(m_CurrentIff.SPR2s[0]);
 
-                            //TODO: Add support for this.
-                            //LblArchive.Text = "Floor is in: " + m_HouseDataFARs[ArchiveIndex];
+                            DirectoryInfo DirInfo = new DirectoryInfo(Archive.Path);
+                            LblArchive.Text = "Floor is in: " + DirInfo.Parent + "\\" + Path.GetFileName(Archive.Path);
                             PopulateLanguagesAndStrings();
                         }
                     }
@@ -104,10 +120,45 @@ namespace Iffinator
         }
 
         /// <summary>
+        /// The user changed an object's description.
+        /// </summary>
+        private void TxtStrings_TextChanged(object sender, EventArgs e)
+        {
+            BtnUpdateText.Visible = true;
+        }
+
+        /// <summary>
+        /// The user changed an object's name.
+        /// </summary>
+        private void TxtName_TextChanged(object sender, EventArgs e)
+        {
+            BtnUpdateText.Visible = true;
+        }
+
+        /// <summary>
+        /// The user clicked the button to update the current text.
+        /// </summary>
+        private void BtnUpdateText_Click(object sender, EventArgs e)
+        {
+            STR Strings = m_CurrentIff.StringTables[0];
+
+            TranslatedString TranslatedStr = 
+                new TranslatedString() { LangCode = m_CurrentLanguage, TranslatedStr = TxtStrings.Text };
+            Strings.AddString(TranslatedStr, ObjectStringIndices.Description);
+
+            m_CurrentIff.AddSTR(Strings.ID, Strings);
+
+            BtnUpdateText.Visible = false;
+        }
+
+        /// <summary>
         /// The user clicked on an item in the list of languages and strings.
         /// </summary>
         private void LstLanguages_MouseClick(object sender, MouseEventArgs e)
         {
+            LblPrice.Visible = true;
+            LblName.Visible = true;
+
             //A floor or wall has only 1 string table.
             STR StringTable = m_CurrentIff.StringTables[0];
 
@@ -126,9 +177,10 @@ namespace Iffinator
                     TxtStrings.Clear();
 
                     LanguageCodes SelectedCode = (LanguageCodes)Enum.Parse(typeof(LanguageCodes), Item.Text);
-                    TxtName.Text = StringTable.GetString(SelectedCode, 0);
-                    TxtPrice.Text = StringTable.GetString(SelectedCode, 1);
-                    TxtStrings.Text = StringTable.GetString(SelectedCode, 2);
+                    m_CurrentLanguage = SelectedCode;
+                    TxtName.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Name);
+                    TxtPrice.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Price);
+                    TxtStrings.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Description);
                 }
             }
         }
@@ -140,7 +192,6 @@ namespace Iffinator
         {
             LstLanguages.Items.Clear();
             LstLanguages.Visible = true;
-            TxtStrings.Visible = true;
 
             //A floor or wall has only 1 string table.
             STR StringTable = m_CurrentIff.StringTables[0];
@@ -157,7 +208,42 @@ namespace Iffinator
             }
         }
 
+        private void BtnZoomIn_Click(object sender, EventArgs e)
+        {
+            if (m_ZoomLevel < 2)
+                m_ZoomLevel++;
+
+            RndFloors.AddSprite(m_CurrentIff.SPR2s[m_ZoomLevel]);
+        }
+
+        private void BtnZoomOut_Click(object sender, EventArgs e)
+        {
+            if (m_ZoomLevel > 0)
+                m_ZoomLevel--;
+
+            RndFloors.AddSprite(m_CurrentIff.SPR2s[m_ZoomLevel]);
+        }
+
         #region Helper methods
+
+        /// <summary>
+        /// Hides the text interface.
+        /// </summary>
+        public void HideTextInterface()
+        {
+            if (BtnUpdateText.Visible)
+                BtnUpdateText.Visible = false;
+            if (LblName.Visible)
+                LblName.Visible = false;
+            if (LblPrice.Visible)
+                LblPrice.Visible = false;
+            if (TxtName.Visible)
+                TxtName.Visible = false;
+            if (TxtPrice.Visible)
+                TxtPrice.Visible = false;
+            if (TxtStrings.Visible)
+                TxtStrings.Visible = false;
+        }
 
         /// <summary>
         /// Generates a list of strings containing all the files having the supplied extension in the specified path.
@@ -187,6 +273,6 @@ namespace Iffinator
             }
         }
 
-#endregion
+        #endregion
     }
 }
