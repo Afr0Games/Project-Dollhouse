@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using System.Diagnostics;
 using System.Text;
 using System.Security.Cryptography;
 using System.IO;
@@ -8,6 +10,32 @@ namespace Files
 {
     public static class FileUtilities
     {
+        /// <summary>
+        /// Are we running a debug version?
+        /// </summary>
+        /// <param name="assembly">The executing assembly.</param>
+        /// <returns>True if the assembly was compiled as debug.</returns>
+        public static bool IsDebug(Assembly assembly)
+        {
+            object[] attribs = assembly.GetCustomAttributes(typeof(DebuggableAttribute), false);
+
+            // If the 'DebuggableAttribute' is not found then it is definitely an OPTIMIZED build
+            if (attribs.Length > 0)
+            {
+                // Just because the 'DebuggableAttribute' is found doesn't necessarily mean
+                // it's a DEBUG build; we have to check the JIT Optimization flag
+                // i.e. it could have the "generate PDB" checked but have JIT Optimization enabled
+                DebuggableAttribute debuggableAttribute = attribs[0] as DebuggableAttribute;
+                if (debuggableAttribute != null)
+                {
+                    if (debuggableAttribute.IsJITOptimizerDisabled || debuggableAttribute.IsJITTrackingEnabled)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Generates a hash from a filename.
         /// </summary>

@@ -27,6 +27,7 @@ namespace Files.FAR3
     public class FAR3Archive : IDisposable
     {
         private ConcurrentDictionary<ulong, FAR3Entry> m_Entries = new ConcurrentDictionary<ulong, FAR3Entry>();
+
         private string m_Path;
         private FileReader m_Reader;
         private ManualResetEvent m_FinishedReading = new ManualResetEvent(false);
