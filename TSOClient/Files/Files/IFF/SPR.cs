@@ -64,8 +64,24 @@ namespace Files.IFF
                 m_OffsetTable.Add((uint)Reader.Position);
 
             Reader.Close();
-            //m_Data = null; //DON'T DO THIS!
+            //m_Data = null; DON'T DO THIS - this data is used for decompression by GetSpriteFrame()
         }
+
+        public override Stream ToStream()
+        {
+            base.ToStream();
+
+            if (!m_HasBeenUpdated)
+            {
+                m_Writer.WriteBytes(m_Data);
+                m_Writer.Flush();
+                return m_OutputStream;
+            }
+
+            //TODO: Implement a custom implementation for this.
+            return null;
+        }
+
 
         /// <summary>
         /// Provides basic type safety.
@@ -177,72 +193,121 @@ namespace Files.IFF
 
             m_Texture = new Texture2D(Device, Width, Height);
 
-            for (ushort i = 0; i < Height; i++)
+            bool quit = false;
+            byte Clr = 0;
+            Color Transparent;
+            int CurrentRow = 0, CurrentColumn = 0;
+
+            byte PixCommand, PixCount = 0;
+
+            while (quit == false)
             {
-                byte Cmd = Reader.ReadByte();
-                byte Count = Reader.ReadByte();
+                byte RowCommand = Reader.ReadByte();
+                byte RowCount = Reader.ReadByte();
 
-                switch (Cmd)
+                switch (RowCommand)
                 {
+                    case 0x00: //Start marker; the count byte is ignored.
+                        break;
+                    //Fill this row with pixel data that directly follows; the count byte of the row command denotes the 
+                    //size in bytes of the row and pixel data.
                     case 0x04:
-                        for (byte j = 0; j < Count; j++)
+                        RowCount -= 2;
+                        CurrentColumn = 0;
+
+                        while (RowCount > 0)
                         {
-                            byte PxCmd = Reader.ReadByte();
-                            byte PxCount = Reader.ReadByte();
-                            Color[] Pixels;
+                            PixCommand = Reader.ReadByte();
+                            PixCount = Reader.ReadByte();
+                            RowCount -= 2;
 
-                            switch (PxCmd)
+                            switch (PixCommand)
                             {
-                                case 0x01:
-                                    //Leave the next pixel count pixels as transparent. This pixel command has no pixel data.
-                                    Pixels = new Color[Count];
-                                    for (int k = 0; k < Count; k++)
-                                        Pixels[k] = Color.Transparent;
+                                case 1: //Leave the next pixel count pixels as transparent.
+                                    for (int j = CurrentColumn; j < (CurrentColumn + PixCount); j++)
+                                        SetPixel(j, CurrentRow, Color.Transparent);
 
-                                    m_Texture.SetData(Pixels, 0, Count);
+                                    CurrentColumn += PixCount;
+
                                     break;
-                                case 0x02:
-                                    //Fill the next pixel count pixels with a single palette color. 
-                                    //The pixel data is two bytes: the first byte denotes the palette color 
-                                    //index, and the second byte is padding (which is always equal to the 
-                                    //first byte but is ignored).
-                                    Pixels = new Color[Count];
-                                    byte ColorIndex = Reader.ReadByte();
+                                case 2: //Fill the next pixel count pixels with a palette color.
+                                    //The pixel data is two bytes: the first byte denotes the palette color index, and the 
+                                    //second byte is padding (which is always equal to the first byte but is ignored).
+                                    Clr = Reader.ReadByte();
+                                    Reader.ReadByte(); //Padding
+                                    RowCount -= 2;
 
-                                    for (int k = 0; k < Count; k++)
-                                        Pixels[k] = Palette[ColorIndex];
+                                    for (int j = CurrentColumn; j < (CurrentColumn + PixCount); j++)
+                                        SetPixel(j, CurrentRow, Palette[Clr]);
 
-                                    m_Texture.SetData(Pixels, 0, Count);
+                                    CurrentColumn += PixCount;
+
                                     break;
-                                case 0x03:
-                                    //Set the next pixel count pixels to the palette color indices defined by 
-                                    //the pixel data provided directly after this command. Each byte in the pixel data, 
-                                    //minus the padding byte at the very end (if it exists), is a color index value to 
-                                    //be copied to the row.
-                                    Pixels = new Color[Count];
+                                case 3: //Set the next pixel count pixels to the palette color indices defined by the 
+                                    //pixel data provided directly after this command.
 
-                                    for (int k = 0; k < Count; k++)
-                                        Pixels[k] = Palette[Reader.ReadByte()];
+                                    byte Padding = (byte)(PixCount % 2);
 
-                                    m_Texture.SetData(Pixels, 0, Count);
-                                    break;
-                                case 0x09:
-                                    //Leave the next count rows as transparent.
-                                    for (int k = 0; k < Count; k++)
-                                    {
-                                        Pixels = new Color[Width];
-                                        for (int l = 0; l < Width; l++)
-                                            Pixels[l] = Color.Transparent;
+                                    if (Padding != 0)
+                                        RowCount -= (byte)(PixCount + Padding);
+                                    else
+                                        RowCount -= PixCount;
 
-                                        m_Texture.SetData(Pixels, 0, Width);
-                                    }
+                                    for (int j = CurrentColumn; j < (CurrentColumn + PixCount); j++)
+                                        SetPixel(j, CurrentRow, Palette[Reader.ReadByte()]);
+
+                                    CurrentColumn += PixCount;
+
+                                    if (Padding != 0)
+                                        Reader.ReadByte();
+
                                     break;
                             }
                         }
 
+                        CurrentRow++;
+
+                        break;
+                    case 0x05: //End marker. The count byte is always 0, but may be ignored.
+
+                        //Some sprites don't have these, so read them using ReadBytes(), which
+                        //simply returns an empty array if the stream couldn't be read.
+                        Reader.ReadBytes(2); //PixCommand and PixCount.
+
+                        quit = true;
+                        break;
+                    case 0x09: //Leave the next count rows as transparent.
+                        PixCommand = Reader.ReadByte();
+                        PixCount = Reader.ReadByte();
+
+                        for (int i = 0; i < RowCount; i++)
+                        {
+                            for (int j = CurrentColumn; j < Width; j++)
+                                SetPixel(j, CurrentRow, Color.Transparent);
+
+                            CurrentRow++;
+                        }
+
+                        break;
+                    case 0x10: //Start marker, equivalent to 0x00; the count byte is ignored.
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets a pixel at a specified position of the texture.
+        /// </summary>
+        /// <param name="x">X coordinate of pixel.</param>
+        /// <param name="y">Y coordinate of pixel.</param>
+        /// <param name="c">The Color of the pixel.</param>
+        private void SetPixel(int x, int y, Color c)
+        {
+            Rectangle r = new Rectangle((x < Width) ? x : x - 1, (y < Height) ? y : y - 1, 1, 1);
+            Color[] color = new Color[1];
+            color[0] = c;
+
+            m_Texture.SetData<Color>(0, r, color, 0, 1);
         }
 
         ~SPRFrame()
