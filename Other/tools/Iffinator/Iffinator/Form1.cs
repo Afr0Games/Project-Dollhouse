@@ -40,11 +40,15 @@ namespace Iffinator
             materialSkinManager.ColorScheme = new ColorScheme(Primary.DeepOrange800, Primary.Orange900, Primary.Orange500, Accent.LightBlue200, TextShade.WHITE);
 
             LstFloors.MouseClick += LstFloors_MouseClick;
-            LstLanguages.MouseClick += LstLanguages_MouseClick;
-            LstLanguages.Visible = false;
+            LstFloorLanguages.MouseClick += LstFloorLanguages_MouseClick;
+            LstFloorLanguages.Visible = false;
 
-            TxtStrings.TextChanged += TxtStrings_TextChanged;
-            TxtName.TextChanged += TxtName_TextChanged;
+            LstWalls.MouseClick += LstWalls_MouseClick;
+            LstWallLanguages.MouseClick += LstWallLanguages_MouseClick;
+            LstWallLanguages.Visible = false;
+
+            TxtFloorStrings.TextChanged += TxtFloorStrings_TextChanged;
+            TxtFloorName.TextChanged += TxtFloorName_TextChanged;
             BtnUpdateText.Click += BtnUpdateText_Click;
 
             LoadArchives();
@@ -79,6 +83,44 @@ namespace Iffinator
 
             foreach (FAR1Entry Entry in m_FloorEntries)
                 LstFloors.Items.Add(new ListViewItem(Entry.Filename));
+
+            foreach (FAR1Entry Entry in m_WallEntries)
+                LstWalls.Items.Add(new ListViewItem(Entry.Filename));
+        }
+
+        private void LstWalls_MouseClick(object sender, MouseEventArgs e)
+        {
+            BtnZoomInWall.Visible = true;
+            BtnZoomOutWall.Visible = true;
+
+            HideWallTextInterface();
+
+            foreach (ListViewItem Item in LstWalls.Items)
+            {
+                //We only support selecting one item at a time.
+                if (Item.Selected)
+                {
+                    byte[] Hash = FileUtilities.GenerateHash(Item.Text);
+                    int ArchiveIndex = 0;
+
+                    //This is NOT effective, but it's a tool so it doesn't have to be super fast...
+                    foreach (FAR1Archive Archive in m_Archives)
+                    {
+                        ArchiveIndex++;
+
+                        if (Archive.ContainsEntry(Hash))
+                        {
+                            m_CurrentIff = new Iff(RndWalls.GraphicsDevice);
+                            m_CurrentIff.Init(Archive.GrabEntry(Hash), false);
+                            RndWalls.AddSprite(m_CurrentIff.SPRs[0]);
+
+                            DirectoryInfo DirInfo = new DirectoryInfo(Archive.Path);
+                            LblArchive.Text = "Wall is in: " + DirInfo.Parent + "\\" + Path.GetFileName(Archive.Path);
+                            PopulateLanguagesAndStrings();
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -89,7 +131,7 @@ namespace Iffinator
             BtnZoomIn.Visible = true;
             BtnZoomOut.Visible = true;
 
-            HideTextInterface();
+            HideFloorTextInterface();
 
             foreach (ListViewItem Item in LstFloors.Items)
             {
@@ -122,7 +164,7 @@ namespace Iffinator
         /// <summary>
         /// The user changed an object's description.
         /// </summary>
-        private void TxtStrings_TextChanged(object sender, EventArgs e)
+        private void TxtFloorStrings_TextChanged(object sender, EventArgs e)
         {
             BtnUpdateText.Visible = true;
         }
@@ -130,7 +172,7 @@ namespace Iffinator
         /// <summary>
         /// The user changed an object's name.
         /// </summary>
-        private void TxtName_TextChanged(object sender, EventArgs e)
+        private void TxtFloorName_TextChanged(object sender, EventArgs e)
         {
             BtnUpdateText.Visible = true;
         }
@@ -143,7 +185,7 @@ namespace Iffinator
             STR Strings = m_CurrentIff.StringTables[0];
 
             TranslatedString TranslatedStr = 
-                new TranslatedString() { LangCode = m_CurrentLanguage, TranslatedStr = TxtStrings.Text };
+                new TranslatedString() { LangCode = m_CurrentLanguage, TranslatedStr = TxtFloorStrings.Text };
             Strings.AddString(TranslatedStr, ObjectStringIndices.Description);
 
             m_CurrentIff.AddSTR(Strings.ID, Strings);
@@ -154,33 +196,67 @@ namespace Iffinator
         /// <summary>
         /// The user clicked on an item in the list of languages and strings.
         /// </summary>
-        private void LstLanguages_MouseClick(object sender, MouseEventArgs e)
+        private void LstFloorLanguages_MouseClick(object sender, MouseEventArgs e)
         {
-            LblPrice.Visible = true;
-            LblName.Visible = true;
+            LblFloorPrice.Visible = true;
+            LblFloorName.Visible = true;
 
             //A floor or wall has only 1 string table.
             STR StringTable = m_CurrentIff.StringTables[0];
 
-            foreach (ListViewItem Item in LstLanguages.Items)
+            foreach (ListViewItem Item in LstFloorLanguages.Items)
             {
                 //We only support selecting one item at a time.
                 if (Item.Selected)
                 {
-                    TxtName.Visible = true;
-                    TxtName.Clear();
+                    TxtFloorName.Visible = true;
+                    TxtFloorName.Clear();
 
-                    TxtPrice.Visible = true;
-                    TxtPrice.Clear();
+                    TxtFloorPrice.Visible = true;
+                    TxtFloorPrice.Clear();
 
-                    TxtStrings.Visible = true;
-                    TxtStrings.Clear();
+                    TxtFloorStrings.Visible = true;
+                    TxtFloorStrings.Clear();
 
                     LanguageCodes SelectedCode = (LanguageCodes)Enum.Parse(typeof(LanguageCodes), Item.Text);
                     m_CurrentLanguage = SelectedCode;
-                    TxtName.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Name);
-                    TxtPrice.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Price);
-                    TxtStrings.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Description);
+                    TxtFloorName.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Name);
+                    TxtFloorPrice.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Price);
+                    TxtFloorStrings.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Description);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The user clicked on an item in the list of languages and strings.
+        /// </summary>
+        private void LstWallLanguages_MouseClick(object sender, MouseEventArgs e)
+        {
+            LblWallPrice.Visible = true;
+            LblWallName.Visible = true;
+
+            //A floor or wall has only 1 string table.
+            STR StringTable = m_CurrentIff.StringTables[0];
+
+            foreach (ListViewItem Item in LstFloorLanguages.Items)
+            {
+                //We only support selecting one item at a time.
+                if (Item.Selected)
+                {
+                    TxtWallName.Visible = true;
+                    TxtWallName.Clear();
+
+                    TxtWallPrice.Visible = true;
+                    TxtWallPrice.Clear();
+
+                    TxtWallStrings.Visible = true;
+                    TxtWallStrings.Clear();
+
+                    LanguageCodes SelectedCode = (LanguageCodes)Enum.Parse(typeof(LanguageCodes), Item.Text);
+                    m_CurrentLanguage = SelectedCode;
+                    TxtWallName.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Name);
+                    TxtWallPrice.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Price);
+                    TxtWallStrings.Text = StringTable.GetString(SelectedCode, ObjectStringIndices.Description);
                 }
             }
         }
@@ -190,8 +266,8 @@ namespace Iffinator
         /// </summary>
         private void PopulateLanguagesAndStrings()
         {
-            LstLanguages.Items.Clear();
-            LstLanguages.Visible = true;
+            LstFloorLanguages.Items.Clear();
+            LstFloorLanguages.Visible = true;
 
             //A floor or wall has only 1 string table.
             STR StringTable = m_CurrentIff.StringTables[0];
@@ -203,11 +279,31 @@ namespace Iffinator
                 if (TranslatedStrings.Length > 0)
                 {
                     ListViewItem LstItem = new ListViewItem(new[] { LangCode.ToString(), TranslatedStrings.Length.ToString() });
-                    LstLanguages.Items.Add(LstItem);
+                    LstFloorLanguages.Items.Add(LstItem);
+                }
+            }
+
+            LstWallLanguages.Items.Clear();
+            LstWallLanguages.Visible = true;
+
+            //A floor or wall has only 1 string table.
+            StringTable = m_CurrentIff.StringTables[0];
+
+            foreach (LanguageCodes LangCode in Enum.GetValues(typeof(LanguageCodes)))
+            {
+                TranslatedString[] TranslatedStrings = StringTable.GetStringList(LangCode).ToArray();
+
+                if (TranslatedStrings.Length > 0)
+                {
+                    ListViewItem LstItem = new ListViewItem(new[] { LangCode.ToString(), TranslatedStrings.Length.ToString() });
+                    LstWallLanguages.Items.Add(LstItem);
                 }
             }
         }
 
+        /// <summary>
+        /// User wanted to zoom in a floor.
+        /// </summary>
         private void BtnZoomIn_Click(object sender, EventArgs e)
         {
             if (m_ZoomLevel < 2)
@@ -216,6 +312,9 @@ namespace Iffinator
             RndFloors.AddSprite(m_CurrentIff.SPR2s[m_ZoomLevel]);
         }
 
+        /// <summary>
+        /// User wanted to zoom out a floor.
+        /// </summary>
         private void BtnZoomOut_Click(object sender, EventArgs e)
         {
             if (m_ZoomLevel > 0)
@@ -224,25 +323,66 @@ namespace Iffinator
             RndFloors.AddSprite(m_CurrentIff.SPR2s[m_ZoomLevel]);
         }
 
+        /// <summary>
+        /// User wanted to zoom in a wall.
+        /// </summary>
+        private void BtnZoomInWall_Click(object sender, EventArgs e)
+        {
+            if (m_ZoomLevel < 2)
+                m_ZoomLevel++;
+
+            RndWalls.AddSprite(m_CurrentIff.SPRs[m_ZoomLevel]);
+        }
+
+        /// <summary>
+        /// User wanted to zoom out a wall.
+        /// </summary>
+        private void BtnZoomOutWall_Click(object sender, EventArgs e)
+        {
+            if (m_ZoomLevel > 0)
+                m_ZoomLevel--;
+
+            RndWalls.AddSprite(m_CurrentIff.SPRs[m_ZoomLevel]);
+        }
+
         #region Helper methods
 
         /// <summary>
         /// Hides the text interface.
         /// </summary>
-        public void HideTextInterface()
+        public void HideFloorTextInterface()
         {
             if (BtnUpdateText.Visible)
                 BtnUpdateText.Visible = false;
-            if (LblName.Visible)
-                LblName.Visible = false;
-            if (LblPrice.Visible)
-                LblPrice.Visible = false;
-            if (TxtName.Visible)
-                TxtName.Visible = false;
-            if (TxtPrice.Visible)
-                TxtPrice.Visible = false;
-            if (TxtStrings.Visible)
-                TxtStrings.Visible = false;
+            if (LblFloorName.Visible)
+                LblFloorName.Visible = false;
+            if (LblFloorPrice.Visible)
+                LblFloorPrice.Visible = false;
+            if (TxtFloorName.Visible)
+                TxtFloorName.Visible = false;
+            if (TxtFloorPrice.Visible)
+                TxtFloorPrice.Visible = false;
+            if (TxtFloorStrings.Visible)
+                TxtFloorStrings.Visible = false;
+        }
+
+        /// <summary>
+        /// Hides the text interface.
+        /// </summary>
+        public void HideWallTextInterface()
+        {
+            if (BtnUpdateText.Visible)
+                BtnUpdateText.Visible = false;
+            if (LblWallName.Visible)
+                LblWallName.Visible = false;
+            if (LblWallPrice.Visible)
+                LblWallPrice.Visible = false;
+            if (TxtWallName.Visible)
+                TxtWallName.Visible = false;
+            if (TxtWallPrice.Visible)
+                TxtWallPrice.Visible = false;
+            if (TxtWallStrings.Visible)
+                TxtWallStrings.Visible = false;
         }
 
         /// <summary>
