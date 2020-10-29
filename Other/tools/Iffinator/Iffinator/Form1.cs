@@ -51,6 +51,9 @@ namespace Iffinator
             TxtFloorName.TextChanged += TxtFloorName_TextChanged;
             BtnUpdateText.Click += BtnUpdateText_Click;
 
+            TxtWallStrings.TextChanged += TxtWallStrings_TextChanged;
+            TxtWallName.TextChanged += TxtWallName_TextChanged;
+
             LoadArchives();
         }
 
@@ -162,7 +165,7 @@ namespace Iffinator
         }
 
         /// <summary>
-        /// The user changed an object's description.
+        /// The user changed a floor's description.
         /// </summary>
         private void TxtFloorStrings_TextChanged(object sender, EventArgs e)
         {
@@ -170,9 +173,25 @@ namespace Iffinator
         }
 
         /// <summary>
-        /// The user changed an object's name.
+        /// The user changed a floor's name.
         /// </summary>
         private void TxtFloorName_TextChanged(object sender, EventArgs e)
+        {
+            BtnUpdateText.Visible = true;
+        }
+
+        /// <summary>
+        /// The user changed a wall's name.
+        /// </summary>
+        private void TxtWallName_TextChanged(object sender, EventArgs e)
+        {
+            BtnUpdateText.Visible = true;
+        }
+
+        /// <summary>
+        /// The user changed a wall's description.
+        /// </summary>
+        private void TxtWallStrings_TextChanged(object sender, EventArgs e)
         {
             BtnUpdateText.Visible = true;
         }
@@ -238,7 +257,7 @@ namespace Iffinator
             //A floor or wall has only 1 string table.
             STR StringTable = m_CurrentIff.StringTables[0];
 
-            foreach (ListViewItem Item in LstFloorLanguages.Items)
+            foreach (ListViewItem Item in LstWallLanguages.Items)
             {
                 //We only support selecting one item at a time.
                 if (Item.Selected)

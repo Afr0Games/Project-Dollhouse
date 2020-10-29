@@ -44,25 +44,25 @@
             this.LblArchive = new MaterialSkin.Controls.MaterialLabel();
             this.MnuArchive = new MaterialSkin.Controls.MaterialContextMenuStrip();
             this.MnuItemUpdateArchive = new System.Windows.Forms.ToolStripMenuItem();
+            this.RndFloors = new Iffinator.FloorRenderer();
             this.LstFloors = new MaterialSkin.Controls.MaterialListView();
             this.FilenameColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.FloorsTabSelector = new MaterialSkin.Controls.MaterialTabSelector();
             this.WallsTabPage = new System.Windows.Forms.TabPage();
+            this.TxtWallStrings = new MaterialSkin.Controls.MaterialMultiLineTextBox();
+            this.TxtWallName = new MaterialSkin.Controls.MaterialMultiLineTextBox();
+            this.TxtWallPrice = new MaterialSkin.Controls.MaterialMultiLineTextBox();
+            this.LblWallName = new MaterialSkin.Controls.MaterialLabel();
+            this.LblWallPrice = new MaterialSkin.Controls.MaterialLabel();
+            this.BtnZoomOutWall = new MaterialSkin.Controls.MaterialButton();
+            this.BtnZoomInWall = new MaterialSkin.Controls.MaterialButton();
+            this.RndWalls = new Iffinator.WallRenderer();
             this.LstWallLanguages = new MaterialSkin.Controls.MaterialListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.LstWalls = new MaterialSkin.Controls.MaterialListView();
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.WallsTabSelector = new MaterialSkin.Controls.MaterialTabSelector();
-            this.BtnZoomOutWall = new MaterialSkin.Controls.MaterialButton();
-            this.BtnZoomInWall = new MaterialSkin.Controls.MaterialButton();
-            this.LblWallName = new MaterialSkin.Controls.MaterialLabel();
-            this.LblWallPrice = new MaterialSkin.Controls.MaterialLabel();
-            this.RndFloors = new Iffinator.FloorRenderer();
-            this.RndWalls = new Iffinator.WallRenderer();
-            this.TxtWallName = new MaterialSkin.Controls.MaterialMultiLineTextBox();
-            this.TxtWallPrice = new MaterialSkin.Controls.MaterialMultiLineTextBox();
-            this.TxtWallStrings = new MaterialSkin.Controls.MaterialMultiLineTextBox();
             this.IFFTabControl.SuspendLayout();
             this.FloorsTabPage.SuspendLayout();
             this.MnuArchive.SuspendLayout();
@@ -117,7 +117,7 @@
             this.BtnUpdateText.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.BtnUpdateText.MouseState = MaterialSkin.MouseState.HOVER;
             this.BtnUpdateText.Name = "BtnUpdateText";
-            this.BtnUpdateText.Size = new System.Drawing.Size(116, 36);
+            this.BtnUpdateText.Size = new System.Drawing.Size(113, 36);
             this.BtnUpdateText.TabIndex = 10;
             this.BtnUpdateText.Text = "Update text";
             this.BtnUpdateText.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
@@ -182,7 +182,7 @@
             this.BtnZoomIn.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.BtnZoomIn.MouseState = MaterialSkin.MouseState.HOVER;
             this.BtnZoomIn.Name = "BtnZoomIn";
-            this.BtnZoomIn.Size = new System.Drawing.Size(30, 36);
+            this.BtnZoomIn.Size = new System.Drawing.Size(29, 36);
             this.BtnZoomIn.TabIndex = 8;
             this.BtnZoomIn.Text = "+";
             this.BtnZoomIn.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
@@ -300,6 +300,15 @@
             this.MnuItemUpdateArchive.Size = new System.Drawing.Size(153, 22);
             this.MnuItemUpdateArchive.Text = "Update archive";
             // 
+            // RndFloors
+            // 
+            this.RndFloors.Location = new System.Drawing.Point(635, 6);
+            this.RndFloors.MouseHoverUpdatesOnly = false;
+            this.RndFloors.Name = "RndFloors";
+            this.RndFloors.Size = new System.Drawing.Size(117, 98);
+            this.RndFloors.TabIndex = 2;
+            this.RndFloors.Text = "FloorRenderer";
+            // 
             // LstFloors
             // 
             this.LstFloors.AutoSizeTable = false;
@@ -330,7 +339,7 @@
             // 
             this.FloorsTabSelector.BaseTabControl = this.IFFTabControl;
             this.FloorsTabSelector.Depth = 0;
-            this.FloorsTabSelector.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.FloorsTabSelector.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.FloorsTabSelector.Location = new System.Drawing.Point(0, 0);
             this.FloorsTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.FloorsTabSelector.Name = "FloorsTabSelector";
@@ -358,6 +367,128 @@
             this.WallsTabPage.TabIndex = 1;
             this.WallsTabPage.Text = "Walls";
             this.WallsTabPage.UseVisualStyleBackColor = true;
+            // 
+            // TxtWallStrings
+            // 
+            this.TxtWallStrings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.TxtWallStrings.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TxtWallStrings.Depth = 0;
+            this.TxtWallStrings.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.TxtWallStrings.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.TxtWallStrings.Hint = "";
+            this.TxtWallStrings.Location = new System.Drawing.Point(477, 240);
+            this.TxtWallStrings.MouseState = MaterialSkin.MouseState.HOVER;
+            this.TxtWallStrings.Name = "TxtWallStrings";
+            this.TxtWallStrings.Size = new System.Drawing.Size(273, 140);
+            this.TxtWallStrings.TabIndex = 15;
+            this.TxtWallStrings.Text = "";
+            this.TxtWallStrings.Visible = false;
+            // 
+            // TxtWallName
+            // 
+            this.TxtWallName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.TxtWallName.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TxtWallName.Depth = 0;
+            this.TxtWallName.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.TxtWallName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.TxtWallName.Hint = "";
+            this.TxtWallName.Location = new System.Drawing.Point(477, 156);
+            this.TxtWallName.MouseState = MaterialSkin.MouseState.HOVER;
+            this.TxtWallName.Name = "TxtWallName";
+            this.TxtWallName.Size = new System.Drawing.Size(273, 22);
+            this.TxtWallName.TabIndex = 14;
+            this.TxtWallName.Text = "";
+            this.TxtWallName.Visible = false;
+            // 
+            // TxtWallPrice
+            // 
+            this.TxtWallPrice.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.TxtWallPrice.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TxtWallPrice.Depth = 0;
+            this.TxtWallPrice.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.TxtWallPrice.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.TxtWallPrice.Hint = "";
+            this.TxtWallPrice.Location = new System.Drawing.Point(477, 210);
+            this.TxtWallPrice.MouseState = MaterialSkin.MouseState.HOVER;
+            this.TxtWallPrice.Name = "TxtWallPrice";
+            this.TxtWallPrice.Size = new System.Drawing.Size(100, 22);
+            this.TxtWallPrice.TabIndex = 13;
+            this.TxtWallPrice.Text = "";
+            this.TxtWallPrice.Visible = false;
+            // 
+            // LblWallName
+            // 
+            this.LblWallName.AutoSize = true;
+            this.LblWallName.Depth = 0;
+            this.LblWallName.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.LblWallName.Location = new System.Drawing.Point(478, 134);
+            this.LblWallName.MouseState = MaterialSkin.MouseState.HOVER;
+            this.LblWallName.Name = "LblWallName";
+            this.LblWallName.Size = new System.Drawing.Size(43, 19);
+            this.LblWallName.TabIndex = 11;
+            this.LblWallName.Text = "Name";
+            this.LblWallName.Visible = false;
+            // 
+            // LblWallPrice
+            // 
+            this.LblWallPrice.AutoSize = true;
+            this.LblWallPrice.Depth = 0;
+            this.LblWallPrice.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.LblWallPrice.Location = new System.Drawing.Point(478, 188);
+            this.LblWallPrice.MouseState = MaterialSkin.MouseState.HOVER;
+            this.LblWallPrice.Name = "LblWallPrice";
+            this.LblWallPrice.Size = new System.Drawing.Size(36, 19);
+            this.LblWallPrice.TabIndex = 12;
+            this.LblWallPrice.Text = "Price";
+            this.LblWallPrice.Visible = false;
+            // 
+            // BtnZoomOutWall
+            // 
+            this.BtnZoomOutWall.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BtnZoomOutWall.Depth = 0;
+            this.BtnZoomOutWall.DrawShadows = true;
+            this.BtnZoomOutWall.HighEmphasis = true;
+            this.BtnZoomOutWall.Icon = null;
+            this.BtnZoomOutWall.Location = new System.Drawing.Point(667, 117);
+            this.BtnZoomOutWall.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.BtnZoomOutWall.MouseState = MaterialSkin.MouseState.HOVER;
+            this.BtnZoomOutWall.Name = "BtnZoomOutWall";
+            this.BtnZoomOutWall.Size = new System.Drawing.Size(25, 36);
+            this.BtnZoomOutWall.TabIndex = 9;
+            this.BtnZoomOutWall.Text = "-";
+            this.BtnZoomOutWall.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.BtnZoomOutWall.UseAccentColor = false;
+            this.BtnZoomOutWall.UseVisualStyleBackColor = true;
+            this.BtnZoomOutWall.Visible = false;
+            this.BtnZoomOutWall.Click += new System.EventHandler(this.BtnZoomOutWall_Click);
+            // 
+            // BtnZoomInWall
+            // 
+            this.BtnZoomInWall.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BtnZoomInWall.Depth = 0;
+            this.BtnZoomInWall.DrawShadows = true;
+            this.BtnZoomInWall.HighEmphasis = true;
+            this.BtnZoomInWall.Icon = null;
+            this.BtnZoomInWall.Location = new System.Drawing.Point(629, 117);
+            this.BtnZoomInWall.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.BtnZoomInWall.MouseState = MaterialSkin.MouseState.HOVER;
+            this.BtnZoomInWall.Name = "BtnZoomInWall";
+            this.BtnZoomInWall.Size = new System.Drawing.Size(29, 36);
+            this.BtnZoomInWall.TabIndex = 10;
+            this.BtnZoomInWall.Text = "+";
+            this.BtnZoomInWall.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.BtnZoomInWall.UseAccentColor = false;
+            this.BtnZoomInWall.UseVisualStyleBackColor = true;
+            this.BtnZoomInWall.Visible = false;
+            this.BtnZoomInWall.Click += new System.EventHandler(this.BtnZoomInWall_Click);
+            // 
+            // RndWalls
+            // 
+            this.RndWalls.Location = new System.Drawing.Point(629, 6);
+            this.RndWalls.MouseHoverUpdatesOnly = false;
+            this.RndWalls.Name = "RndWalls";
+            this.RndWalls.Size = new System.Drawing.Size(121, 102);
+            this.RndWalls.TabIndex = 7;
             // 
             // LstWallLanguages
             // 
@@ -421,144 +552,13 @@
             // 
             this.WallsTabSelector.BaseTabControl = this.IFFTabControl;
             this.WallsTabSelector.Depth = 0;
-            this.WallsTabSelector.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.WallsTabSelector.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.WallsTabSelector.Location = new System.Drawing.Point(0, 0);
             this.WallsTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.WallsTabSelector.Name = "WallsTabSelector";
             this.WallsTabSelector.Size = new System.Drawing.Size(199, 53);
             this.WallsTabSelector.TabIndex = 1;
             this.WallsTabSelector.Text = "Floors";
-            // 
-            // BtnZoomOutWall
-            // 
-            this.BtnZoomOutWall.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BtnZoomOutWall.Depth = 0;
-            this.BtnZoomOutWall.DrawShadows = true;
-            this.BtnZoomOutWall.HighEmphasis = true;
-            this.BtnZoomOutWall.Icon = null;
-            this.BtnZoomOutWall.Location = new System.Drawing.Point(667, 117);
-            this.BtnZoomOutWall.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.BtnZoomOutWall.MouseState = MaterialSkin.MouseState.HOVER;
-            this.BtnZoomOutWall.Name = "BtnZoomOutWall";
-            this.BtnZoomOutWall.Size = new System.Drawing.Size(25, 36);
-            this.BtnZoomOutWall.TabIndex = 9;
-            this.BtnZoomOutWall.Text = "-";
-            this.BtnZoomOutWall.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            this.BtnZoomOutWall.UseAccentColor = false;
-            this.BtnZoomOutWall.UseVisualStyleBackColor = true;
-            this.BtnZoomOutWall.Visible = false;
-            this.BtnZoomOutWall.Click += new System.EventHandler(this.BtnZoomOutWall_Click);
-            // 
-            // BtnZoomInWall
-            // 
-            this.BtnZoomInWall.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BtnZoomInWall.Depth = 0;
-            this.BtnZoomInWall.DrawShadows = true;
-            this.BtnZoomInWall.HighEmphasis = true;
-            this.BtnZoomInWall.Icon = null;
-            this.BtnZoomInWall.Location = new System.Drawing.Point(629, 117);
-            this.BtnZoomInWall.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.BtnZoomInWall.MouseState = MaterialSkin.MouseState.HOVER;
-            this.BtnZoomInWall.Name = "BtnZoomInWall";
-            this.BtnZoomInWall.Size = new System.Drawing.Size(30, 36);
-            this.BtnZoomInWall.TabIndex = 10;
-            this.BtnZoomInWall.Text = "+";
-            this.BtnZoomInWall.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            this.BtnZoomInWall.UseAccentColor = false;
-            this.BtnZoomInWall.UseVisualStyleBackColor = true;
-            this.BtnZoomInWall.Visible = false;
-            this.BtnZoomInWall.Click += new System.EventHandler(this.BtnZoomInWall_Click);
-            // 
-            // LblWallName
-            // 
-            this.LblWallName.AutoSize = true;
-            this.LblWallName.Depth = 0;
-            this.LblWallName.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.LblWallName.Location = new System.Drawing.Point(478, 134);
-            this.LblWallName.MouseState = MaterialSkin.MouseState.HOVER;
-            this.LblWallName.Name = "LblWallName";
-            this.LblWallName.Size = new System.Drawing.Size(43, 19);
-            this.LblWallName.TabIndex = 11;
-            this.LblWallName.Text = "Name";
-            this.LblWallName.Visible = false;
-            // 
-            // LblWallPrice
-            // 
-            this.LblWallPrice.AutoSize = true;
-            this.LblWallPrice.Depth = 0;
-            this.LblWallPrice.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.LblWallPrice.Location = new System.Drawing.Point(478, 188);
-            this.LblWallPrice.MouseState = MaterialSkin.MouseState.HOVER;
-            this.LblWallPrice.Name = "LblWallPrice";
-            this.LblWallPrice.Size = new System.Drawing.Size(36, 19);
-            this.LblWallPrice.TabIndex = 12;
-            this.LblWallPrice.Text = "Price";
-            this.LblWallPrice.Visible = false;
-            // 
-            // RndFloors
-            // 
-            this.RndFloors.Location = new System.Drawing.Point(635, 6);
-            this.RndFloors.MouseHoverUpdatesOnly = false;
-            this.RndFloors.Name = "RndFloors";
-            this.RndFloors.Size = new System.Drawing.Size(117, 98);
-            this.RndFloors.TabIndex = 2;
-            this.RndFloors.Text = "FloorRenderer";
-            // 
-            // RndWalls
-            // 
-            this.RndWalls.Location = new System.Drawing.Point(629, 6);
-            this.RndWalls.MouseHoverUpdatesOnly = false;
-            this.RndWalls.Name = "RndWalls";
-            this.RndWalls.Size = new System.Drawing.Size(121, 102);
-            this.RndWalls.TabIndex = 7;
-            // 
-            // TxtWallName
-            // 
-            this.TxtWallName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.TxtWallName.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TxtWallName.Depth = 0;
-            this.TxtWallName.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.TxtWallName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.TxtWallName.Hint = "";
-            this.TxtWallName.Location = new System.Drawing.Point(477, 156);
-            this.TxtWallName.MouseState = MaterialSkin.MouseState.HOVER;
-            this.TxtWallName.Name = "TxtWallName";
-            this.TxtWallName.Size = new System.Drawing.Size(273, 22);
-            this.TxtWallName.TabIndex = 14;
-            this.TxtWallName.Text = "";
-            this.TxtWallName.Visible = false;
-            // 
-            // TxtWallPrice
-            // 
-            this.TxtWallPrice.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.TxtWallPrice.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TxtWallPrice.Depth = 0;
-            this.TxtWallPrice.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.TxtWallPrice.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.TxtWallPrice.Hint = "";
-            this.TxtWallPrice.Location = new System.Drawing.Point(477, 210);
-            this.TxtWallPrice.MouseState = MaterialSkin.MouseState.HOVER;
-            this.TxtWallPrice.Name = "TxtWallPrice";
-            this.TxtWallPrice.Size = new System.Drawing.Size(100, 22);
-            this.TxtWallPrice.TabIndex = 13;
-            this.TxtWallPrice.Text = "";
-            this.TxtWallPrice.Visible = false;
-            // 
-            // TxtWallStrings
-            // 
-            this.TxtWallStrings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.TxtWallStrings.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TxtWallStrings.Depth = 0;
-            this.TxtWallStrings.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.TxtWallStrings.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.TxtWallStrings.Hint = "";
-            this.TxtWallStrings.Location = new System.Drawing.Point(477, 216);
-            this.TxtWallStrings.MouseState = MaterialSkin.MouseState.HOVER;
-            this.TxtWallStrings.Name = "TxtWallStrings";
-            this.TxtWallStrings.Size = new System.Drawing.Size(273, 140);
-            this.TxtWallStrings.TabIndex = 15;
-            this.TxtWallStrings.Text = "";
-            this.TxtWallStrings.Visible = false;
             // 
             // Form1
             // 
