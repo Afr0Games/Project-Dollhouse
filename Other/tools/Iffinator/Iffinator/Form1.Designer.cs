@@ -117,7 +117,7 @@
             this.BtnUpdateText.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.BtnUpdateText.MouseState = MaterialSkin.MouseState.HOVER;
             this.BtnUpdateText.Name = "BtnUpdateText";
-            this.BtnUpdateText.Size = new System.Drawing.Size(113, 36);
+            this.BtnUpdateText.Size = new System.Drawing.Size(116, 36);
             this.BtnUpdateText.TabIndex = 10;
             this.BtnUpdateText.Text = "Update text";
             this.BtnUpdateText.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
@@ -153,16 +153,17 @@
             // 
             // BtnZoomOut
             // 
+            this.BtnZoomOut.AutoSize = false;
             this.BtnZoomOut.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BtnZoomOut.Depth = 0;
             this.BtnZoomOut.DrawShadows = true;
             this.BtnZoomOut.HighEmphasis = true;
             this.BtnZoomOut.Icon = null;
-            this.BtnZoomOut.Location = new System.Drawing.Point(673, 113);
+            this.BtnZoomOut.Location = new System.Drawing.Point(722, 113);
             this.BtnZoomOut.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.BtnZoomOut.MouseState = MaterialSkin.MouseState.HOVER;
             this.BtnZoomOut.Name = "BtnZoomOut";
-            this.BtnZoomOut.Size = new System.Drawing.Size(25, 36);
+            this.BtnZoomOut.Size = new System.Drawing.Size(30, 36);
             this.BtnZoomOut.TabIndex = 8;
             this.BtnZoomOut.Text = "-";
             this.BtnZoomOut.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
@@ -182,7 +183,7 @@
             this.BtnZoomIn.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.BtnZoomIn.MouseState = MaterialSkin.MouseState.HOVER;
             this.BtnZoomIn.Name = "BtnZoomIn";
-            this.BtnZoomIn.Size = new System.Drawing.Size(29, 36);
+            this.BtnZoomIn.Size = new System.Drawing.Size(30, 36);
             this.BtnZoomIn.TabIndex = 8;
             this.BtnZoomIn.Text = "+";
             this.BtnZoomIn.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
@@ -444,16 +445,17 @@
             // 
             // BtnZoomOutWall
             // 
+            this.BtnZoomOutWall.AutoSize = false;
             this.BtnZoomOutWall.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BtnZoomOutWall.Depth = 0;
             this.BtnZoomOutWall.DrawShadows = true;
             this.BtnZoomOutWall.HighEmphasis = true;
             this.BtnZoomOutWall.Icon = null;
-            this.BtnZoomOutWall.Location = new System.Drawing.Point(667, 117);
+            this.BtnZoomOutWall.Location = new System.Drawing.Point(720, 117);
             this.BtnZoomOutWall.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.BtnZoomOutWall.MouseState = MaterialSkin.MouseState.HOVER;
             this.BtnZoomOutWall.Name = "BtnZoomOutWall";
-            this.BtnZoomOutWall.Size = new System.Drawing.Size(25, 36);
+            this.BtnZoomOutWall.Size = new System.Drawing.Size(30, 36);
             this.BtnZoomOutWall.TabIndex = 9;
             this.BtnZoomOutWall.Text = "-";
             this.BtnZoomOutWall.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
@@ -473,7 +475,7 @@
             this.BtnZoomInWall.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.BtnZoomInWall.MouseState = MaterialSkin.MouseState.HOVER;
             this.BtnZoomInWall.Name = "BtnZoomInWall";
-            this.BtnZoomInWall.Size = new System.Drawing.Size(29, 36);
+            this.BtnZoomInWall.Size = new System.Drawing.Size(30, 36);
             this.BtnZoomInWall.TabIndex = 10;
             this.BtnZoomInWall.Text = "+";
             this.BtnZoomInWall.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
