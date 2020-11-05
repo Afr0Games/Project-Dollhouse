@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using System.Text;
@@ -102,5 +103,30 @@ namespace Files
             }
             return hash;
         }
+
+        /// <summary>
+        /// Reverses a string.
+        /// </summary>
+        /// <param name="base">The string to reverse.</param>
+        /// <returns>The reversed string.</returns>
+        public static string Inverse(this string @base)
+        {
+            return new string(@base.Reverse().ToArray());
+        }
+    }
+
+    /// <summary>
+    /// Detects if we are running inside a unit test.
+    /// </summary>
+    public static class UnitTestDetector
+    {
+        static UnitTestDetector()
+        {
+            string testAssemblyName = "Microsoft.VisualStudio.QualityTools.UnitTestFramework";
+            UnitTestDetector.IsInUnitTest = AppDomain.CurrentDomain.GetAssemblies()
+                .Any(a => a.FullName.StartsWith(testAssemblyName));
+        }
+
+        public static bool IsInUnitTest { get; private set; }
     }
 }
