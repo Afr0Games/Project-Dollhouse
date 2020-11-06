@@ -509,7 +509,7 @@ namespace Gonzo.Elements
                 {
                     //TODO: What depth should be used to have the text draw on top?
                     SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextDrawingColor, 0.0f,
-                        new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth);
+                        new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
                 }
             }
         }

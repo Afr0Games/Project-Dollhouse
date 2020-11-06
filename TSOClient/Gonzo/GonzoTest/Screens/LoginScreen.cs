@@ -19,6 +19,7 @@ namespace GonzoTest
             SBatch, new Vector2(0, 0),
             new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight))
         {
+
             m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
             m_LoginDiag = new LoginDialog(this, new Vector2(
                 (GlobalSettings.Default.ScreenWidth / 2) * Resolution.getVirtualAspectRatio(), 
