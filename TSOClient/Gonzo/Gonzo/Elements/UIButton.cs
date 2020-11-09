@@ -11,11 +11,13 @@ Contributor(s):
 */
 
 using System;
+using System.Reflection;
 using Files;
 using Files.Manager;
 using UIParser.Nodes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using log4net;
 
 namespace Gonzo.Elements
 {
@@ -38,7 +40,7 @@ namespace Gonzo.Elements
     /// A clickable button that can trigger an event.
     /// A button is always graphically represented by four equally sized frames in a texture.
     /// </summary>
-    public class UIButton : UIElement
+    public class UIButton : UIElement, IDisposable
     {
         private Vector2 m_SourcePosition;
         private bool m_IsMouseHovering = false;
@@ -48,6 +50,7 @@ namespace Gonzo.Elements
         private string m_Text;
         private Vector2 m_TextPosition;
         private float m_XScale = 1.0f; //Used to scale buttons to fit text.
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Gets or sets this button's textposition (if it is a textbutton).
@@ -303,7 +306,10 @@ namespace Gonzo.Elements
                 Image.Position = new Vector2(Pos.X, Pos.Y);
             }
             else
+            {
                 Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                Image.Position = new Vector2(Pos.X, Pos.Y);
+            }
 
             //Initialize to second frame in the image.
             m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
@@ -362,6 +368,11 @@ namespace Gonzo.Elements
             m_TextPosition.Y += HalfY - (m_Font.MeasureString(m_Text).Y / 2);
         }
 
+        /// <summary>
+        /// Is the mouse cursor over this UIButton instance?
+        /// </summary>
+        /// <param name="Input">A InputHelper instance that provides the mouse cursors' position.</param>
+        /// <returns></returns>
         public override bool IsMouseOver(InputHelper Input)
         {
             if (Input.MousePosition.X > Position.X && Input.MousePosition.X <= (Position.X + (m_Size.X * m_XScale)))
@@ -392,40 +403,6 @@ namespace Gonzo.Elements
 
             if (m_Text != null)
                 ScaleToText();
-        }
-
-        /// <summary>
-        /// Draws a border around this button, for debugging purposes.
-        /// </summary>
-        /// <param name="SBatch">A Spritebatch to draw with.</param>
-        /// <param name="rectangleToDraw">A rectangle that will make up the border.</param>
-        /// <param name="thicknessOfBorder">Thickness of border to be drawn.</param>
-        /// <param name="borderColor">Color of border.</param>
-        public void DrawBorder(SpriteBatch SBatch, Rectangle rectangleToDraw, int thicknessOfBorder, Color borderColor)
-        {
-            // At the top of your class:
-            Texture2D pixel;
-
-            // Somewhere in your LoadContent() method:
-            pixel = new Texture2D(m_Screen.Manager.Graphics, 1, 1, false, SurfaceFormat.Color);
-            pixel.SetData(new[] { Color.White }); // so that we can draw whatever color we want on top of it
-
-            // Draw top line
-            SBatch.Draw(pixel, new Rectangle(rectangleToDraw.X, rectangleToDraw.Y, rectangleToDraw.Width, thicknessOfBorder), borderColor);
-
-            // Draw left line
-            SBatch.Draw(pixel, new Rectangle(rectangleToDraw.X, rectangleToDraw.Y, thicknessOfBorder, rectangleToDraw.Height), borderColor);
-
-            // Draw right line
-            SBatch.Draw(pixel, new Rectangle((rectangleToDraw.X + rectangleToDraw.Width - thicknessOfBorder),
-                                            rectangleToDraw.Y,
-                                            thicknessOfBorder,
-                                            rectangleToDraw.Height), borderColor);
-            // Draw bottom line
-            SBatch.Draw(pixel, new Rectangle(rectangleToDraw.X,
-                                            rectangleToDraw.Y + rectangleToDraw.Height - thicknessOfBorder,
-                                            rectangleToDraw.Width,
-                                            thicknessOfBorder), borderColor);
         }
 
         public override void Update(InputHelper Input, GameTime GTime)
@@ -512,6 +489,37 @@ namespace Gonzo.Elements
                         new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, Depth + 0.1f);
                 }
             }
+        }
+
+        ~UIButton()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this UIButton instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this UIButton instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (Image != null)
+                    Image.Dispose();
+
+                // Prevent the finalizer from calling ~UIButton, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("UIButton not explicitly disposed!");
         }
     }
 }

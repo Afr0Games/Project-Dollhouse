@@ -10,18 +10,22 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System;
+using System.Reflection;
 using UIParser.Nodes;
 using Files.Manager;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using log4net;
 
 namespace Gonzo.Elements
 {
-    public class UIImage : UIElement
+    public class UIImage : UIElement, IDisposable
     {
         public Texture2D Texture;
         private bool m_Loaded = false;
         public bool Loaded { get { return m_Loaded; } }
+        private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Initialize this to get nine rectangles with which to draw the texture.
@@ -164,6 +168,37 @@ namespace Gonzo.Elements
 
             SBatch.Draw(Texture, To, From, Color.White, 0.0f, new Vector2(0.0f, 0.0f), Scl, 
                 SpriteEffects.None, Depth);
+        }
+
+        ~UIImage()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this UIImage instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this UIImage instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (Texture != null)
+                    Texture.Dispose();
+
+                // Prevent the finalizer from calling ~UIImage, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                m_Logger.Error("UIImage not explicitly disposed!");
         }
     }
 

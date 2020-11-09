@@ -146,6 +146,10 @@ namespace Gonzo.Dialogs
                     m_TxtUsername.Dispose();
                 if (m_TxtPassword != null)
                     m_TxtPassword.Dispose();
+                if (m_BtnExit != null)
+                    m_BtnExit.Dispose();
+                if (m_BtnLogin != null)
+                    m_BtnLogin.Dispose();
 
                 // Prevent the finalizer from calling ~LoginDialog, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
