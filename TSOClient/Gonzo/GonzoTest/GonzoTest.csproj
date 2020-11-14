@@ -80,10 +80,6 @@
       <Project>{891f06e8-3851-469c-b1e2-7d1c70c43359}</Project>
       <Name>Glide</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Other\libs\TargaImage\TargaImage.csproj">
-      <Project>{56f4bd87-2404-4263-80d5-6fa2161eb0a4}</Project>
-      <Name>TargaImage</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Other\libs\UIParser\UIParser\UIParser.csproj">
       <Project>{c58d344e-cb5c-4a61-851b-3cdc9e3f6913}</Project>
       <Name>UIParser</Name>

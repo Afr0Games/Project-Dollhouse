@@ -185,7 +185,7 @@ namespace Files.Tests
         /// Tests MP3 parsing by attempting to open a MP3.
         /// Currently hardcoded for Windows because test methods can't take parameters.
         /// </summary>
-        [TestMethod]
+        /*[TestMethod]
         public void TestCorrectMP3Parsing()
         {
             string GameDir = CommonMethods.GetInstallDir();
@@ -219,7 +219,7 @@ namespace Files.Tests
                     Assert.Fail();
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Tests Ini parsing by attempting to open a Ini.
