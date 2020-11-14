@@ -20,10 +20,9 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using log4net;
 using System.Linq;
 using System.Drawing;
-using System.Drawing.Imaging;
-using log4net;
 using Files.FAR3;
 using Files.FAR1;
 using Files.DBPF;
@@ -887,7 +886,7 @@ namespace Files.Manager
                                         BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 0, 255));
                                         BMap.MakeTransparent(System.Drawing.Color.FromArgb(255, 1, 255));
                                         BMap.MakeTransparent(System.Drawing.Color.FromArgb(254, 2, 254));
-                                        BMap.Save(MemStream, ImageFormat.Png);
+                                        BMap.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
                                         MemStream.Seek(0, SeekOrigin.Begin);
                                     }
 
@@ -905,15 +904,12 @@ namespace Files.Manager
                                     {
                                         MemStream = new MemoryStream();
 
-                                        lock (TheLock)
+                                        using (Paloma.TargaImage TGA = new Paloma.TargaImage(Data))
                                         {
-                                            using (Paloma.TargaImage TGA = new Paloma.TargaImage(Data))
-                                            {
-                                                TGA.Image.Save(MemStream, ImageFormat.Png);
-                                                MemStream.Seek(0, SeekOrigin.Begin);
-                                                AddItem(ID, new Asset(ID, (uint)MemStream.Length,
-                                                    Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
-                                            }
+                                            TGA.Image.Save(MemStream, System.Drawing.Imaging.ImageFormat.Png);
+                                            MemStream.Seek(0, SeekOrigin.Begin);
+                                            AddItem(ID, new Asset(ID, (uint)MemStream.Length,
+                                                Texture2D.FromStream(m_Game.GraphicsDevice, MemStream)));
                                         }
                                     }
                                 }

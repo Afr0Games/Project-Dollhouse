@@ -56,7 +56,6 @@
     <Compile Include="Endian.cs" />
     <Compile Include="FileManagerTests.cs" />
     <Compile Include="FileReaderTests.cs" />
-    <Compile Include="FileWriterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
