@@ -104,6 +104,7 @@
     <Compile Include="FileManager\Asset.cs" />
     <Compile Include="FileReader.cs" />
     <Compile Include="FileUtilities.cs" />
+    <Compile Include="FileWriter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IFF\BCON.cs" />
     <Compile Include="IFF\BHAV.cs" />
