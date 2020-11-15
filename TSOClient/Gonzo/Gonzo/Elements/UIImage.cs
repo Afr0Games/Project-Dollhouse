@@ -75,7 +75,7 @@ namespace Gonzo.Elements
         /// </summary>
         /// <param name="Width">The width of this UIImage instance.</param>
         /// <param name="Height">The height of this UIImage instance.</param>
-        public void SetSize(int Width, int Height)
+        public void SetSize(float Width, float Height)
         {
             m_Size.X = Width;
             m_Size.Y = Height;

@@ -29,7 +29,7 @@ namespace GonzoTest
 
             Resolution.Init(ref graphics);
             Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, GlobalSettings.Default.Fullscreen);
-            Resolution.SetVirtualResolution(800, 600);
+            Resolution.SetVirtualResolution(1024, 768);
 
             Window.Title = "The Sims Online";
             Window.TextInput += Window_TextInput;

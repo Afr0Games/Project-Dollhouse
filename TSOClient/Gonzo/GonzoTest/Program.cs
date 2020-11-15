@@ -63,6 +63,12 @@ namespace GonzoTest
                 Exit = true;
             }
 
+            if(GlobalSettings.Default.ScreenWidth < 1024 || GlobalSettings.Default.ScreenHeight < 768)
+            {
+                MessageBox.Show("The application does not support this resolution!");
+                Exit = true;
+            }
+
             if (!Exit)
             {
                 using (var game = new Game1())

@@ -94,7 +94,8 @@ namespace GonzoTest
             m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
                 RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
 
-            BackgroundImg.Draw(m_SBatch, null, 0.0f);
+            BackgroundImg.Draw(m_SBatch, null, 0.0f, 
+                new Vector2(Resolution.getVirtualAspectRatio(), Resolution.getVirtualAspectRatio()));
             TSOLogoImage.Draw(m_SBatch, null, 0.0f);
             BackButtonIndentImage.Draw(m_SBatch, null, 0.0f);
 

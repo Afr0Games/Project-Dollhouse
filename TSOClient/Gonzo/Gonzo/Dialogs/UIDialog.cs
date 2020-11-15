@@ -13,6 +13,8 @@ namespace Gonzo.Dialogs
         private UIButton m_CloseButton;
         private UIImage m_CloseBtnBack;
 
+        protected Vector2 m_DefaultSize;
+
         /// <summary>
         /// UIDialogs can have elements that need to be registered for rendering and updates.
         /// </summary>
@@ -43,6 +45,11 @@ namespace Gonzo.Dialogs
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
 
             Image = new UIImage(Tex, Screen, null);
+
+            //Set the default size of the dialog.
+            m_DefaultSize = new Vector2(Tex.Width, Tex.Height);
+            SetSize(m_DefaultSize.X * Resolution.getVirtualAspectRatio(),
+                m_DefaultSize.Y * Resolution.getVirtualAspectRatio());
 
             if (IsTall != false)
                 Image.Slicer = new NineSlicer(new Vector2(0, 0), Tex.Width, Tex.Height, 41, 41, 66, 40);
@@ -92,7 +99,7 @@ namespace Gonzo.Dialogs
         /// </summary>
         /// <param name="Width">The width to set it to.</param>
         /// <param name="Height">The height to set it to.</param>
-        public void SetSize(int Width, int Height)
+        public void SetSize(float Width, float Height)
         {
             m_Size.X = Width;
             m_Size.Y = Height;

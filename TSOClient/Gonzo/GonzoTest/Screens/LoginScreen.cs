@@ -21,12 +21,10 @@ namespace GonzoTest
         {
 
             m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
-            m_LoginDiag = new LoginDialog(this, new Vector2(
-                (GlobalSettings.Default.ScreenWidth / 2) * Resolution.getVirtualAspectRatio(), 
-                ((GlobalSettings.Default.ScreenHeight / 2) - 150) * Resolution.getVirtualAspectRatio()));
+            m_LoginDiag = new LoginDialog(this, new Vector2((GlobalSettings.Default.ScreenWidth / 2), 
+                ((GlobalSettings.Default.ScreenHeight / 2) - 150)));
             m_LoginProgressDiag = new LoginProgressDialog(this, new Vector2(
-                (GlobalSettings.Default.ScreenWidth - 350) * Resolution.getVirtualAspectRatio(),
-                (GlobalSettings.Default.ScreenHeight / 2) * Resolution.getVirtualAspectRatio()));
+                (GlobalSettings.Default.ScreenWidth - 350), (GlobalSettings.Default.ScreenHeight - 350)));
 
             foreach (KeyValuePair<string, UIElement> KVP in m_LoginDiag.RegistrableUIElements)
                 m_PResult.Elements.Add(KVP.Key, KVP.Value);
@@ -51,7 +49,7 @@ namespace GonzoTest
 
             base.Draw();
 
-            m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
+            m_BackgroundImg.Draw(m_SBatch, null, 0.0f, new Vector2(Resolution.getVirtualAspectRatio(), Resolution.getVirtualAspectRatio()));
 
             m_SBatch.End();
 

@@ -231,7 +231,8 @@ namespace GonzoTest
 
             base.Draw(); //Needs to be drawn first for the ExitDialog to be drawn correctly.
 
-            m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
+            m_BackgroundImg.Draw(m_SBatch, null, 0.0f,
+                new Vector2(Resolution.getVirtualAspectRatio(), Resolution.getVirtualAspectRatio()));
             m_HeadSkinBrowser.Draw(m_SBatch, 0.7f);
             m_BodySkinBrowser.Draw(m_SBatch, 0.7f);
 

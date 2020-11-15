@@ -387,7 +387,8 @@ namespace GonzoTest
 
             base.Draw();
 
-            BackgroundImg.Draw(m_SBatch, null, 0.0f);
+            BackgroundImg.Draw(m_SBatch, null, 0.0f, 
+                new Vector2(Resolution.getVirtualAspectRatio(), Resolution.getVirtualAspectRatio()));
 
             TabBackgroundImg1.Draw(m_SBatch, null, 0.5f);
             TabBackgroundImg2.Draw(m_SBatch, null, 0.5f);
