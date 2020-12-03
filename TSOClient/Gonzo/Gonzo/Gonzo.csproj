@@ -63,6 +63,12 @@
     <Compile Include="CollectionDebugView.cs" />
     <Compile Include="Dialogs\LoginDialog.cs" />
     <Compile Include="Dialogs\LoginProgressDialog.cs" />
+    <Compile Include="Elements\Monogame-Textbox\Cursor.cs" />
+    <Compile Include="Elements\Monogame-Textbox\Extensions.cs" />
+    <Compile Include="Elements\Monogame-Textbox\KeyboardInput.cs" />
+    <Compile Include="Elements\Monogame-Textbox\Text.cs" />
+    <Compile Include="Elements\Monogame-Textbox\TextBox.cs" />
+    <Compile Include="Elements\Monogame-Textbox\TextRenderer.cs" />
     <Compile Include="Elements\UIBodyBrowser.cs" />
     <Compile Include="Elements\UIHeadBrowser.cs" />
     <Compile Include="Elements\UIProgressBar.cs" />
