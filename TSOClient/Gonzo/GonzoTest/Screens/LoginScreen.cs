@@ -21,7 +21,7 @@ namespace GonzoTest
         {
 
             m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
-            m_LoginDiag = new LoginDialog(this, new Vector2((GlobalSettings.Default.ScreenWidth / 2), 
+            m_LoginDiag = new LoginDialog(this, new Vector2((GlobalSettings.Default.ScreenWidth / 2) - 150, 
                 ((GlobalSettings.Default.ScreenHeight / 2) - 150)));
             m_LoginProgressDiag = new LoginProgressDialog(this, new Vector2(
                 (GlobalSettings.Default.ScreenWidth - 350), (GlobalSettings.Default.ScreenHeight - 350)));

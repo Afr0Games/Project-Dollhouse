@@ -10,6 +10,7 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -95,6 +96,10 @@ namespace Gonzo.Elements
 
         public bool Visible = true;
 
+        protected List<UIElement> m_Drawables = new List<UIElement>();
+        protected List<UIElement> m_DrawablesInOrder = new List<UIElement>();
+        protected bool m_DrawablesOrderedCorrectly = false;
+
         /// <summary>
         /// Mouse interacted with this UIElement.
         /// </summary>
@@ -107,12 +112,6 @@ namespace Gonzo.Elements
         /// <param name="Helper">InputHelper instance for input data.</param>
         public virtual void Update(InputHelper Helper, GameTime GTime)
         {
-            if (m_Parent != null)
-            {
-                if(m_Parent.m_DoDrag)
-                    Position = m_Parent.Position + Position;
-            }
-
             if (IsMouseOver(Helper))
             {
                 if (Helper.IsNewPress(MouseButtons.LeftButton))
@@ -129,6 +128,15 @@ namespace Gonzo.Elements
         /// <param name="SBatch">A SpriteBatch instance.</param>
         /// <param name="LayerDepth">Depth at which to draw, may be null.</param>
         public virtual void Draw(SpriteBatch SBatch, float? LayerDepth) { }
+
+        /// <summary>
+        /// Handles drawing logic for this UIElement.
+        /// </summary>
+        /// <param name="SBatch">A SpriteBatch instance.</param>
+        /// <param name="DestinationRect">The drawing bounds on screen.</param>
+        /// <param name="SourceRect">A source rectangle, for controlling which part of this elenent's texture is drawn.</param>
+        /// <param name="LayerDepth">Depth at which to draw, may be null.</param>
+        public virtual void Draw(SpriteBatch SBatch, Rectangle? DestinationRect, Rectangle? SourceRect, float? LayerDepth) { }
 
         /// <summary>
         /// Handles drawing logic for this UIElement.
@@ -225,6 +233,7 @@ namespace Gonzo.Elements
 
         /// <summary>
         /// Gets or sets the position for this UIElement.
+        /// Also sets the text position if the UIElement has text.
         /// </summary>
         public Vector2 Position
         {

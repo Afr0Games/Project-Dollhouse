@@ -14,6 +14,7 @@ using System;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Gonzo.Elements;
+using MonoGame_Textbox;
 using Microsoft.Xna.Framework.Graphics;
 using log4net;
 
@@ -22,14 +23,15 @@ namespace Gonzo.Dialogs
     public class LoginDialog : UIDialog, IDisposable
     {
         private UILabel m_LblTitle, m_LblUsername, m_LblPassword;
-        private UITextEdit m_TxtUsername, m_TxtPassword;
+        private MonoGame_Textbox.Cursor m_Cursor;
+        private TextBox m_TxtUsername, m_TxtPassword;
         private UIButton m_BtnLogin, m_BtnExit;
 
         private CaretSeparatedText m_Cst;
 
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public LoginDialog(UIScreen Screen, Vector2 Pos) : base(Screen, Pos, false, true, false)
+        public LoginDialog(UIScreen Screen, Vector2 Pos) : base(Screen, Pos, false, true, false, 0.800f)
         {
             m_Font = m_Screen.Font11px;
 
@@ -37,30 +39,30 @@ namespace Gonzo.Dialogs
 
             Vector2 RelativePosition = new Vector2(60, 0);
             m_LblTitle = new UILabel(m_Cst[1], 1, Pos + RelativePosition, m_Font.MeasureString(m_Cst[1]),
-                m_Screen.StandardTxtColor, 11, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
+                m_Screen.StandardTxtColor, 11, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
             RelativePosition = new Vector2(20, 50);
             m_LblUsername = new UILabel(m_Cst[4], 2, Pos + RelativePosition, m_Font.MeasureString(m_Cst[4]), 
-                m_Screen.StandardTxtColor, 9, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
+                m_Screen.StandardTxtColor, 9, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
             RelativePosition = new Vector2(20, 110);
             m_LblPassword = new UILabel(m_Cst[5], 3, Pos + RelativePosition, m_Font.MeasureString(m_Cst[4]), 
-                m_Screen.StandardTxtColor, 9, m_Screen, UIParser.Nodes.TextAlignment.Center_Center);
+                m_Screen.StandardTxtColor, 9, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
 
             RelativePosition = new Vector2(20, 85);
-            m_TxtUsername = new UITextEdit("TxtUsername", 4, true, false, Pos + RelativePosition, 
-                new Vector2(250, 25), 10, m_Screen, "", this);
-            RegistrableUIElements.Add(m_TxtUsername.Name, m_TxtUsername);
+            m_TxtUsername = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), (int)(Pos.Y + RelativePosition.Y), 
+                250, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, Color.White, 30, m_Screen, true, this);
             RelativePosition = new Vector2(20, 145);
-            m_TxtPassword = new UITextEdit("TxtPassword", 5, true, false, Pos + RelativePosition, 
-                new Vector2(250, 25), 10, m_Screen, "", this);
-            RegistrableUIElements.Add(m_TxtPassword.Name, m_TxtPassword);
+            m_TxtPassword = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), (int)(Pos.Y + RelativePosition.Y), 
+                250, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, Color.White, 30, m_Screen, true, this);
+
+            KeyboardInput.Initialize(Screen.Manager, 500f, 20);
 
             RelativePosition = new Vector2(120, 170);
-            m_BtnLogin = new UIButton("BtnLogin", Pos + RelativePosition, m_Screen, null, m_Cst[2], 9);
+            m_BtnLogin = new UIButton("BtnLogin", Pos + RelativePosition, m_Screen, null, m_Cst[2], 9, true, this);
             RelativePosition = new Vector2(200, 170);
-            m_BtnExit = new UIButton("BtnExit", Pos + RelativePosition, m_Screen, null, m_Cst[3], 9);
+            m_BtnExit = new UIButton("BtnExit", Pos + RelativePosition, m_Screen, null, m_Cst[3], 9, true, this);
 
             SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 40) * Resolution.getVirtualAspectRatio()), 
-                (int)(175 * Resolution.getVirtualAspectRatio()));
+                (int)(m_DefaultSize.Y * Resolution.getVirtualAspectRatio()));
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
@@ -69,27 +71,19 @@ namespace Gonzo.Dialogs
 
             if(Visible)
             {
-                if(m_DoDrag)
+                KeyboardInput.Update();
+
+                if (m_TxtUsername.IsMouseOver(Helper) || m_TxtPassword.IsMouseOver(Helper))
+                    m_DoDrag = false;
+                if(m_TxtUsername.IsMouseOver(Helper))
                 {
-                    Vector2 OffsetFromMouse = new Vector2(60, 0);
-                    m_LblTitle.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-                    OffsetFromMouse = new Vector2(20, 50);
-                    m_LblUsername.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-                    OffsetFromMouse = new Vector2(20, 110);
-                    m_LblPassword.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-
-                    OffsetFromMouse = new Vector2(20, 85);
-                    //m_TxtUsername.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-                    m_TxtUsername.CursorPosition = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-                    OffsetFromMouse = new Vector2(20, 145);
-                    //m_TxtPassword.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-                    m_TxtPassword.CursorPosition = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-
-                    OffsetFromMouse = new Vector2(120, 170);
-                    m_BtnLogin.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-
-                    OffsetFromMouse = new Vector2(200, 170);
-                    m_BtnExit.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
+                    if (Helper.IsNewPress(MouseButtons.LeftButton))
+                        m_TxtPassword.HasFocus = false;
+                }
+                if (m_TxtPassword.IsMouseOver(Helper))
+                {
+                    if (Helper.IsNewPress(MouseButtons.LeftButton))
+                        m_TxtUsername.HasFocus = false;
                 }
 
                 m_TxtUsername.Update(Helper, GTime);
@@ -142,10 +136,10 @@ namespace Gonzo.Dialogs
         {
             if (Disposed)
             {
-                if (m_TxtUsername != null)
+                /*if (m_TxtUsername != null)
                     m_TxtUsername.Dispose();
                 if (m_TxtPassword != null)
-                    m_TxtPassword.Dispose();
+                    m_TxtPassword.Dispose();*/
                 if (m_BtnExit != null)
                     m_BtnExit.Dispose();
                 if (m_BtnLogin != null)

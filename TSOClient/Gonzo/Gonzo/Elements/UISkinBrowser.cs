@@ -168,7 +168,7 @@ namespace Gonzo.Elements
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft));
             m_SkinBrowserArrowLeft.OnButtonClicked += M_SkinBrowserArrowLeft_OnButtonClicked;
             m_SkinBrowserArrowRight = new UIButton("SkinBrowserArrowRight", 
-                Position + new Vector2(Size.X - 45, Size.Y - 70), Screen, 
+                Position + new Vector2(Size.X - 45, Size.Y - 70), Screen,
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright));
             m_SkinBrowserArrowRight.OnButtonClicked += M_SkinBrowserArrowRight_OnButtonClicked;
         }

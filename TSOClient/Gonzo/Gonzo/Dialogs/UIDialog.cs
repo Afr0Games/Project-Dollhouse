@@ -8,12 +8,24 @@ using Files.Manager;
 
 namespace Gonzo.Dialogs
 {
+    public delegate void OnDraggedEventHandler(Vector2 MousePosition, Vector2 DragOffset);
+
     public class UIDialog : UIElement
     {
         private UIButton m_CloseButton;
         private UIImage m_CloseBtnBack;
 
         protected Vector2 m_DefaultSize;
+
+        /// <summary>
+        /// Is this dialog see-through?
+        /// </summary>
+        protected float m_Opacity = 255.0f;
+
+        /// <summary>
+        /// Event called when this UIDialog is being dragged.
+        /// </summary>
+        public event OnDraggedEventHandler OnDragged;
 
         /// <summary>
         /// UIDialogs can have elements that need to be registered for rendering and updates.
@@ -30,7 +42,9 @@ namespace Gonzo.Dialogs
         /// <param name="IsTall">Will this dialog use a tall background template?</param>
         /// <param name="IsDraggable">Is this dialog draggable?</param>
         /// <param name="HasExitButton">Does this dialog have an exit button?</param>
-        public UIDialog(UIScreen Screen, Vector2 Pos, bool IsTall, bool IsDraggable, bool HasExitButton) : base(Screen)
+        /// <param name="Opacity">The opacity of this UIDialog. Defaults to 255.</param>
+        public UIDialog(UIScreen Screen, Vector2 Pos, bool IsTall, bool IsDraggable, bool HasExitButton,
+            float Opacity = 255) : base(Screen)
         {
             Position = Pos;
             m_IsDraggable = IsDraggable;
@@ -44,7 +58,8 @@ namespace Gonzo.Dialogs
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackgroundtall) : 
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
 
-            Image = new UIImage(Tex, Screen, null);
+            m_Opacity = Opacity;
+            Image = new UIImage(Tex, Screen, null, m_Opacity);
 
             //Set the default size of the dialog.
             m_DefaultSize = new Vector2(Tex.Width, Tex.Height);
@@ -91,7 +106,6 @@ namespace Gonzo.Dialogs
             {
                 m_DoDrag = false;
             }
-
         }
 
         /// <summary>
@@ -114,6 +128,8 @@ namespace Gonzo.Dialogs
                 {
                     if (m_DoDrag)
                     {
+                        OnDragged(Helper.MousePosition, m_DragOffset);
+
                         Position = (Helper.MousePosition - m_DragOffset);
 
                         if (m_HasExitBtn)
@@ -175,17 +191,25 @@ namespace Gonzo.Dialogs
             if (Visible)
             {
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
-                Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, 0), Depth);
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
+                Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + 
+                    new Vector2(Image.Slicer.LeftPadding, 0), Depth);
+                Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + 
+                    new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
 
-                Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + new Vector2(0, Image.Slicer.TopPadding), null);
-                Image.DrawTextureTo(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, Image.Slicer.TopPadding), Depth);
-                Image.DrawTextureTo(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, Image.Slicer.TopPadding), Depth);
+                Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + 
+                    new Vector2(0, Image.Slicer.TopPadding), null);
+                Image.DrawTextureTo(SBatch, Image.Slicer.CCenter_Scale, Image.Slicer.CCenter, Image.Position + 
+                    new Vector2(Image.Slicer.LeftPadding, Image.Slicer.TopPadding), Depth);
+                Image.DrawTextureTo(SBatch, Image.Slicer.CRight_Scale, Image.Slicer.CRight, Image.Position + 
+                    new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, Image.Slicer.TopPadding), Depth);
 
                 int BottomY = Image.Slicer.Height - Image.Slicer.BottomPadding;
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + new Vector2(0, BottomY), null);
-                Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + new Vector2(Image.Slicer.LeftPadding, BottomY), Depth);
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY), Depth);
+                Image.DrawTextureTo(SBatch, null, Image.Slicer.BLeft, Image.Position + 
+                    new Vector2(0, BottomY), null);
+                Image.DrawTextureTo(SBatch, Image.Slicer.BCenter_Scale, Image.Slicer.BCenter, Image.Position + 
+                    new Vector2(Image.Slicer.LeftPadding, BottomY), Depth);
+                Image.DrawTextureTo(SBatch, null, Image.Slicer.BRight, Image.Position + 
+                    new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, BottomY), Depth);
 
                 if(m_DoDrag)
                 {

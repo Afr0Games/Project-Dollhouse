@@ -21,13 +21,42 @@ using log4net;
 
 namespace Gonzo.Elements
 {
+    public enum LoginProcess
+    {
+        /// <summary>
+        /// Authorizing. Prompting for name and password...
+        /// </summary>
+        Authorizing = 4,
+
+        /// <summary>
+        /// Attempting EA.COM authorization...
+        /// </summary>
+        Attempting = 5,
+
+        /// <summary>
+        /// EA.COM authorization successful.
+        /// </summary>
+        Successful = 6,
+
+        /// <summary>
+        /// Initial server connection. Authorizing user...
+        /// </summary>
+        Initial = 7,
+
+        /// <summary>
+        /// Server connected. User authorized.
+        /// </summary>
+        Connected = 8
+    }
+
     /// <summary>
-    /// A progressbar, used by LoginProgressDialog.
+    /// A statusbar, used by LoginProgressDialog for displaying the status of the login process.
     /// </summary>
-    public class UIProgressBar : UIElement, IDisposable
+    public class UIStatusBar : UIElement, IDisposable
     {
         private UIImage m_ProgressBarBack, m_ProgressBarFront;
-        private UILabel m_LblProgressInPercentage;
+        private UILabel m_LblCurrentStatus;
+        private CaretSeparatedText m_CSTCurrentStatus;
         private int m_ProgressInPercentage = 0;
         public int TotalProgressInPercentage = 100; //This should never need to change...
 
@@ -39,10 +68,11 @@ namespace Gonzo.Elements
         /// <param name="Screen">A UIScreen instance.</param>
         /// <param name="Width">The width of this UIProgressBar instance.</param>
         /// <param name="Parent">A UIElement that acts as a parent (optional).</param>
-        public UIProgressBar(UIScreen Screen, Vector2 ProgressBarPosition, int Width, UIElement Parent = null) : 
+        public UIStatusBar(UIScreen Screen, Vector2 ProgressBarPosition, int Width, UIElement Parent = null) :
             base(Screen, Parent)
         {
-            m_Font = m_Screen.Font11px;
+            m_Font = m_Screen.Font9px;
+            m_CSTCurrentStatus = StringManager.StrTable(210);
 
             if (Parent != null)
             {
@@ -51,32 +81,29 @@ namespace Gonzo.Elements
                 Dialog.OnDragged += Dialog_OnDragged;
             }
 
-            m_ProgressBarBack = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback), 
+            m_ProgressBarBack = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback),
                 Screen, null, 0.800f);
-            m_ProgressBarFront = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront), 
+            m_ProgressBarFront = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront),
                 Screen, null, 0.800f);
 
             string InitialValue = m_ProgressInPercentage.ToString() + " %";
 
-            m_LblProgressInPercentage = new UILabel(InitialValue, 1, Position + new Vector2(Width / 2, 0), 
-                m_Font.MeasureString(InitialValue), Color.Black, 11, m_Screen); 
+            m_LblCurrentStatus = new UILabel(m_CSTCurrentStatus[4], 1, Position + new Vector2(Width / 2, 0),
+                m_Font.MeasureString(InitialValue), Color.Wheat, 9, m_Screen);
 
             Position = ProgressBarPosition;
-            m_ProgressBarBack.Position = ProgressBarPosition;
-            m_ProgressBarFront.Position = ProgressBarPosition;
 
             m_Size.X = Width;
             m_Size.Y = m_ProgressBarBack.Texture.Height;
         }
 
         /// <summary>
-        /// Sets the total progress, in percentage, of this UIProgressBar instance.
+        /// Login progressed, so update the text displayed.
         /// </summary>
-        /// <param name="ProgressInPercentage">The number of percents that this bar has progressed.</param>
-        public void SetProgressInPercentage(int ProgressInPercentage)
+        /// <param name="CurrentProcess">What stage of the login progress are we in?</param>
+        public void UpdateStatus(LoginProcess CurrentProcess)
         {
-            m_ProgressInPercentage = ProgressInPercentage;
-            m_LblProgressInPercentage.Caption = m_ProgressInPercentage.ToString() + " %";
+            m_LblCurrentStatus.Caption = m_CSTCurrentStatus[(int)CurrentProcess];
         }
 
         /// <summary>
@@ -93,14 +120,14 @@ namespace Gonzo.Elements
 
         public override void Update(InputHelper Helper, GameTime GTime)
         {
-            m_LblProgressInPercentage.Position = Position;
-            string Caption = m_LblProgressInPercentage.Caption;
+            m_LblCurrentStatus.Position = Position;
+            string Caption = m_LblCurrentStatus.Caption;
 
             float HalfX = m_Size.X / 2;
             float HalfY = m_Size.Y / 2;
-            Vector2 NewPos = new Vector2(HalfX - (m_Font.MeasureString(Caption).X / 2), 
+            Vector2 NewPos = new Vector2(HalfX - (m_Font.MeasureString(Caption).X / 2),
                 HalfY - (m_Font.MeasureString(Caption).Y / 2));
-            m_LblProgressInPercentage.Position += NewPos; 
+            m_LblCurrentStatus.Position += NewPos;
 
             base.Update(Helper, GTime);
         }
@@ -114,7 +141,7 @@ namespace Gonzo.Elements
                 Depth = 0.9f; //Progressbars are always drawn on top
 
             //Texture is 45px / 3 = 15px wide
-            m_ProgressBarBack.Draw(SBatch, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_Size.Y), 
+            m_ProgressBarBack.Draw(SBatch, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_Size.Y),
                 new Rectangle(0, 0, 15, (int)m_Size.Y), Depth + 0.1f);
 
             m_ProgressBarBack.Draw(SBatch, new Rectangle((int)(Position.X + 15), (int)Position.Y, (int)(Size.X - 30),
@@ -123,25 +150,12 @@ namespace Gonzo.Elements
             m_ProgressBarBack.Draw(SBatch, new Rectangle((int)((Position.X + Size.X) - 15), (int)Position.Y, 15,
                 (int)m_Size.Y), new Rectangle(30, 0, 15, (int)m_Size.Y), Depth + 0.1f);
 
-            if (m_ProgressInPercentage > 0)
-            {
-                //Texture is 45px / 3 = 15px wide
-                m_ProgressBarFront.Draw(SBatch, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_Size.Y),
-                    new Rectangle(0, 0, 15, (int)m_Size.Y), Depth + 0.1f);
-
-                m_ProgressBarFront.Draw(SBatch, new Rectangle((int)Position.X + 15, (int)Position.Y, 15, (int)m_Size.Y), 
-                    new Rectangle(15, 0, 15, (int)m_Size.Y), Depth + 0.1f);
-
-                m_ProgressBarFront.Draw(SBatch, new Rectangle((int)(Position.X + (m_ProgressInPercentage / 100) * TotalProgressInPercentage) - 15,
-                     (int)Position.Y, 15, (int)m_Size.Y), new Rectangle(30, 0, 15, (int)m_Size.Y), Depth + 0.1f);
-            }
-
-            m_LblProgressInPercentage.Draw(SBatch, LayerDepth + 0.3f);
+            m_LblCurrentStatus.Draw(SBatch, LayerDepth + 0.3f);
 
             base.Draw(SBatch, LayerDepth);
         }
 
-        ~UIProgressBar()
+        ~UIStatusBar()
         {
             Dispose(false);
         }
@@ -171,7 +185,7 @@ namespace Gonzo.Elements
                 GC.SuppressFinalize(this);
             }
             else
-                m_Logger.Error("UIProgressBar not explicitly disposed!");
+                m_Logger.Error("UIStatusBar not explicitly disposed!");
         }
     }
 }

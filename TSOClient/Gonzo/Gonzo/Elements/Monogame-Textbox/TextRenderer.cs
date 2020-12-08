@@ -91,7 +91,7 @@ namespace MonoGame_Textbox
             if (SingleLine)
             {
                 m_Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), 
-                    Screen);
+                    Screen, null, 0.800f);
 
                 m_Position = Position;
                 m_Image.Position = new Vector2(m_Position.X, m_Position.Y);

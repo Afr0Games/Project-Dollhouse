@@ -16,10 +16,18 @@ using System.IO;
 
 namespace Gonzo
 {
+    /// <summary>
+    /// Manages all the strings for the UI.
+    /// </summary>
     public class StringManager
     {
         private static Dictionary<int, CaretSeparatedText> m_StringTables = new Dictionary<int, CaretSeparatedText>();
 
+        /// <summary>
+        /// Provides a table of CaretSeparatedText instances.
+        /// </summary>
+        /// <param name="ID">The ID of the CaretSeparatedText instance to retrieve.</param>
+        /// <returns>A CaretSeparatedText instance.</returns>
         public static CaretSeparatedText StrTable(int ID) { return m_StringTables[ID]; }
 
         /// <summary>

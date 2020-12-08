@@ -73,6 +73,7 @@
     <Compile Include="Elements\UIHeadBrowser.cs" />
     <Compile Include="Elements\UIProgressBar.cs" />
     <Compile Include="Elements\UISkinBrowser.cs" />
+    <Compile Include="Elements\UIStatusBar.cs" />
     <Compile Include="Elements\UITextEdit.cs" />
     <Compile Include="GabBufferEnumerator.cs" />
     <Compile Include="GapBuffer.cs" />

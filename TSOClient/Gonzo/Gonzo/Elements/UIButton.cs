@@ -17,6 +17,7 @@ using Files.Manager;
 using UIParser.Nodes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Gonzo.Dialogs;
 using log4net;
 
 namespace Gonzo.Elements
@@ -48,18 +49,10 @@ namespace Gonzo.Elements
 
         private bool m_IsTextButton = false;
         private string m_Text;
-        private Vector2 m_TextPosition;
         private float m_XScale = 1.0f; //Used to scale buttons to fit text.
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        /// <summary>
-        /// Gets or sets this button's textposition (if it is a textbutton).
-        /// </summary>
-        public Vector2 TextPosition
-        {
-            get { return m_TextPosition; }
-            set { m_TextPosition = value; }
-        }
+        private Vector2 m_TextPosition = new Vector2(0, 0);
 
         /// <summary>
         /// Is this button enabled (I.E not greyed out?)
@@ -271,8 +264,6 @@ namespace Gonzo.Elements
                 else
                     m_Text = Result.Strings[Result.State.Caption];
 
-                m_TextPosition = Position;
-
                 if (m_Size.X != 0)
                     ScaleToText();
             }
@@ -294,11 +285,19 @@ namespace Gonzo.Elements
         /// <param name="Font">The size of the caption's font (optional).</param>
         /// <param name="Tex">Texture used to display this button (optional).</param>
         /// <param name="ScaleToText">Should the button be scaled to fit the caption?</param>
-        public UIButton(string Name, Vector2 Pos, UIScreen Screen, Texture2D Tex = null, 
+        /// <param name="Parent">The parent of this UIButton.</param>
+        public UIButton(string Name, Vector2 Pos, UIScreen Screen, Texture2D Tex = null,
             string Caption = "", int Font = 9, bool ScaleToText = true, UIElement Parent = null) : base(Screen, Parent)
         {
             base.Name = Name;
             Position = Pos;
+
+            if (Parent != null)
+            {
+                //Would a text edit ever be attached to anything but a UIDialog instance? Probably not.
+                UIDialog Dialog = (UIDialog)Parent;
+                Dialog.OnDragged += Dialog_OnDragged;
+            }
 
             if (Tex != null)
             {
@@ -318,30 +317,30 @@ namespace Gonzo.Elements
             {
                 m_IsTextButton = true;
                 m_Text = Caption;
-            }
 
-            TextColor = m_Screen.StandardTxtColor; //TODO: Find out how to pass optional color as a parameter.
+                TextColor = m_Screen.StandardTxtColor; //TODO: Find out how to pass optional color as a parameter.
 
-            switch (Font)
-            {
-                case 9:
-                    m_Font = Screen.Font9px;
-                    break;
-                case 10:
-                    m_Font = Screen.Font10px;
-                    break;
-                case 12:
-                    m_Font = Screen.Font12px;
-                    break;
-                case 14:
-                    m_Font = Screen.Font14px;
-                    break;
-                case 16:
-                    m_Font = Screen.Font16px;
-                    break;
-                default:
-                    m_Font = Screen.Font12px;
-                    break;
+                switch (Font)
+                {
+                    case 9:
+                        m_Font = Screen.Font9px;
+                        break;
+                    case 10:
+                        m_Font = Screen.Font10px;
+                        break;
+                    case 12:
+                        m_Font = Screen.Font12px;
+                        break;
+                    case 14:
+                        m_Font = Screen.Font14px;
+                        break;
+                    case 16:
+                        m_Font = Screen.Font16px;
+                        break;
+                    default:
+                        m_Font = Screen.Font12px;
+                        break;
+                }
             }
 
             m_Size = new Vector2();
@@ -405,11 +404,23 @@ namespace Gonzo.Elements
                 ScaleToText();
         }
 
+        /// <summary>
+        /// This UIButton instance is attached to a dialog, and the dialog is being dragged.
+        /// </summary>
+        /// <param name="MousePosition">The mouse position.</param>
+        /// <param name="DragOffset">The dialog's drag offset.</param>
+        private void Dialog_OnDragged(Vector2 MousePosition, Vector2 DragOffset)
+        {
+            Vector2 RelativePosition = Position - m_Parent.Position;
+
+            Position = (MousePosition + RelativePosition) - DragOffset;
+        }
+
         public override void Update(InputHelper Input, GameTime GTime)
         {
-            if(m_IsTextButton)
+            if (m_IsTextButton)
             {
-                //Make the text stick to the button if/when button is moved.
+                //Make the text stick to this button if/when the button is moved.
                 m_TextPosition = Position;
 
                 float HalfX = m_Size.X / 2;
@@ -463,6 +474,8 @@ namespace Gonzo.Elements
                 else
                     m_SourcePosition.X = (m_Size.X * 3);
             }
+
+            base.Update(Input, GTime);
         }
 
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)

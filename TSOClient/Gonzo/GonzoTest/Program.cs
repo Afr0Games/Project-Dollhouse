@@ -65,7 +65,7 @@ namespace GonzoTest
 
             if(GlobalSettings.Default.ScreenWidth < 1024 || GlobalSettings.Default.ScreenHeight < 768)
             {
-                MessageBox.Show("The application does not support this resolution!");
+                MessageBox.Show("The resolution must be minimum 1024 x 768!");
                 Exit = true;
             }
 

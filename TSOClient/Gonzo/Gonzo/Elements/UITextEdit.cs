@@ -23,6 +23,7 @@ using Microsoft.Xna.Framework.Input;
 using log4net;
 using Files.Manager;
 using Files;
+using Gonzo.Dialogs;
 
 namespace Gonzo.Elements
 {
@@ -92,6 +93,8 @@ namespace Gonzo.Elements
         private Cursor m_Cursor = new Cursor();
         private int m_NumLinesInText = 1;
 
+        private Vector2 m_TextPosition = new Vector2(0, 0);
+
         /// <summary>
         /// Gets or sets the position of this UITextEdit instance's cursor.
         /// </summary>
@@ -124,8 +127,6 @@ namespace Gonzo.Elements
 
         private bool m_DrawBackground = false;
 
-        private Vector2 m_TextPosition = new Vector2(0, 0); //Coordinate for anchoring the text.
-
         private Texture2D m_FrameTex; //Texture for storing the pixel used to draw the blinking frame around the textedit.
 
         /// <summary>
@@ -156,6 +157,13 @@ namespace Gonzo.Elements
             m_TextPosition = Position;
             m_Size = Size * Resolution.getVirtualAspectRatio();
             TextColor = m_Screen.StandardTxtColor;
+
+            if(Parent != null)
+            {
+                //Would a text edit ever be attached to anything but a UIDialog instance? Probably not.
+                UIDialog Dialog = (UIDialog)m_Parent;
+                Dialog.OnDragged += Dialog_OnDragged;
+            }
 
             m_FrameTex = new Texture2D(m_Screen.Manager.Device, 1, 1);
 
@@ -203,6 +211,19 @@ namespace Gonzo.Elements
                 Image.Slicer = new NineSlicer(new Vector2(0, 0), (int)Image.Texture.Width, (int)Image.Texture.Width, 15, 15, 15, 15);
                 Image.SetSize((int)Size.X, (int)Size.Y);
             }
+        }
+
+        /// <summary>
+        /// This TextEdit instance is attached to a dialog, and the dialog is being dragged.
+        /// </summary>
+        /// <param name="MousePosition">The mouse position.</param>
+        /// <param name="DragOffset">The dialog's drag offset.</param>
+        private void Dialog_OnDragged(Vector2 MousePosition, Vector2 DragOffset)
+        {
+            Vector2 RelativePosition = Position - m_Parent.Position;
+
+            Position = (MousePosition + RelativePosition) - DragOffset;
+            m_TextPosition = (MousePosition + RelativePosition) - DragOffset;
         }
 
         /// <summary>
@@ -1214,7 +1235,8 @@ namespace Gonzo.Elements
             if (m_HasFocus)
             {
                 if (m_Cursor.Visible)
-                    SBatch.DrawString(m_Font, m_Cursor.Symbol, m_Cursor.Position, Color.White);
+                    SBatch.DrawString(m_Font, m_Cursor.Symbol, m_Cursor.Position, Color.White, 0.0f, new Vector2(0.0f), 
+                        1.0f, SpriteEffects.None, Depth + 0.1f);
 
                 if (m_FrameOnFocus && m_Text.Count > 0)
                     DrawBorder(SBatch, m_FrameTex, new Rectangle((int)(Position.X), 
@@ -1235,12 +1257,14 @@ namespace Gonzo.Elements
             {
                 foreach (string Str in TextWithLBreaks.Split("\n".ToCharArray()))
                 {
-                    SBatch.DrawString(m_Font, Str, Position, TextColor);
+                    SBatch.DrawString(m_Font, Str, Position, TextColor, 0.0f, new Vector2(0.0f),
+                        1.0f, SpriteEffects.None, Depth/* - 0.1f*/);
                     Position.Y += CapitalCharacterHeight;
                 }
             }
             else
-                SBatch.DrawString(m_Font, Text, Position, TextColor);
+                SBatch.DrawString(m_Font, Text, Position, TextColor, 0.0f, new Vector2(0.0f),
+                        1.0f, SpriteEffects.None, Depth/* - 0.1f*/);
 
             //When this is commented out, the other scissor rect is working...
             //SBatch.GraphicsDevice.ScissorRectangle = m_CurrentRect;

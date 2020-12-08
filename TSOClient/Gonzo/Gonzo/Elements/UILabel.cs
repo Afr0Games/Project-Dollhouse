@@ -10,8 +10,8 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-using UIParser;
 using UIParser.Nodes;
+using Gonzo.Dialogs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -101,11 +101,20 @@ namespace Gonzo.Elements
         }
 
         public UILabel(string StrCaption, int ID, Vector2 TextPosition, Vector2 Size, Color Clr, int Font,
-            UIScreen Screen, TextAlignment Alignment = TextAlignment.Center_Center) : base(Screen)
+            UIScreen Screen, UIElement Parent = null, TextAlignment Alignment = TextAlignment.Center_Center) : base(Screen)
         {
             Name = "Lbl" + Caption;
             m_ID = ID;
             Position = new Vector2(TextPosition.X, TextPosition.Y) + Screen.Position;
+
+            if (Parent != null)
+            {
+                m_Parent = Parent;
+
+                //Would a UILabel ever be attached to anything but a UIDialog instance? Probably not.
+                UIDialog Dialog = (UIDialog)Parent;
+                Dialog.OnDragged += Dialog_OnDragged;
+            }
 
             m_Size = new Vector2(Size.X, Size.Y);
 
@@ -198,6 +207,18 @@ namespace Gonzo.Elements
                     Position = LocalCopy;
                     break;
             }
+        }
+
+        /// <summary>
+        /// This UIButton instance is attached to a dialog, and the dialog is being dragged.
+        /// </summary>
+        /// <param name="MousePosition">The mouse position.</param>
+        /// <param name="DragOffset">The dialog's drag offset.</param>
+        private void Dialog_OnDragged(Vector2 MousePosition, Vector2 DragOffset)
+        {
+            Vector2 RelativePosition = Position - m_Parent.Position;
+
+            Position = (MousePosition + RelativePosition) - DragOffset;
         }
 
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
