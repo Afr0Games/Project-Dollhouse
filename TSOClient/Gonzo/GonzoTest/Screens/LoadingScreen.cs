@@ -508,7 +508,7 @@ namespace GonzoTest
 
             base.Draw();
 
-            m_BackgroundImg.Draw(m_SBatch, null, 0.0f, null);
+            m_BackgroundImg.Draw(m_SBatch, null, 0.0f, new Vector2(Resolution.getVirtualAspectRatio(), Resolution.getVirtualAspectRatio()));
 
             m_LblExtrudingTerrainWeb.Draw(m_SBatch, 0.3f);
             m_LblCalculatingDomesticCoefficients.Draw(m_SBatch, 0.3f);
