@@ -151,39 +151,40 @@ namespace Sound
             }
         }
 
-        ~SoundPlayer()
-        {
-            Dispose(false); //Cleans up the streaming task.
-        }
-
         private void PlayTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if(m_PlaybackState != StreamingPlaybackState.Stopped)
+            lock (TheLock)
             {
-                if(m_ASound.WOut == null && m_ASound.WavProvider != null)
+                if (m_PlaybackState != StreamingPlaybackState.Stopped)
                 {
-                    m_ASound.WOut = new WaveOut();
-                    m_ASound.VolumeProvider = new VolumeWaveProvider16(m_ASound.WavProvider);
-                    m_ASound.VolumeProvider.Volume = 0.5f;
-                    m_ASound.WOut.Init(m_ASound.VolumeProvider);
-                }
-                else if(m_ASound.WavProvider != null)
-                {
-                    double BufferedSeconds = m_ASound.WavProvider.BufferedDuration.TotalSeconds;
+                    if (m_ASound != null)
+                    {
+                        if (m_ASound.WOut == null && m_ASound.WavProvider != null)
+                        {
+                            m_ASound.WOut = new WaveOut();
+                            m_ASound.VolumeProvider = new VolumeWaveProvider16(m_ASound.WavProvider);
+                            m_ASound.VolumeProvider.Volume = 0.5f;
+                            m_ASound.WOut.Init(m_ASound.VolumeProvider);
+                        }
+                        else if (m_ASound.WavProvider != null)
+                        {
+                            double BufferedSeconds = m_ASound.WavProvider.BufferedDuration.TotalSeconds;
 
-                    //Make it stutter less if we buffer up a decent amount before playing
-                    if (BufferedSeconds < 0.5 && m_PlaybackState == StreamingPlaybackState.Playing && !m_ASound.FullyStreamed)
-                    {
-                        m_PlaybackState = StreamingPlaybackState.Buffering;
-                        m_ASound.WOut.Pause();
+                            //Make it stutter less if we buffer up a decent amount before playing
+                            if (BufferedSeconds < 0.5 && m_PlaybackState == StreamingPlaybackState.Playing && !m_ASound.FullyStreamed)
+                            {
+                                m_PlaybackState = StreamingPlaybackState.Buffering;
+                                m_ASound.WOut.Pause();
+                            }
+                            else if (BufferedSeconds > 4 && m_PlaybackState == StreamingPlaybackState.Buffering)
+                            {
+                                m_ASound.WOut.Play();
+                                m_PlaybackState = StreamingPlaybackState.Playing;
+                            }
+                            else if (m_ASound.FullyStreamed && BufferedSeconds == 0)
+                                StopPlayback();
+                        }
                     }
-                    else if (BufferedSeconds > 4 && m_PlaybackState == StreamingPlaybackState.Buffering)
-                    {
-                        m_ASound.WOut.Play();
-                        m_PlaybackState = StreamingPlaybackState.Playing;
-                    }
-                    else if (m_ASound.FullyStreamed && BufferedSeconds == 0)
-                        StopPlayback();
                 }
             }
         }
@@ -326,16 +327,19 @@ namespace Sound
         /// <param name="FadeOut">Should this sound fade out?</param>
         public void PlaySound(bool LoopIt = false, bool FadeOut = false)
         {
-            if (LoopIt)
-                m_ASound.Instance.IsLooped = true;
+            lock (TheLock)
+            {
+                if (LoopIt)
+                    m_ASound.Instance.IsLooped = true;
 
-            if (FadeOut)
-                m_ASound.FadeOut = true;
+                if (FadeOut)
+                    m_ASound.FadeOut = true;
 
-            if (m_ASound.Instance != null)
-                m_ASound.Instance.Play();
-            /*else
-                m_ASound.DynInstance.Play();*/
+                if (m_ASound.Instance != null)
+                    m_ASound.Instance.Play();
+                /*else
+                    m_ASound.DynInstance.Play();*/
+            }
         }
 
         /// <summary>
@@ -380,25 +384,28 @@ namespace Sound
         /// </summary>
         public void StopSound()
         {
-            if (m_ASound != null)
+            lock (TheLock)
             {
-                if (!m_ASound.FadeOut)
+                if (m_ASound != null)
                 {
-                    if (m_ASound.Instance != null)
-                        m_ASound.Instance.Stop();
-                    /*else
+                    if (!m_ASound.FadeOut)
                     {
-                        m_ASound.DynInstance.Stop();
-                        m_ASound.DynInstance.BufferNeeded -= Instance_BufferNeeded;
-                    }*/
-                }
-                else
-                {
-                    m_ASound.FadeOutTimer = new System.Timers.Timer();
-                    m_ASound.FadeOutTimer.Interval = 200;
-                    m_ASound.FadeOutTimer.Enabled = true;
-                    m_ASound.FadeOutTimer.Elapsed += FadeOutTimer_Elapsed;
-                    m_ASound.FadeOutTimer.Start();
+                        if (m_ASound.Instance != null)
+                            m_ASound.Instance.Stop();
+                        /*else
+                        {
+                            m_ASound.DynInstance.Stop();
+                            m_ASound.DynInstance.BufferNeeded -= Instance_BufferNeeded;
+                        }*/
+                    }
+                    else
+                    {
+                        m_ASound.FadeOutTimer = new System.Timers.Timer();
+                        m_ASound.FadeOutTimer.Interval = 200;
+                        m_ASound.FadeOutTimer.Enabled = true;
+                        m_ASound.FadeOutTimer.Elapsed += FadeOutTimer_Elapsed;
+                        m_ASound.FadeOutTimer.Start();
+                    }
                 }
             }
         }
@@ -449,13 +456,18 @@ namespace Sound
                         {
                             m_ASound.VolumeProvider.Volume -= 0.10f;
                         }
-                        catch(ArgumentOutOfRangeException)
+                        catch (ArgumentOutOfRangeException)
                         {
                             StopPlayback();
                         }
                     }
                 }
             }
+        }
+
+        ~SoundPlayer()
+        {
+            Dispose(false); //Cleans up the streaming task.
         }
 
         /// <summary>
