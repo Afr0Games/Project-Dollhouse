@@ -124,6 +124,11 @@ namespace MonoGame_Textbox
             Cursor.SelectedChar = null;
         }
 
+        /// <summary>
+        /// A key was pressed on the keyboard.
+        /// </summary>
+        /// <param name="e">A KeyEventArgs instance.</param>
+        /// <param name="ks">A KeyboardState instance.</param>
         private void KeyPressed(object sender, KeyboardInput.KeyEventArgs e, KeyboardState ks)
         {
             if (Active)
@@ -240,7 +245,7 @@ namespace MonoGame_Textbox
 
         private void CharacterTyped(object sender, KeyboardInput.CharacterEventArgs e, KeyboardState ks)
         {
-            if (Active && !KeyboardInput.CtrlDown)
+            if (m_HasFocus && !KeyboardInput.CtrlDown)
             {
                 if (IsLegalCharacter(Renderer.Font, e.Character) && !e.Character.Equals('\r') &&
                     !e.Character.Equals('\n'))
@@ -358,12 +363,15 @@ namespace MonoGame_Textbox
             base.Update(Helper, GTime);
 
             if (m_HasFocus)
-                Active = true;
+            {
+                if(Helper.IsNewPress(MouseButtons.LeftButton))
+                    Active = true;
+
+                Renderer.Update();
+                Cursor.Update();
+            }
             else
                 Active = false;
-
-            Renderer.Update();
-            Cursor.Update();
         }
 
         public override void Draw(SpriteBatch spriteBatch, float? LayerDepth)
