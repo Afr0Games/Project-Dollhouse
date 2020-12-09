@@ -424,9 +424,12 @@ namespace Sound
                         {
                             m_ASound.Instance.Volume -= 0.10f;
                         }
-                        catch (ArgumentOutOfRangeException)
+                        catch (Exception E)
                         {
-                            m_ASound.Instance.Stop();
+                            if(E is ArgumentOutOfRangeException)
+                                m_ASound.Instance.Stop();
+                            if (E is NullReferenceException)
+                                return;
                         }
                     }
                     else
