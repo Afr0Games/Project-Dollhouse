@@ -17,6 +17,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using log4net;
 using System.Reflection;
+using ResolutionBuddy;
 
 namespace Gonzo
 {
@@ -34,6 +35,7 @@ namespace Gonzo
         private Camera m_Camera;
         private Effect m_Shader; //TODO: Move this elsewhere.
         private SpriteBatch m_SBatch;
+        private IResolution m_Resolution;
 
         public event EventHandler<TextInputEventArgs> OnTextInput;
 
@@ -90,17 +92,23 @@ namespace Gonzo
 
         public Effect HeadShader { get { return m_Shader; } set { m_Shader = value; } }
 
+        public IResolution Resolution
+        {
+            get { return m_Resolution; }
+        }
+
         /// <summary>
         /// Constructs a new ScreenManager instance.
         /// </summary>
         /// <param name="Input">An InputHelper instance, used for updating screens.</param>
-        public ScreenManager(GraphicsDevice Graphics, SpriteFont[] Fonts, InputHelper Input)
+        public ScreenManager(GraphicsDevice Graphics, SpriteFont[] Fonts, InputHelper Input, IResolution Res)
         {
             m_Graphics = Graphics;
             m_SBatch = new SpriteBatch(Graphics);
             m_Camera = new Camera(Graphics);
             m_Input = Input;
             m_Fonts = Fonts;
+            m_Resolution = Res;
         }
 
         /// <summary>

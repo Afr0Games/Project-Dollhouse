@@ -12,6 +12,7 @@ Contributor(s):
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using ResolutionBuddy;
 
 namespace Gonzo
 {
@@ -257,8 +258,9 @@ namespace Gonzo
             get
             {
                 //From: http://www.discussiongenerator.com/2012/09/15/resolution-independent-2d-rendering-in-xna-4/
-                Vector2 virtualViewPort = new Vector2(Resolution.VirtualViewportX, Resolution.VirtualViewportY);
-                return Vector2.Transform(new Vector2(_currentMouseState.X, _currentMouseState.Y) - virtualViewPort, Matrix.Invert(Resolution.getTransformationMatrix()));
+                /*Vector2 virtualViewPort = new Vector2(Resolution.VirtualViewportX, Resolution.VirtualViewportY);
+                return Vector2.Transform(new Vector2(_currentMouseState.X, _currentMouseState.Y) - virtualViewPort, Matrix.Invert(Resolution.getTransformationMatrix()));*/
+                return Resolution.ScreenToGameCoord(new Vector2(_currentMouseState.X, _currentMouseState.Y));
             }
         }
 

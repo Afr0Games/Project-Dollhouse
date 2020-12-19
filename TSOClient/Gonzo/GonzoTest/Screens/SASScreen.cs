@@ -10,6 +10,7 @@ using Sound;
 using Vitaboy;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ResolutionBuddy;
 
 namespace GonzoTest
 {
@@ -383,12 +384,11 @@ namespace GonzoTest
         public override void Draw()
         {
             m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
-                RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
+                RasterizerState.CullCounterClockwise, null, Resolution.TransformationMatrix());
 
             base.Draw();
 
-            BackgroundImg.Draw(m_SBatch, null, 0.0f, 
-                new Vector2(Resolution.getVirtualAspectRatio(), Resolution.getVirtualAspectRatio()));
+            BackgroundImg.Draw(m_SBatch, null, 0.0f);
 
             TabBackgroundImg1.Draw(m_SBatch, null, 0.5f);
             TabBackgroundImg2.Draw(m_SBatch, null, 0.5f);
@@ -430,7 +430,7 @@ namespace GonzoTest
                     RasterState.CullMode = CullMode.CullCounterClockwiseFace;
 
                     m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null,
-                       RasterState, null, Resolution.getTransformationMatrix());
+                       RasterState, null, Resolution.TransformationMatrix());
 
                     Element.Draw(m_SBatch, 0.5f);
 

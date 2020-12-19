@@ -63,8 +63,7 @@ namespace Gonzo.Dialogs
 
             //Set the default size of the dialog.
             m_DefaultSize = new Vector2(Tex.Width, Tex.Height);
-            SetSize(m_DefaultSize.X * Resolution.getVirtualAspectRatio(),
-                m_DefaultSize.Y * Resolution.getVirtualAspectRatio());
+            SetSize(m_DefaultSize.X, m_DefaultSize.Y);
 
             if (IsTall != false)
                 Image.Slicer = new NineSlicer(new Vector2(0, 0), Tex.Width, Tex.Height, 41, 41, 66, 40);

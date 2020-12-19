@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Gonzo</RootNamespace>
     <AssemblyName>Gonzo</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -48,6 +48,9 @@
     <Reference Include="MonoGame.Framework, Version=3.7.0.1708, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.7.0.1708\lib\net45\MonoGame.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="ResolutionBuddy">
+      <HintPath>..\..\..\Other\libs\ResolutionBuddy\ResolutionBuddy\bin\Debug\ResolutionBuddy.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
@@ -79,7 +82,6 @@
     <Compile Include="GapBuffer.cs" />
     <Compile Include="InputHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resolution.cs" />
     <Compile Include="ScreenManager.cs" />
     <Compile Include="StringManager.cs" />
     <Compile Include="Elements\UIButton.cs" />

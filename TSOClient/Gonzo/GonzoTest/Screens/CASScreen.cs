@@ -20,6 +20,7 @@ using Gonzo.Elements;
 using Gonzo.Dialogs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ResolutionBuddy;
 
 namespace GonzoTest
 {
@@ -227,12 +228,11 @@ namespace GonzoTest
         public override void Draw()
         {
             m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
-                RasterizerState.CullCounterClockwise, null, Resolution.getTransformationMatrix());
+                RasterizerState.CullCounterClockwise, null, Resolution.TransformationMatrix());
 
             base.Draw(); //Needs to be drawn first for the ExitDialog to be drawn correctly.
 
-            m_BackgroundImg.Draw(m_SBatch, null, 0.0f,
-                new Vector2(Resolution.getVirtualAspectRatio(), Resolution.getVirtualAspectRatio()));
+            m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
             m_HeadSkinBrowser.Draw(m_SBatch, 0.7f);
             m_BodySkinBrowser.Draw(m_SBatch, 0.7f);
 
@@ -250,7 +250,7 @@ namespace GonzoTest
                     RasterState.CullMode = CullMode.CullCounterClockwiseFace;
 
                     m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null,
-                       RasterState, null, Resolution.getTransformationMatrix());
+                       RasterState, null, Resolution.TransformationMatrix());
 
                     Element.Draw(m_SBatch, 0.5f);
 

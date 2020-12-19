@@ -17,6 +17,7 @@ using Gonzo.Elements;
 using MonoGame_Textbox;
 using Microsoft.Xna.Framework.Graphics;
 using log4net;
+using ResolutionBuddy;
 
 namespace Gonzo.Dialogs
 {
@@ -61,8 +62,8 @@ namespace Gonzo.Dialogs
             RelativePosition = new Vector2(200, 170);
             m_BtnExit = new UIButton("BtnExit", Pos + RelativePosition, m_Screen, null, m_Cst[3], 9, true, this);
 
-            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 40) * Resolution.getVirtualAspectRatio()), 
-                (int)(m_DefaultSize.Y * Resolution.getVirtualAspectRatio()));
+            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 40) * m_Screen.Manager.Resolution.ScalingRatio), 
+                (int)(m_DefaultSize.Y * m_Screen.Manager.Resolution.ScalingRatio));
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)

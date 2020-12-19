@@ -5,6 +5,7 @@ using Gonzo;
 using Files.Manager;
 using Sound;
 using System.Windows.Forms;
+using ResolutionBuddy;
 
 namespace GonzoTest
 {
@@ -13,13 +14,14 @@ namespace GonzoTest
     /// </summary>
     public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
         private HitVM SoundManager;
         private ScreenManager m_ScrManager;
         private SpriteFont[] m_Fonts = new SpriteFont[5];
         private InputHelper m_Input = new InputHelper();
         private Effect m_SimShader;
+        private IResolution m_Resolution;
 
         public Game1()
         {
@@ -27,9 +29,8 @@ namespace GonzoTest
             graphics.PreferredBackBufferWidth = GlobalSettings.Default.ScreenWidth;
             graphics.PreferredBackBufferHeight = GlobalSettings.Default.ScreenHeight;
 
-            Resolution.Init(ref graphics);
-            Resolution.SetResolution(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight, GlobalSettings.Default.Fullscreen);
-            Resolution.SetVirtualResolution(1024, 768);
+            m_Resolution = new ResolutionComponent(this, graphics, new Point(800, 600),
+                new Point(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight), false, false, false);
 
             Window.Title = "The Sims Online";
             Window.TextInput += Window_TextInput;
@@ -87,7 +88,7 @@ namespace GonzoTest
             m_Fonts[3] = Content.Load<SpriteFont>("ProjectDollhouse_14px");
             m_Fonts[4] = Content.Load<SpriteFont>("ProjectDollhouse_16px");
             m_SimShader = Content.Load<Effect>("Vitaboy");
-            m_ScrManager = new ScreenManager(GraphicsDevice, m_Fonts, m_Input);
+            m_ScrManager = new ScreenManager(GraphicsDevice, m_Fonts, m_Input, m_Resolution);
             m_ScrManager.HeadShader = m_SimShader;
         }
 
@@ -95,9 +96,10 @@ namespace GonzoTest
         {
             SoundManager = new HitVM(GlobalSettings.Default.StartupPath);
             //m_ScrManager.AddScreen(new CreditsScreen(m_ScrManager, spriteBatch));
-            //m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
+            m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
             //m_ScrManager.AddScreen(new CASScreen(m_ScrManager, spriteBatch));
-            m_ScrManager.AddScreen(new LoadingScreen(m_ScrManager, spriteBatch));
+            //m_ScrManager.AddScreen(new LoadingScreen(m_ScrManager, spriteBatch));
+            //m_ScrManager.AddScreen(new LoginScreen(m_ScrManager, spriteBatch));
         }
 
         /// <summary>
@@ -116,11 +118,6 @@ namespace GonzoTest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == 
-                Microsoft.Xna.Framework.Input.ButtonState.Pressed || 
-                Keyboard.GetState().IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
-                Exit();
-
             m_ScrManager.Update(gameTime);
 
             base.Update(gameTime);
@@ -132,8 +129,6 @@ namespace GonzoTest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            Resolution.BeginDraw();
-
             m_ScrManager.Draw();
 
             //Reset device to defaults before rendering...

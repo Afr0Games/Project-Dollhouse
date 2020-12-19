@@ -155,7 +155,7 @@ namespace Gonzo.Elements
 
             Position = TextEditPosition;
             m_TextPosition = Position;
-            m_Size = Size * Resolution.getVirtualAspectRatio();
+            m_Size = Size /** Resolution.getVirtualAspectRatio()*/;
             TextColor = m_Screen.StandardTxtColor;
 
             if(Parent != null)

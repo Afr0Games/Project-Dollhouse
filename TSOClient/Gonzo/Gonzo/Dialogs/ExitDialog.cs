@@ -51,9 +51,13 @@ namespace Gonzo.Dialogs
             UIControl DialogSize = Result.Controls["\"DialogSize\""];
 
             if (Size.X != 0 && Size.Y != 0)
-                SetSize((int)(Size.X * Resolution.getVirtualAspectRatio()), (int)(Size.Y * Resolution.getVirtualAspectRatio()));
+            {
+                SetSize((Size.X) * m_Screen.Manager.Resolution.ScalingRatio,
+                    (Size.Y) * m_Screen.Manager.Resolution.ScalingRatio);
+            }
             else
-                SetSize((int)(DialogSize.Size.X * Resolution.getVirtualAspectRatio()), (int)(DialogSize.Size.Y * Resolution.getVirtualAspectRatio()));
+                SetSize((DialogSize.Size.X * m_Screen.Manager.Resolution.ScalingRatio), 
+                    (DialogSize.Size.Y) * m_Screen.Manager.Resolution.ScalingRatio);
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)

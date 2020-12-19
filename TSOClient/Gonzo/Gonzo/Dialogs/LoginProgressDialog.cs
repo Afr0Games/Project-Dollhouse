@@ -57,8 +57,8 @@ namespace Gonzo.Dialogs
             m_StatusBar = new UIStatusBar(m_Screen, Pos + RelativePosition, 300, this);
             RegistrableUIElements.Add("StatusBar", m_ProgressBar);
 
-            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 100) * Resolution.getVirtualAspectRatio()),
-                (int)(175 * Resolution.getVirtualAspectRatio()));
+            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 100) * m_Screen.Manager.Resolution.ScalingRatio), 
+                (int)(175) * m_Screen.Manager.Resolution.ScalingRatio);
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
