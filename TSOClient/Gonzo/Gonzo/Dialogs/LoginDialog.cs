@@ -17,7 +17,6 @@ using Gonzo.Elements;
 using MonoGame_Textbox;
 using Microsoft.Xna.Framework.Graphics;
 using log4net;
-using ResolutionBuddy;
 
 namespace Gonzo.Dialogs
 {

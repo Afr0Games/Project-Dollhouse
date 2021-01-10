@@ -30,34 +30,47 @@ namespace Gonzo.Dialogs
 
             Walker.Initialize(ScriptPath, ref Result);
 
+            Vector2 RelativePosition = new Vector2(30, 120);
             m_ReloginButton = (UIButton)Result.Elements["\"ReLoginButton\""];
             m_ReloginButton.Position = Position;
-            m_ReloginButton.Position += new Vector2(30, 120);
+            m_ReloginButton.Position += RelativePosition;
+            m_ReloginButton.AddParent(this);
 
+            RelativePosition = new Vector2(160, 120);
             m_ExitButton = (UIButton)Result.Elements["\"ExitButton\""];
             m_ExitButton.Position = Position;
-            m_ExitButton.Position += new Vector2(160, 120);
+            m_ExitButton.Position += RelativePosition;
+            m_ExitButton.AddParent(this);
 
+            RelativePosition = new Vector2(350, 120);
             m_CancelButton = (UIButton)Result.Elements["\"CancelButton\""];
             m_CancelButton.Position = Position;
-            m_CancelButton.Position += new Vector2(350, 120);
+            m_CancelButton.Position += RelativePosition;
+            m_ExitButton.AddParent(this);
 
+            RelativePosition = new Vector2(175, Position.Y);
             m_TitleText = (UILabel)Result.Elements["\"TitleText\""];
-            m_TitleText.Position += Position;
+            m_TitleText.Position += RelativePosition;
+            m_TitleText.AddParent(this);
 
             m_MessageText = (UILabel)Result.Elements["\"MessageText\""];
             m_MessageText.Position += Position;
+            m_MessageText.AddParent(this);
+
+            m_Font = m_Screen.Manager.Font9px; //Needs to be set for debug purposes.
 
             UIControl DialogSize = Result.Controls["\"DialogSize\""];
 
-            if (Size.X != 0 && Size.Y != 0)
+            /*if (Size.X != 0 && Size.Y != 0)
             {
                 SetSize((Size.X) * m_Screen.Manager.Resolution.ScalingRatio,
                     (Size.Y) * m_Screen.Manager.Resolution.ScalingRatio);
             }
             else
                 SetSize((DialogSize.Size.X * m_Screen.Manager.Resolution.ScalingRatio), 
-                    (DialogSize.Size.Y) * m_Screen.Manager.Resolution.ScalingRatio);
+                    (DialogSize.Size.Y) * m_Screen.Manager.Resolution.ScalingRatio);*/
+            SetSize((int)((m_Screen.Font10px.MeasureString(m_TitleText.Caption).X + 40) * m_Screen.Manager.Resolution.ScalingRatio), 
+                (int)(m_DefaultSize.Y * m_Screen.Manager.Resolution.ScalingRatio));
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)

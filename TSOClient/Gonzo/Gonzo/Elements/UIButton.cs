@@ -25,7 +25,7 @@ namespace Gonzo.Elements
     public delegate void ButtonClickDelegate(object Sender, ButtonClickEventArgs E);
 
     /// <summary>
-    /// A class based on EventArgs that contains information about a button click.
+    /// A class inherited from EventArgs that contains information about a button click.
     /// </summary>
     public class ButtonClickEventArgs : EventArgs
     {
@@ -60,7 +60,6 @@ namespace Gonzo.Elements
         public bool Enabled = true;
 
         public bool m_IsButtonClicked = false;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event ButtonClickDelegate OnButtonClicked;
 
         public UIButton(AddButtonNode Node, ParseResult Result, UIScreen Screen) : base(Screen)

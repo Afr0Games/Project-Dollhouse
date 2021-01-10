@@ -13,6 +13,7 @@ Contributor(s):
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Gonzo.Dialogs;
 
 namespace Gonzo.Elements
 {
@@ -221,6 +222,25 @@ namespace Gonzo.Elements
             }
             else
                 m_Position = Position;
+        }
+
+        /// <summary>
+        /// A UIDialog can call this to add itself as a parent to
+        /// this UIElement. This UIElement will then subscribe to
+        /// the dialog's OnDragged event.
+        /// </summary>
+        /// <param name="Parent">The parent to add (should be a UIDialog).</param>
+        public void AddParent(UIElement Parent)
+        {
+            m_Parent = Parent;
+            UIDialog Dialog = (UIDialog)Parent;
+            Dialog.OnDragged += Dialog_OnDragged;
+        }
+
+        private void Dialog_OnDragged(Vector2 MousePosition, Vector2 DragOffset)
+        {
+            Vector2 RelativePosition = Position - m_Parent.Position;
+            Position = (MousePosition + RelativePosition) - DragOffset;
         }
 
         /// <summary>
