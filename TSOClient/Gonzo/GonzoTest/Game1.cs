@@ -28,9 +28,11 @@ namespace GonzoTest
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = GlobalSettings.Default.ScreenWidth;
             graphics.PreferredBackBufferHeight = GlobalSettings.Default.ScreenHeight;
+            graphics.IsFullScreen = GlobalSettings.Default.Fullscreen;
 
             m_Resolution = new ResolutionComponent(this, graphics, new Point(800, 600),
-                new Point(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight), false, false, false);
+                new Point(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight), 
+                GlobalSettings.Default.Fullscreen, false, false);
 
             Window.Title = "The Sims Online";
             Window.TextInput += Window_TextInput;
@@ -96,10 +98,10 @@ namespace GonzoTest
         {
             SoundManager = new HitVM(GlobalSettings.Default.StartupPath);
             //m_ScrManager.AddScreen(new CreditsScreen(m_ScrManager, spriteBatch));
-            m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
+            //m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
             //m_ScrManager.AddScreen(new CASScreen(m_ScrManager, spriteBatch));
             //m_ScrManager.AddScreen(new LoadingScreen(m_ScrManager, spriteBatch));
-            //m_ScrManager.AddScreen(new LoginScreen(m_ScrManager, spriteBatch));
+            m_ScrManager.AddScreen(new LoginScreen(m_ScrManager, spriteBatch));
         }
 
         /// <summary>

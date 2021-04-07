@@ -16,7 +16,8 @@ namespace GonzoTest
 {
     public class SASScreen : UIScreen
     {
-        private UIImage BackgroundImg, TabBackgroundImg1, TabBackgroundImg2, TabBackgroundImg3, DescriptionTabBackgroundImg1, DescriptionTabBackgroundImg2, DescriptionTabBackgroundImg3, 
+        private UIBackgroundImage m_BackgroundImg;
+        private UIImage TabBackgroundImg1, TabBackgroundImg2, TabBackgroundImg3, DescriptionTabBackgroundImg1, DescriptionTabBackgroundImg2, DescriptionTabBackgroundImg3, 
             DescriptionTabImage1, DescriptionTabImage2, DescriptionTabImage3, EnterTabImage1, EnterTabImage2, EnterTabImage3, EnterTabBackgroundImage1, EnterTabBackgroundImage2, EnterTabBackgroundImage3, /*DefaultHouseImg,*/ CreditsBackgroundImg,/*, CityThumbnailBusyImg*/
             CityButtonTemplateImage;
         private UIButton m_ExitButton, m_EnterTabBtn1, m_EnterTabBtn2, m_EnterTabBtn3, m_DescriptionTabBtn1, 
@@ -39,7 +40,7 @@ namespace GonzoTest
             new Vector2(0, 0), new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight),
             GlobalSettings.Default.StartupPath + "\\" + "gamedata\\uiscripts\\personselection.uis")
         {
-            BackgroundImg = (UIImage)m_PResult.Elements["\"BackgroundImage\""];
+            m_BackgroundImg = (UIBackgroundImage)m_PResult.Elements["\"BackgroundImage\""];
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device, Manager.HeadShader);
             Avatar.ChangeOutfit(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
@@ -388,7 +389,7 @@ namespace GonzoTest
 
             base.Draw();
 
-            BackgroundImg.Draw(m_SBatch, null, 0.0f);
+            m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
 
             TabBackgroundImg1.Draw(m_SBatch, null, 0.5f);
             TabBackgroundImg2.Draw(m_SBatch, null, 0.5f);

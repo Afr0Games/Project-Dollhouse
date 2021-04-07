@@ -20,14 +20,22 @@ using log4net;
 
 namespace Gonzo.Dialogs
 {
+    public delegate void OnLoginInitializedDelegate(string Username, string Password);
+
     public class LoginDialog : UIDialog, IDisposable
     {
         private UILabel m_LblTitle, m_LblUsername, m_LblPassword;
         private MonoGame_Textbox.Cursor m_Cursor;
         private TextBox m_TxtUsername, m_TxtPassword;
         private UIButton m_BtnLogin, m_BtnExit;
+        private MessageBox m_MsgBox;
 
         private CaretSeparatedText m_Cst;
+
+        /// <summary>
+        /// Called when the user clicked the login button to start the login.
+        /// </summary>
+        public event OnLoginInitializedDelegate OnLogin;
 
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -37,7 +45,7 @@ namespace Gonzo.Dialogs
 
             m_Cst = StringManager.StrTable(209);
 
-            Vector2 RelativePosition = new Vector2(60, 0);
+            Vector2 RelativePosition = new Vector2(45, 0);
             m_LblTitle = new UILabel(m_Cst[1], 1, Pos + RelativePosition, m_Font.MeasureString(m_Cst[1]),
                 m_Screen.StandardTxtColor, 11, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
             RelativePosition = new Vector2(20, 50);
@@ -49,20 +57,37 @@ namespace Gonzo.Dialogs
 
             RelativePosition = new Vector2(20, 85);
             m_TxtUsername = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), (int)(Pos.Y + RelativePosition.Y), 
-                250, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, Color.White, 30, m_Screen, true, this);
+                230, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, Color.White, 30, m_Screen, true, this);
             RelativePosition = new Vector2(20, 145);
-            m_TxtPassword = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), (int)(Pos.Y + RelativePosition.Y), 
-                250, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, Color.White, 30, m_Screen, true, this);
+            m_TxtPassword = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), (int)(Pos.Y + RelativePosition.Y),
+                230, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, Color.White, 30, m_Screen, true, this);
 
             KeyboardInput.Initialize(Screen.Manager, 500f, 20);
 
-            RelativePosition = new Vector2(120, 170);
+            RelativePosition = new Vector2(120, 175);
             m_BtnLogin = new UIButton("BtnLogin", Pos + RelativePosition, m_Screen, null, m_Cst[2], 9, true, this);
-            RelativePosition = new Vector2(200, 170);
+            m_BtnLogin.OnButtonClicked += BtnLogin_OnButtonClicked;
+
+            RelativePosition = new Vector2(200, 175);
             m_BtnExit = new UIButton("BtnExit", Pos + RelativePosition, m_Screen, null, m_Cst[3], 9, true, this);
 
-            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 40) * m_Screen.Manager.Resolution.ScalingRatio), 
-                (int)(m_DefaultSize.Y * m_Screen.Manager.Resolution.ScalingRatio));
+            SetSize((int)(50 + m_Font.MeasureString(m_Cst[1]).X + 40), m_DefaultSize.Y + m_BtnExit.Size.Y + 10);
+
+            m_MsgBox = new MessageBox(m_Screen, new Vector2(150, 150), "This is a message!", "Message");
+            m_MsgBox.Visible = false;
+        }
+
+        /// <summary>
+        /// The user clicked on the login button to log in.
+        /// </summary>
+        private void BtnLogin_OnButtonClicked(object Sender, ButtonClickEventArgs E)
+        {
+            if(m_TxtUsername.Text.String != "" && m_TxtPassword.Text.String != "")
+                OnLogin?.Invoke(m_TxtUsername.Text.String, m_TxtPassword.Text.String);
+            else
+            {
+                //TODO: Show messagebox.
+            }
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
@@ -111,6 +136,8 @@ namespace Gonzo.Dialogs
 
             m_BtnLogin.Draw(SBatch, Depth + 0.1f);
             m_BtnExit.Draw(SBatch, Depth + 0.1f);
+
+            m_MsgBox.Draw(SBatch, Depth + 0.1f);
 
             base.Draw(SBatch, LayerDepth);
         }

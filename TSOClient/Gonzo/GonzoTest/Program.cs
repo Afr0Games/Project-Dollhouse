@@ -63,7 +63,8 @@ namespace GonzoTest
                 Exit = true;
             }
 
-            if(GlobalSettings.Default.ScreenWidth < 1024 || GlobalSettings.Default.ScreenHeight < 768)
+            //The minimum supported horizontal resolution is 720.
+            if(GlobalSettings.Default.ScreenWidth < 1024 || GlobalSettings.Default.ScreenHeight < 720)
             {
                 MessageBox.Show("The resolution must be minimum 1024 x 768!");
                 Exit = true;

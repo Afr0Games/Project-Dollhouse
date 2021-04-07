@@ -28,7 +28,7 @@ namespace GonzoTest
 {
     public class LoadingScreen : UIScreen
     {
-        private UIImage m_BackgroundImg;
+        private UIBackgroundImage m_BackgroundImg;
         private Tweener m_Tween;
         private Stopwatch m_Stopwatch;
         private UILabel m_LblExtrudingTerrainWeb, m_LblCalculatingDomesticCoefficients, 
@@ -49,60 +49,65 @@ namespace GonzoTest
             DateRange Christmas = new DateRange(new DateTime(Now.Year, 12, 25), new DateTime(Now.Year, 12, 30));
 
             if (!Now.IsSameDay(Halloween) && !Now.IsSameDay(Valentine) && !Now.IsSameDay(StPaddys) && !Christmas.Includes(Now))
-                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
+                m_BackgroundImg = new UIBackgroundImage("Setup", FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), 
+                    this);
             else if (Now.IsSameDay(Halloween))
-                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_halloween), this);
+                m_BackgroundImg = new UIBackgroundImage("Setup_Halloween", FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_halloween), 
+                    this);
             else if (Now.IsSameDay(Valentine))
-                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_valentine), this);
+                m_BackgroundImg = new UIBackgroundImage("Setup_Valentine", FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_valentine), 
+                    this);
             else if (Now.IsSameDay(StPaddys))
-                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_paddys_day), this);
+                m_BackgroundImg = new UIBackgroundImage("Setup_PaddysDay", FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_paddys_day), 
+                    this);
             else if (Christmas.Includes(Now))
-                m_BackgroundImg = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_xmas), this);
+                m_BackgroundImg = new UIBackgroundImage("Setup_Xmas", FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup_xmas), 
+                    this);
 
             m_Txt = StringManager.StrTable(155);
 
-            m_LblExtrudingTerrainWeb = new UILabel(m_Txt[5], 1, new Vector2(GlobalSettings.Default.ScreenWidth,
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12),
+            m_LblExtrudingTerrainWeb = new UILabel(m_Txt[5], 1, new Vector2(Resolution.ScreenArea.Width,
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12),
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblExtrudingTerrainWeb.Visible = false;
 
-            m_LblCalculatingDomesticCoefficients = new UILabel(m_Txt[6], 1, new Vector2(GlobalSettings.Default.ScreenWidth, 
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
+            m_LblCalculatingDomesticCoefficients = new UILabel(m_Txt[6], 1, new Vector2(Resolution.ScreenArea.Width, 
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblCalculatingDomesticCoefficients.Visible = false;
 
-            m_LblReadjustingCareerLadder = new UILabel(m_Txt[7], 1, new Vector2(GlobalSettings.Default.ScreenWidth, 
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
+            m_LblReadjustingCareerLadder = new UILabel(m_Txt[7], 1, new Vector2(Resolution.ScreenArea.Width, 
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblReadjustingCareerLadder.Visible = false;
 
-            m_LblAccessingMoneySupply = new UILabel(m_Txt[8], 1, new Vector2(GlobalSettings.Default.ScreenWidth, 
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
+            m_LblAccessingMoneySupply = new UILabel(m_Txt[8], 1, new Vector2(Resolution.ScreenArea.Width, 
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblAccessingMoneySupply.Visible = false;
 
-            m_LblHackingTheSocialNetwork = new UILabel(m_Txt[9], 1, new Vector2(GlobalSettings.Default.ScreenWidth,
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12),
+            m_LblHackingTheSocialNetwork = new UILabel(m_Txt[9], 1, new Vector2(Resolution.ScreenArea.Width,
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12),
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblHackingTheSocialNetwork.Visible = false;
 
-            m_LblDownloadingReticulatedSplines = new UILabel(m_Txt[10], 1, new Vector2(GlobalSettings.Default.ScreenWidth,
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12),
+            m_LblDownloadingReticulatedSplines = new UILabel(m_Txt[10], 1, new Vector2(Resolution.ScreenArea.Width,
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12),
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblDownloadingReticulatedSplines.Visible = false;
 
-            m_LblAdjustingEmotionalWeights = new UILabel(m_Txt[11], 1, new Vector2(GlobalSettings.Default.ScreenWidth, 
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
+            m_LblAdjustingEmotionalWeights = new UILabel(m_Txt[11], 1, new Vector2(Resolution.ScreenArea.Width,
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblAdjustingEmotionalWeights.Visible = false;
 
-            m_LblCalibratingPersonalityMatrix = new UILabel(m_Txt[12], 1, new Vector2(GlobalSettings.Default.ScreenWidth,
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12),
+            m_LblCalibratingPersonalityMatrix = new UILabel(m_Txt[12], 1, new Vector2(Resolution.ScreenArea.Width,
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12),
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblCalibratingPersonalityMatrix.Visible = false;
 
-            m_LblSettingUpPersonfinder = new UILabel(m_Txt[13], 1, new Vector2(GlobalSettings.Default.ScreenWidth, 
-                GlobalSettings.Default.ScreenHeight - 24), new Vector2(12, 12), 
+            m_LblSettingUpPersonfinder = new UILabel(m_Txt[13], 1, new Vector2(Resolution.ScreenArea.Width,
+                Resolution.ScreenArea.Height - 50), new Vector2(12, 12), 
                 Color.FromNonPremultiplied(255, 249, 157, 255), 12, this);
             m_LblSettingUpPersonfinder.Visible = false;
 
@@ -116,7 +121,7 @@ namespace GonzoTest
 
             m_Tween = new Tweener();
             m_Tween.Tween(m_LblExtrudingTerrainWeb, 
-                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 }, 7);
+                new { XPosition = (float)Resolution.ScreenArea.Width / 2 }, 7);
         }
 
         private void CacheResources()
@@ -396,7 +401,7 @@ namespace GonzoTest
             m_Tween.Tween(m_LblExtrudingTerrainWeb, 
                 new { XPosition = (0 - Font12px.MeasureString(m_LblExtrudingTerrainWeb.Caption).X) }, 7);
             m_Tween.Tween(m_LblCalculatingDomesticCoefficients, 
-                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                new { XPosition = (float)Resolution.ScreenArea.Width / 2 -
                 (Font12px.MeasureString(m_LblCalculatingDomesticCoefficients.Caption).X / 2) }, 7);
 
             m_LblCalculatingDomesticCoefficients.Visible = true;
@@ -406,7 +411,7 @@ namespace GonzoTest
         {
             m_Tween.Tween(m_LblCalculatingDomesticCoefficients, 
                 new { XPosition = (0 - Font12px.MeasureString(m_LblCalculatingDomesticCoefficients.Caption).X) }, 10);
-            m_Tween.Tween(m_LblReadjustingCareerLadder, new { XPosition = GlobalSettings.Default.ScreenWidth / 2 -
+            m_Tween.Tween(m_LblReadjustingCareerLadder, new { XPosition = Resolution.ScreenArea.Width / 2 -
                 (Font12px.MeasureString(m_LblReadjustingCareerLadder.Caption).X / 2) }, 10);
 
             m_LblExtrudingTerrainWeb.Visible = false;
@@ -417,7 +422,7 @@ namespace GonzoTest
         {
             m_Tween.Tween(m_LblReadjustingCareerLadder, 
                 new { XPosition = (0 - Font12px.MeasureString(m_LblReadjustingCareerLadder.Caption).X) }, 13);
-            m_Tween.Tween(m_LblAccessingMoneySupply, new { XPosition = GlobalSettings.Default.ScreenWidth / 2 -
+            m_Tween.Tween(m_LblAccessingMoneySupply, new { XPosition = Resolution.ScreenArea.Width / 2 -
                 (Font12px.MeasureString(m_LblAccessingMoneySupply.Caption).X / 2) }, 13);
 
             m_LblCalculatingDomesticCoefficients.Visible = false;
@@ -429,7 +434,7 @@ namespace GonzoTest
             m_Tween.Tween(m_LblAccessingMoneySupply, 
                 new { XPosition = (0 - Font12px.MeasureString(m_LblAccessingMoneySupply.Caption).X) }, 16);
             m_Tween.Tween(m_LblHackingTheSocialNetwork, 
-                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                new { XPosition = (float)Resolution.ScreenArea.Width / 2 -
                 (Font12px.MeasureString(m_LblHackingTheSocialNetwork.Caption).X / 2) }, 16);
 
             m_LblAccessingMoneySupply.Visible = false;
@@ -441,7 +446,7 @@ namespace GonzoTest
             m_Tween.Tween(m_LblHackingTheSocialNetwork, 
                 new { XPosition = (0 - Font12px.MeasureString(m_LblHackingTheSocialNetwork.Caption).X) }, 16);
             m_Tween.Tween(m_LblDownloadingReticulatedSplines, 
-                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                new { XPosition = (float)Resolution.ScreenArea.Width / 2 -
                 (Font12px.MeasureString(m_LblDownloadingReticulatedSplines.Caption).X / 2) }, 16);
 
             m_LblReadjustingCareerLadder.Visible = false;
@@ -453,7 +458,7 @@ namespace GonzoTest
             m_Tween.Tween(m_LblDownloadingReticulatedSplines,
                 new { XPosition = (0 - Font12px.MeasureString(m_LblDownloadingReticulatedSplines.Caption).X) }, 30);
             m_Tween.Tween(m_LblAdjustingEmotionalWeights, 
-                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                new { XPosition = (float)Resolution.ScreenArea.Width / 2 -
                 (Font12px.MeasureString(m_LblAdjustingEmotionalWeights.Caption).X / 2) }, 30);
 
             m_LblHackingTheSocialNetwork.Visible = false;
@@ -465,7 +470,7 @@ namespace GonzoTest
             m_Tween.Tween(m_LblAdjustingEmotionalWeights, 
                 new { XPosition = (0 - Font12px.MeasureString(m_LblAdjustingEmotionalWeights.Caption).X) }, 55);
             m_Tween.Tween(m_LblCalibratingPersonalityMatrix, 
-                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 -
+                new { XPosition = (float)Resolution.ScreenArea.Width / 2 -
                 (Font12px.MeasureString(m_LblCalibratingPersonalityMatrix.Caption).X / 2) }, 55);
 
             m_LblDownloadingReticulatedSplines.Visible = false;
@@ -477,7 +482,7 @@ namespace GonzoTest
             m_Tween.Tween(m_LblCalibratingPersonalityMatrix, 
                 new { XPosition = (0 - Font12px.MeasureString(m_LblCalibratingPersonalityMatrix.Caption).X) }, 55);
             m_Tween.Tween(m_LblSettingUpPersonfinder, 
-                new { XPosition = (float)GlobalSettings.Default.ScreenWidth / 2 - 
+                new { XPosition = (float)Resolution.ScreenArea.Width / 2 - 
                 (Font12px.MeasureString(m_LblSettingUpPersonfinder.Caption).X / 2) }, 55);
 
             m_LblAdjustingEmotionalWeights.Visible = false;

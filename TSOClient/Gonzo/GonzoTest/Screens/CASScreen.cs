@@ -26,7 +26,7 @@ namespace GonzoTest
 {
     public class CASScreen : UIScreen
     {
-        private UIImage m_BackgroundImg;/*, m_LeftArrowImg, m_RightArrowImg, m_BodySkinButtonImg,
+        private UIBackgroundImage m_BackgroundImg;/*, m_LeftArrowImg, m_RightArrowImg, m_BodySkinButtonImg,
             m_HeadSkinButtonImg, m_CancelButtonImg, m_FemaleButtonImg, m_MaleButtonImg, m_AcceptButtonImg,
             m_ExitButtonImg, m_SkinDarkButtonImg, m_SkinLightButtonImg, m_SkinMediumButtonImg, m_ScrollbarImg,
             m_ScrollDownButtonImg, m_ScrollUpButtonImg;*/
@@ -44,11 +44,10 @@ namespace GonzoTest
         private int m_CurrentSkinType = 1;
 
         public CASScreen(ScreenManager Manager, SpriteBatch SBatch) : base(Manager, "CAS", SBatch, 
-            new Vector2(0, 0), 
-            new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight),
+            new Vector2(0, 0), new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight),
             GlobalSettings.Default.StartupPath + "\\" + "gamedata\\uiscripts\\personselectionedit.uis")
         {
-            m_BackgroundImg = (UIImage)m_PResult.Elements["\"BackgroundImage\""];
+            m_BackgroundImg = (UIBackgroundImage)m_PResult.Elements["\"BackgroundImage\""];
 
             m_CancelBtn = (UIButton)m_PResult.Elements["\"CancelButton\""];
             m_AcceptBtn = (UIButton)m_PResult.Elements["\"AcceptButton\""];

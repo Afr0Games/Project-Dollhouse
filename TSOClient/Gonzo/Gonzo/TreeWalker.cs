@@ -82,8 +82,16 @@ namespace Gonzo
             {
                 case NodeType.DefineImage: //Defines an image and loads a texture for it.
                     DefineImageNode ImgNode = (DefineImageNode)UINode.GetNode(node);
-                    UIImage Img = new UIImage(ImgNode, m_Screen);
-                    Result.Elements.Add(ImgNode.Name, Img);
+                    if (string.CompareOrdinal(ImgNode.Name, "\"BackgroundImage\"") == 0)
+                    {
+                        UIBackgroundImage Img = new UIBackgroundImage(ImgNode, m_Screen);
+                        Result.Elements.Add(ImgNode.Name, Img);
+                    }
+                    else
+                    {
+                        UIImage Img = new UIImage(ImgNode, m_Screen);
+                        Result.Elements.Add(ImgNode.Name, Img);
+                    }
                     break;
                 case NodeType.DefineString: //Defines a string with a name.
                     DefineStringNode StrNode = (DefineStringNode)UINode.GetNode(node);

@@ -36,29 +36,29 @@ namespace Gonzo.Dialogs
 
             //cityselprotocolstrings.cst
             m_Cst = StringManager.StrTable(210);
+            float Width = (m_Font.MeasureString(m_Cst[1]).X + 100);
 
             Vector2 RelativePosition = new Vector2(60, 0);
             m_LblTitle = new UILabel(m_Cst[1], 1, Pos + RelativePosition, m_Font.MeasureString(m_Cst[1]),
                 m_Screen.StandardTxtColor, 11, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
 
-            RelativePosition = new Vector2(20, 55);
+            RelativePosition = new Vector2(20, 40);
             m_LblProgress = new UILabel(m_Cst[2], 1, Pos + RelativePosition,
                 new Vector2(300, 20), Color.Wheat, 9, m_Screen, this, UIParser.Nodes.TextAlignment.Left_Center);
 
-            RelativePosition = new Vector2(20, 85);
+            RelativePosition = new Vector2(20, 70);
             m_ProgressBar = new UIProgressBar(m_Screen, Pos + RelativePosition, 300, this);
             RegistrableUIElements.Add("ProgressBar", m_ProgressBar);
 
-            RelativePosition = new Vector2(20, 115);
+            RelativePosition = new Vector2(20, 100);
             m_LblCurrentTask = new UILabel(m_Cst[3], 1, Pos + RelativePosition,
                 new Vector2(300, 20), Color.Wheat, 9, m_Screen, this, UIParser.Nodes.TextAlignment.Left_Center);
 
-            RelativePosition = new Vector2(20, 145);
+            RelativePosition = new Vector2(20, 130);
             m_StatusBar = new UIStatusBar(m_Screen, Pos + RelativePosition, 300, this);
             RegistrableUIElements.Add("StatusBar", m_ProgressBar);
 
-            SetSize((int)((m_Font.MeasureString(m_Cst[1]).X + 100) * m_Screen.Manager.Resolution.ScalingRatio), 
-                (int)(175) * m_Screen.Manager.Resolution.ScalingRatio);
+            SetSize((Width < m_StatusBar.Size.X) ? (m_StatusBar.Size.X + (RelativePosition.X * 2)) : Width, 175);
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
