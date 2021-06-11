@@ -333,7 +333,7 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
-        /// Rescales this NinwSlicer to the specified width and height.
+        /// Rescales this NineSlicer to the specified width and height.
         /// </summary>
         /// <param name="width">Width to scale to.</param>
         /// <param name="height">Height to scale to.</param>
