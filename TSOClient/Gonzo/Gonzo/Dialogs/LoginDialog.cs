@@ -25,10 +25,8 @@ namespace Gonzo.Dialogs
     public class LoginDialog : UIDialog, IDisposable
     {
         private UILabel m_LblTitle, m_LblUsername, m_LblPassword;
-        private MonoGame_Textbox.Cursor m_Cursor;
         private TextBox m_TxtUsername, m_TxtPassword;
         private UIButton m_BtnLogin, m_BtnExit;
-        private MessageBox m_MsgBox;
 
         private CaretSeparatedText m_Cst;
 
@@ -48,33 +46,41 @@ namespace Gonzo.Dialogs
             Vector2 RelativePosition = new Vector2(45, 0);
             m_LblTitle = new UILabel(m_Cst[1], 1, Pos + RelativePosition, m_Font.MeasureString(m_Cst[1]),
                 m_Screen.StandardTxtColor, 11, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
+            m_LblTitle.DrawOrder = (int)DrawOrderEnum.UI;
             RelativePosition = new Vector2(20, 50);
             m_LblUsername = new UILabel(m_Cst[4], 2, Pos + RelativePosition, m_Font.MeasureString(m_Cst[4]), 
                 m_Screen.StandardTxtColor, 9, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
+            m_LblUsername.DrawOrder = (int)DrawOrderEnum.UI;
             RelativePosition = new Vector2(20, 110);
             m_LblPassword = new UILabel(m_Cst[5], 3, Pos + RelativePosition, m_Font.MeasureString(m_Cst[4]), 
                 m_Screen.StandardTxtColor, 9, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
+            m_LblPassword.DrawOrder = (int)DrawOrderEnum.UI;
 
             RelativePosition = new Vector2(20, 85);
-            m_TxtUsername = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), (int)(Pos.Y + RelativePosition.Y), 
-                230, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, Color.White, 30, m_Screen, true, this);
+            m_TxtUsername = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), 
+                (int)(Pos.Y + RelativePosition.Y), 230, 25), 64, "", m_Screen.Manager.Graphics, 9, 
+                Color.Wheat, Color.White, 30, m_Screen, true, this);
+            m_TxtUsername.DrawOrder = (int)DrawOrderEnum.UI;
             RelativePosition = new Vector2(20, 145);
-            m_TxtPassword = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), (int)(Pos.Y + RelativePosition.Y),
-                230, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, Color.White, 30, m_Screen, true, this);
+            m_TxtPassword = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), 
+                (int)(Pos.Y + RelativePosition.Y), 230, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, 
+                Color.White, 30, m_Screen, true, this);
+            m_TxtPassword.DrawOrder = (int)DrawOrderEnum.UI;
 
             KeyboardInput.Initialize(Screen.Manager, 500f, 20);
 
             RelativePosition = new Vector2(120, 175);
             m_BtnLogin = new UIButton("BtnLogin", Pos + RelativePosition, m_Screen, null, m_Cst[2], 9, true, this);
             m_BtnLogin.OnButtonClicked += BtnLogin_OnButtonClicked;
+            m_BtnLogin.DrawOrder = (int)DrawOrderEnum.UI;
 
             RelativePosition = new Vector2(200, 175);
             m_BtnExit = new UIButton("BtnExit", Pos + RelativePosition, m_Screen, null, m_Cst[3], 9, true, this);
+            m_BtnExit.DrawOrder = (int)DrawOrderEnum.UI;
 
             SetSize((int)(50 + m_Font.MeasureString(m_Cst[1]).X + 40), m_DefaultSize.Y + m_BtnExit.Size.Y + 10);
 
-            m_MsgBox = new MessageBox(m_Screen, new Vector2(150, 150), "This is a message!", "Message");
-            m_MsgBox.Visible = false;
+            this.DrawOrder = (int)DrawOrderEnum.UI;
         }
 
         /// <summary>
@@ -82,12 +88,7 @@ namespace Gonzo.Dialogs
         /// </summary>
         private void BtnLogin_OnButtonClicked(object Sender, ButtonClickEventArgs E)
         {
-            if(m_TxtUsername.Text.String != "" && m_TxtPassword.Text.String != "")
-                OnLogin?.Invoke(m_TxtUsername.Text.String, m_TxtPassword.Text.String);
-            else
-            {
-                //TODO: Show messagebox.
-            }
+            OnLogin?.Invoke(m_TxtUsername.Text.String, m_TxtPassword.Text.String);
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
@@ -136,8 +137,6 @@ namespace Gonzo.Dialogs
 
             m_BtnLogin.Draw(SBatch, Depth + 0.1f);
             m_BtnExit.Draw(SBatch, Depth + 0.1f);
-
-            m_MsgBox.Draw(SBatch, Depth + 0.1f);
 
             base.Draw(SBatch, LayerDepth);
         }

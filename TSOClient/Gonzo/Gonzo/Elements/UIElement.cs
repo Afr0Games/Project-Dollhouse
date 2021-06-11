@@ -10,6 +10,7 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -30,7 +31,7 @@ namespace Gonzo.Elements
     /// UIElement is the base class for all UI related elements (UIButton, UIControl, 
     /// UIDialog, UIImage, UILabel, UISlider, UITextEdit).
     /// </summary>
-    public class UIElement
+    public class UIElement : DrawableGameComponent
     {
         protected UIElement m_Parent;
         protected UIScreen m_Screen;
@@ -95,7 +96,8 @@ namespace Gonzo.Elements
 
         public int Tracking, Trigger;
 
-        public bool Visible = true;
+        //Not needed - already implemented in DrawableGameComponent.
+        //public bool Visible = true;
 
         protected List<UIElement> m_Drawables = new List<UIElement>();
         protected List<UIElement> m_DrawablesInOrder = new List<UIElement>();
@@ -183,13 +185,14 @@ namespace Gonzo.Elements
         /// <summary>
         /// Constructs an instance of UIElement.
         /// </summary>
-        /// <param name="Name">A Screen instance.</param>
+        /// <param name="Name">The name of this UIElement.</param>
         /// <param name="Position">The position of this UIElement. 
         /// The position of the parent will be added to it if Parent isn't null.</param>
         /// <param name="Size">The size of this UIElement.</param>
         /// <param name="Screen">A Screen instance.</param>
         /// <param name="Parent">(Optional) UIElement that acts as a parent.</param>
-        public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null)
+        public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null) :
+            base(Screen.Manager.GameInstance)
         {
             this.Name = Name;
             m_Size = Size;
@@ -211,13 +214,15 @@ namespace Gonzo.Elements
         /// <param name="Screen">A Screen instance.</param>
         /// <param name="Parent">(Optional) UIElement that acts as a parent.</param>
         /// <param name="Path"> (Optional) Path to a UI script that will create this UI element.</param>
-        public UIElement(UIScreen Screen, UIElement Parent = null, string Path = "")
+        public UIElement(UIScreen Screen, UIElement Parent = null, string Path = "") : 
+            base(Screen.Manager.GameInstance)
         {
             m_Screen = Screen;
 
             if (Parent != null)
             {
                 m_Parent = Parent;
+                DrawOrder = Parent.DrawOrder;
                 m_Position += Parent.m_Position;
             }
             else
@@ -233,6 +238,8 @@ namespace Gonzo.Elements
         public void AddParent(UIElement Parent)
         {
             m_Parent = Parent;
+            DrawOrder = Parent.DrawOrder;
+            m_Position += Parent.m_Position;
             UIDialog Dialog = (UIDialog)Parent;
             Dialog.OnDragged += Dialog_OnDragged;
         }
@@ -321,6 +328,39 @@ namespace Gonzo.Elements
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// A unique hash code for this UIElement instance.
+        /// </summary>
+        /// <returns>The hash code.</returns>
+        public override int GetHashCode()
+        {
+            if (m_ID != 0) //This isn't always assigned by Ui scripts... because Maxis. >_>
+                return m_ID;
+            else
+                return Guid.NewGuid().GetHashCode();
+        }
+
+        /// <summary>
+        /// This override is used by UIScreen.AddElement to
+        /// make sure UIElement instances are unique before
+        /// adding them.
+        /// </summary>
+        /// <param name="obj">The object (UIElement) to compare with.</param>
+        /// <returns>True if the UIElement is equal to object, false if not.</returns>
+        public override bool Equals(object Obj)
+        {
+            //Check for null and compare run-time types.
+            if ((Obj == null) || !this.GetType().Equals(Obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                UIElement E = (UIElement)Obj;
+                return (GetHashCode() == E.GetHashCode());
+            }
         }
     }
 }

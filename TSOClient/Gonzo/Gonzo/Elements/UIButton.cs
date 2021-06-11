@@ -68,6 +68,8 @@ namespace Gonzo.Elements
             m_ID = Node.ID;
             m_Screen = Screen;
 
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
+
             if (!Result.State.InSharedPropertiesGroup)
             {
                 if (Node.Image != null)
@@ -84,7 +86,8 @@ namespace Gonzo.Elements
                 }
                 else
                 {
-                    Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                    Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), 
+                        new Vector2(0, 0), m_Screen);
                     //Initialize to second frame in the image.
                     m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
 
@@ -113,7 +116,8 @@ namespace Gonzo.Elements
                     {
                         m_Text = Result.State.Caption;
                         //Text buttons always use this image.
-                        Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                        Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), 
+                            new Vector2(0, 0), m_Screen);
                         //Initialize to second frame in the image.
                         if(Result.State.Size == null)
                             m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);
@@ -127,7 +131,8 @@ namespace Gonzo.Elements
                         if(Node.Image != null)
                             Image = m_Screen.GetImage(Node.Image, false);
                         else
-                            Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
+                            Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), 
+                                new Vector2(0, 0), m_Screen);
                         //Initialize to second frame in the image.
                         m_SourcePosition = new Vector2((Image.Texture.Width / (4)) * 2, 0.0f);
 
@@ -291,6 +296,8 @@ namespace Gonzo.Elements
             base.Name = Name;
             Position = Pos;
 
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
+
             if (Parent != null)
             {
                 //Would a text edit ever be attached to anything but a UIDialog instance? Probably not.
@@ -299,15 +306,10 @@ namespace Gonzo.Elements
             }
 
             if (Tex != null)
-            {
-                Image = new UIImage(Tex, Screen, null);
-                Image.Position = new Vector2(Pos.X, Pos.Y);
-            }
+                Image = new UIImage(Tex, new Vector2(Pos.X, Pos.Y), Screen, null);
             else
-            {
-                Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), m_Screen);
-                Image.Position = new Vector2(Pos.X, Pos.Y);
-            }
+                Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.buttontiledialog), new Vector2(Pos.X, Pos.Y), 
+                    m_Screen);
 
             //Initialize to second frame in the image.
             m_SourcePosition = new Vector2((Image.Texture.Width / 4) * 2, 0.0f);

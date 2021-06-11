@@ -36,6 +36,8 @@ namespace Gonzo.Dialogs
 
         /// <summary>
         /// Constructs a new UIDialog instance.
+        /// NOTE: If the dialog has an exit button, IsTall NEEDS to be set to false,
+        /// otherwise it won't draw properly!!
         /// </summary>
         /// <param name="Screen">A UIScreen instance.</param>
         /// <param name="Pos">A Vector2 instance specifying the position of this dialog.</param>
@@ -59,7 +61,7 @@ namespace Gonzo.Dialogs
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
 
             m_Opacity = Opacity;
-            Image = new UIImage(Tex, Screen, null, m_Opacity);
+            Image = new UIImage(Tex, new Vector2(Pos.X, Pos.Y), Screen, null, m_Opacity);
 
             //Set the default size of the dialog.
             m_DefaultSize = new Vector2(Tex.Width, Tex.Height);
@@ -70,14 +72,14 @@ namespace Gonzo.Dialogs
             else
                 Image.Slicer = new NineSlicer(new Vector2(0, 0), Tex.Width, Tex.Height, 41, 41, 60, 40);
 
-            Image.Position = new Vector2(Pos.X, Pos.Y);
-
-            m_CloseBtnBack = new UIImage(CloseBtnBackground, Screen, null);
-            m_CloseBtnBack.Position = Position + new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 0);
+            //This needs to start drawing at 1 on the Y axis to render correctly.
+            m_CloseBtnBack = new UIImage(CloseBtnBackground, 
+                new Vector2(Image.Slicer.Width - CloseBtnBackground.Width, 1), Screen, this, m_Opacity);
 
             Texture2D CloseButtonTex = FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
             m_CloseButton = new UIButton("CloseBtn", 
-                Position + new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex);
+                new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex, "", 9, 
+                true,  this);
             m_CloseButton.OnButtonClicked += CloseButton_OnButtonClicked;
         }
 
@@ -133,7 +135,8 @@ namespace Gonzo.Dialogs
 
                         if (m_HasExitBtn)
                         {
-                            Vector2 OffsetFromMouse = new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 0);
+                            //This needs to start drawing at 1 on the Y axis to render correctly.
+                            Vector2 OffsetFromMouse = new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 1);
                             m_CloseBtnBack.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
 
                             OffsetFromMouse = new Vector2(Image.Slicer.Width - (m_CloseButton.Image.Texture.Width / 2.5f), 9f);
@@ -192,8 +195,9 @@ namespace Gonzo.Dialogs
                 Image.DrawTextureTo(SBatch, null, Image.Slicer.TLeft, Image.Position + Vector2.Zero, Depth);
                 Image.DrawTextureTo(SBatch, Image.Slicer.TCenter_Scale, Image.Slicer.TCenter, Image.Position + 
                     new Vector2(Image.Slicer.LeftPadding, 0), Depth);
-                Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + 
-                    new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
+                if(!m_HasExitBtn)
+                    Image.DrawTextureTo(SBatch, null, Image.Slicer.TRight, Image.Position + 
+                        new Vector2(Image.Slicer.Width - Image.Slicer.RightPadding, 0), Depth);
 
                 Image.DrawTextureTo(SBatch, Image.Slicer.CLeft_Scale, Image.Slicer.CLeft, Image.Position + 
                     new Vector2(0, Image.Slicer.TopPadding), null);

@@ -492,8 +492,13 @@ namespace Sound
                 if (m_ASound != null)
                     m_ASound.Dispose();
 
-                if(m_StreamingTask != null)
+                //Short answer: Don't bother disposing of your tasks.
+                //https://devblogs.microsoft.com/pfxteam/do-i-need-to-dispose-of-tasks/
+                /*if (m_StreamingTask != null)
+                {
+                    m_StreamingTask.Wait();
                     m_StreamingTask.Dispose();
+                }*/
 
                 // Prevent the finalizer from calling ~SoundPlayer, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);

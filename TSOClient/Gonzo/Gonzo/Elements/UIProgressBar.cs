@@ -52,9 +52,9 @@ namespace Gonzo.Elements
             }
 
             m_ProgressBarBack = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback), 
-                Screen, null, 0.800f);
+                new Vector2(0, 0), Screen, null, 0.800f);
             m_ProgressBarFront = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront), 
-                Screen, null, 0.800f);
+                new Vector2(0, 0), Screen, null, 0.800f);
 
             string InitialValue = m_ProgressInPercentage.ToString() + " %";
 

@@ -21,6 +21,9 @@ using log4net;
 
 namespace Gonzo.Elements
 {
+    /// <summary>
+    /// From: _210_cityselprotocolstrings.cst
+    /// </summary>
     public enum LoginProcess
     {
         /// <summary>
@@ -34,19 +37,113 @@ namespace Gonzo.Elements
         Attempting = 5,
 
         /// <summary>
-        /// EA.COM authorization successful.
-        /// </summary>
-        Successful = 6,
-
-        /// <summary>
         /// Initial server connection. Authorizing user...
         /// </summary>
         Initial = 7,
 
         /// <summary>
-        /// Server connected. User authorized.
+        /// Loading Sim and City data...
         /// </summary>
-        Connected = 8
+        Loading = 22,
+
+        /// <summary>
+        /// Done loading data.
+        /// </summary>
+        DoneLoading = 23,
+
+        /// <summary>
+        /// EA.com is temporarily unavailable. 
+        /// This may be due to routine server 
+        /// maintenance or other network issues. 
+        /// Please try again later.
+        /// </summary>
+        Unavailable = 36,
+
+        /// <summary>
+        /// EA.COM authorization unsuccessful.
+        /// </summary>
+        Unsucessful = 39,
+
+        /// <summary>
+        /// Connection Failed.  Shutting Down.
+        /// </summary>
+        ConnectionFailed = 41
+    }
+
+    /// <summary>
+    /// From: _251_connectprogressdialog.cst
+    /// </summary>
+    public enum CityLoginProcess
+    {
+        /// <summary>
+        /// Starting engines
+        /// </summary>
+        SelectedCity = 4,
+
+        /// <summary>
+        /// Talking with the mothership
+        /// </summary>
+        ConnectingToCitySelector = 5,
+
+        /// <summary>
+        /// Mapping information superhighway
+        /// </summary>
+        ProcessingXMLResponse = 6,
+
+        /// <summary>
+        /// Sterilizing TCP/IP sockets
+        /// </summary>
+        ConnectingToCity = 7,
+
+        /// <summary>
+        /// Sockets sterilized
+        /// </summary>
+        ConnectionEstablished = 8,
+
+        /// <summary>
+        /// Reticulating spleens
+        /// </summary>
+        AskingForAvatarDataFromDB = 9,
+
+        /// <summary>
+        /// Spleens Reticulated
+        /// </summary>
+        ReceivedAvatarData = 10,
+
+        /// <summary>
+        /// Purging psychographic metrics
+        /// </summary>
+        AskingForCharacterDataFromDB = 11,
+
+        /// <summary>
+        /// Metrics Purged
+        /// </summary>
+        ReceivedCharacterDataFromDB = 12,
+
+        /// <summary>
+        /// Pressurizing peer network
+        /// </summary>
+        AskingForRelationshipDatafromDB = 13,
+
+        /// <summary>
+        /// Network pressurized
+        /// </summary>
+        ReceivedRelationshipDataFromDB = 13,
+
+        /// <summary>
+        /// Aligning social agendas
+        /// </summary>
+        AskingForReverseRelationshipDataFromDB = 14,
+
+        /// <summary>
+        /// Agendas aligned
+        /// </summary>
+        ReceivedReverseRelationshipDataFromDB = 15,
+
+        /// <summary>
+        /// Preparing cartography
+        /// </summary>
+        LoadingCityMap = 16
     }
 
     /// <summary>
@@ -58,7 +155,7 @@ namespace Gonzo.Elements
         private UILabel m_LblCurrentStatus;
         private CaretSeparatedText m_CSTCurrentStatus;
         private int m_ProgressInPercentage = 0;
-        public int TotalProgressInPercentage = 100; //This should never need to change...
+        private int m_TotalProgressInPercentage = 100; //This should never need to change...
 
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -82,9 +179,9 @@ namespace Gonzo.Elements
             }
 
             m_ProgressBarBack = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback),
-                Screen, null, 0.800f);
+                new Vector2(0, 0), Screen, null, 0.800f);
             m_ProgressBarFront = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarfront),
-                Screen, null, 0.800f);
+                new Vector2(0, 0), Screen, null, 0.800f);
 
             string InitialValue = m_ProgressInPercentage.ToString() + " %";
 
@@ -104,6 +201,25 @@ namespace Gonzo.Elements
         public void UpdateStatus(LoginProcess CurrentProcess)
         {
             m_LblCurrentStatus.Caption = m_CSTCurrentStatus[(int)CurrentProcess];
+
+            switch(CurrentProcess)
+            {
+                case LoginProcess.Authorizing:
+                    m_ProgressInPercentage = 0;
+                    break;
+                case LoginProcess.Attempting:
+                    m_ProgressInPercentage = 25;
+                    break;
+                case LoginProcess.Initial:
+                    m_ProgressInPercentage = 50;
+                    break;
+                case LoginProcess.Loading:
+                    m_ProgressInPercentage = 75;
+                    break;
+                case LoginProcess.DoneLoading:
+                    m_ProgressInPercentage = 100;
+                    break;
+            }
         }
 
         /// <summary>

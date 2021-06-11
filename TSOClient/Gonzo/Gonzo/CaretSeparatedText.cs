@@ -45,7 +45,18 @@ namespace Gonzo
                 if (!CaretString.Contains("^")) //Comments
                     continue;
 
-                if(SplitString)
+                if (CaretString.EndsWith("^", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    m_Strings.Add(ID, SanitizeString(CaretString));
+                    ID++;
+                }
+                else
+                {
+                    UnfinishedString = SanitizeString(CaretString);
+                    SplitString = true;
+                }
+
+                if (SplitString)
                 {
                     if (CaretString.EndsWith("^"))
                     {
@@ -58,17 +69,6 @@ namespace Gonzo
                         UnfinishedString += CaretString;
 
                     continue;
-                }
-
-                if (CaretString.EndsWith("^", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    m_Strings.Add(ID, SanitizeString(CaretString));
-                    ID++;
-                }
-                else
-                {
-                    UnfinishedString = SanitizeString(CaretString);
-                    SplitString = true;
                 }
             }
         }

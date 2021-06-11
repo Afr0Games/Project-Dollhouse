@@ -26,8 +26,6 @@ namespace Gonzo.Elements
     public class UIBackgroundImage : UIElement, IDisposable
     {
         public Texture2D Texture;
-        private bool m_Loaded = false;
-        public bool Loaded { get { return m_Loaded; } }
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private float m_Opacity;
@@ -50,8 +48,8 @@ namespace Gonzo.Elements
         {
             Texture = Tex;
             m_Opacity = Opacity;
-
-            m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game;
+            Visible = true;
         }
 
         /// <summary>
@@ -64,9 +62,9 @@ namespace Gonzo.Elements
         {
             Name = Node.Name;
             Texture = FileManager.Instance.GetTexture(ulong.Parse(Node.AssetID, System.Globalization.NumberStyles.HexNumber));
-
             m_Opacity = Opacity;
-            m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game;
+            Visible = true;
         }
 
         /// <summary>
@@ -78,7 +76,8 @@ namespace Gonzo.Elements
             Name = Image.Name;
             Texture = Image.Texture;
             Position = Image.Position;
-            m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game;
+            Visible = true;
         }
 
         /// <summary>
@@ -97,116 +96,17 @@ namespace Gonzo.Elements
             }
         }
 
-        /// <summary>
-        /// Draws this UIImage to the screen.
-        /// </summary>
-        /// <param name="SBatch">A SpriteBatch instance to draw with.</param>
-        /// <param name="SourceRect">A rectangle controlling which part of the image to draw. May be null.</param>
-        public override void Draw(SpriteBatch SBatch, Rectangle? SourceRect, float? LayerDepth)
+        public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
             float Depth;
+
             if (LayerDepth != null)
                 Depth = (float)LayerDepth;
             else
-                Depth = 0.0f;
+                Depth = 0.10f;
 
-            if (Visible)
-            {
-                Rectangle DrawRect = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
-                Color Clr = new Color(Color.White.R, Color.White.G, Color.White.B, m_Opacity);
-
-                if (SourceRect != null)
-                {
-                    SBatch.Draw(Texture, DrawRect, SourceRect, Clr, 0.0f, new Vector2(0.0f, 0.0f),
-                        SpriteEffects.None, Depth);
-                }
-                else
-                {
-                    SBatch.Draw(Texture, DrawRect, null, Clr, 0.0f, new Vector2(0.0f, 0.0f),
-                        SpriteEffects.None, Depth);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Draws this UIBackgroundImage to the screen.
-        /// </summary>
-        /// <param name="SBatch">A SpriteBatch instance to draw with.</param>
-        /// <param name="DestinationRect">The drawing bounds on screen.</param>
-        /// <param name="SourceRect">A rectangle controlling which part of the image to draw. May be null.</param>
-        /// <param name="LayerDepth">The depth at which this UIImage will be drawn.</param>
-        public override void Draw(SpriteBatch SBatch, Rectangle? DestinationRect, Rectangle? SourceRect, 
-            float? LayerDepth)
-        {
-            float Depth;
-            if (LayerDepth != null)
-                Depth = (float)LayerDepth;
-            else
-                Depth = 0.0f;
-
-            if (Visible)
-            {
-                Rectangle DrawRect = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
-                Color Clr = new Color(Color.White.R, Color.White.G, Color.White.B, m_Opacity);
-
-                if (SourceRect != null)
-                {
-                    if (DestinationRect != null)
-                    {
-                        SBatch.Draw(Texture, (Rectangle)DestinationRect, SourceRect, Clr, 0.0f, new Vector2(0.0f, 0.0f),
-                            SpriteEffects.None, Depth);
-                    }
-                    else
-                    {
-                        SBatch.Draw(Texture, DrawRect, SourceRect, Clr, 0.0f, new Vector2(0.0f, 0.0f),
-                            SpriteEffects.None, Depth);
-                    }
-                }
-                else
-                {
-                    if (DestinationRect != null)
-                    {
-                        SBatch.Draw(Texture, (Rectangle)DestinationRect, null, Clr, 0.0f, new Vector2(0.0f, 0.0f),
-                            SpriteEffects.None, Depth);
-                    }
-                    else
-                    {
-                        SBatch.Draw(Texture, DrawRect, null, Clr, 0.0f, new Vector2(0.0f, 0.0f),
-                            SpriteEffects.None, Depth);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Draws this UIBackgroundImage to the screen.
-        /// </summary>
-        /// <param name="SBatch">A SpriteBatch instance to draw with.</param>
-        /// <param name="SourceRect">A rectangle controlling which part of the image to draw. May be null.</param>
-        /// <param name="LayerDepth">Depth at which to draw, may be null.</param>
-        /// <param name="ScaleFactor">Scale at which to draw, may be null.</param>
-        public override void Draw(SpriteBatch SBatch, Rectangle? SourceRect, float? LayerDepth, Vector2? ScaleFactor)
-        {
-            float Depth;
-            if (LayerDepth != null)
-                Depth = (float)LayerDepth;
-            else
-                Depth = 0.0f;
-
-            Vector2 Scale;
-            if (ScaleFactor != null)
-                Scale = (Vector2)ScaleFactor;
-            else
-                Scale = new Vector2(1.0f, 1.0f);
-
-            if (Visible)
-            {
-                Rectangle DrawRect = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
-                Color Clr = new Color(Color.White.R, Color.White.G, Color.White.B, m_Opacity);
-
-                SBatch.Draw(Texture, Position, SourceRect, Clr, 0.0f, 
-                    new Vector2(0.0f, 0.0f), Scale, SpriteEffects.None, Depth);
-            }
+            SBatch.Draw(Texture, new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height), 
+                null, Color.White, 0.0f, new Vector2(0, 0), SpriteEffects.None, Depth);
         }
 
         /// <summary>

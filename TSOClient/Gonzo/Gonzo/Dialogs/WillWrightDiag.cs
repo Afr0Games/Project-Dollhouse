@@ -12,9 +12,13 @@ namespace Gonzo.Dialogs
         public WillWrightDiag(UIImage Img, UIScreen Screen, Vector2 Position) : base(Screen, Position, true, true, true)
         {
             m_WillWrightImg = Img;
-            m_WillWrightImg.Position = Position;
+            m_WillWrightImg.AddParent(this);
+            CenterAround(m_WillWrightImg, /*-22*/(Screen.Manager.Resolution.ScreenArea.X + (int)Size.X) / 2,
+                /*-42*/(Screen.Manager.Resolution.ScreenArea.Y + (int)Size.Y) / 2);
             Image.SetSize(m_WillWrightImg.Texture.Width + 50, m_WillWrightImg.Texture.Height + 55);
-            CenterAround(m_WillWrightImg, -22, -42);
+            m_Font = m_Screen.Manager.Font9px; //Needs to be set for debug purposes.
+
+            DrawOrder = (int)DrawOrderEnum.MessageBoxes;
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
@@ -22,7 +26,10 @@ namespace Gonzo.Dialogs
             if (Visible)
             {
                 if (m_DoDrag)
-                    m_WillWrightImg.Position = Position - new Vector2(-22, -42);
+                {
+                    Vector2 OffsetFromMouse = new Vector2(22, 42);
+                    m_WillWrightImg.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
+                }
             }
 
             base.Update(Helper, GTime);

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Shared;
 using Gonzo;
 using Gonzo.Elements;
@@ -97,6 +96,7 @@ namespace GonzoTest
             m_ExitDialog = new ExitDialog(this, new Vector2(250, 250), m_Walker, 
                 GlobalSettings.Default.StartupPath + "gamedata\\uiscripts\\exitdialog.uis");
             m_ExitDialog.Visible = false;
+            RegisterElement(m_ExitDialog);
 
             m_EnterTabBtn1 = (UIButton)m_PResult.Elements["\"EnterTabButton1\""];
             m_EnterTabBtn1.OnButtonClicked += EnterTabBtn1_OnButtonClicked;
@@ -190,6 +190,9 @@ namespace GonzoTest
             m_HouseNameText3 = (UILabel)m_PResult.Elements["\"HouseNameText3\""];
 
             m_CreditsButton = (UIButton)m_PResult.Elements["\"CreditsButton\""];
+
+            foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
+                RegisterElement(KVP.Value);
         }
 
         /// <summary>
@@ -389,55 +392,7 @@ namespace GonzoTest
 
             base.Draw();
 
-            m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
-
-            TabBackgroundImg1.Draw(m_SBatch, null, 0.5f);
-            TabBackgroundImg2.Draw(m_SBatch, null, 0.5f);
-            TabBackgroundImg3.Draw(m_SBatch, null, 0.5f);
-
-            DescriptionTabBackgroundImg1.Draw(m_SBatch, null, 0.7f);
-            DescriptionTabImage1.Draw(m_SBatch, null, 0.7f);
-
-            EnterTabBackgroundImage1.Draw(m_SBatch, null, 0.5f);
-            EnterTabImage1.Draw(m_SBatch, null, 0.5f);
-
-            DescriptionTabBackgroundImg2.Draw(m_SBatch, null, 0.7f);
-            DescriptionTabImage2.Draw(m_SBatch, null, 0.7f);
-
-            EnterTabBackgroundImage2.Draw(m_SBatch, null, 0.5f);
-            EnterTabImage2.Draw(m_SBatch, null, 0.5f);
-
-            DescriptionTabBackgroundImg3.Draw(m_SBatch, null, 0.7f);
-            DescriptionTabImage3.Draw(m_SBatch, null, 0.7f);
-
-            EnterTabBackgroundImage3.Draw(m_SBatch, null, 0.5f);
-            EnterTabImage3.Draw(m_SBatch, null, 0.5f);
-
-            //DefaultHouseImg.Draw(m_SBatch, null, 0.0f);
-
-            CreditsBackgroundImg.Draw(m_SBatch, null, 0.0f);
-            //CityThumbnailBusyImg.Draw(m_SBatch, null, 0.0f);
-
-            m_ExitDialog.Draw(m_SBatch, 0.9f);
-
             m_SBatch.End();
-
-            foreach (UIElement Element in m_PResult.Elements.Values)
-            {
-                if (Element.NeedsClipping)
-                {
-                    RasterizerState RasterState = new RasterizerState();
-                    RasterState.ScissorTestEnable = true;
-                    RasterState.CullMode = CullMode.CullCounterClockwiseFace;
-
-                    m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null,
-                       RasterState, null, Resolution.TransformationMatrix());
-
-                    Element.Draw(m_SBatch, 0.5f);
-
-                    m_SBatch.End();
-                }
-            }
         }
     }
 }

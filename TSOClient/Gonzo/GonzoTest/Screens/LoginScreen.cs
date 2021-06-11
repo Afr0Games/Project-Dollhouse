@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Gonzo;
@@ -24,11 +25,14 @@ namespace GonzoTest
         {
             m_BackgroundImg = new UIBackgroundImage("Setup", 
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
+            RegisterElement(m_BackgroundImg);
             m_LoginDiag = new LoginDialog(this, new Vector2((Resolution.ScreenArea.Width / 2) - 150, 
                 ((Resolution.ScreenArea.Height / 2) - 150)));
+            RegisterElement(m_LoginDiag);
 
             m_LoginProgressDiag = new LoginProgressDialog(this, new Vector2(
                 (Resolution.ScreenArea.Width - 350), (Resolution.ScreenArea.Height - 150)));
+            RegisterElement(m_LoginProgressDiag);
 
             foreach (KeyValuePair<string, UIElement> KVP in m_LoginDiag.RegistrableUIElements)
                 m_PResult.Elements.Add(KVP.Key, KVP.Value);
@@ -40,6 +44,7 @@ namespace GonzoTest
 
             m_LoginDiag.OnLogin += LoginDiag_OnLogin;
             ClientNetworkManager.OnConnected += ClientNetworkManager_OnLogin;
+            ClientNetworkManager.OnNetworkError += ClientNetworkManager_OnNetworkError;
         }
 
         private void LoginDiag_OnLogin(string Username, string Password)
@@ -54,7 +59,30 @@ namespace GonzoTest
         /// <param name="LoginArgs">The arguments the user used for logging in.</param>
         private void ClientNetworkManager_OnLogin(LoginArgsContainer LoginArgs)
         {
-            //TODO: Increase progressbar in m_LoginProgressDiag.
+            m_LoginProgressDiag.UpdateStatus(LoginProcess.Initial);
+        }
+
+        private void ClientNetworkManager_OnNetworkError(System.Net.Sockets.SocketException Exception)
+        {
+            Debug.WriteLine("Got network error: " + Exception.ErrorCode);
+            switch(Exception.ErrorCode)
+            {
+                case 10050: //WSAENETDOWN
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unavailable);
+                    break;
+                case 10051: //WSAENETUNREACH
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unavailable);
+                    break;
+                case 10061: //WSAECONNREFUSED
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unavailable);
+                    break;
+                case 10064: //WSAEHOSTDOWN
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unavailable);
+                    break;
+                case 10065: //WSAEHOSTUNREACH
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unavailable);
+                    break;
+            }
         }
 
         public override void Update(InputHelper Input, GameTime GTime)

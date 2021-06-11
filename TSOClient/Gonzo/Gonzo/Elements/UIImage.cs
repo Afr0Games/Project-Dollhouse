@@ -44,9 +44,9 @@ namespace Gonzo.Elements
         {
             Name = Node.Name;
             Texture = FileManager.Instance.GetTexture(ulong.Parse(Node.AssetID, System.Globalization.NumberStyles.HexNumber));
-
             m_Opacity = Opacity;
             m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
         }
 
         /// <summary>
@@ -56,13 +56,14 @@ namespace Gonzo.Elements
         /// <param name="Screen">UIScreen instance.</param>
         /// <param name="Parent">Parent of this UIImage instance, may be null.</param>
         /// <param name="Opacity">Opacity of this UIElement. Defaults to 255.</param>
-        public UIImage(Texture2D Tex, UIScreen Screen, UIElement Parent = null, float Opacity = 255f) 
+        public UIImage(Texture2D Tex, Vector2 Pos, UIScreen Screen, UIElement Parent = null, float Opacity = 255f) 
             : base(Screen, Parent)
         {
             Texture = Tex;
+            Position = Pos;
             m_Opacity = Opacity;
-
             m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
         }
 
         /// <summary>
@@ -75,6 +76,7 @@ namespace Gonzo.Elements
             Texture = Image.Texture;
             Position = Image.Position;
             m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
         }
 
         /// <summary>
@@ -197,7 +199,6 @@ namespace Gonzo.Elements
 
             if (Visible)
             {
-                Rectangle DrawRect = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
                 Color Clr = new Color(Color.White.R, Color.White.G, Color.White.B, m_Opacity);
 
                 SBatch.Draw(Texture, Position, SourceRect, Clr, 0.0f, 
@@ -333,7 +334,7 @@ namespace Gonzo.Elements
         }
 
         /// <summary>
-        /// Rescales this NinwSlicer to the specified width and height.
+        /// Rescales this NineSlicer to the specified width and height.
         /// </summary>
         /// <param name="width">Width to scale to.</param>
         /// <param name="height">Height to scale to.</param>

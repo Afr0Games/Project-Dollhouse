@@ -69,8 +69,8 @@ namespace Gonzo.Dialogs
             else
                 SetSize((DialogSize.Size.X * m_Screen.Manager.Resolution.ScalingRatio), 
                     (DialogSize.Size.Y) * m_Screen.Manager.Resolution.ScalingRatio);*/
-            SetSize((int)((m_Screen.Font10px.MeasureString(m_TitleText.Caption).X + 40) * m_Screen.Manager.Resolution.ScalingRatio), 
-                (int)(m_DefaultSize.Y * m_Screen.Manager.Resolution.ScalingRatio));
+            SetSize((m_Screen.Font10px.MeasureString(m_TitleText.Caption).X + 40), 
+                m_DefaultSize.Y);
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
