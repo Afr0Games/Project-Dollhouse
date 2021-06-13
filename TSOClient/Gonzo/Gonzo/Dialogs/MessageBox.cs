@@ -75,7 +75,7 @@ namespace Gonzo.Dialogs
         /// <param name="Title">The title of this MessageBox.</param>
         public MessageBox(UIScreen Screen, Vector2 Position, string Message = "", string Title = "", 
             MsgBoxButtonEnum Buttons = MsgBoxButtonEnum.Ok) :
-            base(Screen, Position, false, true, true)
+            base(Screen, Position, false, true, true, 0.900f)
         {
             m_Buttons = Buttons;
 
@@ -157,6 +157,8 @@ namespace Gonzo.Dialogs
 
             float Scale = Resolution.ScreenArea.Width / Resolution.ScreenArea.Height;
             SetSize(DEFAULTMESSAGEBOXWIDTH * Scale, DEFAULTMESSAGEBOXHEIGHT * Scale);
+
+            Visible = false;
         }
 
         #region Handlers
@@ -226,6 +228,14 @@ namespace Gonzo.Dialogs
         }
 
         #endregion
+
+        /// <summary>
+        /// Shows this MessageBox.
+        /// </summary>
+        public void Show()
+        {
+            Visible = true;
+        }
 
         public override void Update(InputHelper Helper, GameTime GTime)
         {
@@ -334,13 +344,13 @@ namespace Gonzo.Dialogs
                 if (Visible)
                 {
                     if(m_OKButton != null)
-                        m_OKButton.Draw(SBatch, (float)(Depth + 0.1));
+                        m_OKButton.Draw(SBatch, (float)(Depth + 0.2));
 
                     if(m_CancelButton != null)
-                        m_CancelButton.Draw(SBatch, (float)(Depth + 0.1));
+                        m_CancelButton.Draw(SBatch, (float)(Depth + 0.2));
 
-                    m_TitleText.Draw(SBatch, (float)(Depth + 0.1));
-                    m_MessageText.Draw(SBatch, (float)(Depth + 0.1));
+                    m_TitleText.Draw(SBatch, (float)(Depth + 0.2));
+                    m_MessageText.Draw(SBatch, (float)(Depth + 0.2));
                 }
 
                 base.Draw(SBatch, LayerDepth);
