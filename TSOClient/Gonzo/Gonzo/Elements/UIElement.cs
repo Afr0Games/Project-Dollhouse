@@ -30,7 +30,7 @@ namespace Gonzo.Elements
     /// UIElement is the base class for all UI related elements (UIButton, UIControl, 
     /// UIDialog, UIImage, UILabel, UISlider, UITextEdit).
     /// </summary>
-    public class UIElement
+    public class UIElement : DrawableGameComponent
     {
         protected UIElement m_Parent;
         protected UIScreen m_Screen;
@@ -95,7 +95,8 @@ namespace Gonzo.Elements
 
         public int Tracking, Trigger;
 
-        public bool Visible = true;
+        //Not needed - already implemented in DrawableGameComponent.
+        //public bool Visible = true;
 
         protected List<UIElement> m_Drawables = new List<UIElement>();
         protected List<UIElement> m_DrawablesInOrder = new List<UIElement>();
@@ -189,7 +190,8 @@ namespace Gonzo.Elements
         /// <param name="Size">The size of this UIElement.</param>
         /// <param name="Screen">A Screen instance.</param>
         /// <param name="Parent">(Optional) UIElement that acts as a parent.</param>
-        public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null)
+        public UIElement(string Name, Vector2 Position, Vector2 Size, UIScreen Screen, UIElement Parent = null) :
+            base(Screen.Manager.GameInstance)
         {
             this.Name = Name;
             m_Size = Size;
@@ -211,7 +213,8 @@ namespace Gonzo.Elements
         /// <param name="Screen">A Screen instance.</param>
         /// <param name="Parent">(Optional) UIElement that acts as a parent.</param>
         /// <param name="Path"> (Optional) Path to a UI script that will create this UI element.</param>
-        public UIElement(UIScreen Screen, UIElement Parent = null, string Path = "")
+        public UIElement(UIScreen Screen, UIElement Parent = null, string Path = "") : 
+            base(Screen.Manager.GameInstance)
         {
             m_Screen = Screen;
 

@@ -203,7 +203,8 @@ namespace Gonzo.Elements
 
             if (DrawBackground)
             {
-                Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), m_Screen);
+                Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), 
+                    new Vector2(0, 0), m_Screen);
 
                 if (Position != null)
                     Image.Position = Position;

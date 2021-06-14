@@ -56,10 +56,11 @@ namespace Gonzo.Elements
         /// <param name="Screen">UIScreen instance.</param>
         /// <param name="Parent">Parent of this UIImage instance, may be null.</param>
         /// <param name="Opacity">Opacity of this UIElement. Defaults to 255.</param>
-        public UIImage(Texture2D Tex, UIScreen Screen, UIElement Parent = null, float Opacity = 255f) 
+        public UIImage(Texture2D Tex, Vector2 Pos, UIScreen Screen, UIElement Parent = null, float Opacity = 255f) 
             : base(Screen, Parent)
         {
             Texture = Tex;
+            Position = Pos;
             m_Opacity = Opacity;
 
             m_Loaded = true;

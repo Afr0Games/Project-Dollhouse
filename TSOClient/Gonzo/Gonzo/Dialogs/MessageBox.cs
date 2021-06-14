@@ -97,11 +97,9 @@ namespace Gonzo.Dialogs
                 }
 
                 m_OKButton = new UIButton("OKButton", Position + RelativePosition, Screen, null, "OK", 9, true, this);
-                m_OKButton.Position = Position;
-                m_OKButton.Position += RelativePosition;
                 m_OKButton.OnButtonClicked += M_OKButton_OnButtonClicked;
                 OnOKButtonClicked += MessageBox_OnOKButtonClicked;
-                m_OKButton.AddParent(this);
+                m_OKButton.DrawOrder = (int)DrawOrderEnum.MessageBoxes;
             }
 
             if (Buttons == MsgBoxButtonEnum.OkCancel)
@@ -109,11 +107,9 @@ namespace Gonzo.Dialogs
                 RelativePosition = new Vector2(250, 120);
                 m_CancelButton = new UIButton("CancelButton", Position + RelativePosition, Screen, null, "Cancel", 9,
                     true, this);
-                m_CancelButton.Position = Position;
-                m_CancelButton.Position += RelativePosition;
                 m_CancelButton.OnButtonClicked += M_CancelButton_OnButtonClicked;
                 OnCancelButtonClicked += MessageBox_OnCancelButtonClicked;
-                m_CancelButton.AddParent(this);
+                m_CancelButton.DrawOrder = (int)DrawOrderEnum.MessageBoxes;
             }
 
             if(Buttons == MsgBoxButtonEnum.YesNo)
@@ -121,20 +117,16 @@ namespace Gonzo.Dialogs
                 RelativePosition = new Vector2(55, 120);
                 m_YesButton = new UIButton("YesButton", Position + RelativePosition, Screen, null, "Yes", 9, 
                     true, this);
-                m_YesButton.Position = Position;
-                m_YesButton.Position += RelativePosition;
                 m_YesButton.OnButtonClicked += M_YesButton_OnButtonClicked;
                 OnYesButtonClicked += MessageBox_OnYesButtonClicked;
-                m_YesButton.AddParent(this);
+                m_YesButton.DrawOrder = (int)DrawOrderEnum.MessageBoxes;
 
                 RelativePosition = new Vector2(250, 120);
                 m_NoButton = new UIButton("NoButton", Position + RelativePosition, Screen, null, "No", 9,
                     true, this);
-                m_NoButton.Position = Position;
-                m_NoButton.Position += RelativePosition;
                 m_NoButton.OnButtonClicked += M_NoButton_OnButtonClicked;
                 OnNoButtonClicked += MessageBox_OnNoButtonClicked;
-                m_NoButton.AddParent(this);
+                m_NoButton.DrawOrder = (int)DrawOrderEnum.MessageBoxes;
             }
 
             m_IsDraggable = true;
@@ -144,21 +136,20 @@ namespace Gonzo.Dialogs
             RelativePosition = new Vector2(150, 6);
             m_TitleText = new UILabel(Title, 1, Position + RelativePosition, m_Font.MeasureString(Title), 
                 Color.Wheat, 9, Screen, this);
-            m_TitleText.Position += RelativePosition;
-            m_TitleText.AddParent(this);
+            m_TitleText.DrawOrder = (int)DrawOrderEnum.MessageBoxes;
 
             RelativePosition = new Vector2(((Size.X / 2) - (m_Font.MeasureString(Message).X / 2)), Size.Y / 2);
 
             string WrappedMessage = WrapText(Message);
             m_MessageText = new UILabel(Message, 1, Position + RelativePosition, m_Font.MeasureString(WrappedMessage),
                 Color.Wheat, 9, Screen, this);
-            m_MessageText.Position += Position + RelativePosition;
-            m_MessageText.AddParent(this);
+            m_MessageText.DrawOrder = (int)DrawOrderEnum.MessageBoxes;
 
             float Scale = Resolution.ScreenArea.Width / Resolution.ScreenArea.Height;
             SetSize(DEFAULTMESSAGEBOXWIDTH * Scale, DEFAULTMESSAGEBOXHEIGHT * Scale);
 
             Visible = false;
+            this.DrawOrder = (int)DrawOrderEnum.MessageBoxes;
         }
 
         #region Handlers

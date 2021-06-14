@@ -22,12 +22,23 @@ using ResolutionBuddy;
 namespace Gonzo
 {
     /// <summary>
+    /// The draworder for the game. Should ALWAYS be used when setting the draw order!
+    /// </summary>
+    public enum DrawOrderEnum : int
+    {
+        Game = 1, //Base layer
+        UI = 2,
+        MessageBoxes = 3 //Always on top!
+    }
+
+    /// <summary>
     /// Manager responsible for updating and drawing UIScreen instances.
     /// </summary>
     public class ScreenManager : IDisposable
     {
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        private Game m_Game;
         private GraphicsDevice m_Graphics;
         private List<UIScreen> m_Screens = new List<UIScreen>();
         private InputHelper m_Input;
@@ -38,6 +49,14 @@ namespace Gonzo
         private IResolution m_Resolution;
 
         public event EventHandler<TextInputEventArgs> OnTextInput;
+
+        /// <summary>
+        /// An instance of the current game, used for initializing UIElement.
+        /// </summary>
+        public Game GameInstance
+        {
+            get { return m_Game; }
+        }
 
         /// <summary>
         /// A graphicsdevice instance.
@@ -101,8 +120,9 @@ namespace Gonzo
         /// Constructs a new ScreenManager instance.
         /// </summary>
         /// <param name="Input">An InputHelper instance, used for updating screens.</param>
-        public ScreenManager(GraphicsDevice Graphics, SpriteFont[] Fonts, InputHelper Input, IResolution Res)
+        public ScreenManager(Game Gme, GraphicsDevice Graphics, SpriteFont[] Fonts, InputHelper Input, IResolution Res)
         {
+            m_Game = Gme;
             m_Graphics = Graphics;
             m_SBatch = new SpriteBatch(Graphics);
             m_Camera = new Camera(Graphics);

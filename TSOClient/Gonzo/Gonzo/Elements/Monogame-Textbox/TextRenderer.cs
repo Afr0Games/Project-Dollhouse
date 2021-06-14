@@ -90,11 +90,9 @@ namespace MonoGame_Textbox
 
             if (SingleLine)
             {
-                m_Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground), 
-                    Screen, null, 0.800f);
-
                 m_Position = Position;
-                m_Image.Position = new Vector2(m_Position.X, m_Position.Y);
+                m_Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground),
+                    new Vector2(m_Position.X, m_Position.Y), Screen, null, 0.800f);
 
                 m_Image.Slicer = new NineSlicer(new Vector2(0, 0), (int)m_Image.Texture.Width, (int)m_Image.Texture.Width, 
                     15, 15, 15, 15);

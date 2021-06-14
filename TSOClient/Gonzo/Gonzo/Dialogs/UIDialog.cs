@@ -61,7 +61,7 @@ namespace Gonzo.Dialogs
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtnbackground);
 
             m_Opacity = Opacity;
-            Image = new UIImage(Tex, Screen, null, m_Opacity);
+            Image = new UIImage(Tex, new Vector2(Pos.X, Pos.Y), Screen, null, m_Opacity);
 
             //Set the default size of the dialog.
             m_DefaultSize = new Vector2(Tex.Width, Tex.Height);
@@ -72,15 +72,14 @@ namespace Gonzo.Dialogs
             else
                 Image.Slicer = new NineSlicer(new Vector2(0, 0), Tex.Width, Tex.Height, 41, 41, 60, 40);
 
-            Image.Position = new Vector2(Pos.X, Pos.Y);
-
-            m_CloseBtnBack = new UIImage(CloseBtnBackground, Screen, null, m_Opacity);
             //This needs to start drawing at 1 on the Y axis to render correctly.
-            m_CloseBtnBack.Position = Position + new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 1);
+            m_CloseBtnBack = new UIImage(CloseBtnBackground, 
+                new Vector2(Image.Slicer.Width - CloseBtnBackground.Width, 1), Screen, this, m_Opacity);
 
             Texture2D CloseButtonTex = FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_closebtn);
             m_CloseButton = new UIButton("CloseBtn", 
-                Position + new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex);
+                new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex, "", 9, 
+                true,  this);
             m_CloseButton.OnButtonClicked += CloseButton_OnButtonClicked;
         }
 
