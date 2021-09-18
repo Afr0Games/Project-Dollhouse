@@ -10,6 +10,7 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System.Collections.Generic;
 using Vitaboy;
 using Shared;
 using Files;
@@ -79,8 +80,10 @@ namespace GonzoTest
 
             m_HeadSkinBrowser = new UIHeadBrowser(this, m_PResult.Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Female);
             m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
+            RegisterElement(m_HeadSkinBrowser);
             m_BodySkinBrowser = new UIBodyBrowser(this, m_PResult.Controls["\"BodySkinBrowser\""], 1, AvatarSex.Female);
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
+            RegisterElement(m_BodySkinBrowser);
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device, Manager.HeadShader);
             Avatar.ChangeOutfit(FileManager.Instance.GetOutfit((ulong)FileIDs.OutfitsFileIDs.fab001_sl__pjs4), Vitaboy.SkinType.Medium);
@@ -96,12 +99,16 @@ namespace GonzoTest
             m_ExitDialog = new ExitDialog(this, new Vector2(250, 250), m_Walker,
                 GlobalSettings.Default.StartupPath + "gamedata\\uiscripts\\exitdialog.uis");
             m_ExitDialog.Visible = false;
+            RegisterElement(m_ExitDialog);
 
             m_DescriptionTextEdit = (UITextEdit)m_PResult.Elements["\"DescriptionTextEdit\""];
 
             HitVM.PlayEvent("bkground_createasim");
 
             Manager.AddScreen(m_VitaboyScreen);
+
+            foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
+                RegisterElement(KVP.Value);
         }
 
         #region EventHandlers
@@ -231,31 +238,7 @@ namespace GonzoTest
 
             base.Draw(); //Needs to be drawn first for the ExitDialog to be drawn correctly.
 
-            m_BackgroundImg.Draw(m_SBatch, null, 0.0f);
-            m_HeadSkinBrowser.Draw(m_SBatch, 0.7f);
-            m_BodySkinBrowser.Draw(m_SBatch, 0.7f);
-
-            //TODO: Find out why the ExitDialog is drawn behind the other buttons on the screen.
-            m_ExitDialog.Draw(m_SBatch, 0.9f);
-
             m_SBatch.End();
-
-            foreach (UIElement Element in m_PResult.Elements.Values)
-            {
-                if (Element.NeedsClipping)
-                {
-                    RasterizerState RasterState = new RasterizerState();
-                    RasterState.ScissorTestEnable = true;
-                    RasterState.CullMode = CullMode.CullCounterClockwiseFace;
-
-                    m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null,
-                       RasterState, null, Resolution.TransformationMatrix());
-
-                    Element.Draw(m_SBatch, 0.5f);
-
-                    m_SBatch.End();
-                }
-            }
         }
     }
 }

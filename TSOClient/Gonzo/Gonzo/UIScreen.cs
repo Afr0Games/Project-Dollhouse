@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -41,6 +42,8 @@ namespace Gonzo
         private Vector2 m_Size;
 
         public bool IsVitaboyScreen = false;
+
+        private List<UIElement> m_Elements = new List<UIElement>();
 
         /// <summary>
         /// This is the standard text color for TSO.
@@ -160,31 +163,23 @@ namespace Gonzo
                 KVP.Value.Update(Input, GTime);
         }
 
+        /// <summary>
+        /// Adds a UIElement to this UIScreen for drawing and updating.
+        /// </summary>
+        /// <param name="Element">The UIElement to add.</param>
+        public void RegisterElement(UIElement Element)
+        {
+            if(!m_Elements.Contains(Element))
+                m_Elements.Add(Element);
+        }
+
         public virtual void Draw()
         {
-            foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
-            {
-                try
-                {
-                    if (KVP.Value.NeedsClipping == false)
-                    {
-                        if (KVP.Value is UIDialog || KVP.Value is WillWrightDiag || KVP.Value is ExitDialog)
-                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.DialogLayer));
-                        else if (KVP.Value is UIButton)
-                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ButtonLayer));
-                        else if (KVP.Value is UIImage)
-                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.ImageLayer));
-                        else if (KVP.Value is UILabel)
-                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.TextLayer));
-                        else
-                            KVP.Value.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.Default));
-                    }
-                }
-                catch(Exception)
-                {
-                    continue;
-                }
-            }
+            //TODO: Move into RegisterElement()
+            var SortedElements = m_Elements.OrderBy(i => i.DrawOrder);
+
+            foreach (UIElement Element in SortedElements)
+                Element.Draw(m_SBatch, UIElement.GetLayerDepth(LayerDepth.Default));
         }
     }
 }

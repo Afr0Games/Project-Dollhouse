@@ -25,11 +25,14 @@ namespace GonzoTest
         {
             m_BackgroundImg = new UIBackgroundImage("Setup", 
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.setup, false), this);
+            RegisterElement(m_BackgroundImg);
             m_LoginDiag = new LoginDialog(this, new Vector2((Resolution.ScreenArea.Width / 2) - 150, 
                 ((Resolution.ScreenArea.Height / 2) - 150)));
+            RegisterElement(m_LoginDiag);
 
             m_LoginProgressDiag = new LoginProgressDialog(this, new Vector2(
                 (Resolution.ScreenArea.Width - 350), (Resolution.ScreenArea.Height - 150)));
+            RegisterElement(m_LoginProgressDiag);
 
             foreach (KeyValuePair<string, UIElement> KVP in m_LoginDiag.RegistrableUIElements)
                 m_PResult.Elements.Add(KVP.Key, KVP.Value);

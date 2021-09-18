@@ -14,8 +14,9 @@ namespace GonzoTest
 {
     public class CreditsScreen : UIScreen
     {
-        private UIImage BackgroundImg, TSOLogoImage, BackButtonIndentImage, WillImage;
-        private UIButton MaxisButton;
+        private UIBackgroundImage BackgroundImg;
+        private UIImage TSOLogoImage, BackButtonIndentImage, WillImage;
+        private UIButton MaxisButton, BackButton;
 
         private Iff m_Credits;
         private List<UILabel> m_CreditsStrings = new List<UILabel>();
@@ -30,17 +31,21 @@ namespace GonzoTest
             new Vector2(0, 0), new Vector2(GlobalSettings.Default.ScreenWidth, GlobalSettings.Default.ScreenHeight), 
             GlobalSettings.Default.StartupPath + "\\" + "gamedata\\uiscripts\\credits.uis")
         {
-            BackgroundImg = (UIImage)m_PResult.Elements["\"BackgroundImage\""];
+            BackgroundImg = (UIBackgroundImage)m_PResult.Elements["\"BackgroundImage\""];
             TSOLogoImage = m_PResult.Controls["\"TSOLogoImage\""].Image;
             BackButtonIndentImage = m_PResult.Controls["\"BackButtonIndentImage\""].Image;
             WillImage = (UIImage)m_PResult.Elements["\"WillImage\""];
+            WillImage.Position = new Vector2(/*22*/0, /*42*/0);
 
             MaxisButton = (UIButton)m_PResult.Elements["\"MaxisButton\""];
             MaxisButton.OnButtonClicked += MaxisButton_OnButtonClicked;
 
+            BackButton = (UIButton)m_PResult.Elements["\"BackButton\""];
+            BackButton.DrawOrder = (int)DrawOrderEnum.UI;
+
             m_WillWrightDiag = new WillWrightDiag(WillImage, this, new Vector2(100, 100));
             m_WillWrightDiag.Visible = false;
-            //m_PResult.Elements.Add("WillWrightDiag", m_WillWrightDiag);
+            RegisterElement(m_WillWrightDiag);
 
             m_Credits = FileManager.Instance.GetIFF("credits.iff");
             m_CreditsArea = (UIControl)m_PResult.Controls["\"CreditsArea\""];
@@ -49,13 +54,17 @@ namespace GonzoTest
             int StrID = 0;
             float Separation = 1.0f;
 
+            foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
+                RegisterElement(KVP.Value);
+
             foreach(TranslatedString TStr in m_Credits.GetSTR(163).GetStringList(LanguageCodes.EngUS))
             {
                 foreach (string Str in TStr.TranslatedStr.Split('\n'))
                 {
                     m_CreditsStrings.Add(new UILabel(Str, StrID++, new Vector2(m_CreditsArea.Position.X +
-                        m_CreditsCenterX, m_CreditsY + Separation), Manager.Font12px.MeasureString(Str), 
-                        Color.Wheat, 12, this));
+                        m_CreditsCenterX, m_CreditsY + Separation), Manager.Font12px.MeasureString(Str),
+                        Color.Wheat, 12, this)
+                    { DrawOrder = (int)DrawOrderEnum.Game });
                     Separation += 15.0f;
                 }
             }
@@ -95,9 +104,9 @@ namespace GonzoTest
             m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
                 RasterizerState.CullCounterClockwise, null, Resolution.TransformationMatrix());
 
-            BackgroundImg.Draw(m_SBatch, null, 0.0f);
+            /*BackgroundImg.Draw(m_SBatch, null, 0.0f);
             TSOLogoImage.Draw(m_SBatch, null, 0.0f);
-            BackButtonIndentImage.Draw(m_SBatch, null, 0.0f);
+            BackButtonIndentImage.Draw(m_SBatch, null, 0.0f);*/
 
             foreach (UILabel Lbl in m_CreditsStrings)
             {
@@ -106,13 +115,15 @@ namespace GonzoTest
                     Lbl.Draw(m_SBatch, 0.3f);
             }
 
-            m_WillWrightDiag.Draw(m_SBatch, 0.4f);
+            //m_WillWrightDiag.Draw(m_SBatch, 0.4f);
 
             base.Draw();
 
+            Manager.Device.Clear(Color.Black);
+
             m_SBatch.End();
 
-            foreach (UIElement Element in m_PResult.Elements.Values)
+            /*foreach (UIElement Element in m_PResult.Elements.Values)
             {
                 if (Element.NeedsClipping)
                 {
@@ -127,7 +138,7 @@ namespace GonzoTest
 
                     m_SBatch.End();
                 }
-            }
+            }*/
         }
     }
 }

@@ -90,7 +90,7 @@ namespace GonzoTest
             m_Fonts[3] = Content.Load<SpriteFont>("ProjectDollhouse_14px");
             m_Fonts[4] = Content.Load<SpriteFont>("ProjectDollhouse_16px");
             m_SimShader = Content.Load<Effect>("Vitaboy");
-            m_ScrManager = new ScreenManager(GraphicsDevice, m_Fonts, m_Input, m_Resolution);
+            m_ScrManager = new ScreenManager(this, GraphicsDevice, m_Fonts, m_Input, m_Resolution);
             m_ScrManager.HeadShader = m_SimShader;
         }
 
@@ -99,9 +99,9 @@ namespace GonzoTest
             SoundManager = new HitVM(GlobalSettings.Default.StartupPath);
             //m_ScrManager.AddScreen(new CreditsScreen(m_ScrManager, spriteBatch));
             //m_ScrManager.AddScreen(new SASScreen(m_ScrManager, spriteBatch));
-            //m_ScrManager.AddScreen(new CASScreen(m_ScrManager, spriteBatch));
+            m_ScrManager.AddScreen(new CASScreen(m_ScrManager, spriteBatch));
             //m_ScrManager.AddScreen(new LoadingScreen(m_ScrManager, spriteBatch));
-            m_ScrManager.AddScreen(new LoginScreen(m_ScrManager, spriteBatch));
+            //m_ScrManager.AddScreen(new LoginScreen(m_ScrManager, spriteBatch));
         }
 
         /// <summary>

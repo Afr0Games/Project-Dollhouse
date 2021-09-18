@@ -44,9 +44,9 @@ namespace Gonzo.Elements
         {
             Name = Node.Name;
             Texture = FileManager.Instance.GetTexture(ulong.Parse(Node.AssetID, System.Globalization.NumberStyles.HexNumber));
-
             m_Opacity = Opacity;
             m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
         }
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace Gonzo.Elements
             Texture = Tex;
             Position = Pos;
             m_Opacity = Opacity;
-
             m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
         }
 
         /// <summary>
@@ -76,6 +76,7 @@ namespace Gonzo.Elements
             Texture = Image.Texture;
             Position = Image.Position;
             m_Loaded = true;
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
         }
 
         /// <summary>
@@ -198,7 +199,6 @@ namespace Gonzo.Elements
 
             if (Visible)
             {
-                Rectangle DrawRect = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
                 Color Clr = new Color(Color.White.R, Color.White.G, Color.White.B, m_Opacity);
 
                 SBatch.Draw(Texture, Position, SourceRect, Clr, 0.0f, 

@@ -68,6 +68,8 @@ namespace Gonzo.Elements
             m_ID = Node.ID;
             m_Screen = Screen;
 
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
+
             if (!Result.State.InSharedPropertiesGroup)
             {
                 if (Node.Image != null)
@@ -293,6 +295,8 @@ namespace Gonzo.Elements
         {
             base.Name = Name;
             Position = Pos;
+
+            DrawOrder = (int)DrawOrderEnum.Game; //Default
 
             if (Parent != null)
             {

@@ -16,6 +16,7 @@ using Microsoft.Xna.Framework;
 using Gonzo.Elements;
 using log4net;
 using Microsoft.Xna.Framework.Graphics;
+using ResolutionBuddy;
 
 namespace Gonzo.Dialogs
 {
@@ -30,9 +31,17 @@ namespace Gonzo.Dialogs
 
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        private MessageBox m_ErrorMsgBox;
+        private CaretSeparatedText m_CSTCurrentStatus;
+
         public LoginProgressDialog(UIScreen Screen, Vector2 Pos) : base(Screen, Pos, false, false, false, 0.800f)
         {
             m_Font = m_Screen.Font11px;
+
+            m_CSTCurrentStatus = StringManager.StrTable(210);
+
+            m_ErrorMsgBox = new MessageBox(Screen, new Vector2((Resolution.ScreenArea.Width - 350) / 2,
+                (Resolution.ScreenArea.Height - 200) / 2), "", "Error", MsgBoxButtonEnum.Ok);
 
             //cityselprotocolstrings.cst
             m_Cst = StringManager.StrTable(210);
@@ -41,24 +50,64 @@ namespace Gonzo.Dialogs
             Vector2 RelativePosition = new Vector2(60, 0);
             m_LblTitle = new UILabel(m_Cst[1], 1, Pos + RelativePosition, m_Font.MeasureString(m_Cst[1]),
                 m_Screen.StandardTxtColor, 11, m_Screen, this, UIParser.Nodes.TextAlignment.Center_Center);
+            m_LblTitle.DrawOrder = (int)DrawOrderEnum.UI;
 
             RelativePosition = new Vector2(20, 40);
             m_LblProgress = new UILabel(m_Cst[2], 1, Pos + RelativePosition,
                 new Vector2(300, 20), Color.Wheat, 9, m_Screen, this, UIParser.Nodes.TextAlignment.Left_Center);
+            m_LblProgress.DrawOrder = (int)DrawOrderEnum.UI;
 
             RelativePosition = new Vector2(20, 70);
             m_ProgressBar = new UIProgressBar(m_Screen, Pos + RelativePosition, 300, this);
+            m_ProgressBar.DrawOrder = (int)DrawOrderEnum.UI;
             RegistrableUIElements.Add("ProgressBar", m_ProgressBar);
 
             RelativePosition = new Vector2(20, 100);
             m_LblCurrentTask = new UILabel(m_Cst[3], 1, Pos + RelativePosition,
                 new Vector2(300, 20), Color.Wheat, 9, m_Screen, this, UIParser.Nodes.TextAlignment.Left_Center);
+            m_LblCurrentTask.DrawOrder = (int)DrawOrderEnum.UI;
 
             RelativePosition = new Vector2(20, 130);
             m_StatusBar = new UIStatusBar(m_Screen, Pos + RelativePosition, 300, this);
+            m_StatusBar.DrawOrder = (int)DrawOrderEnum.UI;
             RegistrableUIElements.Add("StatusBar", m_ProgressBar);
 
             SetSize((Width < m_StatusBar.Size.X) ? (m_StatusBar.Size.X + (RelativePosition.X * 2)) : Width, 175);
+
+            this.DrawOrder = (int)DrawOrderEnum.UI;
+        }
+
+        /// <summary>
+        /// Updates this LoginProgressDialog with the status of 
+        /// the current login process being performed.
+        /// </summary>
+        /// <param name="CurrentProcess">The current status.</param>
+        public void UpdateStatus(LoginProcess CurrentProcess)
+        {
+            m_StatusBar.UpdateStatus(CurrentProcess);
+
+            switch (CurrentProcess)
+            {
+                case LoginProcess.Unavailable:
+                    m_ErrorMsgBox.Message = m_CSTCurrentStatus[36/*(int)LoginProcess.Unavailable*/];
+                    m_ErrorMsgBox.Show();
+                    break;
+                case LoginProcess.Authorizing:
+                    m_ProgressBar.SetProgressInPercentage(0);
+                    break;
+                case LoginProcess.Attempting:
+                    m_ProgressBar.SetProgressInPercentage(25);
+                    break;
+                case LoginProcess.Initial:
+                    m_ProgressBar.SetProgressInPercentage(50);
+                    break;
+                case LoginProcess.Loading:
+                    m_ProgressBar.SetProgressInPercentage(75);
+                    break;
+                case LoginProcess.DoneLoading:
+                    m_ProgressBar.SetProgressInPercentage(100);
+                    break;
+            }
         }
 
         public override void Update(InputHelper Helper, GameTime GTime)
@@ -67,6 +116,7 @@ namespace Gonzo.Dialogs
 
             if (Visible)
             {
+                m_ErrorMsgBox.Update(Helper, GTime);
                 m_ProgressBar.Update(Helper, GTime);
                 m_StatusBar.Update(Helper, GTime);
             }
@@ -87,6 +137,8 @@ namespace Gonzo.Dialogs
 
             m_LblCurrentTask.Draw(SBatch, Depth + 0.1f);
             m_StatusBar.Draw(SBatch, Depth + 0.1f);
+
+            m_ErrorMsgBox.Draw(SBatch, Depth + 0.1f);
 
             base.Draw(SBatch, LayerDepth);
         }
