@@ -1321,6 +1321,12 @@ namespace Files.Manager
         {
             if (Disposed)
             {
+                if(m_AssetsResetEvent != null)
+                    m_AssetsResetEvent.Dispose();
+
+                if(m_StillLoading != null)
+                    m_StillLoading.Dispose();
+
                 foreach(FAR3Archive Archive in m_FAR3Archives)
                 {
                     if (Archive != null)
