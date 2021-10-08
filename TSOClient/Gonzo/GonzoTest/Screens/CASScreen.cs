@@ -27,10 +27,7 @@ namespace GonzoTest
 {
     public class CASScreen : UIScreen
     {
-        private UIBackgroundImage m_BackgroundImg;/*, m_LeftArrowImg, m_RightArrowImg, m_BodySkinButtonImg,
-            m_HeadSkinButtonImg, m_CancelButtonImg, m_FemaleButtonImg, m_MaleButtonImg, m_AcceptButtonImg,
-            m_ExitButtonImg, m_SkinDarkButtonImg, m_SkinLightButtonImg, m_SkinMediumButtonImg, m_ScrollbarImg,
-            m_ScrollDownButtonImg, m_ScrollUpButtonImg;*/
+        private UIBackgroundImage m_BackgroundImg;
         private UIButton m_CancelBtn, m_AcceptBtn, m_DescriptionScrollUpBtn, m_DescriptionScrollDownBtn,
             m_ExitBtn, m_FemaleBtn, m_MaleBtn, m_SkinLightBtn, m_SkinMediumBtn, m_SkinDarkBtn;
         private UIHeadBrowser m_HeadSkinBrowser;
@@ -80,9 +77,11 @@ namespace GonzoTest
 
             m_HeadSkinBrowser = new UIHeadBrowser(this, m_PResult.Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Female);
             m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
+            //m_HeadSkinBrowser.DrawOrder = (int)DrawOrderEnum.UI;
             RegisterElement(m_HeadSkinBrowser);
             m_BodySkinBrowser = new UIBodyBrowser(this, m_PResult.Controls["\"BodySkinBrowser\""], 1, AvatarSex.Female);
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
+            m_BodySkinBrowser.DrawOrder = (int)DrawOrderEnum.UI;
             RegisterElement(m_BodySkinBrowser);
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device, Manager.HeadShader);
@@ -237,6 +236,8 @@ namespace GonzoTest
                 RasterizerState.CullCounterClockwise, null, Resolution.TransformationMatrix());
 
             base.Draw(); //Needs to be drawn first for the ExitDialog to be drawn correctly.
+
+            Manager.Device.Clear(Color.Black);
 
             m_SBatch.End();
         }

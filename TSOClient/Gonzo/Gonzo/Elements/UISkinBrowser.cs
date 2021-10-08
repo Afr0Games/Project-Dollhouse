@@ -163,13 +163,17 @@ namespace Gonzo.Elements
             m_SelectedSkintype = (SkinType)SkinType;
             m_Sex = Sex;
 
+            //DrawOrder = (int)DrawOrderEnum.Game; //Default
+
             m_SkinBrowserArrowLeft = new UIButton("SkinBrowserArrowLeft",
                 Position + new Vector2(5, Size.Y - 70), Screen,
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowleft));
+            m_SkinBrowserArrowLeft.DrawOrder = (int)DrawOrderEnum.UI;
             m_SkinBrowserArrowLeft.OnButtonClicked += M_SkinBrowserArrowLeft_OnButtonClicked;
             m_SkinBrowserArrowRight = new UIButton("SkinBrowserArrowRight", 
                 Position + new Vector2(Size.X - 45, Size.Y - 70), Screen,
                 FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.person_edit_skinbrowserarrowright));
+            m_SkinBrowserArrowRight.DrawOrder = (int)DrawOrderEnum.UI;
             m_SkinBrowserArrowRight.OnButtonClicked += M_SkinBrowserArrowRight_OnButtonClicked;
         }
 
