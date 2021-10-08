@@ -114,6 +114,10 @@ namespace Gonzo.Dialogs
         {
             base.Update(Helper, GTime);
 
+            m_LblTitle.Update(Helper, GTime);
+            m_LblProgress.Update(Helper, GTime);
+            m_LblCurrentTask.Update(Helper, GTime);
+
             if (Visible)
             {
                 m_ErrorMsgBox.Update(Helper, GTime);

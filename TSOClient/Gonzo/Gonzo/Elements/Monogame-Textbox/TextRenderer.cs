@@ -45,13 +45,15 @@ namespace MonoGame_Textbox
         private RenderTarget2D target;
         private SpriteBatch batch;
 
-        private UIImage m_Image;
+        //Background.
+        private bool m_hasBackground;
+        private UIImage m_image;
 
         private Vector2 m_Position = new Vector2(0.0f, 0.0f);
         public Vector2 Position
         {
             get { return m_Position; }
-            set { m_Position = value; m_Image.Position = value; }
+            set { m_Position = value; m_image.Position = value; }
         }
 
         // Cached texture that has all of the characters.
@@ -78,7 +80,8 @@ namespace MonoGame_Textbox
             batch = null;
         }
 
-        public TextRenderer(TextBox box, Vector2 Position, Vector2 Size, UIScreen Screen, bool SingleLine = true)
+        public TextRenderer(TextBox box, Vector2 position, Vector2 Size, UIScreen screen, bool hasBackground = true, 
+            bool singleLine = true)
         {
             this.box = box;
 
@@ -88,15 +91,17 @@ namespace MonoGame_Textbox
 
             row = new byte[this.box.Text.MaxLength];
 
-            if (SingleLine)
-            {
-                m_Position = Position;
-                m_Image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground),
-                    new Vector2(m_Position.X, m_Position.Y), Screen, null, 0.800f);
+            m_hasBackground = hasBackground;
 
-                m_Image.Slicer = new NineSlicer(new Vector2(0, 0), (int)m_Image.Texture.Width, (int)m_Image.Texture.Width, 
+            if (singleLine)
+            {
+                m_Position = position;
+                m_image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground),
+                    new Vector2(m_Position.X, m_Position.Y), screen, null, 0.800f);
+
+                m_image.Slicer = new NineSlicer(new Vector2(0, 0), (int)m_image.Texture.Width, (int)m_image.Texture.Width, 
                     15, 15, 15, 15);
-                m_Image.SetSize((int)Size.X, (int)Size.Y);
+                m_image.SetSize((int)Size.X, (int)Size.Y);
             }
         }
 
@@ -119,20 +124,23 @@ namespace MonoGame_Textbox
             else
                 Depth = 0.9f; //Text edits are always drawn on top.
 
-            if (m_Image != null)
+            if (m_hasBackground)
             {
-                m_Image.DrawTextureTo(spriteBatch, null, m_Image.Slicer.TLeft, m_Image.Position + Vector2.Zero, Depth);
-                m_Image.DrawTextureTo(spriteBatch, m_Image.Slicer.TCenter_Scale, m_Image.Slicer.TCenter, m_Image.Position + new Vector2(m_Image.Slicer.LeftPadding, 0), Depth);
-                m_Image.DrawTextureTo(spriteBatch, null, m_Image.Slicer.TRight, m_Image.Position + new Vector2(m_Image.Slicer.Width - m_Image.Slicer.RightPadding, 0), Depth);
+                if (m_image != null)
+                {
+                    m_image.DrawTextureTo(spriteBatch, null, m_image.Slicer.TLeft, m_image.Position + Vector2.Zero, Depth);
+                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.TCenter_Scale, m_image.Slicer.TCenter, m_image.Position + new Vector2(m_image.Slicer.LeftPadding, 0), Depth);
+                    m_image.DrawTextureTo(spriteBatch, null, m_image.Slicer.TRight, m_image.Position + new Vector2(m_image.Slicer.Width - m_image.Slicer.RightPadding, 0), Depth);
 
-                m_Image.DrawTextureTo(spriteBatch, m_Image.Slicer.CLeft_Scale, m_Image.Slicer.CLeft, m_Image.Position + new Vector2(0, m_Image.Slicer.TopPadding), null);
-                m_Image.DrawTextureTo(spriteBatch, m_Image.Slicer.CCenter_Scale, m_Image.Slicer.CCenter, m_Image.Position + new Vector2(m_Image.Slicer.LeftPadding, m_Image.Slicer.TopPadding), Depth);
-                m_Image.DrawTextureTo(spriteBatch, m_Image.Slicer.CRight_Scale, m_Image.Slicer.CRight, m_Image.Position + new Vector2(m_Image.Slicer.Width - m_Image.Slicer.RightPadding, m_Image.Slicer.TopPadding), Depth);
+                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.CLeft_Scale, m_image.Slicer.CLeft, m_image.Position + new Vector2(0, m_image.Slicer.TopPadding), null);
+                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.CCenter_Scale, m_image.Slicer.CCenter, m_image.Position + new Vector2(m_image.Slicer.LeftPadding, m_image.Slicer.TopPadding), Depth);
+                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.CRight_Scale, m_image.Slicer.CRight, m_image.Position + new Vector2(m_image.Slicer.Width - m_image.Slicer.RightPadding, m_image.Slicer.TopPadding), Depth);
 
-                int BottomY = m_Image.Slicer.Height - m_Image.Slicer.BottomPadding;
-                m_Image.DrawTextureTo(spriteBatch, null, m_Image.Slicer.BLeft, m_Image.Position + new Vector2(0, BottomY), null);
-                m_Image.DrawTextureTo(spriteBatch, m_Image.Slicer.BCenter_Scale, m_Image.Slicer.BCenter, m_Image.Position + new Vector2(m_Image.Slicer.LeftPadding, BottomY), Depth);
-                m_Image.DrawTextureTo(spriteBatch, null, m_Image.Slicer.BRight, m_Image.Position + new Vector2(m_Image.Slicer.Width - m_Image.Slicer.RightPadding, BottomY), Depth);
+                    int BottomY = m_image.Slicer.Height - m_image.Slicer.BottomPadding;
+                    m_image.DrawTextureTo(spriteBatch, null, m_image.Slicer.BLeft, m_image.Position + new Vector2(0, BottomY), null);
+                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.BCenter_Scale, m_image.Slicer.BCenter, m_image.Position + new Vector2(m_image.Slicer.LeftPadding, BottomY), Depth);
+                    m_image.DrawTextureTo(spriteBatch, null, m_image.Slicer.BRight, m_image.Position + new Vector2(m_image.Slicer.Width - m_image.Slicer.RightPadding, BottomY), Depth);
+                }
             }
 
             if (text != null)

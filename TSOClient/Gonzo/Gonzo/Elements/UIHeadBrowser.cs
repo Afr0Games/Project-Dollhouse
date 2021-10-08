@@ -222,12 +222,11 @@ namespace Gonzo.Elements
                                 new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y));
                             Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
-                            //NOTE: Must be drawn at Depth - 0.1f because of alpha issues with thumbs.
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
                                 (int)m_SkinBtns[m_Counter + Y].SourcePosition.Y, m_BtnWidth, m_BtnHeight),
-                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth - 0.1f);
+                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth);
 
                             SBatch.Draw(m_Thumb, new Rectangle((int)(Position.X + TexturePosition.X),
                                 (int)(Position.Y + TexturePosition.Y), m_Thumb.Width, m_Thumb.Height),
@@ -253,12 +252,11 @@ namespace Gonzo.Elements
                             Vector2 TexturePosition = new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y));
                             Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
-                            //NOTE: Must be drawn at Depth - 0.1f because of alpha issues with thumbs.
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
                                 (int)m_SkinBtns[m_Counter + Y].SourcePosition.Y, m_BtnWidth, m_BtnHeight),
-                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth - 0.1f);
+                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth);
 
                             SBatch.Draw(m_Thumb, new Rectangle((int)(Position.X + TexturePosition.X),
                                 (int)(Position.Y + TexturePosition.Y), m_Thumb.Width, m_Thumb.Height),
@@ -284,12 +282,11 @@ namespace Gonzo.Elements
                             Vector2 TexturePosition = new Vector2(X * (HeadTileSize.X + 10), Y * (HeadTileSize.Y));
                             Vector2 ButtonPosition = new Vector2(TexturePosition.X - 2, TexturePosition.Y - 5);
 
-                            //NOTE: Must be drawn at Depth - 0.1f because of alpha issues with thumbs.
                             SBatch.Draw(m_SkinBtns[Y + m_Counter].BtnTex, new Rectangle((int)(Position.X +
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
                                 (int)m_SkinBtns[m_Counter + Y].SourcePosition.Y, m_BtnWidth, m_BtnHeight),
-                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth - 0.1f);
+                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth);
 
                             SBatch.Draw(m_Thumb, new Rectangle((int)(Position.X + TexturePosition.X),
                                 (int)(Position.Y + TexturePosition.Y), m_Thumb.Width, m_Thumb.Height),

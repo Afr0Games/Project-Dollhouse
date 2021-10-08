@@ -22,20 +22,20 @@ using Gonzo.Dialogs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ResolutionBuddy;
+using MonoGame_Textbox;
 
 namespace GonzoTest
 {
     public class CASScreen : UIScreen
     {
-        private UIBackgroundImage m_BackgroundImg;/*, m_LeftArrowImg, m_RightArrowImg, m_BodySkinButtonImg,
-            m_HeadSkinButtonImg, m_CancelButtonImg, m_FemaleButtonImg, m_MaleButtonImg, m_AcceptButtonImg,
-            m_ExitButtonImg, m_SkinDarkButtonImg, m_SkinLightButtonImg, m_SkinMediumButtonImg, m_ScrollbarImg,
-            m_ScrollDownButtonImg, m_ScrollUpButtonImg;*/
+        //All variables that exists in the script shares their name between the script and the code!
+        private UIBackgroundImage m_BackgroundImg;
         private UIButton m_CancelBtn, m_AcceptBtn, m_DescriptionScrollUpBtn, m_DescriptionScrollDownBtn,
             m_ExitBtn, m_FemaleBtn, m_MaleBtn, m_SkinLightBtn, m_SkinMediumBtn, m_SkinDarkBtn;
         private UIHeadBrowser m_HeadSkinBrowser;
         private UIBodyBrowser m_BodySkinBrowser;
         private ExitDialog m_ExitDialog;
+        private TextBox m_NameTextEdit;
         private UITextEdit m_DescriptionTextEdit;
 
         private Sim m_Avatar;
@@ -80,9 +80,11 @@ namespace GonzoTest
 
             m_HeadSkinBrowser = new UIHeadBrowser(this, m_PResult.Controls["\"HeadSkinBrowser\""], 1, AvatarSex.Female);
             m_HeadSkinBrowser.OnButtonClicked += M_HeadSkinBrowser_OnButtonClicked;
+            m_HeadSkinBrowser.DrawOrder = (int)DrawOrderEnum.UI;
             RegisterElement(m_HeadSkinBrowser);
             m_BodySkinBrowser = new UIBodyBrowser(this, m_PResult.Controls["\"BodySkinBrowser\""], 1, AvatarSex.Female);
             m_BodySkinBrowser.OnButtonClicked += M_BodySkinBrowser_OnButtonClicked;
+            m_BodySkinBrowser.DrawOrder = (int)DrawOrderEnum.UI;
             RegisterElement(m_BodySkinBrowser);
 
             AdultAvatar Avatar = new AdultAvatar(Manager.Device, Manager.HeadShader);
@@ -101,7 +103,14 @@ namespace GonzoTest
             m_ExitDialog.Visible = false;
             RegisterElement(m_ExitDialog);
 
+            m_NameTextEdit = new TextBox(new Rectangle(22, 52, 230, 18), 64, "", Manager.Device, 9,
+                StandardTxtColor, StandardTxtColor, 30, this, false);
+            m_NameTextEdit.Name = "NameTextEdit"; //This should be set for all UIElements that need to receive input.
+            m_NameTextEdit.DrawOrder = (int)DrawOrderEnum.UI;
             m_DescriptionTextEdit = (UITextEdit)m_PResult.Elements["\"DescriptionTextEdit\""];
+            m_DescriptionTextEdit.DrawOrder = (int)DrawOrderEnum.UI;
+
+            KeyboardInput.Initialize(Manager, 500f, 20);
 
             HitVM.PlayEvent("bkground_createasim");
 
@@ -216,6 +225,8 @@ namespace GonzoTest
 
             m_ExitDialog.Update(Input, GTime);
 
+            m_NameTextEdit.Update(Input, GTime);
+
             if (m_DescriptionTextEdit.CanScrollUp())
                 m_DescriptionScrollUpBtn.Enabled = true;
             else
@@ -233,10 +244,15 @@ namespace GonzoTest
 
         public override void Draw()
         {
-            m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
+            //Used to be SpriteSortMode.FrontToBack.
+            m_SBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, 
                 RasterizerState.CullCounterClockwise, null, Resolution.TransformationMatrix());
 
             base.Draw(); //Needs to be drawn first for the ExitDialog to be drawn correctly.
+
+            m_NameTextEdit.Draw(m_SBatch, null);
+
+            //Manager.Device.Clear(Color.Black);
 
             m_SBatch.End();
         }

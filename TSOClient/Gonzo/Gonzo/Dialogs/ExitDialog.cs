@@ -7,9 +7,6 @@ namespace Gonzo.Dialogs
 {
     public class ExitDialog : UIDialog
     {
-        private Dictionary<string, UIElement> m_Elements = new Dictionary<string, UIElement>();
-        private Dictionary<string, UIControl> m_Controls = new Dictionary<string, UIControl>();
-
         protected List<CaretSeparatedText> m_StringTables = new List<CaretSeparatedText>();
         protected Dictionary<string, string> m_Strings = new Dictionary<string, string>();
 
@@ -34,18 +31,21 @@ namespace Gonzo.Dialogs
             m_ReloginButton = (UIButton)Result.Elements["\"ReLoginButton\""];
             m_ReloginButton.Position = Position;
             m_ReloginButton.Position += RelativePosition;
+            m_ReloginButton.DrawOrder = (int)DrawOrderEnum.UI;
             m_ReloginButton.AddParent(this);
 
             RelativePosition = new Vector2(160, 120);
             m_ExitButton = (UIButton)Result.Elements["\"ExitButton\""];
             m_ExitButton.Position = Position;
             m_ExitButton.Position += RelativePosition;
+            m_ExitButton.DrawOrder = (int)DrawOrderEnum.UI;
             m_ExitButton.AddParent(this);
 
             RelativePosition = new Vector2(350, 120);
             m_CancelButton = (UIButton)Result.Elements["\"CancelButton\""];
             m_CancelButton.Position = Position;
             m_CancelButton.Position += RelativePosition;
+            m_CancelButton.DrawOrder = (int)DrawOrderEnum.UI;
             m_ExitButton.AddParent(this);
 
             RelativePosition = new Vector2(175, Position.Y);
@@ -79,6 +79,9 @@ namespace Gonzo.Dialogs
 
             if (Visible)
             {
+                m_MessageText.Update(Helper, GTime);
+                m_TitleText.Update(Helper, GTime);
+
                 m_ReloginButton.Update(Helper, GTime);
                 m_ExitButton.Update(Helper, GTime);
                 m_CancelButton.Update(Helper, GTime);

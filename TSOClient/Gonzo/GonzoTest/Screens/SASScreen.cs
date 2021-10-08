@@ -15,9 +15,11 @@ namespace GonzoTest
 {
     public class SASScreen : UIScreen
     {
+        //All variables that exists in the script shares their name between the script and the code!
         private UIBackgroundImage m_BackgroundImg;
         private UIImage TabBackgroundImg1, TabBackgroundImg2, TabBackgroundImg3, DescriptionTabBackgroundImg1, DescriptionTabBackgroundImg2, DescriptionTabBackgroundImg3, 
-            DescriptionTabImage1, DescriptionTabImage2, DescriptionTabImage3, EnterTabImage1, EnterTabImage2, EnterTabImage3, EnterTabBackgroundImage1, EnterTabBackgroundImage2, EnterTabBackgroundImage3, /*DefaultHouseImg,*/ CreditsBackgroundImg,/*, CityThumbnailBusyImg*/
+            SimCreateButtonImage, SimSelectButtonImage, DescriptionTabImage1, DescriptionTabImage2, DescriptionTabImage3, EnterTabImage1, EnterTabImage2, EnterTabImage3, 
+            EnterTabBackgroundImage1, EnterTabBackgroundImage2, EnterTabBackgroundImage3, /*DefaultHouseImg,*/ CreditsBackgroundImg,/*, CityThumbnailBusyImg*/
             CityButtonTemplateImage;
         private UIButton m_ExitButton, m_EnterTabBtn1, m_EnterTabBtn2, m_EnterTabBtn3, m_DescriptionTabBtn1, 
             m_DescriptionTabBtn2, m_DescriptionTabBtn3, m_AvatarButton1, m_AvatarButton2, m_AvatarButton3, m_CityButton1, 
@@ -55,6 +57,9 @@ namespace GonzoTest
             TabBackgroundImg1 = m_PResult.Elements["\"TabBackgroundImage1\""].Image;
             TabBackgroundImg2 = m_PResult.Elements["\"TabBackgroundImage2\""].Image;
             TabBackgroundImg3 = m_PResult.Elements["\"TabBackgroundImage3\""].Image;
+
+            SimCreateButtonImage = (UIImage)m_PResult.Elements["\"SimCreateButtonImage\""];
+            SimSelectButtonImage = (UIImage)m_PResult.Elements["\"SimSelectButtonImage\""];
 
             DescriptionTabBackgroundImg1 = m_PResult.Elements["\"DescriptionTabBackgroundImage1\""].Image;
             DescriptionTabBackgroundImg1.Visible = m_Avatars.Count >= 1 ? true : false;
@@ -119,8 +124,13 @@ namespace GonzoTest
             m_DescriptionTabBtn3.Enabled = m_Avatars.Count == 3 ? true : false;
 
             m_AvatarButton1 = (UIButton)m_PResult.Elements["\"AvatarButton1\""];
+            //m_AvatarButton1.AddImage(SimCreateButtonImage);
             m_AvatarButton2 = (UIButton)m_PResult.Elements["\"AvatarButton2\""];
+            UIImage SimCreateButtonImg2 = new UIImage(SimCreateButtonImage);
+            m_AvatarButton2.AddImage(SimCreateButtonImg2);
             m_AvatarButton3 = (UIButton)m_PResult.Elements["\"AvatarButton3\""];
+            UIImage SimCreateButtonImg3 = new UIImage(SimCreateButtonImage);
+            m_AvatarButton3.AddImage(SimCreateButtonImg3);
 
             m_CityButton1 = (UIButton)m_PResult.Elements["\"CityButton1\""];
             m_CityButton1.AddImage(GetImage("\"CityButtonTemplateImage\"", true));
@@ -143,10 +153,13 @@ namespace GonzoTest
             m_HouseButton3.Visible = false;
 
             m_NewAvatarButton1 = (UIButton)m_PResult.Elements["\"NewAvatarButton1\""];
+            m_NewAvatarButton1.Image = SimSelectButtonImage;
             m_NewAvatarButton1.Visible = m_Avatars.Count >= 1 ? false : true;
             m_NewAvatarButton2 = (UIButton)m_PResult.Elements["\"NewAvatarButton2\""];
+            m_NewAvatarButton2.Image = SimCreateButtonImage;
             m_NewAvatarButton2.Visible = m_Avatars.Count >= 2 ? false : true;
             m_NewAvatarButton3 = (UIButton)m_PResult.Elements["\"NewAvatarButton3\""];
+            m_NewAvatarButton3.Image = SimCreateButtonImage;
             m_NewAvatarButton3.Visible = m_Avatars.Count == 3 ? false : true;
 
             m_DeleteAvatarButton1 = (UIButton)m_PResult.Elements["\"DeleteAvatarButton1\""];
@@ -190,6 +203,8 @@ namespace GonzoTest
             m_HouseNameText3 = (UILabel)m_PResult.Elements["\"HouseNameText3\""];
 
             m_CreditsButton = (UIButton)m_PResult.Elements["\"CreditsButton\""];
+
+            HitVM.PlayEvent("bkground_selectasim");
 
             foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
                 RegisterElement(KVP.Value);
@@ -387,7 +402,8 @@ namespace GonzoTest
 
         public override void Draw()
         {
-            m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
+            //Used to be SpriteSortMode.FrontToBack.
+            m_SBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, 
                 RasterizerState.CullCounterClockwise, null, Resolution.TransformationMatrix());
 
             base.Draw();

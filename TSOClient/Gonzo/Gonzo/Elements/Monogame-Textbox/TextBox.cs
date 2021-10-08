@@ -49,6 +49,11 @@ namespace MonoGame_Textbox
         public readonly TextRenderer Renderer;
         public readonly Cursor Cursor;
 
+        /// <summary>
+        /// Does this textbox have a background?
+        /// </summary>
+        public readonly bool Background;
+
         public event EventHandler<KeyboardInput.KeyEventArgs> EnterDown;
 
         private string clipboard;
@@ -57,9 +62,11 @@ namespace MonoGame_Textbox
 
         public TextBox(Rectangle area, int maxCharacters, string text, GraphicsDevice graphicsDevice,
             int spriteFont, Color cursorColor, Color selectionColor, int ticksPerToggle, 
-            UIScreen screen, bool singleLine = true, UIElement parent = null) : base(screen, parent)
+            UIScreen screen, bool hasBackground = true, bool singleLine = true, UIElement parent = null) : 
+            base(screen, parent)
         {
             GraphicsDevice = graphicsDevice;
+            m_KeyboardInput = true; //Needs to receive input from the keyboard.
 
             if (parent != null)
             {
@@ -96,10 +103,11 @@ namespace MonoGame_Textbox
                     break;
             }
 
+            Background = hasBackground;
             Position = new Vector2(area.X, area.Y);
             m_Size = new Vector2(area.Width, area.Height);
             Renderer = new TextRenderer(this, new Vector2(area.X, area.Y), new Vector2(area.Width, area.Height), 
-                screen, singleLine)
+                screen, hasBackground, singleLine)
             {
                 Area = area,
                 Font = RenderFont,

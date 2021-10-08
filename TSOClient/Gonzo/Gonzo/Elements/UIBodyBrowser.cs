@@ -38,6 +38,8 @@ namespace Gonzo.Elements
             m_FemaleCollections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.ea_female));
             m_Collections.Add(FileManager.Instance.GetCollection((ulong)FileIDs.CollectionsFileIDs.eainternal_unisex));
 
+            //DrawOrder = (int)DrawOrderEnum.Game; //Default
+
             OutfitContainer OftContainer;
 
             m_Map = new int[,]
@@ -234,7 +236,7 @@ namespace Gonzo.Elements
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
                                 (int)m_SkinBtns[m_Counter + Y].SourcePosition.Y, m_BtnWidth, m_BtnHeight),
-                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth - 0.1f);
+                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth);
 
                             SBatch.Draw(m_Thumb, new Rectangle((int)(Position.X + TexturePosition.X),
                                 (int)(Position.Y + TexturePosition.Y), m_Thumb.Width, m_Thumb.Height),
@@ -264,7 +266,7 @@ namespace Gonzo.Elements
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
                                 (int)m_SkinBtns[m_Counter + Y].SourcePosition.Y, m_BtnWidth, m_BtnHeight),
-                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth - 0.1f);
+                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth);
 
                             SBatch.Draw(m_Thumb, new Rectangle((int)(Position.X + TexturePosition.X),
                                 (int)(Position.Y + TexturePosition.Y), m_Thumb.Width, m_Thumb.Height),
@@ -294,7 +296,7 @@ namespace Gonzo.Elements
                                 ButtonPosition.X), (int)(Position.Y + ButtonPosition.Y), m_BtnWidth, m_BtnHeight),
                                 new Rectangle((int)m_SkinBtns[m_Counter + Y].SourcePosition.X,
                                 (int)m_SkinBtns[m_Counter + Y].SourcePosition.Y, m_BtnWidth, m_BtnHeight),
-                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth - 0.1f);
+                                Color.White, 0.0f, new Vector2(0.0f, 0.0f), SpriteEffects.None, m_Depth);
 
                             SBatch.Draw(m_Thumb, new Rectangle((int)(Position.X + TexturePosition.X),
                                 (int)(Position.Y + TexturePosition.Y), m_Thumb.Width, m_Thumb.Height),
