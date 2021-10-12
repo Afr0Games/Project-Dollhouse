@@ -99,6 +99,10 @@ namespace Gonzo.Dialogs
             {
                 KeyboardInput.Update();
 
+                m_LblTitle.Update(Helper, GTime);
+                m_LblUsername.Update(Helper, GTime);
+                m_LblPassword.Update(Helper, GTime);
+
                 if (m_TxtUsername.IsMouseOver(Helper) || m_TxtPassword.IsMouseOver(Helper))
                     m_DoDrag = false;
                 if(m_TxtUsername.IsMouseOver(Helper))

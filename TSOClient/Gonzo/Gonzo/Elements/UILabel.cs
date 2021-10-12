@@ -17,17 +17,44 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gonzo.Elements
 {
+    /// <summary>
+    /// A text label for the UI.
+    /// Mostly used for displaying static text.
+    /// </summary>
     public class UILabel : UIElement
     {
-        public string Caption = "";
         private Color m_TextColor;
         private TextAlignment m_Alignment;
+
+        private bool m_TextHasBeenUpdated = false;
+
+        private string m_Caption = "";
+        public string Caption
+        {
+            get { return m_Caption; }
+            set 
+            {
+                m_Caption = value;
+
+                Vector2 StringDimensions = m_Font.MeasureString(Caption);
+                m_TextTex = new RenderTarget2D(GraphicsDevice, 
+                    ((int)StringDimensions.X != 0) ? (int)StringDimensions.X : 1, 
+                    ((int)StringDimensions.Y != 0) ? (int)StringDimensions.Y : 1);
+
+                m_TextHasBeenUpdated = true;
+            }
+        }
+
+        //For rendering static text.
+        private RenderTarget2D m_TextTex;
 
         public UILabel(AddTextNode Node, ParseResult Result, UIScreen Screen) : base(Screen)
         {
             Name = Node.Name;
             m_ID = Node.ID;
             Position = new Vector2(Node.TextPosition.Numbers[0], Node.TextPosition.Numbers[1]) + Screen.Position;
+
+            DrawOrder = (int)DrawOrderEnum.UI;
 
             if (Node.Size != null)
                 m_Size = new Vector2(Node.Size.Numbers[0], Node.Size.Numbers[1]);
@@ -91,7 +118,7 @@ namespace Gonzo.Elements
                 Caption = Result.Strings[Node.Text];
             else
             {
-                if(Result.State.Caption != "") 
+                if (Result.State.Caption != "")
                     //Sometimes labels will not have pre-defined text, as they will hold text
                     //generated in-game.
                     Caption = Result.Strings[Result.State.Caption];
@@ -114,6 +141,8 @@ namespace Gonzo.Elements
                 //Would a UILabel ever be attached to anything but a UIDialog instance? Probably not.
                 UIDialog Dialog = (UIDialog)Parent;
                 Dialog.OnDragged += Dialog_OnDragged;
+
+                DrawOrder = Parent.DrawOrder;
             }
 
             m_Size = new Vector2(Size.X, Size.Y);
@@ -221,6 +250,34 @@ namespace Gonzo.Elements
             Position = (MousePosition + RelativePosition) - DragOffset;
         }
 
+        private void PreRenderText()
+        {
+            SpriteBatch SBatch = new SpriteBatch(GraphicsDevice);
+
+            GraphicsDevice.SetRenderTarget(m_TextTex);
+
+            SBatch.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend, SamplerState.PointClamp, 
+                null, null);
+            GraphicsDevice.Clear(Color.Transparent);
+            SBatch.DrawString(m_Font, Caption, Vector2.Zero, m_TextColor);
+            SBatch.End();
+
+            GraphicsDevice.SetRenderTarget(null);
+        }
+
+        public override void Update(InputHelper Helper, GameTime GTime)
+        {
+            base.Update(Helper, GTime);
+
+            //Because labels are infrequently updated (if at all), this is OK.
+            if (m_TextHasBeenUpdated)
+            {
+                PreRenderText();
+
+                m_TextHasBeenUpdated = false;
+            }
+        }
+
         public override void Draw(SpriteBatch SBatch, float? LayerDepth)
         {
             float Depth;
@@ -233,8 +290,8 @@ namespace Gonzo.Elements
             {
                 if (Visible)
                 {
-                    SBatch.DrawString(m_Font, Caption, Position, m_TextColor, 0.0f, new Vector2(0.0f, 0.0f), 1.0f,
-                        SpriteEffects.None, Depth);
+                    SBatch.Draw(m_TextTex, Position, null, Color.White, 0.0f, new Vector2(0.0f, 0.0f), 1.0f, 
+                        SpriteEffects.None, Depth + 0.9f);
                 }
             }
         }

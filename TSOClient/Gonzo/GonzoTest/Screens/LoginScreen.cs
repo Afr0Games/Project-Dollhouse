@@ -111,7 +111,8 @@ namespace GonzoTest
                     RasterState.ScissorTestEnable = true;
                     RasterState.CullMode = CullMode.CullCounterClockwiseFace;
 
-                    m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null,
+                    //Was FrontToBack
+                    m_SBatch.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend, null, null,
                        RasterState, null, Resolution.TransformationMatrix());
 
                     Element.Draw(m_SBatch, 0.5f);

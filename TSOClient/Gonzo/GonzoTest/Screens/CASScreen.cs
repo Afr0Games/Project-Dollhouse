@@ -101,6 +101,7 @@ namespace GonzoTest
             RegisterElement(m_ExitDialog);
 
             m_DescriptionTextEdit = (UITextEdit)m_PResult.Elements["\"DescriptionTextEdit\""];
+            m_DescriptionTextEdit.DrawOrder = (int)DrawOrderEnum.UI;
 
             HitVM.PlayEvent("bkground_createasim");
 
@@ -232,12 +233,13 @@ namespace GonzoTest
 
         public override void Draw()
         {
-            m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
+            //Used to be SpriteSortMode.FrontToBack.
+            m_SBatch.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend, null, null, 
                 RasterizerState.CullCounterClockwise, null, Resolution.TransformationMatrix());
 
             base.Draw(); //Needs to be drawn first for the ExitDialog to be drawn correctly.
 
-            Manager.Device.Clear(Color.Black);
+            //Manager.Device.Clear(Color.Black);
 
             m_SBatch.End();
         }
