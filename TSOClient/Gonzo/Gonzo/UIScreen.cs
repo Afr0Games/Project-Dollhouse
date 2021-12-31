@@ -114,7 +114,8 @@ namespace Gonzo
                 foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
                     KVP.Value.HasFocus = false;
 
-                m_PResult.Elements[Element.Name].HasFocus = true;
+                if(m_PResult.Elements.ContainsKey(Element.Name))
+                    m_PResult.Elements[Element.Name].HasFocus = true;
             }
         }
 

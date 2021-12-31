@@ -15,6 +15,7 @@ namespace GonzoTest
 {
     public class SASScreen : UIScreen
     {
+        //All variables that exists in the script shares their name between the script and the code!
         private UIBackgroundImage m_BackgroundImg;
         private UIImage TabBackgroundImg1, TabBackgroundImg2, TabBackgroundImg3, DescriptionTabBackgroundImg1, DescriptionTabBackgroundImg2, DescriptionTabBackgroundImg3, 
             DescriptionTabImage1, DescriptionTabImage2, DescriptionTabImage3, EnterTabImage1, EnterTabImage2, EnterTabImage3, EnterTabBackgroundImage1, EnterTabBackgroundImage2, EnterTabBackgroundImage3, /*DefaultHouseImg,*/ CreditsBackgroundImg,/*, CityThumbnailBusyImg*/

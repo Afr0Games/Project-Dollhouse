@@ -14,6 +14,7 @@ namespace GonzoTest
 {
     public class CreditsScreen : UIScreen
     {
+        //All variables that exists in the script shares their name between the script and the code!
         private UIBackgroundImage BackgroundImg;
         private UIImage TSOLogoImage, BackButtonIndentImage, WillImage;
         private UIButton MaxisButton, BackButton;

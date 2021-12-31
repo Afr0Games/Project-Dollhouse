@@ -59,12 +59,14 @@ namespace Gonzo.Dialogs
             RelativePosition = new Vector2(20, 85);
             m_TxtUsername = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), 
                 (int)(Pos.Y + RelativePosition.Y), 230, 25), 64, "", m_Screen.Manager.Graphics, 9, 
-                Color.Wheat, Color.White, 30, m_Screen, true, this);
+                Color.Wheat, Color.White, 30, m_Screen, true, true, this);
             m_TxtUsername.DrawOrder = (int)DrawOrderEnum.UI;
+            m_TxtUsername.Name = "TxtUsername";
             RelativePosition = new Vector2(20, 145);
             m_TxtPassword = new TextBox(new Rectangle((int)(Pos.X + RelativePosition.X), 
                 (int)(Pos.Y + RelativePosition.Y), 230, 25), 64, "", m_Screen.Manager.Graphics, 9, Color.Wheat, 
-                Color.White, 30, m_Screen, true, this);
+                Color.White, 30, m_Screen, true, true, this);
+            m_TxtPassword.Name = "TxPassword";
             m_TxtPassword.DrawOrder = (int)DrawOrderEnum.UI;
 
             KeyboardInput.Initialize(Screen.Manager, 500f, 20);
