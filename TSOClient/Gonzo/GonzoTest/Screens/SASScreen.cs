@@ -192,6 +192,8 @@ namespace GonzoTest
 
             m_CreditsButton = (UIButton)m_PResult.Elements["\"CreditsButton\""];
 
+            HitVM.PlayEvent("bkground_selectasim");
+
             foreach (KeyValuePair<string, UIElement> KVP in m_PResult.Elements)
                 RegisterElement(KVP.Value);
         }
@@ -388,7 +390,8 @@ namespace GonzoTest
 
         public override void Draw()
         {
-            m_SBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, 
+            //Used to be SpriteSortMode.FrontToBack.
+            m_SBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, 
                 RasterizerState.CullCounterClockwise, null, Resolution.TransformationMatrix());
 
             base.Draw();

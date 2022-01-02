@@ -107,7 +107,6 @@ namespace GonzoTest
                 StandardTxtColor, StandardTxtColor, 30, this, false);
             m_NameTextEdit.Name = "NameTextEdit"; //This should be set for all UIElements that need to receive input.
             m_NameTextEdit.DrawOrder = (int)DrawOrderEnum.UI;
-            //RegisterElement(m_NameTextEdit);
             m_DescriptionTextEdit = (UITextEdit)m_PResult.Elements["\"DescriptionTextEdit\""];
             m_DescriptionTextEdit.DrawOrder = (int)DrawOrderEnum.UI;
 
