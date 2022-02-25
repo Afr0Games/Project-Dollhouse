@@ -124,11 +124,13 @@ namespace GonzoTest
             m_DescriptionTabBtn3.Enabled = m_Avatars.Count == 3 ? true : false;
 
             m_AvatarButton1 = (UIButton)m_PResult.Elements["\"AvatarButton1\""];
-            m_AvatarButton1.AddImage(SimCreateButtonImage);
+            //m_AvatarButton1.AddImage(SimCreateButtonImage);
             m_AvatarButton2 = (UIButton)m_PResult.Elements["\"AvatarButton2\""];
-            m_AvatarButton2.AddImage(SimCreateButtonImage);
+            UIImage SimCreateButtonImg2 = new UIImage(SimCreateButtonImage);
+            m_AvatarButton2.AddImage(SimCreateButtonImg2);
             m_AvatarButton3 = (UIButton)m_PResult.Elements["\"AvatarButton3\""];
-            m_AvatarButton3.AddImage(SimCreateButtonImage);
+            UIImage SimCreateButtonImg3 = new UIImage(SimCreateButtonImage);
+            m_AvatarButton3.AddImage(SimCreateButtonImg3);
 
             m_CityButton1 = (UIButton)m_PResult.Elements["\"CityButton1\""];
             m_CityButton1.AddImage(GetImage("\"CityButtonTemplateImage\"", true));
