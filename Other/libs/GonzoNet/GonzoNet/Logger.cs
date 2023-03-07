@@ -52,7 +52,7 @@ namespace GonzoNet
         /// <summary>
         /// Called by classes in GonzoNet to log a message.
         /// </summary>
-        /// <param name="Msg"></param>
+        /// <param name="Msg">The message to log!</param>
         public static void Log(string Message, LogLevel Lvl)
         {
             if (GlobalSettings.Default.DEBUG_BUILD)

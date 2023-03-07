@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the TSO CityServer.
+The Original Code is GonzoNet.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -23,7 +23,7 @@ namespace GonzoNet
 	/// <summary>
 	/// A readable and writable packet.
 	/// </summary>
-	public class PacketStream : Stream
+	public class PacketStream : Stream, IPacket
 	{
 		//The ID of this PacketStream (identifies a packet).
 		private byte m_ID;
@@ -41,6 +41,7 @@ namespace GonzoNet
 
 		/// <summary>
 		/// Constructs a new PacketStream instance to read from.
+		/// The buffer provided should NOT contain the header (3 bytes).
 		/// </summary>
 		/// <param name="ID">The ID of this PacketStream instance.</param>
 		/// <param name="Length">The length of this PacketStream instance.</param>
@@ -60,11 +61,12 @@ namespace GonzoNet
 
 			m_Reader = new BinaryReader(m_BaseStream);
 
-			m_Position = (DataBuffer.Length - 1);
+			m_Position = 0;
 		}
 
 		/// <summary>
 		/// Constructs a new PacketStream instance to write to.
+		/// Automatically writes the ID to the stream and sets the stream's position to 1.
 		/// </summary>
 		/// <param name="ID">The ID of this PacketStream instance.</param>
 		/// <param name="Length">The length of this PacketStream instance (0 if variable length).</param>
@@ -77,7 +79,8 @@ namespace GonzoNet
 
 			m_BaseStream = new MemoryStream();
 			m_Writer = new BinaryWriter(m_BaseStream);
-			m_Position = 0;
+			m_Writer.Write(ID);
+			m_Position = 1;
 		}
 
 		public override bool CanRead
@@ -155,7 +158,7 @@ namespace GonzoNet
 		{
 			byte[] Tmp = m_BaseStream.ToArray();
 			//No idea if these two lines actually work, but they should...
-			m_BaseStream = new MemoryStream((int)value);
+			m_BaseStream = new MemoryStream((ushort)value);
 			m_BaseStream.Write(Tmp, 0, Tmp.Length);
 		}
 
@@ -181,22 +184,40 @@ namespace GonzoNet
 		/// <summary>
 		/// Creates an array of bytes with the data in this PacketStream instance.
 		/// </summary>
+		/// <param name="OmitHeader">Should the header be omitted from the data? True by default.</param>
 		/// <returns>An array of bytes.</returns>
-		public byte[] ToArray()
+		public byte[] ToArray(bool OmitHeader = true)
 		{
-			byte[] bytes;
+			byte[] Bytes;
+			byte[] Temp;
 
 			lock (m_BaseStream)
-				bytes = m_BaseStream.ToArray();
+			{
+				if(!OmitHeader)
+					Bytes = m_BaseStream.ToArray();
+				else
+				{
+					Temp = m_BaseStream.ToArray();
+					BinaryReader Reader = new BinaryReader(new MemoryStream(Temp));
+					
+					Reader.ReadBytes(3); //Header
+					Bytes = Reader.ReadBytes(Temp.Length - 3);
+
+					Reader.Close();
+				}
+			}
 
 			if (m_VariableLength)
 			{
-				var packetLength = (ushort)m_Position;
-				bytes[2] = (byte)(packetLength & 0xFF);
-				bytes[3] = (byte)(packetLength >> 8);
+				if (!OmitHeader)
+				{
+					var packetLength = (ushort)m_Position;
+					Bytes[2] = (byte)(packetLength & 0xFF);
+					Bytes[3] = (byte)(packetLength >> 8);
+				}
 			}
 
-			return bytes;
+			return Bytes;
 		}
 
 		#region Reading
@@ -210,8 +231,13 @@ namespace GonzoNet
 		/// <returns>The number of bytes that were read.</returns>
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			int Read = m_BaseStream.Read(buffer, offset, count);
-			m_Position -= Read;
+			int Read;
+
+			lock (m_BaseStream)
+			{
+				Read = m_BaseStream.Read(buffer, offset, count);
+				m_Position += Read;
+			}
 
 			return Read;
 		}
@@ -236,7 +262,14 @@ namespace GonzoNet
 		public byte PeekByte()
 		{
 			if (m_SupportsPeek)
-				return m_PeekBuffer[m_Position];
+			{
+				byte Peeked;
+
+				lock (m_PeekBuffer)
+					Peeked = m_PeekBuffer[m_Position];
+
+				return Peeked;
+			}
 			else
 				throw new PeekNotSupportedException("Tried peeking from a PacketStream instance that didn't support it!");
 		}
@@ -248,9 +281,16 @@ namespace GonzoNet
 		/// <returns>The byte that was peeked.</returns>
 		public byte PeekByte(int Position)
 		{
-			if (m_SupportsPeek)
-				return m_PeekBuffer[Position];
-			else
+            if (m_SupportsPeek)
+            {
+                byte Peeked;
+
+                lock (m_PeekBuffer)
+                    Peeked = m_PeekBuffer[Position];
+
+                return Peeked;
+            }
+            else
 				throw new PeekNotSupportedException("Tried peeking from a PacketStream instance that didn't support it!");
 		}
 
@@ -277,8 +317,15 @@ namespace GonzoNet
 		/// <returns>A byte cast to an int.</returns>
 		public override int ReadByte()
 		{
-			m_Position -= 1;
-			return m_BaseStream.ReadByte();
+			byte Read;
+
+			lock (m_BaseStream)
+			{
+				m_Position += 1;
+				Read = (byte)m_BaseStream.ReadByte();
+			}
+
+			return Read;
 		}
 
 		/// <summary>
@@ -287,8 +334,15 @@ namespace GonzoNet
 		/// <returns>A double.</returns>
 		public double ReadDouble()
 		{
-			m_Position -= 8;
-			return m_Reader.ReadDouble();
+			double Read;
+
+			lock(m_Reader)
+			{
+				m_Position += 8;
+				Read = m_Reader.ReadDouble();
+			}
+
+			return Read;
 		}
 
 		/// <summary>
@@ -297,7 +351,7 @@ namespace GonzoNet
 		/// <returns>A ushort.</returns>
 		public ushort ReadUShort()
 		{
-			m_Position -= 2;
+			m_Position += 2;
 
 			return ReadUInt16();
 		}
@@ -313,8 +367,11 @@ namespace GonzoNet
 
 			try
 			{
-				ReturnStr = m_Reader.ReadString();
-				m_Position -= ReturnStr.Length;
+				lock (m_Reader)
+				{
+					ReturnStr = m_Reader.ReadString();
+					m_Position += ReturnStr.Length;
+				}
 			}
 			catch (EndOfStreamException)
 			{
@@ -331,7 +388,9 @@ namespace GonzoNet
 		public string ReadString(int NumChars)
 		{
 			byte[] UTF8Buf = new byte[NumChars];
-			m_Reader.Read(UTF8Buf, 0, NumChars);
+
+			lock(m_Reader)
+				m_Reader.Read(UTF8Buf, 0, NumChars);
 
 			m_Position -= NumChars;
 
@@ -344,8 +403,14 @@ namespace GonzoNet
 		/// <returns>A 32 bit integer.</returns>
 		public int ReadInt32()
 		{
-			m_Position -= 4;
-			return m_Reader.ReadInt32();
+			int Read;
+
+			m_Position += 4;
+
+			lock(m_Reader)
+				Read = m_Reader.ReadInt32();
+
+			return Read;
 		}
 
 		/// <summary>
@@ -354,9 +419,15 @@ namespace GonzoNet
 		/// <returns>A 64 bit integer.</returns>
 		public long ReadInt64()
 		{
-			m_Position -= 8;
-			return m_Reader.ReadInt64();
-		}
+            long Read;
+
+            m_Position += 8;
+
+            lock (m_Reader)
+                Read = m_Reader.ReadInt64();
+
+            return Read;
+        }
 
 		/// <summary>
 		/// Reads a short from this PacketStream instance.
@@ -364,9 +435,15 @@ namespace GonzoNet
 		/// <returns>A 16 bit integer.</returns>
 		public ushort ReadUInt16()
 		{
-			m_Position -= 2;
-			return m_Reader.ReadUInt16();
-		}
+            ushort Read;
+
+            m_Position += 2;
+
+            lock (m_Reader)
+                Read = m_Reader.ReadUInt16();
+
+            return Read;
+        }
 
 		/// <summary>
 		/// Reads an unsigned long integer from this PacketStream instance.
@@ -374,9 +451,15 @@ namespace GonzoNet
 		/// <returns>A 64 bit unsigned integer.</returns>
 		public ulong ReadUInt64()
 		{
-			m_Position -= 8;
-			return m_Reader.ReadUInt64();
-		}
+            ulong Read;
+
+            m_Position += 2;
+
+            lock (m_Reader)
+                Read = m_Reader.ReadUInt64();
+
+            return Read;
+        }
 
 		#endregion
 
@@ -421,7 +504,7 @@ namespace GonzoNet
 			lock (m_BaseStream)
 			{
 				m_BaseStream.Write(Buffer, 0, Buffer.Length);
-				m_Position += Buffer.Length;
+				m_Position += Buffer.Length - 1;
 				m_BaseStream.Flush();
 			}
 		}
@@ -559,18 +642,6 @@ namespace GonzoNet
 					m_Position += Str.Length + 1;
 					m_Writer.Flush();
 				}
-			}
-		}
-
-		/// <summary>
-		/// Writes the packet header.
-		/// </summary>
-		public void WriteHeader()
-		{
-			lock (m_Writer)
-			{
-				WriteByte(this.m_ID);
-				m_Position += 1;
 			}
 		}
 
