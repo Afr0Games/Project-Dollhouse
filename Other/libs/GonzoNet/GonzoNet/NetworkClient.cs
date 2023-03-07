@@ -12,18 +12,14 @@ Contributor(s): ______________________________________.
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using System.IO;
-using System.Security.Cryptography;
 using GonzoNet.Encryption;
 
 namespace GonzoNet
 {
 	public delegate void NetworkErrorDelegate(SocketException Exception);
-	public delegate void ReceivedPacketDelegate(PacketStream Packet);
+	public delegate void ReceivedPacketDelegate(NetworkClient Sender, IPacket Packet);
 	public delegate void OnConnectedDelegate(LoginArgsContainer LoginArgs);
 
 	public class NetworkClient
@@ -40,6 +36,8 @@ namespace GonzoNet
 
 		private byte[] m_RecvBuf;
 		PacketHandler m_Handler;
+
+		ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
 
 		private EncryptionMode m_EMode;
 		private Encryptor m_ClientEncryptor;
@@ -75,6 +73,13 @@ namespace GonzoNet
 		public event ReceivedPacketDelegate OnReceivedData;
 		public event OnConnectedDelegate OnConnected;
 
+		/// <summary>
+		/// Initializes a client for connecting to a remote server and listening to data.
+		/// </summary>
+		/// <param name="IP">The IP to connect to.</param>
+		/// <param name="Port">The port to connect to.</param>
+		/// <param name="EMode">The encryption mode to use!</param>
+		/// <param name="KeepAlive">Should this connection be kept alive?</param>
 		public NetworkClient(string IP, int Port, EncryptionMode EMode, bool KeepAlive)
 		{
 			m_Sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -87,24 +92,30 @@ namespace GonzoNet
 
 			m_EMode = EMode;
 
-			m_RecvBuf = new byte[11024];
+			//m_RecvBuf = new byte[11024];
+			m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
+
+            m_ProcessingBuffer.OnProcessedPacket += M_ProcessingBuffer_OnProcessedPacket;
 		}
 
-		/// <summary>
-		/// Initializes a client that listens for data.
-		/// </summary>
-		/// <param name="ClientSocket">The client's socket.</param>
-		/// <param name="Server">The Listener instance calling this constructor.</param>
-		/// <param name="ReceivePulse">Should this client receive a pulse at a regular interval?</param>
-		public NetworkClient(Socket ClientSocket, Listener Server, EncryptionMode EMode)
+        /// <summary>
+        /// Initializes a client that listens for data.
+        /// </summary>
+        /// <param name="ClientSocket">The client's socket.</param>
+        /// <param name="Server">The Listener instance calling this constructor.</param>
+		/// <param name="EMode">The encryption mode to use!</param>
+        public NetworkClient(Socket ClientSocket, Listener Server, EncryptionMode EMode)
 		{
 			m_Sock = ClientSocket;
 			m_Listener = Server;
-			m_RecvBuf = new byte[11024];
+            //m_RecvBuf = new byte[11024];
+            m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
 
-			m_EMode = EMode;
+            m_EMode = EMode;
 
-			m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
+            m_ProcessingBuffer.OnProcessedPacket += M_ProcessingBuffer_OnProcessedPacket;
+
+            m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
 				new AsyncCallback(ReceiveCallback), m_Sock);
 		}
 
@@ -118,8 +129,11 @@ namespace GonzoNet
 
 			if (LoginArgs != null)
 			{
-				m_ClientEncryptor = LoginArgs.Enc;
-				m_ClientEncryptor.Username = LoginArgs.Username;
+				if(m_EMode == EncryptionMode.AESCrypto)
+				{
+					m_ClientEncryptor = LoginArgs.Enc;
+					m_ClientEncryptor.Username = LoginArgs.Username;
+				}
 			}
 			//Making sure that the client is not already connecting to the loginserver.
 			if (!m_Sock.Connected)
@@ -168,11 +182,6 @@ namespace GonzoNet
 			}
 		}
 
-		/*public void On(PacketType PType, ReceivedPacketDelegate PacketDelegate)
-		{
-
-		}*/
-
 		protected virtual void OnSend(IAsyncResult AR)
 		{
 			Socket ClientSock = (Socket)AR.AsyncState;
@@ -209,30 +218,14 @@ namespace GonzoNet
 			}
 		}
 
-		private Queue<KeyValuePair<ProcessedPacket, PacketHandler>> packetQueue = new Queue<KeyValuePair<ProcessedPacket, PacketHandler>>();
-
-		public void ProcessPackets()
-		{
-			lock (packetQueue)
-			{
-				while (packetQueue.Count > 0)
-				{
-					var elem = packetQueue.Dequeue();
-					elem.Value.Handler(this, elem.Key);
-				}
-			}
-		}
-
-		private void OnPacket(ProcessedPacket packet, PacketHandler handler)
-		{
-			if (OnReceivedData != null)
-			{
-				OnReceivedData(packet);
-			}
-
-			packetQueue.Enqueue(new KeyValuePair<ProcessedPacket, PacketHandler>(packet, handler));
-			//handler.Handler(this, packet);
-		}
+        /// <summary>
+        /// We processed a packet, hurray!
+        /// </summary>
+        /// <param name="Packet">The packet that was processed.</param>
+        private void M_ProcessingBuffer_OnProcessedPacket(PacketStream Packet)
+        {
+            OnReceivedData(this, Packet);
+        }
 
 		protected virtual void ReceiveCallback(IAsyncResult AR)
 		{
@@ -241,180 +234,16 @@ namespace GonzoNet
 				Socket Sock = (Socket)AR.AsyncState;
 				int NumBytesRead = Sock.EndReceive(AR);
 
-				/** Cant do anything with this! **/
+				/** Can't do anything with this! **/
 				if (NumBytesRead == 0) { return; }
 
 				byte[] TmpBuf = new byte[NumBytesRead];
 				Buffer.BlockCopy(m_RecvBuf, 0, TmpBuf, 0, NumBytesRead);
-				m_RecvBuf = new byte[11024]; //Clear, to make sure this buffer is always fresh.
+				//m_RecvBuf = new byte[11024]; //Clear, to make sure this buffer is always fresh.
+				m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
 
-				if (m_TempPacket == null) //No temporary data was stored - beginning of new packet!
-				{
-					//The packet is given an ID of 0x00 because its ID is currently unknown.
-					PacketStream UnknownPacket = new PacketStream(0x00, (ushort)NumBytesRead, TmpBuf);
-					byte ID = UnknownPacket.PeekByte(0);
-					Logger.Log("Received packet: " + ID, LogLevel.info);
-
-					ushort PacketLength = 0;
-					m_Handler = FindPacketHandler(ID);
-					PacketLength = m_Handler.Length;
-
-					if (PacketLength == 0) //Variable length!
-					{
-						if (NumBytesRead >= (int)PacketHeaders.ENCRYPTED)
-							PacketLength = UnknownPacket.PeekUShort(1);
-					}
-					else
-					{
-						if (m_TempPacket == null)
-							m_TempPacket = new PacketStream(ID, PacketLength);
-
-						byte[] TmpBuffer = new byte[NumBytesRead];
-
-						//Store the number of bytes that were read in the temporary buffer.
-						Logger.Log("Got data, but not a full header - stored " +
-							NumBytesRead.ToString() + "bytes!\r\n\r\n", LogLevel.info);
-						Buffer.BlockCopy(m_RecvBuf, 0, TmpBuffer, 0, NumBytesRead);
-						m_TempPacket.WriteBytes(TmpBuffer);
-
-						TmpBuffer = null;
-					}
-
-					if (PacketLength != 0)
-					{
-						if (NumBytesRead == PacketLength)
-						{
-							Logger.Log("Got packet - exact length!\r\n\r\n", LogLevel.info);
-
-							OnPacket(new ProcessedPacket(ID, m_Handler.Encrypted, m_Handler.VariableLength, PacketLength,
-								m_ClientEncryptor, UnknownPacket.ToArray()), m_Handler);
-						}
-						else if (NumBytesRead < PacketLength)
-						{
-							if (m_TempPacket == null)
-								m_TempPacket = new PacketStream(ID, PacketLength);
-
-							byte[] TmpBuffer = new byte[NumBytesRead];
-
-							//Store the number of bytes that were read in the temporary buffer.
-							Logger.Log("Got data, but not a full packet - stored " +
-								NumBytesRead.ToString() + "bytes!\r\n\r\n", LogLevel.info);
-							Buffer.BlockCopy(m_RecvBuf, 0, TmpBuffer, 0, NumBytesRead);
-							m_TempPacket.WriteBytes(TmpBuffer);
-
-							TmpBuffer = null;
-						}
-						else if (NumBytesRead > PacketLength)
-						{
-							Logger.Log("Received more bytes than needed for packet. Excess: " +
-								(NumBytesRead - PacketLength) + "\r\n", LogLevel.info);
-							PacketHandler OldHandler = m_Handler;
-
-							byte[] PacketBuffer = new byte[PacketLength];
-							Buffer.BlockCopy(UnknownPacket.ToArray(), 0, PacketBuffer, 0, PacketBuffer.Length);
-
-							OnPacket(new ProcessedPacket(ID, OldHandler.Encrypted, OldHandler.VariableLength,
-								OldHandler.Length, m_ClientEncryptor, PacketBuffer), OldHandler);
-
-							byte[] TmpBuffer = new byte[NumBytesRead - PacketLength];
-							Buffer.BlockCopy(UnknownPacket.ToArray(), (NumBytesRead - PacketLength) - 1,
-								TmpBuffer, 0, TmpBuffer.Length);
-
-							m_TempPacket = new PacketStream(TmpBuffer[0], (ushort)(NumBytesRead - PacketLength),
-								TmpBuffer);
-							m_TempPacket.WriteBytes(TmpBuffer);
-
-							m_Handler = FindPacketHandler(ID);
-							PacketLength = m_Handler.Length;
-
-							if (PacketLength == 0) //Variable length!
-							{
-								if (m_TempPacket.BufferLength >= (int)PacketHeaders.ENCRYPTED)
-								{
-									PacketLength = UnknownPacket.PeekUShort(1);
-									m_TempPacket.SetLength(PacketLength);
-								}
-							}
-
-							TmpBuffer = null;
-						}
-					}
-				}
-				else
-				{
-					m_TempPacket.WriteBytes(TmpBuf);
-
-					if (m_TempPacket.Length == 0) //Variable length!
-					{
-						if (NumBytesRead >= (int)PacketHeaders.ENCRYPTED)
-							m_TempPacket.SetLength(m_TempPacket.PeekUShort(1));
-						else
-						{
-							byte[] TmpBuffer = new byte[NumBytesRead];
-
-							//Store the number of bytes that were read in the temporary buffer.
-							Logger.Log("Got data, but not a full header - stored " +
-								NumBytesRead.ToString() + "bytes!\r\n\r\n", LogLevel.info);
-							Buffer.BlockCopy(m_RecvBuf, 0, TmpBuffer, 0, NumBytesRead);
-							m_TempPacket.WriteBytes(TmpBuffer);
-
-							BeginReceive();
-
-							TmpBuffer = null;
-						}
-					}
-
-					if (m_TempPacket.BufferLength == m_TempPacket.Length)
-					{
-						Logger.Log("Got packet - exact length!\r\n\r\n", LogLevel.info);
-
-						OnPacket(new ProcessedPacket(m_TempPacket.PacketID, m_Handler.Encrypted, m_Handler.VariableLength,
-							(ushort)m_TempPacket.Length, m_ClientEncryptor, m_TempPacket.ToArray()), m_Handler);
-					}
-					else if (m_TempPacket.BufferLength < m_TempPacket.Length)
-					{
-						byte[] TmpBuffer = new byte[NumBytesRead];
-
-						//Store the number of bytes that were read in the temporary buffer.
-						Logger.Log("Got data, but not a full packet - stored " +
-							NumBytesRead.ToString() + "bytes!\r\n\r\n", LogLevel.info);
-						Buffer.BlockCopy(m_RecvBuf, 0, TmpBuffer, 0, NumBytesRead);
-						m_TempPacket.WriteBytes(TmpBuffer);
-
-						TmpBuffer = null;
-					}
-					else if (m_TempPacket.BufferLength > m_TempPacket.Length)
-					{
-						Logger.Log("Received more bytes than needed for packet. Excess: " +
-							(m_TempPacket.BufferLength - m_TempPacket.Length) + "\r\n", LogLevel.info);
-						PacketHandler OldHandler = m_Handler;
-
-						byte[] PacketBuffer = new byte[m_TempPacket.Length];
-						Buffer.BlockCopy(m_TempPacket.ToArray(), 0, PacketBuffer, 0, PacketBuffer.Length);
-
-						OnPacket(new ProcessedPacket(OldHandler.ID, OldHandler.Encrypted, OldHandler.VariableLength,
-							OldHandler.Length, m_ClientEncryptor, PacketBuffer), OldHandler);
-
-						byte[] TmpBuffer = new byte[m_TempPacket.BufferLength - m_TempPacket.Length];
-						Buffer.BlockCopy(m_TempPacket.ToArray(), ((int)m_TempPacket.BufferLength - (int)m_TempPacket.Length),
-							TmpBuffer, 0, TmpBuffer.Length);
-
-						m_TempPacket = new PacketStream(TmpBuffer[0], (ushort)(m_TempPacket.BufferLength - m_TempPacket.Length),
-							TmpBuffer);
-
-						m_Handler = FindPacketHandler(m_TempPacket.PacketID);
-						ushort PacketLength = m_Handler.Length;
-
-						if (PacketLength == 0) //Variable length!
-						{
-							if (m_TempPacket.BufferLength >= (int)PacketHeaders.ENCRYPTED)
-							{
-								PacketLength = m_TempPacket.PeekUShort(1);
-								m_TempPacket.SetLength(PacketLength);
-							}
-						}
-					}
-				}
+                //Keep shoveling shit into the buffer as fast as we can.
+                m_ProcessingBuffer.AddData(TmpBuf); //Hence the Shoveling Shit Algorithm (SSA).
 
 				m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
 					new AsyncCallback(ReceiveCallback), m_Sock);

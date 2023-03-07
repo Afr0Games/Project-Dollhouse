@@ -17,7 +17,7 @@ using System.Text;
 
 namespace GonzoNet
 {
-    public delegate void OnPacketReceive(NetworkClient Client, ProcessedPacket Packet);
+    public delegate void OnPacketReceive(NetworkClient Client, IPacket Packet);
 
     /// <summary>
     /// A handler for a ProcessedPacket instance.

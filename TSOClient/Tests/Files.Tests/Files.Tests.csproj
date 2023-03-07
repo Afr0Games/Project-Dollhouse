@@ -8,7 +8,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Files.Tests</RootNamespace>
     <AssemblyName>Files.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -38,6 +38,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Files, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Files\Files\bin\Debug\Files.dll</HintPath>
+    </Reference>
+    <Reference Include="Sound">
+      <HintPath>..\..\Sound\bin\Debug\Sound.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -59,16 +66,6 @@
     <Compile Include="FileReaderTests.cs" />
     <Compile Include="FileWriterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Files\Files\Files.csproj">
-      <Project>{d455ecbe-a8dd-4261-a364-4a74dc5512a4}</Project>
-      <Name>Files</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Sound\Sound.csproj">
-      <Project>{b3a3bee4-ec13-48e0-b1d8-e5eebd27a2c9}</Project>
-      <Name>Sound</Name>
-    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

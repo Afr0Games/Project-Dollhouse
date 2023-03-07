@@ -22,7 +22,7 @@ namespace GonzoNet
     /// <summary>
     /// A packet that has been decrypted and processed, ready to read from.
     /// </summary>
-    public class ProcessedPacket : PacketStream
+    public class ProcessedPacket : PacketStream, IPacket
     {
         public volatile ushort DecryptedLength;
         public volatile bool DecryptedSuccessfully = false;

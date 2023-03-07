@@ -18,7 +18,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using GonzoNet.Encryption;
-using GonzoNet.Concurrency;
+//using GonzoNet.Concurrency;
 
 namespace GonzoNet
 {
