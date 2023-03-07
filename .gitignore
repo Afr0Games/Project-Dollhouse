@@ -97,3 +97,12 @@ TSOClient/Tests/GonzoTests/.vs/ProjectEvaluation/gonzotests.projects.v6.1
 TSOClient/Tests/GonzoTests/.vs/ProjectEvaluation/gonzotests.projects.v5.2
 TSOClient/Tests/GonzoTests/.vs/ProjectEvaluation/gonzotests.metadata.v6.1
 TSOClient/Tests/GonzoTests/.vs/ProjectEvaluation/gonzotests.metadata.v5.2
+TSOClient/Tests/TSOProtocol-testserver/.vs/ProjectEvaluation/tsoprotocol-testserver.metadata.v5.2
+*.1
+*.2
+*.v2
+*.v1
+*.testlog
+*.vsidx
+*.manifest
+*.lock
