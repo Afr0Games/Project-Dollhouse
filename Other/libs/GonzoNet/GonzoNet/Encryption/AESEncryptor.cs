@@ -142,16 +142,13 @@ namespace GonzoNet.Encryption
 		/// <param name="EncryptedPacket">An encrypted PacketStream instance.</param>
 		/// <param name="DecryptionArgs">A DecryptionArgsContainer instance.</param>
 		/// <returns>A MemoryStream instance with the decrypted data.</returns>
-		public override MemoryStream DecryptPacket(PacketStream EncryptedPacket, DecryptionArgsContainer DecryptionArgs)
+		public override MemoryStream DecryptPacket(Packet EncryptedPacket, DecryptionArgsContainer DecryptionArgs)
 		{
 			try
 			{
-				byte[] EncryptedData = new byte[EncryptedPacket.Length - (int)PacketHeaders.ENCRYPTED];
-				EncryptedPacket.Read(EncryptedData, 0, EncryptedData.Length);
-
 				byte[] DecryptedData = StaticStaticDiffieHellman.Decrypt(m_PrivateKey,
 					ECDiffieHellmanCngPublicKey.FromByteArray(m_PublicKey, CngKeyBlobFormat.EccPublicBlob),
-					m_NOnce, EncryptedData);
+					m_NOnce, EncryptedPacket.Data);
 
 				return new MemoryStream(DecryptedData);
 			}

@@ -19,7 +19,7 @@ using GonzoNet.Encryption;
 namespace GonzoNet
 {
 	public delegate void NetworkErrorDelegate(SocketException Exception);
-	public delegate void ReceivedPacketDelegate(NetworkClient Sender, IPacket Packet);
+	public delegate void ReceivedPacketDelegate(NetworkClient Sender, Packet P);
 	public delegate void OnConnectedDelegate(LoginArgsContainer LoginArgs);
 
 	public class NetworkClient
@@ -31,10 +31,13 @@ namespace GonzoNet
 
 		private bool m_Connected = false;
 
-		//Buffer for storing packets that were not fully read.
-		private PacketStream m_TempPacket;
+		/// <summary>
+		/// This client's SessionID. Ensures that a client is unique even if 
+		/// multiple clients are trying to connect using the same IP.
+		/// </summary>
+        public Guid SessionId { get; } = Guid.NewGuid();
 
-		private byte[] m_RecvBuf;
+        private byte[] m_RecvBuf;
 		PacketHandler m_Handler;
 
 		ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
@@ -222,9 +225,9 @@ namespace GonzoNet
         /// We processed a packet, hurray!
         /// </summary>
         /// <param name="Packet">The packet that was processed.</param>
-        private void M_ProcessingBuffer_OnProcessedPacket(PacketStream Packet)
+        private void M_ProcessingBuffer_OnProcessedPacket(Packet P)
         {
-            OnReceivedData(this, Packet);
+            OnReceivedData(this, P);
         }
 
 		protected virtual void ReceiveCallback(IAsyncResult AR)
@@ -313,5 +316,10 @@ namespace GonzoNet
 				return Handler;
 			else return null;
 		}
-	}
+
+        public override int GetHashCode()
+        {
+            return SessionId.GetHashCode();
+        }
+    }
 }

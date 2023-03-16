@@ -53,6 +53,6 @@ namespace GonzoNet.Encryption
         /// <param name="Key">The client's en/decryptionkey.</param>
         /// <param name="Service">The client's DESCryptoServiceProvider instance.</param>
         /// <param name="UnencryptedLength">The packet's unencrypted length (third byte in the header).</param>
-        public abstract MemoryStream DecryptPacket(PacketStream EncryptedPacket, DecryptionArgsContainer DecryptionArgs);
+        public abstract MemoryStream DecryptPacket(Packet EncryptedPacket, DecryptionArgsContainer DecryptionArgs);
     }
 }

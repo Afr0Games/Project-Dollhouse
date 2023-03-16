@@ -19,7 +19,7 @@ namespace GonzoNet
         /// Registers a PacketHandler with GonzoNet.
         /// </summary>
         /// <param name="id">The ID of the packet.</param>
-        /// <param name="size">The size of the packet.</param>
+        /// <param name="size">The size of the packet. 0 means variable length.</param>
         /// <param name="handler">The handler for the packet.</param>
         public static void Register(byte id, bool Encrypted, ushort size, OnPacketReceive handler)
         {

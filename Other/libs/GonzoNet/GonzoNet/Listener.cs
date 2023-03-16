@@ -18,11 +18,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using GonzoNet.Encryption;
-//using GonzoNet.Concurrency;
 
 namespace GonzoNet
 {
-    public delegate void OnReceiveDelegate(PacketStream P, NetworkClient Client);
+    public delegate void OnReceivedDelegate(Packet P, NetworkClient Client);
     public delegate void OnDisconnectedDelegate(NetworkClient Client);
 
 

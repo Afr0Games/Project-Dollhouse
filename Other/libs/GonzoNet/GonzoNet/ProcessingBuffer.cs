@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace GonzoNet
 {
-    delegate void ProcessedPacketDelegate(PacketStream Packet); 
+    //delegate void ProcessedPacketDelegate(PacketStream Packet);
+    delegate void ProcessedPacketDelegate(Packet packet);
 
     /// <summary>
     /// A buffer for processing received data, turning it into individual PacketStream instances.
@@ -81,8 +82,8 @@ namespace GonzoNet
                             lock (m_HeaderLock)
                                 m_HasReadHeader = false;
 
-                            PacketStream Packet = new PacketStream(m_CurrentID, m_CurrentLength, PacketData);
-                            OnProcessedPacket(Packet);
+                            Packet P = new Packet(m_CurrentID, m_CurrentLength, PacketData);
+                            OnProcessedPacket(P);
                         }
                     }
                 }

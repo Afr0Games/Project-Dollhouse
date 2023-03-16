@@ -86,9 +86,10 @@ namespace GonzoNet.Encryption
             return ReturnPacket;
         }
 
-        public override MemoryStream DecryptPacket(PacketStream EncryptedPacket, DecryptionArgsContainer DecryptionArgs)
+        public override MemoryStream DecryptPacket(Packet EncryptedPacket, DecryptionArgsContainer DecryptionArgs)
         {
-            CryptoStream CStream = new CryptoStream(EncryptedPacket, m_DecryptTransformer, CryptoStreamMode.Read);
+            CryptoStream CStream = new CryptoStream(new MemoryStream(EncryptedPacket.Data), m_DecryptTransformer, 
+                CryptoStreamMode.Read);
 
             byte[] DecryptedBuffer = new byte[DecryptionArgs.UnencryptedLength];
             CStream.Read(DecryptedBuffer, 0, DecryptedBuffer.Length);
