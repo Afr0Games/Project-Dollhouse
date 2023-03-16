@@ -21,7 +21,7 @@ namespace GonzoNet.Exceptions
     {
         public EventCodes ErrorCode = EventCodes.PACKET_DECRYPTION_ERROR;
 
-        public DecryptionException(string Description)
+        public DecryptionException(string Description = "Couldn't decrypt packet!")
             : base(Description)
         {
 

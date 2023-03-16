@@ -1,28 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
+using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
+using GonzoNet.Packets;
 
 namespace GonzoNet
 {
-    delegate void ProcessedPacketDelegate(PacketStream Packet); 
+    //delegate void ProcessedPacketDelegate(PacketStream Packet);
+    delegate void ProcessedPacketDelegate(Packet packet);
 
     /// <summary>
     /// A buffer for processing received data, turning it into individual PacketStream instances.
     /// </summary>
-    internal class ProcessingBuffer
+    internal class ProcessingBuffer : IDisposable
     {
         public static int MAX_PACKET_SIZE = 1024;
 
-        private static object m_BufferLock = new object();
-        private Queue<byte> m_InternalBuffer = new Queue<byte>();
+        private BlockingCollection<byte> m_InternalBuffer = new BlockingCollection<byte>();
+        private CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>
         /// Gets, but does NOT set the internal buffer. Used by tests.
         /// </summary>
-        public Queue<byte> InternalBuffer
+        public BlockingCollection<byte> InternalBuffer
         {
             get { return m_InternalBuffer; }
         }
@@ -35,58 +35,68 @@ namespace GonzoNet
         public event ProcessedPacketDelegate OnProcessedPacket;
         Task ProcessingTask;
 
+        /// <summary>
+        /// Creates a new ProcessingBuffer instance.
+        /// </summary>
         public ProcessingBuffer()
         {
-            ProcessingTask = Task.Run(() =>
+            CancellationToken Token = m_CancellationTokenSource.Token;
+
+            ProcessingTask = Task.Run(async () =>
             {
                 while (true)
                 {
+                    if (Token.IsCancellationRequested)
+                        return;
+
                     if (m_InternalBuffer.Count >= (int)PacketHeaders.UNENCRYPTED)
                     {
                         if (!m_HasReadHeader)
                         {
-                            lock (m_BufferLock)
-                            {
-                                m_CurrentID = m_InternalBuffer.Dequeue();
-                                byte[] LengthBuf = new byte[2];
+                            m_CurrentID = m_InternalBuffer.Take();
 
-                                for (int i = 0; i < LengthBuf.Length; i++)
-                                    LengthBuf[i] = m_InternalBuffer.Dequeue();
+                            byte[] LengthBuf = new byte[2];
 
-                                m_CurrentLength = BitConverter.ToUInt16(LengthBuf, 0);
-                            }
+                            for (int i = 0; i < LengthBuf.Length; i++)
+                                LengthBuf[i] = m_InternalBuffer.Take();
+
+                            m_CurrentLength = BitConverter.ToUInt16(LengthBuf, 0);
 
                             if (m_CurrentLength == 0)
                                 //TODO: Fail gracefully if no handler is registered...
                                 m_CurrentLength = PacketHandlers.Get(m_CurrentID).Length;
 
                             lock (m_HeaderLock)
-                                 m_HasReadHeader = true;
+                                m_HasReadHeader = true;
                         }
                     }
 
                     if (m_HasReadHeader == true)
                     {
-                        //Hurray, enough shit was shoveled into the buffer that we have a new packet!
+                        //Hurray, enough shit (data) was shoveled into the buffer that we have a new packet!
                         if (m_InternalBuffer.Count >= (m_CurrentLength - 3))
                         {
-                            byte[] PacketData = new byte[m_CurrentLength - 3]; //3 bytes is the size of the header.
+                            byte[] PacketData = new byte[m_CurrentLength - 3]; //Three bytes is the length of the header.
 
-                            lock (m_BufferLock)
-                            {
-                                for (int i = 0; i < PacketData.Length; i++)
-                                    PacketData[i] = m_InternalBuffer.Dequeue();
-                            }
+                            for (int i = 0; i < PacketData.Length; i++)
+                                PacketData[i] = m_InternalBuffer.Take();
 
                             lock (m_HeaderLock)
                                 m_HasReadHeader = false;
 
-                            PacketStream Packet = new PacketStream(m_CurrentID, m_CurrentLength, PacketData);
-                            OnProcessedPacket(Packet);
+                            Packet P = new Packet(m_CurrentID, m_CurrentLength, PacketData);
+                            OnProcessedPacket(P);
                         }
                     }
+
+                    await Task.Delay(10); //DON'T HOG THE PROCESSOR
                 }
-            });
+            }, Token);
+        }
+
+        private void StopProcessing()
+        {
+            m_CancellationTokenSource.Cancel(); // Request cancellation
         }
 
         /// <summary>
@@ -102,11 +112,38 @@ namespace GonzoNet
                 return;
             }
 
-            lock (m_BufferLock)
+            for (int i = 0; i < Data.Length; i++)
+                m_InternalBuffer.Add(Data[i]);
+        }
+
+        ~ProcessingBuffer()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SoundPlayer instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SoundPlayer instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
             {
-                for (int i = 0; i < Data.Length; i++)
-                    m_InternalBuffer.Enqueue(Data[i]);
+                StopProcessing();
+
+                // Prevent the finalizer from calling ~NetworkClient, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
             }
+            else
+                Logger.Log("ProcessingBuffer not explicitly disposed!", LogLevel.error);
         }
     }
 }

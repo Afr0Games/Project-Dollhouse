@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the TSOClient.
+The Original Code is the GonzoNet.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -11,77 +11,121 @@ Contributor(s): ______________________________________.
 */
 
 using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using GonzoNet.Encryption;
+using GonzoNet.Packets;
 
 namespace GonzoNet
 {
+    /// <summary>
+    /// Occurs when a network error happened.
+    /// </summary>
+    /// <param name="Exception">The SocketException that was thrown.</param>
 	public delegate void NetworkErrorDelegate(SocketException Exception);
-	public delegate void ReceivedPacketDelegate(NetworkClient Sender, IPacket Packet);
+
+    /// <summary>
+    /// Occurs when a packet was received.
+    /// </summary>
+    /// <param name="Sender">The NetworkClient instance that sent or received the packet.</param>
+    /// <param name="P">The Packet that was received.</param>
+	public delegate void ReceivedPacketDelegate(NetworkClient Sender, Packet P);
+
+    /// <summary>
+    /// Occurs when a client connected to a server.
+    /// </summary>
+    /// <param name="LoginArgs">The arguments that were used to establish the connection.</param>
 	public delegate void OnConnectedDelegate(LoginArgsContainer LoginArgs);
 
-	public class NetworkClient
+    /// <summary>
+    /// Occurs when a client a client disconnected.
+    /// </summary>
+    /// <param name="Sender">The NetworkClient instance that disconnected.</param>
+    public delegate void ClientDisconnectedDelegate(NetworkClient Sender);
+
+    /// <summary>
+    /// Occurs when a server sent a packet saying it's about to disconnect.
+    /// </summary>
+    /// <param name="Sender">The NetworkClient instance used to connect to the server.</param>
+	public delegate void ServerDisconnectedDelegate(NetworkClient Sender);
+
+    public class NetworkClient : IDisposable
 	{
 		protected Listener m_Listener;
-		private Socket m_Sock;
+        private readonly SemaphoreSlim m_SocketSemaphore = new SemaphoreSlim(1, 1);
+        private Socket m_Sock;
 		private string m_IP;
 		private int m_Port;
 
-		private bool m_Connected = false;
+        private readonly CancellationTokenSource m_ReceiveCancellationTokenSource = new CancellationTokenSource();
 
-		//Buffer for storing packets that were not fully read.
-		private PacketStream m_TempPacket;
+        private readonly object m_ConnectedLock = new object();
+        private bool m_Connected = false;
 
-		private byte[] m_RecvBuf;
+        /// <summary>
+        /// Is this client connected to a server?
+        /// </summary>
+        public bool IsConnected
+		{ 
+			get { return m_Connected; } 
+		}
+
+		/// <summary>
+		/// This client's SessionID. Ensures that a client is unique even if 
+		/// multiple clients are trying to connect using the same IP.
+		/// </summary>
+        public Guid SessionId { get; } = Guid.NewGuid();
+
+        private byte[] m_RecvBuf;
 		PacketHandler m_Handler;
 
-		ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
-
-		private EncryptionMode m_EMode;
-		private Encryptor m_ClientEncryptor;
-
-		public Encryptor ClientEncryptor
-		{
-			get
-			{
-				if (m_ClientEncryptor == null)
-				{
-					switch (m_EMode)
-					{
-						case EncryptionMode.AESCrypto:
-							lock (m_ClientEncryptor)
-								m_ClientEncryptor = new AESEncryptor("");
-							return m_ClientEncryptor;
-						default: //Should never end up here, so doesn't really matter what we put...
-							lock (m_ClientEncryptor)
-								m_ClientEncryptor = new AESEncryptor("");
-							return m_ClientEncryptor;
-					}
-				}
-
-				return m_ClientEncryptor;
-			}
-
-			set { m_ClientEncryptor = value; }
-		}
+		private ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
 
 		protected LoginArgsContainer m_LoginArgs;
 
+        /// <summary>
+        /// Fired when a network error occured.
+        /// </summary>
 		public event NetworkErrorDelegate OnNetworkError;
+
+        /// <summary>
+        /// Fired when this NetworkClient instance received data.
+        /// </summary>
 		public event ReceivedPacketDelegate OnReceivedData;
+
+        /// <summary>
+        /// Fired when this NetworkClient instance connected to a server.
+        /// </summary>
 		public event OnConnectedDelegate OnConnected;
 
-		/// <summary>
-		/// Initializes a client for connecting to a remote server and listening to data.
-		/// </summary>
-		/// <param name="IP">The IP to connect to.</param>
-		/// <param name="Port">The port to connect to.</param>
-		/// <param name="EMode">The encryption mode to use!</param>
-		/// <param name="KeepAlive">Should this connection be kept alive?</param>
-		public NetworkClient(string IP, int Port, EncryptionMode EMode, bool KeepAlive)
+        /// <summary>
+        /// Fired when this NetworkClient instance disconnected.
+        /// </summary>
+        public event ClientDisconnectedDelegate OnClientDisconnected;
+
+        /// <summary>
+        /// Fired when this MetworkClient instance received a packet about the server's impending disconnection.
+        /// </summary>
+		public event ServerDisconnectedDelegate OnServerDisconnected;
+
+        /// <summary>
+        /// Initializes a client for connecting to a remote server and listening to data.
+        /// </summary>
+        /// <param name="IP">The IP to connect to.</param>
+        /// <param name="Port">The port to connect to.</param>
+        /// <param name="EMode">The encryption mode to use!</param>
+        /// <param name="KeepAlive">Should this connection be kept alive?</param>
+        public NetworkClient(string IP, int Port, bool KeepAlive)
 		{
+            if (IP == null)
+                throw new ArgumentNullException("IP");
+
+            if (IP == string.Empty)
+                throw new ArgumentException("IP must be specified!");
+
 			m_Sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
 			if (KeepAlive)
@@ -89,8 +133,6 @@ namespace GonzoNet
 
 			m_IP = IP;
 			m_Port = Port;
-
-			m_EMode = EMode;
 
 			//m_RecvBuf = new byte[11024];
 			m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
@@ -104,158 +146,133 @@ namespace GonzoNet
         /// <param name="ClientSocket">The client's socket.</param>
         /// <param name="Server">The Listener instance calling this constructor.</param>
 		/// <param name="EMode">The encryption mode to use!</param>
-        public NetworkClient(Socket ClientSocket, Listener Server, EncryptionMode EMode)
+        public NetworkClient(Socket ClientSocket, Listener Server)
 		{
+            if (ClientSocket == null || Server == null)
+                throw new ArgumentNullException("ClientSocket or Server!");
+
 			m_Sock = ClientSocket;
 			m_Listener = Server;
-            //m_RecvBuf = new byte[11024];
             m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
-
-            m_EMode = EMode;
 
             m_ProcessingBuffer.OnProcessedPacket += M_ProcessingBuffer_OnProcessedPacket;
 
-            m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
-				new AsyncCallback(ReceiveCallback), m_Sock);
-		}
-
-		/// <summary>
-		/// Connects to the login server.
-		/// </summary>
-		/// <param name="LoginArgs">Arguments used for login. Can be null.</param>
-		public void Connect(LoginArgsContainer LoginArgs)
-		{
-			m_LoginArgs = LoginArgs;
-
-			if (LoginArgs != null)
-			{
-				if(m_EMode == EncryptionMode.AESCrypto)
-				{
-					m_ClientEncryptor = LoginArgs.Enc;
-					m_ClientEncryptor.Username = LoginArgs.Username;
-				}
-			}
-			//Making sure that the client is not already connecting to the loginserver.
-			if (!m_Sock.Connected)
-			{
-				m_Sock.BeginConnect(IPAddress.Parse(m_IP), m_Port, new AsyncCallback(ConnectCallback), m_Sock);
-			}
-		}
-
-		public void Send(byte[] Data)
-		{
-			try
-			{
-				m_Sock.BeginSend(Data, 0, Data.Length, SocketFlags.None, new AsyncCallback(OnSend), m_Sock);
-			}
-			catch (SocketException)
-			{
-				//TODO: Reconnect?
-				this.Disconnect();
-			}
-		}
-
-		/// <summary>
-		/// Sends an encrypted packet to the server.
-		/// Automatically appends the length of the packet after the ID, as 
-		/// the encrypted data can be smaller or longer than that of the
-		/// unencrypted data.
-		/// </summary>
-		/// <param name="PacketID">The ID of the packet (will remain unencrypted).</param>
-		/// <param name="Data">The data that will be encrypted.</param>
-		public void SendEncrypted(byte PacketID, byte[] Data)
-		{
-			if (!m_Connected) return;
-			byte[] EncryptedData;
-
-			lock (m_ClientEncryptor)
-				EncryptedData = m_ClientEncryptor.FinalizePacket(PacketID, Data);
-
-			try
-			{
-				m_Sock.BeginSend(EncryptedData, 0, EncryptedData.Length, SocketFlags.None,
-					new AsyncCallback(OnSend), m_Sock);
-			}
-			catch (SocketException)
-			{
-				Disconnect();
-			}
-		}
-
-		protected virtual void OnSend(IAsyncResult AR)
-		{
-			Socket ClientSock = (Socket)AR.AsyncState;
-			int NumBytesSent = ClientSock.EndSend(AR);
-		}
-
-		private void BeginReceive(/*object State*/)
-		{
-			//if (m_Connected)
-			//{
-			m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
-				new AsyncCallback(ReceiveCallback), m_Sock);
-			//}
-		}
-
-		private void ConnectCallback(IAsyncResult AR)
-		{
-			try
-			{
-				Socket Sock = (Socket)AR.AsyncState;
-				Sock.EndConnect(AR);
-
+			lock (m_ConnectedLock)
 				m_Connected = true;
-				BeginReceive();
 
-				if (OnConnected != null)
-					OnConnected(m_LoginArgs);
-			}
-			catch (SocketException E)
-			{
-				//Hopefully all classes inheriting from NetworkedUIElement will subscribe to this...
-				if (OnNetworkError != null)
-					OnNetworkError(E);
-			}
-		}
+            _ = ReceiveAsync(); // Start the BeginReceive task without awaiting it
+        }
+
+        /// <summary>
+        /// Connects to a server.
+        /// </summary>
+        /// <param name="LoginArgs">Arguments used for login. Can be null.</param>
+        public async Task ConnectAsync(LoginArgsContainer LoginArgs)
+        {
+            m_LoginArgs = LoginArgs;
+
+            //Making sure that the client is not already connecting to the login server.
+            if (!m_Sock.Connected)
+            {
+                try
+                {
+                    await m_Sock.ConnectAsync(IPAddress.Parse(m_IP), m_Port);
+
+                    lock (m_ConnectedLock)
+                        m_Connected = true;
+
+                    _ = ReceiveAsync();
+
+                    OnConnected?.Invoke(m_LoginArgs);
+                }
+                catch (SocketException e)
+                {
+                    //Hopefully all classes inheriting from NetworkedUIElement will subscribe to this...
+                    OnNetworkError?.Invoke(e);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously sends data to a connected client or server.
+        /// </summary>
+        /// <param name="Data">The data to send.</param>
+        /// <returns>A Task instance that can be await-ed.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if Data is null.</exception>
+        public async Task SendAsync(byte[] Data)
+		{
+			if (Data == null || Data.Length < 1)
+				throw new ArgumentNullException("Data");
+
+            try
+            {
+                await m_Sock.SendAsync(new ArraySegment<byte>(Data), SocketFlags.None);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Error sending data: " + ex.Message, LogLevel.error);
+
+                //Disconnect without sending the disconnect message to prevent recursion.
+                await DisconnectAsync(false);
+            }
+        }
 
         /// <summary>
         /// We processed a packet, hurray!
         /// </summary>
         /// <param name="Packet">The packet that was processed.</param>
-        private void M_ProcessingBuffer_OnProcessedPacket(PacketStream Packet)
+        private void M_ProcessingBuffer_OnProcessedPacket(Packet P)
         {
-            OnReceivedData(this, Packet);
+			if(P.ID == (byte)GonzoNetIDs.SGoodbye)
+				OnServerDisconnected?.Invoke(this);
+			if(P.ID == (byte)GonzoNetIDs.CGoodbye) //Client notified server of disconnection.
+				OnClientDisconnected?.Invoke(this);
+
+            OnReceivedData?.Invoke(this, P);
         }
 
-		protected virtual void ReceiveCallback(IAsyncResult AR)
-		{
-			try
-			{
-				Socket Sock = (Socket)AR.AsyncState;
-				int NumBytesRead = Sock.EndReceive(AR);
+        private async Task ReceiveAsync()
+        {
+            while (m_Connected)
+            {
+                if (m_ReceiveCancellationTokenSource.Token.IsCancellationRequested)
+                    return;
 
-				/** Can't do anything with this! **/
-				if (NumBytesRead == 0) { return; }
+                if (m_Sock == null || !m_Sock.Connected)
+                    return;
 
-				byte[] TmpBuf = new byte[NumBytesRead];
-				Buffer.BlockCopy(m_RecvBuf, 0, TmpBuf, 0, NumBytesRead);
-				//m_RecvBuf = new byte[11024]; //Clear, to make sure this buffer is always fresh.
-				m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
+                try
+                {
+                    int bytesRead = await m_Sock.ReceiveAsync(new ArraySegment<byte>(m_RecvBuf), SocketFlags.None);
 
-                //Keep shoveling shit into the buffer as fast as we can.
-                m_ProcessingBuffer.AddData(TmpBuf); //Hence the Shoveling Shit Algorithm (SSA).
+                    if (bytesRead > 0)
+                    {
+                        byte[] TmpBuf = new byte[bytesRead];
+                        Buffer.BlockCopy(m_RecvBuf, 0, TmpBuf, 0, bytesRead);
+                        //Clear, to make sure this buffer is always fresh.
+                        m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
 
-				m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
-					new AsyncCallback(ReceiveCallback), m_Sock);
-			}
-			catch (SocketException)
-			{
-				Disconnect();
-			}
-		}
+                        //Keep shoveling shit into the buffer as fast as we can.
+                        m_ProcessingBuffer.AddData(TmpBuf); //Hence the Shoveling Shit Algorithm (SSA).
+                    }
+                    else //Can't do anything with this!
+                    {
+                        await DisconnectAsync(false);
+                        return;
+                    }
+
+                    await Task.Delay(10); //STOP HOGGING THE PROCESSOR!
+                }
+                catch (SocketException)
+                {
+                    await DisconnectAsync(false);
+                    return;
+                }
+            }
+        }
 
 		/// <summary>
-		/// This socket's remote IP. Will return null if the socket is not connected remotely.
+		/// This NetworkClient's remote IP. Will return null if the NetworkClient's socket is not connected remotely.
 		/// </summary>
 		public string RemoteIP
 		{
@@ -286,26 +303,60 @@ namespace GonzoNet
 			}
 		}
 
-		/// <summary>
-		/// Disconnects this NetworkClient instance and stops
-		/// all sending and receiving of data.
-		/// </summary>
-		public void Disconnect()
-		{
-			try
-			{
-				m_Sock.Shutdown(SocketShutdown.Both);
-				m_Sock.Disconnect(true);
+        /// <summary>
+        /// Disconnects this NetworkClient instance and stops
+        /// all sending and receiving of data.
+        /// </summary>
+		/// <param name="SendDisconnectMessage">Should a DisconnectMessage be sent?</param>
+        public async Task DisconnectAsync(bool SendDisconnectMessage = true)
+        {
+            try
+            {
+                await m_SocketSemaphore.WaitAsync();
 
-				if (m_Listener != null)
-					m_Listener.RemoveClient(this);
-			}
-			catch
-			{
-			}
-		}
+				if (m_Connected && m_Sock != null)
+				{
+                    if (SendDisconnectMessage)
+                    {
+                        //Set the timeout to five seconds by default for clients, even though it's not really important for clients.
+                        GoodbyePacket ByePacket = new GoodbyePacket((int)GonzoDefaultTimeouts.Client);
+                        byte[] ByeData = ByePacket.ToByteArray();
+                        Packet Goodbye = new Packet((byte)GonzoNetIDs.CGoodbye, (ushort)ByeData.Length, ByeData);
+                        await SendAsync(Goodbye.BuildPacket());
+                    }
 
-		private PacketHandler FindPacketHandler(byte ID)
+                    if (m_Sock.Connected)
+                    {
+                        // Shutdown and disconnect the socket.
+                        m_Sock.Shutdown(SocketShutdown.Both);
+                        m_Sock.Disconnect(true);
+                    }
+
+					lock (m_ConnectedLock)
+						m_Connected = false;
+				}
+            }
+            catch(SocketException E)
+            {
+                Logger.Log("Exception happened during NetworkClient.DisconnectAsync():" + E.ToString(), LogLevel.error);
+            }
+            catch(ObjectDisposedException)
+            {
+                Logger.Log("NetworkClient.DisconnectAsync() tried to shutdown or disconnect socket that was already disposed", 
+                    LogLevel.warn);
+            }
+            finally
+            {
+                m_SocketSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Finds a PacketHandler instance based on the provided ID.
+        /// </summary>
+        /// <param name="ID">The ID of the PacketHandler to retrieve.</param>
+        /// <returns>A PacketHandler instance if it was found, or null if it wasn't.</returns>
+        private PacketHandler FindPacketHandler(byte ID)
 		{
 			PacketHandler Handler = PacketHandlers.Get(ID);
 
@@ -313,5 +364,54 @@ namespace GonzoNet
 				return Handler;
 			else return null;
 		}
-	}
+
+		/// <summary>
+		/// Returns a unique hash code for this NetworkClient instance.
+		/// Needs to be implemented for this class to be usable in a 
+		/// Dictionary.
+		/// </summary>
+		/// <returns>A unique hash code.</returns>
+        public override int GetHashCode()
+        {
+            return SessionId.GetHashCode();
+        }
+
+        ~NetworkClient()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this NetworkClient instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this NetworkClient instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual async void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if(m_Listener == null) //This is already called by the NetworkListener instance in its Dispose method...
+				    await DisconnectAsync();
+
+                m_ReceiveCancellationTokenSource.Cancel();
+
+                m_Sock.Dispose();
+
+                m_ProcessingBuffer.OnProcessedPacket -= M_ProcessingBuffer_OnProcessedPacket;
+                m_ProcessingBuffer.Dispose();
+
+                // Prevent the finalizer from calling ~NetworkClient, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                Logger.Log("NetworkClient not explicitly disposed!", LogLevel.error);
+        }
+    }
 }

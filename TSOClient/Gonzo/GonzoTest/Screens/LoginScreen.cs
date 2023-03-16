@@ -7,9 +7,9 @@ using Gonzo.Dialogs;
 using Gonzo.Elements;
 using Files;
 using Files.Manager;
-using TSOProtocol;
 using GonzoNet;
 using ResolutionBuddy;
+using TSOProtocol;
 
 namespace GonzoTest
 {
