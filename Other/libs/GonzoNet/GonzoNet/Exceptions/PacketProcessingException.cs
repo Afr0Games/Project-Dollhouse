@@ -21,7 +21,7 @@ namespace GonzoNet.Exceptions
     /// <summary>
     /// Thrown when a packet couldn't be processed by ProcessedPacket.
     /// </summary>
-    public class PacketProcessingException : Exception
+    /*public class PacketProcessingException : Exception
     {
         public EventCodes ErrorCode = EventCodes.PACKET_PROCESSING_ERROR;
 
@@ -29,5 +29,5 @@ namespace GonzoNet.Exceptions
         {
 
         }
-    }
+    }*/
 }

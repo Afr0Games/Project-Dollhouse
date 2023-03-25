@@ -29,7 +29,16 @@ namespace GonzoNet
 		private string m_IP;
 		private int m_Port;
 
+		private object m_ConnectedLock = new object();
 		private bool m_Connected = false;
+
+		/// <summary>
+		/// Is this client connected to a server?
+		/// </summary>
+		public bool IsConnected
+		{ 
+			get { return m_Connected; } 
+		}
 
 		/// <summary>
 		/// This client's SessionID. Ensures that a client is unique even if 
@@ -43,6 +52,7 @@ namespace GonzoNet
 		ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
 
 		private EncryptionMode m_EMode;
+		private object m_EncryptorLock = new object();
 		private Encryptor m_ClientEncryptor;
 
 		public Encryptor ClientEncryptor
@@ -54,11 +64,11 @@ namespace GonzoNet
 					switch (m_EMode)
 					{
 						case EncryptionMode.AESCrypto:
-							lock (m_ClientEncryptor)
+							lock (m_EncryptorLock)
 								m_ClientEncryptor = new AESEncryptor("");
 							return m_ClientEncryptor;
 						default: //Should never end up here, so doesn't really matter what we put...
-							lock (m_ClientEncryptor)
+							lock (m_EncryptorLock)
 								m_ClientEncryptor = new AESEncryptor("");
 							return m_ClientEncryptor;
 					}
@@ -111,12 +121,14 @@ namespace GonzoNet
 		{
 			m_Sock = ClientSocket;
 			m_Listener = Server;
-            //m_RecvBuf = new byte[11024];
             m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
 
             m_EMode = EMode;
 
             m_ProcessingBuffer.OnProcessedPacket += M_ProcessingBuffer_OnProcessedPacket;
+
+			lock (m_ConnectedLock)
+				m_Connected = true;
 
             m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
 				new AsyncCallback(ReceiveCallback), m_Sock);
@@ -134,8 +146,11 @@ namespace GonzoNet
 			{
 				if(m_EMode == EncryptionMode.AESCrypto)
 				{
-					m_ClientEncryptor = LoginArgs.Enc;
-					m_ClientEncryptor.Username = LoginArgs.Username;
+					lock (m_EncryptorLock)
+					{
+						m_ClientEncryptor = LoginArgs.Enc;
+						m_ClientEncryptor.Username = LoginArgs.Username;
+					}
 				}
 			}
 			//Making sure that the client is not already connecting to the loginserver.
@@ -147,6 +162,9 @@ namespace GonzoNet
 
 		public void Send(byte[] Data)
 		{
+			if (Data == null || Data.Length < 1)
+				throw new SocketException();
+
 			try
 			{
 				m_Sock.BeginSend(Data, 0, Data.Length, SocketFlags.None, new AsyncCallback(OnSend), m_Sock);
@@ -154,7 +172,7 @@ namespace GonzoNet
 			catch (SocketException)
 			{
 				//TODO: Reconnect?
-				this.Disconnect();
+				Disconnect();
 			}
 		}
 
@@ -171,7 +189,7 @@ namespace GonzoNet
 			if (!m_Connected) return;
 			byte[] EncryptedData;
 
-			lock (m_ClientEncryptor)
+			lock (m_EncryptorLock)
 				EncryptedData = m_ClientEncryptor.FinalizePacket(PacketID, Data);
 
 			try
@@ -193,11 +211,8 @@ namespace GonzoNet
 
 		private void BeginReceive(/*object State*/)
 		{
-			//if (m_Connected)
-			//{
-			m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
+			m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None, 
 				new AsyncCallback(ReceiveCallback), m_Sock);
-			//}
 		}
 
 		private void ConnectCallback(IAsyncResult AR)
@@ -207,7 +222,9 @@ namespace GonzoNet
 				Socket Sock = (Socket)AR.AsyncState;
 				Sock.EndConnect(AR);
 
-				m_Connected = true;
+				lock(m_ConnectedLock)
+					m_Connected = true;
+
 				BeginReceive();
 
 				if (OnConnected != null)
@@ -300,8 +317,8 @@ namespace GonzoNet
 				m_Sock.Shutdown(SocketShutdown.Both);
 				m_Sock.Disconnect(true);
 
-				if (m_Listener != null)
-					m_Listener.RemoveClient(this);
+				lock (m_ConnectedLock)
+					m_Connected = false;
 			}
 			catch
 			{
@@ -317,6 +334,12 @@ namespace GonzoNet
 			else return null;
 		}
 
+		/// <summary>
+		/// Returns a unique hash code for this NetworkClient instance.
+		/// Needs to be implemented for this class to be usable in a 
+		/// Dictionary.
+		/// </summary>
+		/// <returns>A unique hash code.</returns>
         public override int GetHashCode()
         {
             return SessionId.GetHashCode();

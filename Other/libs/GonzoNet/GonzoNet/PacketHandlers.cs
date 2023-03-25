@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections.Concurrent;
+using GonzoNet.Exceptions;
 
 namespace GonzoNet
 {
@@ -13,7 +12,7 @@ namespace GonzoNet
         /**
          * Framework
          */
-        private static Dictionary<byte, PacketHandler> m_Handlers = new Dictionary<byte, PacketHandler>();
+        private static ConcurrentDictionary<byte, PacketHandler> m_Handlers = new ConcurrentDictionary<byte, PacketHandler>();
 
         /// <summary>
         /// Registers a PacketHandler with GonzoNet.
@@ -23,9 +22,15 @@ namespace GonzoNet
         /// <param name="handler">The handler for the packet.</param>
         public static void Register(byte id, bool Encrypted, ushort size, OnPacketReceive handler)
         {
-            m_Handlers.Add(id, new PacketHandler(id, Encrypted, size, handler));
+            if (!m_Handlers.TryAdd(id, new PacketHandler(id, Encrypted, size, handler)))
+                throw new PacketHandlerException(); //Handler already existed.
         }
 
+        /// <summary>
+        /// Gets a handler based on its ID.
+        /// </summary>
+        /// <param name="id">The ID of the handler.</param>
+        /// <returns>The handler with the specified ID, or null if the handler didn't exist.</returns>
         public static PacketHandler Get(byte id)
         {
             if (m_Handlers.ContainsKey(id))

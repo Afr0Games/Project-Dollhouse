@@ -26,11 +26,11 @@ namespace GonzoNet
 
 
     /// <summary>
-    /// Represents a listener that listens for incoming login clients.
+    /// Represents a listener that listens for incoming clients.
     /// </summary>
     public class Listener
     {
-		private SynchronizedCollection<NetworkClient> m_LoginClients;
+		private SynchronizedCollection<NetworkClient> m_NetworkClients;
         private Socket m_ListenerSock;
         private IPEndPoint m_LocalEP;
 
@@ -41,7 +41,15 @@ namespace GonzoNet
 
 		public SynchronizedCollection<NetworkClient> Clients
         {
-            get { return m_LoginClients; }
+            get { return m_NetworkClients; }
+        }
+
+        /// <summary>
+        /// The local endpoint that this listener is listening to.
+        /// </summary>
+        public IPEndPoint LocalEP
+        {
+            get { return m_LocalEP; }
         }
 
         /// <summary>
@@ -50,7 +58,7 @@ namespace GonzoNet
         public Listener(EncryptionMode Mode)
         {
             m_ListenerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			m_LoginClients = new SynchronizedCollection<NetworkClient>();
+			m_NetworkClients = new SynchronizedCollection<NetworkClient>();
 
             m_EMode = Mode;
             /*switch (Mode)
@@ -124,7 +132,7 @@ namespace GonzoNet
                         break;
                 }
 
-                m_LoginClients.Add(NewClient);
+                m_NetworkClients.Add(NewClient);
 				if (OnConnected != null) OnConnected(NewClient);
             }
 
@@ -139,7 +147,7 @@ namespace GonzoNet
         /// <param name="Client">The client to remove.</param>
         public virtual void RemoveClient(NetworkClient Client)
         {
-			m_LoginClients.Remove(Client);
+			m_NetworkClients.Remove(Client);
             //TODO: Store session data for client...
 
             if (OnDisconnected != null)
@@ -151,7 +159,21 @@ namespace GonzoNet
         /// </summary>
         public int NumConnectedClients
         {
-            get { return m_LoginClients.Count; }
+            get { return m_NetworkClients.Count; }
+        }
+
+        /// <summary>
+        /// Stops the listener and disconnects all clients.
+        /// </summary>
+        public void Stop()
+        {
+            foreach (NetworkClient Client in m_NetworkClients)
+                Client.Disconnect();
+
+            m_NetworkClients.Clear();
+
+            m_ListenerSock.Shutdown(SocketShutdown.Both);
+            m_ListenerSock.Close();
         }
     }
 }
