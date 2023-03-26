@@ -15,11 +15,10 @@ Contributor(s): ______________________________________.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
 using System.IO;
 using System.Diagnostics;
+using GonzoNet.Packets;
 
 namespace GonzoNet.Encryption
 {

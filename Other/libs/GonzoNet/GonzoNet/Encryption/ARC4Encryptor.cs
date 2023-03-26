@@ -11,11 +11,10 @@ Contributor(s): ______________________________________.
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using System.Security.Cryptography;
+using GonzoNet.Packets;
 
 namespace GonzoNet.Encryption
 {

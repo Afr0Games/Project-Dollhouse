@@ -99,12 +99,13 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>GlobalSettings.settings</DependentUpon>
     </Compile>
-    <Compile Include="iPacket.cs" />
+    <Compile Include="Packets\GoodbyePacket.cs" />
+    <Compile Include="Packets\iPacket.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="LoginArgsContainer.cs" />
     <Compile Include="Listener.cs" />
     <Compile Include="NetworkClient.cs" />
-    <Compile Include="Packet.cs" />
+    <Compile Include="Packets\Packet.cs" />
     <Compile Include="PacketHandler.cs" />
     <Compile Include="PacketHandlers.cs" />
     <Compile Include="PacketHeaders.cs" />

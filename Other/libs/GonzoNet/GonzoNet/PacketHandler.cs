@@ -10,10 +10,7 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s): ______________________________________.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using GonzoNet.Packets;
 
 namespace GonzoNet
 {

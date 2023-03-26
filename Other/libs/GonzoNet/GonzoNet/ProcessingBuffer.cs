@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GonzoNet.Packets;
 
 namespace GonzoNet
 {
@@ -14,7 +12,7 @@ namespace GonzoNet
     /// <summary>
     /// A buffer for processing received data, turning it into individual PacketStream instances.
     /// </summary>
-    internal class ProcessingBuffer
+    internal class ProcessingBuffer : IDisposable
     {
         public static int MAX_PACKET_SIZE = 1024;
 
@@ -97,7 +95,7 @@ namespace GonzoNet
             }, Token);
         }
 
-        public void StopProcessing()
+        private void StopProcessing()
         {
             m_CancellationTokenSource.Cancel(); // Request cancellation
         }
@@ -117,6 +115,36 @@ namespace GonzoNet
 
                 for (int i = 0; i < Data.Length; i++)
                     m_InternalBuffer.Add(Data[i]);
+        }
+
+        ~ProcessingBuffer()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SoundPlayer instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SoundPlayer instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                StopProcessing();
+
+                // Prevent the finalizer from calling ~NetworkClient, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                Logger.Log("ProcessingBuffer not explicitly disposed!", LogLevel.error);
         }
     }
 }
