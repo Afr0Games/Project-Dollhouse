@@ -39,58 +39,54 @@ namespace GonzoNet
         {
             CancellationToken Token = m_CancellationTokenSource.Token;
 
-            ProcessingTask = Task.Run(() =>
+            ProcessingTask = Task.Run(async () =>
             {
-                try
+                while (true)
                 {
-                    while (true)
+                    if (Token.IsCancellationRequested)
+                        return;
+
+                    if (m_InternalBuffer.Count >= (int)PacketHeaders.UNENCRYPTED)
                     {
-                        Token.ThrowIfCancellationRequested();
-
-                        if (m_InternalBuffer.Count >= (int)PacketHeaders.UNENCRYPTED)
+                        if (!m_HasReadHeader)
                         {
-                            if (!m_HasReadHeader)
-                            {
-                                m_CurrentID = m_InternalBuffer.Take();
+                            m_CurrentID = m_InternalBuffer.Take();
 
-                                byte[] LengthBuf = new byte[2];
+                            byte[] LengthBuf = new byte[2];
 
-                                for (int i = 0; i < LengthBuf.Length; i++)
-                                    LengthBuf[i] = m_InternalBuffer.Take();
+                            for (int i = 0; i < LengthBuf.Length; i++)
+                                LengthBuf[i] = m_InternalBuffer.Take();
 
-                                m_CurrentLength = BitConverter.ToUInt16(LengthBuf, 0);
+                            m_CurrentLength = BitConverter.ToUInt16(LengthBuf, 0);
 
-                                if (m_CurrentLength == 0)
-                                    //TODO: Fail gracefully if no handler is registered...
-                                    m_CurrentLength = PacketHandlers.Get(m_CurrentID).Length;
+                            if (m_CurrentLength == 0)
+                                //TODO: Fail gracefully if no handler is registered...
+                                m_CurrentLength = PacketHandlers.Get(m_CurrentID).Length;
 
-                                lock (m_HeaderLock)
-                                    m_HasReadHeader = true;
-                            }
-                        }
-
-                        if (m_HasReadHeader == true)
-                        {
-                            //Hurray, enough shit (data) was shoveled into the buffer that we have a new packet!
-                            if (m_InternalBuffer.Count >= (m_CurrentLength - 3))
-                            {
-                                byte[] PacketData = new byte[m_CurrentLength - 3]; //Three bytes is the length of the header.
-
-                                for (int i = 0; i < PacketData.Length; i++)
-                                    PacketData[i] = m_InternalBuffer.Take();
-
-                                lock (m_HeaderLock)
-                                    m_HasReadHeader = false;
-
-                                Packet P = new Packet(m_CurrentID, m_CurrentLength, PacketData);
-                                OnProcessedPacket(P);
-                            }
+                            lock (m_HeaderLock)
+                                m_HasReadHeader = true;
                         }
                     }
-                }
-                catch(OperationCanceledException)
-                {
-                    m_InternalBuffer.CompleteAdding(); // Mark the BlockingCollection as complete
+
+                    if (m_HasReadHeader == true)
+                    {
+                        //Hurray, enough shit (data) was shoveled into the buffer that we have a new packet!
+                        if (m_InternalBuffer.Count >= (m_CurrentLength - 3))
+                        {
+                            byte[] PacketData = new byte[m_CurrentLength - 3]; //Three bytes is the length of the header.
+
+                            for (int i = 0; i < PacketData.Length; i++)
+                                PacketData[i] = m_InternalBuffer.Take();
+
+                            lock (m_HeaderLock)
+                                m_HasReadHeader = false;
+
+                            Packet P = new Packet(m_CurrentID, m_CurrentLength, PacketData);
+                            OnProcessedPacket(P);
+                        }
+                    }
+
+                    await Task.Delay(10); //DON'T HOG THE PROCESSOR
                 }
             }, Token);
         }
@@ -113,8 +109,8 @@ namespace GonzoNet
                 return;
             }
 
-                for (int i = 0; i < Data.Length; i++)
-                    m_InternalBuffer.Add(Data[i]);
+            for (int i = 0; i < Data.Length; i++)
+                m_InternalBuffer.Add(Data[i]);
         }
 
         ~ProcessingBuffer()

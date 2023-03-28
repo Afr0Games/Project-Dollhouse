@@ -12,6 +12,7 @@ Contributor(s): ______________________________________.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -29,7 +30,7 @@ namespace GonzoNet
     /// </summary>
     public class Listener : IDisposable
     {
-		private SynchronizedCollection<NetworkClient> m_NetworkClients;
+		private BlockingCollection<NetworkClient> m_NetworkClients;
         private Socket m_ListenerSock;
         private IPEndPoint m_LocalEP;
         private readonly CancellationTokenSource m_ShutdownDelayCTS = new CancellationTokenSource();
@@ -39,7 +40,7 @@ namespace GonzoNet
         public event OnDisconnectedDelegate OnDisconnected;
 		public event OnDisconnectedDelegate OnConnected;
 
-		public SynchronizedCollection<NetworkClient> Clients
+		public BlockingCollection<NetworkClient> Clients
         {
             get { return m_NetworkClients; }
         }
@@ -58,7 +59,7 @@ namespace GonzoNet
         public Listener(EncryptionMode Mode)
         {
             m_ListenerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			m_NetworkClients = new SynchronizedCollection<NetworkClient>();
+			m_NetworkClients = new BlockingCollection<NetworkClient>();
 
             m_EMode = Mode;
             /*switch (Mode)
@@ -154,7 +155,7 @@ namespace GonzoNet
         {
             Logger.Log("Client disconnected!", LogLevel.info);
             Sender.Dispose();
-            m_NetworkClients.Remove(Sender);
+            //m_NetworkClients.Remove(Sender);
         }
 
         /// <summary>
@@ -206,7 +207,7 @@ namespace GonzoNet
                 foreach (NetworkClient Client in m_NetworkClients)
                     Client.Dispose();
 
-                m_NetworkClients.Clear();
+                m_NetworkClients.Dispose();
 
                 // Prevent the finalizer from calling ~Listener, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);

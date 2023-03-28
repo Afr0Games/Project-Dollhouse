@@ -11,8 +11,10 @@ Contributor(s): ______________________________________.
 */
 
 using System;
+using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using GonzoNet.Encryption;
 using GonzoNet.Packets;
@@ -28,12 +30,15 @@ namespace GonzoNet
     public class NetworkClient : IDisposable
 	{
 		protected Listener m_Listener;
-		private Socket m_Sock;
+        private readonly SemaphoreSlim m_SocketSemaphore = new SemaphoreSlim(1, 1);
+        private Socket m_Sock;
 		private string m_IP;
 		private int m_Port;
 
-		private object m_ConnectedLock = new object();
-		private bool m_Connected = false;
+        private readonly CancellationTokenSource m_ReceiveCancellationTokenSource = new CancellationTokenSource();
+
+        private readonly object m_ConnectedLock = new object();
+        private bool m_Connected = false;
 
         /// <summary>
         /// Is this client connected to a server?
@@ -135,8 +140,6 @@ namespace GonzoNet
 			lock (m_ConnectedLock)
 				m_Connected = true;
 
-            /*m_Sock.BeginReceive(m_RecvBuf, 0, m_RecvBuf.Length, SocketFlags.None,
-				new AsyncCallback(ReceiveCallback), m_Sock);*/
             _ = ReceiveAsync(); // Start the BeginReceive task without awaiting it
         }
 
@@ -192,11 +195,10 @@ namespace GonzoNet
             }
             catch (Exception ex)
             {
-                // Log the exception.
                 Logger.Log("Error sending data: " + ex.Message, LogLevel.error);
 
-                // Disconnect without sending the disconnect message to prevent recursion.
-                await DisconnectAsync(SendDisconnectMessage: false);
+                //Disconnect without sending the disconnect message to prevent recursion.
+                await DisconnectAsync(false);
             }
         }
 
@@ -223,7 +225,7 @@ namespace GonzoNet
 			catch (SocketException E)
 			{
                 Logger.Log("Exception happened during NetworkClient.SendEncryptedAsync():" + E.ToString(), LogLevel.error);
-                await DisconnectAsync();
+                await DisconnectAsync(false);
             }
 		}
 
@@ -238,13 +240,19 @@ namespace GonzoNet
 			if(P.ID == (byte)GonzoNetIDs.CGoodbye) //Client notified server of disconnection.
 				OnClientDisconnected?.Invoke(this);
 
-            OnReceivedData(this, P);
+            OnReceivedData?.Invoke(this, P);
         }
 
         private async Task ReceiveAsync()
         {
             while (m_Connected)
             {
+                if (m_ReceiveCancellationTokenSource.Token.IsCancellationRequested)
+                    return;
+
+                if (m_Sock == null || !m_Sock.Connected)
+                    return;
+
                 try
                 {
                     int bytesRead = await m_Sock.ReceiveAsync(new ArraySegment<byte>(m_RecvBuf), SocketFlags.None);
@@ -261,14 +269,16 @@ namespace GonzoNet
                     }
                     else //Can't do anything with this!
                     {
-                        await DisconnectAsync();
-                        break;
+                        await DisconnectAsync(false);
+                        return;
                     }
+
+                    await Task.Delay(10); //STOP HOGGING THE PROCESSOR!
                 }
                 catch (SocketException)
                 {
-                    await DisconnectAsync();
-                    break;
+                    await DisconnectAsync(false);
+                    return;
                 }
             }
         }
@@ -314,18 +324,25 @@ namespace GonzoNet
         {
             try
             {
-				if (m_Connected)
-				{
-					//Set the timeout to five seconds by default for clients, even though it's not really important for clients.
-					GoodbyePacket ByePacket = m_Listener == null ? ByePacket = new GoodbyePacket((int)GonzoDefaultTimeouts.Client) :
-						ByePacket = new GoodbyePacket((int)GonzoDefaultTimeouts.Server);
-					byte[] ByeData = ByePacket.ToByteArray();
-					Packet Goodbye = new Packet((byte)GonzoNetIDs.CGoodbye, (ushort)ByeData.Length, ByeData);
-					await SendAsync(Goodbye.BuildPacket());
+                await m_SocketSemaphore.WaitAsync();
 
-					// Shutdown and disconnect the socket.
-					m_Sock.Shutdown(SocketShutdown.Both);
-					m_Sock.Disconnect(true);
+				if (m_Connected && m_Sock != null)
+				{
+                    if (SendDisconnectMessage)
+                    {
+                        //Set the timeout to five seconds by default for clients, even though it's not really important for clients.
+                        GoodbyePacket ByePacket = new GoodbyePacket((int)GonzoDefaultTimeouts.Client);
+                        byte[] ByeData = ByePacket.ToByteArray();
+                        Packet Goodbye = new Packet((byte)GonzoNetIDs.CGoodbye, (ushort)ByeData.Length, ByeData);
+                        await SendAsync(Goodbye.BuildPacket());
+                    }
+
+                    if (m_Sock.Connected)
+                    {
+                        // Shutdown and disconnect the socket.
+                        m_Sock.Shutdown(SocketShutdown.Both);
+                        m_Sock.Disconnect(true);
+                    }
 
 					lock (m_ConnectedLock)
 						m_Connected = false;
@@ -334,6 +351,15 @@ namespace GonzoNet
             catch(SocketException E)
             {
                 Logger.Log("Exception happened during NetworkClient.DisconnectAsync():" + E.ToString(), LogLevel.error);
+            }
+            catch(ObjectDisposedException)
+            {
+                Logger.Log("NetworkClient.DisconnectAsync() tried to shutdown or disconnect socket that was already disposed", 
+                    LogLevel.warn);
+            }
+            finally
+            {
+                m_SocketSemaphore.Release();
             }
         }
 
@@ -378,8 +404,12 @@ namespace GonzoNet
         {
             if (Disposed)
             {
-				await DisconnectAsync();
-				m_Sock.Dispose();
+                if(m_Listener == null) //This is already called by the NetworkListener instance in its Dispose method...
+				    await DisconnectAsync();
+
+                m_ReceiveCancellationTokenSource.Cancel();
+
+                m_Sock.Dispose();
 
                 m_ProcessingBuffer.OnProcessedPacket -= M_ProcessingBuffer_OnProcessedPacket;
                 m_ProcessingBuffer.Dispose();
