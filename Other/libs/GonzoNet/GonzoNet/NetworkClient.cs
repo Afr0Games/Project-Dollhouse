@@ -105,6 +105,12 @@ namespace GonzoNet
         /// <param name="KeepAlive">Should this connection be kept alive?</param>
         public NetworkClient(string IP, int Port, EncryptionMode EMode, bool KeepAlive)
 		{
+            if (IP == null)
+                throw new ArgumentNullException("IP");
+
+            if (IP == string.Empty)
+                throw new ArgumentException("IP must be specified!");
+
 			m_Sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
 			if (KeepAlive)
@@ -129,6 +135,9 @@ namespace GonzoNet
 		/// <param name="EMode">The encryption mode to use!</param>
         public NetworkClient(Socket ClientSocket, Listener Server, EncryptionMode EMode)
 		{
+            if (ClientSocket == null || Server == null)
+                throw new ArgumentNullException("ClientSocket or Server!");
+
 			m_Sock = ClientSocket;
 			m_Listener = Server;
             m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
@@ -187,7 +196,7 @@ namespace GonzoNet
         public async Task SendAsync(byte[] Data)
 		{
 			if (Data == null || Data.Length < 1)
-				throw new SocketException();
+				throw new ArgumentNullException("Data");
 
             try
             {
@@ -212,6 +221,9 @@ namespace GonzoNet
 		/// <param name="Data">The data that will be encrypted.</param>
 		public async Task SendEncryptedAsync(byte PacketID, byte[] Data)
 		{
+            if(Data ==  null || Data.Length < 1) 
+                throw new ArgumentNullException("Data");
+
 			if (!m_Connected) return;
 			byte[] EncryptedData;
 

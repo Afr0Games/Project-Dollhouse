@@ -78,7 +78,7 @@ namespace GonzoNet
         /// <param name="LocalEP">The endpoint to listen on.</param>
         public virtual async Task InitializeAsync(IPEndPoint LocalEP)
         {
-            m_LocalEP = LocalEP;
+            m_LocalEP = LocalEP ?? throw new ArgumentNullException("LocalEP!");
 
             try
             {
@@ -105,7 +105,7 @@ namespace GonzoNet
 
                 if (AcceptedSocket != null)
                 {
-                    Console.WriteLine("\nNew client connected!\r\n");
+                    Logger.Log("\nNew client connected!\r\n", LogLevel.info);
 
                     AcceptedSocket.LingerState = new LingerOption(true, 5);
                     NetworkClient NewClient = new NetworkClient(AcceptedSocket, this, m_EMode);
@@ -132,6 +132,11 @@ namespace GonzoNet
         /// <returns>A NetworkClient instance. Null if not found.</returns>
         public NetworkClient GetClient(string RemoteIP, int RemotePort)
 		{
+            if(RemoteIP == null)
+                throw new ArgumentNullException("RemoteIP!");
+            if (RemoteIP == string.Empty)
+                throw new ArgumentException("RemoteIP must be specified!");
+
 			lock (Clients)
 			{
 				foreach (NetworkClient PlayersClient in Clients)
