@@ -24,7 +24,15 @@ namespace GonzoNet.Tests
             try
             {
                 Assert.AreEqual(4, processingBuffer.InternalBuffer.Count);
-                Assert.AreEqual(data[0], processingBuffer.InternalBuffer.Peek());
+                if (processingBuffer.InternalBuffer.TryTake(out byte peekedValue, TimeSpan.FromSeconds(1)))
+                {
+                    Assert.AreEqual(data[0], peekedValue);
+                    processingBuffer.InternalBuffer.Add(peekedValue); // Add the taken element back to the buffer
+                }
+                else
+                {
+                    Assert.Fail("Failed to take an element from the buffer.");
+                }
             }
             catch (Exception E)
             {

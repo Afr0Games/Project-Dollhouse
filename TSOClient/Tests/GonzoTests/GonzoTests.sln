@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Files.Tests", "..\Files.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GonzoNet.Tests", "..\GonzoNet.Tests\GonzoNet.Tests.csproj", "{CE51BD58-8DAD-4EF1-8108-EE6AD1EB03AA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSOProtocol.Tests", "..\TSOProtocolTests\TSOProtocol.Tests.csproj", "{CF256261-EA98-4ED4-9965-090D68753C71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CE51BD58-8DAD-4EF1-8108-EE6AD1EB03AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE51BD58-8DAD-4EF1-8108-EE6AD1EB03AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE51BD58-8DAD-4EF1-8108-EE6AD1EB03AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF256261-EA98-4ED4-9965-090D68753C71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF256261-EA98-4ED4-9965-090D68753C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF256261-EA98-4ED4-9965-090D68753C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF256261-EA98-4ED4-9965-090D68753C71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,48 +13,94 @@ Contributor(s):
 using System;
 using SecureRemotePassword;
 using ZeroFormatter;
+using GonzoNet;
+using GonzoNet.Packets;
 
 namespace TSOProtocol
 {
     public enum AuthPacketIDs
     {
-        ClientInitialAuth = 0x00,
-        ServerInitialAuthResponse = 0x01,
-        AuthProof = 0x02
+        ClientSignup = 0x00,
+        ClientInitialAuth = 0x01,
+        ServerInitialAuthResponse = 0x02,
+        CAuthProof = 0x03, //Sent by client
+        SAuthProof = 0x04 //Sent by server
+    }
+
+    /// <summary>
+    /// The packet sent by the client to the server (may or may not be a different server from the login server)
+    /// to sign up (I.E create an account in the DB).
+    /// </summary>
+    [ZeroFormattable]
+    public struct ClientSignup : IPacket
+    {
+        public ClientSignup(string userName, string salt, string verifier)
+        {
+            Username = userName;
+            Salt = salt;
+            Verifier = verifier;
+        }
+
+        [Index(0)]
+        public string Username = default!;
+
+        [Index(1)]
+        public string Salt = default!;
+
+        [Index(2)]
+        public string Verifier = default!;
     }
 
     /// <summary>
     /// The packet sent by the client to the server to initiate authentication.
     /// </summary>
     [ZeroFormattable]
-    public class ClientInitialAuth : IPacket
+    public struct ClientInitialAuth : IPacket
     {
+        public ClientInitialAuth(string userName, string ephemeral)
+        {
+            Username = userName;
+            Ephemeral = ephemeral;
+        }
+
         [Index(0)]
-        public string Username;
+        public string Username = default!;
 
         [Index(1)]
-        public string Ephemeral;
+        public string Ephemeral = default!;
     }
 
     /// <summary>
     /// The initial response from the server.
     /// </summary>
     [ZeroFormattable]
-    public class ServerInitialAuthResponse : IPacket
+    public struct ServerInitialAuthResponse : IPacket
     {
+        public ServerInitialAuthResponse(string salt, string publicEphemeral)
+        {
+            Salt = salt;
+            PublicEphemeral = publicEphemeral;
+        }
+
         [Index(0)]
-        public string Salt;
+        public string Salt = default!;
+
         [Index(1)]
-        public string PublicEphemeral;
+        public string PublicEphemeral = default!;
     }
 
     /// <summary>
     /// Sent by the client to the server and vice versa.
     /// </summary>
     [ZeroFormattable]
-    public class AuthProof : IPacket
+    public struct AuthProof : IPacket
     {
+        public AuthProof(string sessionProof)
+        {
+            SessionProof = sessionProof;
+        }
+
         [Index(0)]
-        public string SessionProof;
+        public string SessionProof = default!;
     }
 }
