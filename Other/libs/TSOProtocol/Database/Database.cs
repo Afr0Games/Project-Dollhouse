@@ -2,15 +2,8 @@
 using System.Data;
 using System.Data.SQLite;
 
-namespace TSOProtocol
+namespace TSOProtocol.Database
 {
-    public class User
-    {
-        public string Username = string.Empty;
-        public string Salt = string.Empty;
-        public string Verifier = string.Empty;
-    }
-
     public class SQLiteConnectionPool
     {
         private readonly string m_ConnectionString;

@@ -211,36 +211,6 @@ namespace GonzoNet
             }
         }
 
-		/// <summary>
-		/// Sends an encrypted packet to the server.
-		/// Automatically appends the length of the packet after the ID, as 
-		/// the encrypted data can be smaller or longer than that of the
-		/// unencrypted data.
-		/// </summary>
-		/// <param name="PacketID">The ID of the packet (will remain unencrypted).</param>
-		/// <param name="Data">The data that will be encrypted.</param>
-		public async Task SendEncryptedAsync(byte PacketID, byte[] Data)
-		{
-            if(Data ==  null || Data.Length < 1) 
-                throw new ArgumentNullException("Data");
-
-			if (!m_Connected) return;
-			byte[] EncryptedData;
-
-			lock (m_EncryptorLock)
-				EncryptedData = m_ClientEncryptor.FinalizePacket(PacketID, Data);
-
-			try
-			{
-				await m_Sock.SendAsync(new ArraySegment<byte>(EncryptedData), SocketFlags.None);
-			}
-			catch (SocketException E)
-			{
-                Logger.Log("Exception happened during NetworkClient.SendEncryptedAsync():" + E.ToString(), LogLevel.error);
-                await DisconnectAsync(false);
-            }
-		}
-
         /// <summary>
         /// We processed a packet, hurray!
         /// </summary>

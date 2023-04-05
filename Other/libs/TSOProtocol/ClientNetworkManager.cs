@@ -76,6 +76,15 @@ namespace TSOProtocol
         }
 
         /// <summary>
+        /// Sends a encrypted packet to the server.
+        /// </summary>
+        /// <param name="Packet">The encrypted packet to send.</param>
+        public Task SendAsync(EncryptedPacket P)
+        {
+            return m_Client.SendAsync(P.BuildPacket());
+        }
+
+        /// <summary>
         /// The client connected to the given server.
         /// This starts the SRP6 authentication process by sending an initial packet.
         /// </summary>

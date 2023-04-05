@@ -8,7 +8,7 @@ namespace GonzoNet.Packets
     {
         private byte m_ID;
         private ushort m_Length;
-        private byte[] m_Data; //Should be serialized.
+        protected byte[] m_Data; //Should be serialized.
 
         public Packet(byte ID, ushort Length, byte[] SerializedData)
         { 
@@ -48,7 +48,7 @@ namespace GonzoNet.Packets
         /// <param name="Length">The length of the packet. Set to 0 for variable length.</param>
         /// <param name="SerializedData">The serialized data of the packet.</param>
         /// <returns>The packet as an array of bytes.</returns>
-        public byte[] BuildPacket()
+        public virtual byte[] BuildPacket()
         {
             List<byte> PacketData = m_Data.ToList();
             PacketData.Insert(0, ID);

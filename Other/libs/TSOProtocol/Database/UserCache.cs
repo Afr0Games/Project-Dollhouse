@@ -6,7 +6,7 @@ using System.Runtime.Caching;
 using System.IO;
 using System.Net.PeerToPeer;
 
-namespace TSOProtocol
+namespace TSOProtocol.Database
 {
     /// <summary>
     /// Represents a cache for the database, used to retrieve users and cache them.

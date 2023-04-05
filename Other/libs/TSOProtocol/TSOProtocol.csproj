@@ -97,11 +97,14 @@
   <ItemGroup>
     <Compile Include="AuthPackets.cs" />
     <Compile Include="ClientNetworkManager.cs" />
-    <Compile Include="Database.cs" />
+    <Compile Include="Database\Database.cs" />
+    <Compile Include="EncryptedPacket.cs" />
     <Compile Include="NetworkException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerNetworkManager..cs" />
-    <Compile Include="UserCache.cs" />
+    <Compile Include="SRPEncryptionArgs.cs" />
+    <Compile Include="Database\User.cs" />
+    <Compile Include="Database\UserCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
