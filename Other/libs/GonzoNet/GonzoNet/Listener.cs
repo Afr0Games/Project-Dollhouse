@@ -17,12 +17,14 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using GonzoNet.Encryption;
 using GonzoNet.Packets;
 
 namespace GonzoNet
 {
-    public delegate void OnReceivedDelegate(Packet P, NetworkClient Client);
+    /// <summary>
+    /// Occurs when a client connected or disconnected from a Listener.
+    /// </summary>
+    /// <param name="Client">The NetworkClient instance that connected or disconnected.</param>
     public delegate void OnDisconnectedDelegate(NetworkClient Client);
 
     /// <summary>
@@ -35,11 +37,19 @@ namespace GonzoNet
         private IPEndPoint m_LocalEP;
         private readonly CancellationTokenSource m_ShutdownDelayCTS = new CancellationTokenSource();
 
-        private EncryptionMode m_EMode;
-
+        /// <summary>
+        /// Fired when a client disconnected.
+        /// </summary>
         public event OnDisconnectedDelegate OnDisconnected;
+
+        /// <summary>
+        /// Fired when a client connected.
+        /// </summary>
 		public event OnDisconnectedDelegate OnConnected;
 
+        /// <summary>
+        /// All of the clients connected to this listener.
+        /// </summary>
 		public BlockingCollection<NetworkClient> Clients
         {
             get { return m_NetworkClients; }
@@ -56,20 +66,10 @@ namespace GonzoNet
         /// <summary>
         /// Initializes a new instance of Listener.
         /// </summary>
-        public Listener(EncryptionMode Mode)
+        public Listener()
         {
             m_ListenerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			m_NetworkClients = new BlockingCollection<NetworkClient>();
-
-            m_EMode = Mode;
-            /*switch (Mode)
-            {
-                case EncryptionMode.AESCrypto:
-                    m_AesCryptoService = new AesCryptoServiceProvider();
-                    m_AesCryptoService.GenerateIV();
-                    m_AesCryptoService.GenerateKey();
-                    break;
-            }*/
         }
 
         /// <summary>
@@ -108,15 +108,8 @@ namespace GonzoNet
                     Logger.Log("\nNew client connected!\r\n", LogLevel.info);
 
                     AcceptedSocket.LingerState = new LingerOption(true, 5);
-                    NetworkClient NewClient = new NetworkClient(AcceptedSocket, this, m_EMode);
+                    NetworkClient NewClient = new NetworkClient(AcceptedSocket, this);
                     NewClient.OnClientDisconnected += NewClient_OnClientDisconnected;
-
-                    switch (m_EMode)
-                    {
-                        case EncryptionMode.AESCrypto:
-                            NewClient.ClientEncryptor = new AESEncryptor("");
-                            break;
-                    }
 
                     m_NetworkClients.Add(NewClient);
                     if (OnConnected != null) OnConnected(NewClient);

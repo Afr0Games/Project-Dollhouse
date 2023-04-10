@@ -21,10 +21,35 @@ using GonzoNet.Packets;
 
 namespace GonzoNet
 {
+    /// <summary>
+    /// Occurs when a network error happened.
+    /// </summary>
+    /// <param name="Exception">The SocketException that was thrown.</param>
 	public delegate void NetworkErrorDelegate(SocketException Exception);
+
+    /// <summary>
+    /// Occurs when a packet was received.
+    /// </summary>
+    /// <param name="Sender">The NetworkClient instance that sent or received the packet.</param>
+    /// <param name="P">The Packet that was received.</param>
 	public delegate void ReceivedPacketDelegate(NetworkClient Sender, Packet P);
+
+    /// <summary>
+    /// Occurs when a client connected to a server.
+    /// </summary>
+    /// <param name="LoginArgs">The arguments that were used to establish the connection.</param>
 	public delegate void OnConnectedDelegate(LoginArgsContainer LoginArgs);
+
+    /// <summary>
+    /// Occurs when a client a client disconnected.
+    /// </summary>
+    /// <param name="Sender">The NetworkClient instance that disconnected.</param>
     public delegate void ClientDisconnectedDelegate(NetworkClient Sender);
+
+    /// <summary>
+    /// Occurs when a server sent a packet saying it's about to disconnect.
+    /// </summary>
+    /// <param name="Sender">The NetworkClient instance used to connect to the server.</param>
 	public delegate void ServerDisconnectedDelegate(NetworkClient Sender);
 
     public class NetworkClient : IDisposable
@@ -57,43 +82,33 @@ namespace GonzoNet
         private byte[] m_RecvBuf;
 		PacketHandler m_Handler;
 
-		ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
-
-		private EncryptionMode m_EMode;
-		private object m_EncryptorLock = new object();
-		private Encryptor m_ClientEncryptor;
-
-		public Encryptor ClientEncryptor
-		{
-			get
-			{
-				if (m_ClientEncryptor == null)
-				{
-					switch (m_EMode)
-					{
-						case EncryptionMode.AESCrypto:
-							lock (m_EncryptorLock)
-								m_ClientEncryptor = new AESEncryptor("");
-							return m_ClientEncryptor;
-						default: //Should never end up here, so doesn't really matter what we put...
-							lock (m_EncryptorLock)
-								m_ClientEncryptor = new AESEncryptor("");
-							return m_ClientEncryptor;
-					}
-				}
-
-				return m_ClientEncryptor;
-			}
-
-			set { m_ClientEncryptor = value; }
-		}
+		private ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
 
 		protected LoginArgsContainer m_LoginArgs;
 
+        /// <summary>
+        /// Fired when a network error occured.
+        /// </summary>
 		public event NetworkErrorDelegate OnNetworkError;
+
+        /// <summary>
+        /// Fired when this NetworkClient instance received data.
+        /// </summary>
 		public event ReceivedPacketDelegate OnReceivedData;
+
+        /// <summary>
+        /// Fired when this NetworkClient instance connected to a server.
+        /// </summary>
 		public event OnConnectedDelegate OnConnected;
+
+        /// <summary>
+        /// Fired when this NetworkClient instance disconnected.
+        /// </summary>
         public event ClientDisconnectedDelegate OnClientDisconnected;
+
+        /// <summary>
+        /// Fired when this MetworkClient instance received a packet about the server's impending disconnection.
+        /// </summary>
 		public event ServerDisconnectedDelegate OnServerDisconnected;
 
         /// <summary>
@@ -103,7 +118,7 @@ namespace GonzoNet
         /// <param name="Port">The port to connect to.</param>
         /// <param name="EMode">The encryption mode to use!</param>
         /// <param name="KeepAlive">Should this connection be kept alive?</param>
-        public NetworkClient(string IP, int Port, EncryptionMode EMode, bool KeepAlive)
+        public NetworkClient(string IP, int Port, bool KeepAlive)
 		{
             if (IP == null)
                 throw new ArgumentNullException("IP");
@@ -119,8 +134,6 @@ namespace GonzoNet
 			m_IP = IP;
 			m_Port = Port;
 
-			m_EMode = EMode;
-
 			//m_RecvBuf = new byte[11024];
 			m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
 
@@ -133,7 +146,7 @@ namespace GonzoNet
         /// <param name="ClientSocket">The client's socket.</param>
         /// <param name="Server">The Listener instance calling this constructor.</param>
 		/// <param name="EMode">The encryption mode to use!</param>
-        public NetworkClient(Socket ClientSocket, Listener Server, EncryptionMode EMode)
+        public NetworkClient(Socket ClientSocket, Listener Server)
 		{
             if (ClientSocket == null || Server == null)
                 throw new ArgumentNullException("ClientSocket or Server!");
@@ -141,8 +154,6 @@ namespace GonzoNet
 			m_Sock = ClientSocket;
 			m_Listener = Server;
             m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
-
-            m_EMode = EMode;
 
             m_ProcessingBuffer.OnProcessedPacket += M_ProcessingBuffer_OnProcessedPacket;
 
@@ -160,17 +171,6 @@ namespace GonzoNet
         {
             m_LoginArgs = LoginArgs;
 
-            if (LoginArgs != null)
-            {
-                if (m_EMode == EncryptionMode.AESCrypto)
-                {
-                    lock (m_EncryptorLock)
-                    {
-                        m_ClientEncryptor = LoginArgs.Enc;
-                        m_ClientEncryptor.Username = LoginArgs.Username;
-                    }
-                }
-            }
             //Making sure that the client is not already connecting to the login server.
             if (!m_Sock.Connected)
             {
@@ -193,6 +193,12 @@ namespace GonzoNet
             }
         }
 
+        /// <summary>
+        /// Asynchronously sends data to a connected client or server.
+        /// </summary>
+        /// <param name="Data">The data to send.</param>
+        /// <returns>A Task instance that can be await-ed.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if Data is null.</exception>
         public async Task SendAsync(byte[] Data)
 		{
 			if (Data == null || Data.Length < 1)
@@ -345,6 +351,11 @@ namespace GonzoNet
             }
         }
 
+        /// <summary>
+        /// Finds a PacketHandler instance based on the provided ID.
+        /// </summary>
+        /// <param name="ID">The ID of the PacketHandler to retrieve.</param>
+        /// <returns>A PacketHandler instance if it was found, or null if it wasn't.</returns>
         private PacketHandler FindPacketHandler(byte ID)
 		{
 			PacketHandler Handler = PacketHandlers.Get(ID);

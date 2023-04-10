@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GonzoNet.Encryption;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace TSOProtocol
     /// </summary>
     public class SRPEncryptionArgs
     {
+        public EncryptionMode Mode;
         public string Session;
         public string Salt;
     }

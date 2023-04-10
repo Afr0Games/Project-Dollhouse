@@ -5,6 +5,7 @@ namespace GonzoNet.Encryption
     using System;
     using System.Text;
     using System.Security.Cryptography;
+    using GonzoNet.Exceptions;
 
     /// <summary>
     /// AES class is derived from the MSDN .NET CreateEncryptor() example
@@ -16,8 +17,8 @@ namespace GonzoNet.Encryption
         private SymmetricAlgorithm AESProvider;
 
         // Crytographic transformers are used to encrypt and decrypt byte arrays
-        private ICryptoTransform encryptor;
-        private ICryptoTransform decryptor;
+        private ICryptoTransform m_Encryptor;
+        private ICryptoTransform m_Decryptor;
 
         /// <summary>
         /// Constructor for AES class that takes byte arrays for the key and IV
@@ -31,6 +32,7 @@ namespace GonzoNet.Encryption
                 // Initialize AESProvider with AES service provider
                 AESProvider = new AesCryptoServiceProvider();
                 AESProvider.Mode = CipherMode.CBC;
+                AESProvider.Padding = PaddingMode.PKCS7;
 
                 byte[] Key = DeriveBytes.GetBytes(32); // AES-256 key
                 byte[] IV = DeriveBytes.GetBytes(16); // AES block size is 128 bits (16 bytes)
@@ -40,8 +42,8 @@ namespace GonzoNet.Encryption
                 AESProvider.IV = IV;
 
                 // Initialize cryptographic transformers from AESProvider
-                encryptor = AESProvider.CreateEncryptor();
-                decryptor = AESProvider.CreateDecryptor();
+                m_Encryptor = AESProvider.CreateEncryptor();
+                m_Decryptor = AESProvider.CreateDecryptor();
             }
         }
 
@@ -53,7 +55,7 @@ namespace GonzoNet.Encryption
         public string Encrypt(string PlainText)
         {
             byte[] PlainBytes = Encoding.UTF8.GetBytes(PlainText);
-            byte[] SecureBytes = encryptor.TransformFinalBlock(PlainBytes, 0, PlainBytes.Length);
+            byte[] SecureBytes = m_Encryptor.TransformFinalBlock(PlainBytes, 0, PlainBytes.Length);
             return Convert.ToBase64String(SecureBytes);
         }
 
@@ -65,7 +67,7 @@ namespace GonzoNet.Encryption
         public byte[] Encrypt(byte[] PlainBytes)
         {
             // Encrypt bytes
-            return encryptor.TransformFinalBlock(PlainBytes, 0, PlainBytes.Length);
+            return m_Encryptor.TransformFinalBlock(PlainBytes, 0, PlainBytes.Length);
         }
 
         /// <summary>
@@ -78,11 +80,17 @@ namespace GonzoNet.Encryption
             // Convert encrypted string to bytes
             byte[] secureBytes = UnicodeEncoding.Unicode.GetBytes(SecureText);
 
-            // Decrypt bytes
-            byte[] plainBytes = decryptor.TransformFinalBlock(secureBytes, 0, secureBytes.Length);
-
-            // Return decrypted bytes as a string
-            return UnicodeEncoding.Unicode.GetString(plainBytes);
+            try
+            {
+                // Decrypt bytes
+                byte[] plainBytes = m_Decryptor.TransformFinalBlock(secureBytes, 0, secureBytes.Length);
+                // Return decrypted bytes as a string
+                return UnicodeEncoding.Unicode.GetString(plainBytes);
+            }
+            catch(CryptographicException) 
+            {
+                throw new DecryptionException();
+            }
         }
 
         /// <summary>
@@ -92,8 +100,15 @@ namespace GonzoNet.Encryption
         /// <returns>Decrypted data</returns>
         public byte[] Decrypt(byte[] SecureBytes)
         {
-            // Decrypt bytes
-            return decryptor.TransformFinalBlock(SecureBytes, 0, SecureBytes.Length);
+            try
+            {
+                // Decrypt bytes
+                return m_Decryptor.TransformFinalBlock(SecureBytes, 0, SecureBytes.Length);
+            }
+            catch(CryptographicException)
+            { 
+                throw new DecryptionException(); 
+            }
         }
     }
 }

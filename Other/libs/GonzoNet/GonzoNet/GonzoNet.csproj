@@ -82,13 +82,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Encryption\AES.cs" />
-    <Compile Include="Encryption\AESEncryptor.cs" />
-    <Compile Include="Encryption\ARC4Encryptor.cs" />
-    <Compile Include="Encryption\DecryptionArgsContainer.cs" />
+    <Compile Include="Encryption\Blowfish.cs" />
     <Compile Include="Encryption\EncryptionMode.cs" />
-    <Compile Include="Encryption\Encryptor.cs" />
-    <Compile Include="Encryption\SaltedHash.cs" />
-    <Compile Include="Encryption\StaticStaticDiffieHellman.cs" />
     <Compile Include="Events\EventCodes.cs" />
     <Compile Include="Exceptions\DecryptionException.cs" />
     <Compile Include="Exceptions\PacketHandlerException.cs" />
@@ -109,7 +104,6 @@
     <Compile Include="PacketHandler.cs" />
     <Compile Include="PacketHandlers.cs" />
     <Compile Include="PacketHeaders.cs" />
-    <Compile Include="ProcessedPacket.cs" />
     <Compile Include="ProcessingBuffer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -6,7 +6,6 @@ using SecureRemotePassword;
 using System.Net;
 using System.Collections.Concurrent;
 using GonzoNet;
-using GonzoNet.Encryption;
 using GonzoNet.Packets;
 
 namespace TSOProtocol
@@ -40,7 +39,7 @@ namespace TSOProtocol
 
         public void Listen(string IP, int Port)
         {
-            m_Listener = new Listener(EncryptionMode.NoEncryption); //Change this in release
+            m_Listener = new Listener(); //Change this in release
             m_Listener.OnConnected += M_Listener_OnConnected;
             m_Listener.OnDisconnected += M_Listener_OnDisconnected;
 
@@ -93,35 +92,6 @@ namespace TSOProtocol
                     OnPacketReceived?.Invoke(AuthProofPacket, P.ID, Sender);
                     break;
             }
-        }
-
-        /// <summary>
-        /// Sends encrypted data to a client.
-        /// </summary>
-        /// <param name="Client">The client to send to.</param>
-        /// <param name="Args">An SRPEncryptionArgs instance used to encrypt the data.</param>
-        /// <param name="UnencryptedData">The unencrypted data to send.</param>
-        /// <returns>An awaitable task.</returns>
-        public async Task SendEncrypted(NetworkClient Client, SRPEncryptionArgs Args, byte[] UnencryptedData)
-        {
-            AES Enc = new AES(Args.Session, HexStringToByteArray(Args.Salt));
-            await Client.SendAsync(Enc.Encrypt(UnencryptedData));
-        }
-
-        /// <summary>
-        /// Converts a hex string to a byte array.
-        /// </summary>
-        /// <param name="Hex">The hex string to convert.</param>
-        /// <returns>A byte array containing the converted string.</returns>
-        private byte[] HexStringToByteArray(string Hex)
-        {
-            int Length = Hex.Length;
-            byte[] Bytes = new byte[Length / 2];
-
-            for (int i = 0; i < Length; i += 2)
-                Bytes[i / 2] = Convert.ToByte(Hex.Substring(i, 2), 16);
-
-            return Bytes;
         }
 
         /// <summary>

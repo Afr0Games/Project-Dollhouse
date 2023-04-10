@@ -10,7 +10,7 @@ namespace TSOProtocol
 {
     public delegate void OnPacketReceivedDelegate(IPacket Packet, byte ID, NetworkClient Sender);
 
-    public class ClientNetworkManager //: IDisposable
+    public class ClientNetworkManager
     {
         private static Lazy<ClientNetworkManager> m_Instance = new Lazy<ClientNetworkManager>(() => new ClientNetworkManager());
         private static NetworkClient m_Client = default!;
@@ -19,6 +19,15 @@ namespace TSOProtocol
         private static SrpEphemeral m_ClientEphemeral = default!;
 
         private static Task m_NetworkingTask = default!;
+
+        private static bool m_HasBeenAuthenticated = false;
+        
+        /// <summary>
+        /// Has the client been authenticated?
+        /// This means it should start sending 
+        /// encrypted packets to the server.
+        /// </summary>
+        public static bool HasBeenAuthenticated { get { return m_HasBeenAuthenticated; } }
 
         /// <summary>
         /// Event invoked when the client has connected.
@@ -49,13 +58,12 @@ namespace TSOProtocol
         /// <param name="Password">The player's password.</param>
         public void Connect(string IP, int Port, string Username, string Password)
         {
-            m_Client = new NetworkClient(IP, Port, EncryptionMode.NoEncryption, true);
+            m_Client = new NetworkClient(IP, Port, true);
             m_Client.OnConnected += Client_OnConnected;
             m_Client.OnNetworkError += Client_OnNetworkError;
             m_Client.OnReceivedData += Client_OnReceivedData;
 
             LoginArgsContainer LoginsArgs = new LoginArgsContainer();
-            LoginsArgs.Enc = new AESEncryptor(Password);
             LoginsArgs.Client = m_Client;
             LoginsArgs.Username = Username;
             LoginsArgs.Password = Password;
@@ -81,6 +89,9 @@ namespace TSOProtocol
         /// <param name="Packet">The encrypted packet to send.</param>
         public Task SendAsync(EncryptedPacket P)
         {
+            if (!m_HasBeenAuthenticated)
+                throw new InvalidOperationException("Cannot send encrypted packets before authentication.");
+
             return m_Client.SendAsync(P.BuildPacket());
         }
 
@@ -133,6 +144,7 @@ namespace TSOProtocol
                     OnPacketReceived?.Invoke(InitialAuthResponsePacket, P.ID, Sender);
                     break;
                 case (byte)AuthPacketIDs.SAuthProof:
+                    m_HasBeenAuthenticated = true;
                     AuthProof AuthProofPacket = ZeroFormatterSerializer.Deserialize<AuthProof>(P.Data);
                     OnPacketReceived?.Invoke(AuthProofPacket, P.ID, Sender);
                     break;

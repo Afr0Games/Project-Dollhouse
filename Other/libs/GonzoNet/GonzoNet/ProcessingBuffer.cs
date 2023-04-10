@@ -35,6 +35,9 @@ namespace GonzoNet
         public event ProcessedPacketDelegate OnProcessedPacket;
         Task ProcessingTask;
 
+        /// <summary>
+        /// Creates a new ProcessingBuffer instance.
+        /// </summary>
         public ProcessingBuffer()
         {
             CancellationToken Token = m_CancellationTokenSource.Token;

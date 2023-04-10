@@ -1,10 +1,11 @@
-﻿using System;
+﻿using GonzoNet;
+using System;
 using System.Data;
 using System.Data.SQLite;
 
 namespace TSOProtocol.Database
 {
-    public class SQLiteConnectionPool
+    public class SQLiteConnectionPool : IDisposable
     {
         private readonly string m_ConnectionString;
         private readonly SQLiteConnection[] m_Connections;
@@ -38,6 +39,40 @@ namespace TSOProtocol.Database
 
                 return Connection;
             }
+        }
+
+        ~SQLiteConnectionPool()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SQLiteConnectionPool instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this SQLiteConnectionPool instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (m_Connections.Length > 0)
+                {
+                    for (int i = 0; i < m_Connections.Length; i++)
+                        m_Connections[i].Dispose();
+                }
+
+                // Prevent the finalizer from calling ~SQLiteConnectionPool, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                Logger.Log("SQLiteConnectionPool not explicitly disposed!", LogLevel.error);
         }
     }
 
@@ -107,6 +142,37 @@ namespace TSOProtocol.Database
                     return result;
                 }
             }
+        }
+
+        ~Database()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Database instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this Database instance.
+        /// <param name="Disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool Disposed)
+        {
+            if (Disposed)
+            {
+                if (m_ConnectionPool != null)
+                    m_ConnectionPool.Dispose();
+
+                // Prevent the finalizer from calling ~Database, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                Logger.Log("Database not explicitly disposed!", LogLevel.error);
         }
     }
 }
