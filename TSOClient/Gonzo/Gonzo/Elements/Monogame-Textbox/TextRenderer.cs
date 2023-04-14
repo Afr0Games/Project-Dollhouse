@@ -96,11 +96,10 @@ namespace MonoGame_Textbox
             if (singleLine)
             {
                 m_Position = position;
-                m_image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_textboxbackground),
+                //We know that the dialog_progressbarback already renders fine, so let's reuse it.
+                m_image = new UIImage(FileManager.Instance.GetTexture((ulong)FileIDs.UIFileIDs.dialog_progressbarback),
                     new Vector2(m_Position.X, m_Position.Y), screen, null, 0.800f);
 
-                m_image.Slicer = new NineSlicer(new Vector2(0, 0), (int)m_image.Texture.Width, (int)m_image.Texture.Width, 
-                    15, 15, 15, 15);
                 m_image.SetSize((int)Size.X, (int)Size.Y);
             }
         }
@@ -128,18 +127,15 @@ namespace MonoGame_Textbox
             {
                 if (m_image != null)
                 {
-                    m_image.DrawTextureTo(spriteBatch, null, m_image.Slicer.TLeft, m_image.Position + Vector2.Zero, Depth);
-                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.TCenter_Scale, m_image.Slicer.TCenter, m_image.Position + new Vector2(m_image.Slicer.LeftPadding, 0), Depth);
-                    m_image.DrawTextureTo(spriteBatch, null, m_image.Slicer.TRight, m_image.Position + new Vector2(m_image.Slicer.Width - m_image.Slicer.RightPadding, 0), Depth);
+                    //Texture is 45px / 3 = 15px wide
+                    m_image.Draw(spriteBatch, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_image.Size.Y),
+                        new Rectangle(0, 0, 15, (int)m_image.Size.Y), Depth + 0.1f);
 
-                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.CLeft_Scale, m_image.Slicer.CLeft, m_image.Position + new Vector2(0, m_image.Slicer.TopPadding), null);
-                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.CCenter_Scale, m_image.Slicer.CCenter, m_image.Position + new Vector2(m_image.Slicer.LeftPadding, m_image.Slicer.TopPadding), Depth);
-                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.CRight_Scale, m_image.Slicer.CRight, m_image.Position + new Vector2(m_image.Slicer.Width - m_image.Slicer.RightPadding, m_image.Slicer.TopPadding), Depth);
+                    m_image.Draw(spriteBatch, new Rectangle((int)(Position.X + 15), (int)Position.Y, (int)(m_image.Size.X - 30),
+                        (int)m_image.Size.Y), new Rectangle(15, 0, 15, (int)m_image.Size.Y), Depth + 0.1f);
 
-                    int BottomY = m_image.Slicer.Height - m_image.Slicer.BottomPadding;
-                    m_image.DrawTextureTo(spriteBatch, null, m_image.Slicer.BLeft, m_image.Position + new Vector2(0, BottomY), null);
-                    m_image.DrawTextureTo(spriteBatch, m_image.Slicer.BCenter_Scale, m_image.Slicer.BCenter, m_image.Position + new Vector2(m_image.Slicer.LeftPadding, BottomY), Depth);
-                    m_image.DrawTextureTo(spriteBatch, null, m_image.Slicer.BRight, m_image.Position + new Vector2(m_image.Slicer.Width - m_image.Slicer.RightPadding, BottomY), Depth);
+                    m_image.Draw(spriteBatch, new Rectangle((int)((Position.X + m_image.Size.X) - 15), (int)Position.Y, 15,
+                        (int)m_image.Size.Y), new Rectangle(30, 0, 15, (int)m_image.Size.Y), Depth + 0.1f);
                 }
             }
 
