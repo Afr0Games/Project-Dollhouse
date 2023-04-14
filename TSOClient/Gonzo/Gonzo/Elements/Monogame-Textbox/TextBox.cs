@@ -106,7 +106,7 @@ namespace MonoGame_Textbox
             Background = hasBackground;
             Position = new Vector2(area.X, area.Y);
             m_Size = new Vector2(area.Width, area.Height);
-            Renderer = new TextRenderer(this, new Vector2(area.X, area.Y), new Vector2(area.Width, area.Height), 
+            Renderer = new TextRenderer(this, new Vector2(area.X - 5, area.Y - 5), new Vector2(area.Width, area.Height), 
                 screen, hasBackground, singleLine)
             {
                 Area = area,
