@@ -10,10 +10,7 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-using System;
-using SecureRemotePassword;
 using ZeroFormatter;
-using GonzoNet;
 using GonzoNet.Packets;
 
 namespace TSOProtocol

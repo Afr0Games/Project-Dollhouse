@@ -3,6 +3,7 @@ If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
 The Original Code is the GonzoNet.
+The Original Code is the Parlo Library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -11,13 +12,14 @@ Contributor(s): ______________________________________.
 */
 
 using System;
-using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using GonzoNet.Encryption;
+using System.Runtime.CompilerServices;
 using GonzoNet.Packets;
+using GonzoNet;
+using System.Linq.Expressions;
 
 namespace GonzoNet
 {
@@ -52,13 +54,19 @@ namespace GonzoNet
     /// <param name="Sender">The NetworkClient instance used to connect to the server.</param>
 	public delegate void ServerDisconnectedDelegate(NetworkClient Sender);
 
-    public class NetworkClient : IDisposable
-	{
-		protected Listener m_Listener;
+    /// <summary>
+    /// Occurs when a client missed too many heartbeats.
+    /// </summary>
+    /// <param name="Sender">The client that lost too many heartbeats.</param>
+    public delegate void OnConnectionLostDelegate(NetworkClient Sender);
+
+    public class NetworkClient : IDisposable, IAsyncDisposable
+    {
+        protected Listener m_Listener;
         private readonly SemaphoreSlim m_SocketSemaphore = new SemaphoreSlim(1, 1);
         private Socket m_Sock;
-		private string m_IP;
-		private int m_Port;
+        private string m_IP;
+        private int m_Port;
 
         private readonly CancellationTokenSource m_ReceiveCancellationTokenSource = new CancellationTokenSource();
 
@@ -69,22 +77,75 @@ namespace GonzoNet
         /// Is this client connected to a server?
         /// </summary>
         public bool IsConnected
-		{ 
-			get { return m_Connected; } 
-		}
+        {
+            get { return m_Connected; }
+        }
 
-		/// <summary>
-		/// This client's SessionID. Ensures that a client is unique even if 
-		/// multiple clients are trying to connect using the same IP.
-		/// </summary>
+        /// <summary>
+        /// Is this client still alive,
+        /// I.E has it not missed too 
+        /// many heartbeats?
+        /// </summary>
+        public bool IsAlive
+        {
+            get { return m_IsAlive; }
+        }
+
+        /// <summary>
+        /// This client's SessionID. Ensures that a client is unique even if 
+        /// multiple clients are trying to connect using the same IP.
+        /// </summary>
         public Guid SessionId { get; } = Guid.NewGuid();
 
         private byte[] m_RecvBuf;
-		PacketHandler m_Handler;
+        PacketHandler m_Handler;
 
-		private ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
+        private DateTime m_LastHeartbeatSent;
+        private bool m_IsAlive = true;
+        private object m_IsAliveLock = new object();
 
-		protected LoginArgsContainer m_LoginArgs;
+        private readonly object m_MissedHeartbeatsLock = new object();
+        private int m_MissedHeartbeats = 0;
+
+        private int m_MaxMissedHeartbeats = 6;
+        private int m_HeartbeatInterval = 30; //In seconds.
+
+        private CancellationTokenSource m_SendHeartbeatCTS = new CancellationTokenSource();
+        private CancellationTokenSource m_CheckMissedHeartbeatsCTS = new CancellationTokenSource();
+
+        /// <summary>
+        /// Gets or sets the number of missed heartbeats.
+        /// Defaults to 6. If this number is reached, 
+        /// the client will be assumed to be disconnected
+        /// and will be disposed.
+        /// </summary>
+        public int MaxMissedHeartbeats
+        {
+            get { return m_MaxMissedHeartbeats; }
+            set { m_MaxMissedHeartbeats = value; }
+        }
+
+        /// <summary>
+        /// The number of missed heartbeats.
+        /// </summary>
+        public int MissedHeartbeats
+        {
+            get { return m_MissedHeartbeats; }
+        }
+
+        /// <summary>
+        /// Gets or sets how many seconds should pass before a heartbeat is sent.
+        /// Defaults to 30 seconds.
+        /// </summary>
+        public int HeartbeatInterval
+        {
+            get { return m_HeartbeatInterval; }
+            set { m_HeartbeatInterval = value; }
+        }
+
+        private ProcessingBuffer m_ProcessingBuffer = new ProcessingBuffer();
+
+        protected LoginArgsContainer m_LoginArgs;
 
         /// <summary>
         /// Fired when a network error occured.
@@ -112,6 +173,11 @@ namespace GonzoNet
 		public event ServerDisconnectedDelegate OnServerDisconnected;
 
         /// <summary>
+        /// Fired when this NetworkClient instance missed too many heartbeats.
+        /// </summary>
+        public event OnConnectionLostDelegate OnConnectionLost;
+
+        /// <summary>
         /// Initializes a client for connecting to a remote server and listening to data.
         /// </summary>
         /// <param name="IP">The IP to connect to.</param>
@@ -119,46 +185,48 @@ namespace GonzoNet
         /// <param name="EMode">The encryption mode to use!</param>
         /// <param name="KeepAlive">Should this connection be kept alive?</param>
         public NetworkClient(string IP, int Port, bool KeepAlive)
-		{
+        {
             if (IP == null)
                 throw new ArgumentNullException("IP");
 
             if (IP == string.Empty)
                 throw new ArgumentException("IP must be specified!");
 
-			m_Sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            m_Sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-			if (KeepAlive)
-				m_Sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            if (KeepAlive)
+                m_Sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
-			m_IP = IP;
-			m_Port = Port;
+            m_IP = IP;
+            m_Port = Port;
 
-			//m_RecvBuf = new byte[11024];
-			m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
+            m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
 
             m_ProcessingBuffer.OnProcessedPacket += M_ProcessingBuffer_OnProcessedPacket;
-		}
+        }
 
         /// <summary>
         /// Initializes a client that listens for data.
         /// </summary>
         /// <param name="ClientSocket">The client's socket.</param>
         /// <param name="Server">The Listener instance calling this constructor.</param>
-		/// <param name="EMode">The encryption mode to use!</param>
+        /// <param name="EMode">The encryption mode to use!</param>
         public NetworkClient(Socket ClientSocket, Listener Server)
-		{
+        {
             if (ClientSocket == null || Server == null)
                 throw new ArgumentNullException("ClientSocket or Server!");
 
-			m_Sock = ClientSocket;
-			m_Listener = Server;
+            m_Sock = ClientSocket;
+            m_Listener = Server;
             m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
 
             m_ProcessingBuffer.OnProcessedPacket += M_ProcessingBuffer_OnProcessedPacket;
 
-			lock (m_ConnectedLock)
-				m_Connected = true;
+            m_MissedHeartbeats = 0;
+            _ = CheckforMissedHeartbeats();
+
+            lock (m_ConnectedLock)
+                m_Connected = true;
 
             _ = ReceiveAsync(); // Start the BeginReceive task without awaiting it
         }
@@ -184,6 +252,8 @@ namespace GonzoNet
                     _ = ReceiveAsync();
 
                     OnConnected?.Invoke(m_LoginArgs);
+
+                    _ = SendHeartbeatAsync();
                 }
                 catch (SocketException e)
                 {
@@ -199,14 +269,26 @@ namespace GonzoNet
         /// <param name="Data">The data to send.</param>
         /// <returns>A Task instance that can be await-ed.</returns>
         /// <exception cref="ArgumentNullException">Thrown if Data is null.</exception>
+        /// <exception cref="SocketException">Thrown if the socket attempted to send data without being connected.</exception>
         public async Task SendAsync(byte[] Data)
-		{
-			if (Data == null || Data.Length < 1)
-				throw new ArgumentNullException("Data");
+        {
+            if (Data == null || Data.Length < 1)
+                throw new ArgumentNullException("Data");
 
             try
             {
-                await m_Sock.SendAsync(new ArraySegment<byte>(Data), SocketFlags.None);
+                if (m_Connected)
+                    await m_Sock.SendAsync(new ArraySegment<byte>(Data), SocketFlags.None);
+                else
+                    throw new SocketException((int)SocketError.NotConnected);
+            }
+            catch (SocketException E)
+            {
+                if (E.SocketErrorCode == SocketError.NotConnected)
+                {
+                    Logger.Log("Error sending data: Client is not connected.", LogLevel.warn);
+                    throw E;
+                }
             }
             catch (Exception ex)
             {
@@ -223,14 +305,33 @@ namespace GonzoNet
         /// <param name="Packet">The packet that was processed.</param>
         private void M_ProcessingBuffer_OnProcessedPacket(Packet P)
         {
-			if(P.ID == (byte)GonzoNetIDs.SGoodbye)
-				OnServerDisconnected?.Invoke(this);
-			if(P.ID == (byte)GonzoNetIDs.CGoodbye) //Client notified server of disconnection.
-				OnClientDisconnected?.Invoke(this);
+            if (P.ID == (byte)GonzoNetIDs.SGoodbye)
+            {
+                OnServerDisconnected?.Invoke(this);
+                return;
+            }
+            if (P.ID == (byte)GonzoNetIDs.CGoodbye) //Client notified server of disconnection.
+            {
+                OnClientDisconnected?.Invoke(this);
+                return;
+            }
+            if (P.ID == (byte)GonzoNetIDs.Heartbeat)
+            {
+                lock (m_IsAliveLock)
+                    m_IsAlive = true;
+
+                lock(m_MissedHeartbeatsLock)
+                    m_MissedHeartbeats = 0;
+
+                return;
+            }
 
             OnReceivedData?.Invoke(this, P);
         }
 
+        /// <summary>
+        /// Asynchronously receives data.
+        /// </summary>
         private async Task ReceiveAsync()
         {
             while (m_Connected)
@@ -271,37 +372,107 @@ namespace GonzoNet
             }
         }
 
-		/// <summary>
-		/// This NetworkClient's remote IP. Will return null if the NetworkClient's socket is not connected remotely.
-		/// </summary>
-		public string RemoteIP
-		{
-			get
-			{
-				IPEndPoint RemoteEP = (IPEndPoint)m_Sock.RemoteEndPoint;
+        /// <summary>
+        /// This NetworkClient's remote IP. Will return null if the NetworkClient's socket is not connected remotely.
+        /// </summary>
+        public string RemoteIP
+        {
+            get
+            {
+                IPEndPoint RemoteEP = (IPEndPoint)m_Sock.RemoteEndPoint;
 
-				if (RemoteEP != null)
-					return RemoteEP.Address.ToString();
-				else
-					return null;
-			}
-		}
+                if (RemoteEP != null)
+                    return RemoteEP.Address.ToString();
+                else
+                    return null;
+            }
+        }
 
-		/// <summary>
-		/// This socket's remote port. Will return 0 if the socket is not connected remotely.
-		/// </summary>
-		public int RemotePort
-		{
-			get
-			{
-				IPEndPoint RemoteEP = (IPEndPoint)m_Sock.RemoteEndPoint;
+        /// <summary>
+        /// This socket's remote port. Will return 0 if the socket is not connected remotely.
+        /// </summary>
+        public int RemotePort
+        {
+            get
+            {
+                IPEndPoint RemoteEP = (IPEndPoint)m_Sock.RemoteEndPoint;
 
-				if (RemoteEP != null)
-					return RemoteEP.Port;
-				else
-					return 0;
-			}
-		}
+                if (RemoteEP != null)
+                    return RemoteEP.Port;
+                else
+                    return 0;
+            }
+        }
+
+        /// <summary>
+        /// Periodically sends a heartbeat to the server.
+        /// How often is determined by HeartbeatInterval.
+        /// </summary>
+        private async Task SendHeartbeatAsync()
+        {
+            try
+            {
+                while (true)
+                {
+                    if (m_SendHeartbeatCTS.Token.IsCancellationRequested)
+                        break;
+
+                    try
+                    {
+                        HeartbeatPacket Heartbeat = new HeartbeatPacket((DateTime.Now > m_LastHeartbeatSent) ?
+                            DateTime.Now - m_LastHeartbeatSent : m_LastHeartbeatSent - DateTime.Now);
+                        m_LastHeartbeatSent = DateTime.Now;
+                        byte[] HeartbeatData = Heartbeat.ToByteArray();
+                        Packet Pulse = new Packet((byte)GonzoNetIDs.Heartbeat,
+                            (ushort)(PacketHeaders.UNENCRYPTED + HeartbeatData.Length), HeartbeatData);
+                        await SendAsync(Pulse.BuildPacket());
+                    }
+                    catch (Exception E)
+                    {
+                        Logger.Log("Error sending heartbeat: " + E.Message, LogLevel.error);
+                    }
+
+                    await Task.Delay(m_HeartbeatInterval * 1000, m_SendHeartbeatCTS.Token);
+                }
+            }
+            catch(TaskCanceledException)
+            {
+                Logger.Log("SendHeartbeat task cancelled", LogLevel.info);
+            }
+        }
+
+        /// <summary>
+        /// Periodically checks for missed heartbeats.
+        /// How often is determined by HeartbeatInterval.
+        /// </summary>
+        private async Task CheckforMissedHeartbeats()
+        {
+            try
+            {
+                while (true)
+                {
+                    if (m_CheckMissedHeartbeatsCTS.Token.IsCancellationRequested)
+                        break;
+
+                    lock (m_MissedHeartbeatsLock)
+                        m_MissedHeartbeats++;
+
+                    if (m_MissedHeartbeats > m_MaxMissedHeartbeats)
+                    {
+                        lock (m_IsAliveLock)
+                            m_IsAlive = false;
+
+                        OnConnectionLost?.Invoke(this);
+                    }
+
+                    await Task.Delay(m_HeartbeatInterval * 1000, m_CheckMissedHeartbeatsCTS.Token);
+                }
+            }
+            catch(TaskCanceledException) 
+            {
+                Logger.Log("CheckforMissedHeartbeats task cancelled", LogLevel.info);
+            }
+        }
 
         /// <summary>
         /// Disconnects this NetworkClient instance and stops
@@ -314,14 +485,16 @@ namespace GonzoNet
             {
                 await m_SocketSemaphore.WaitAsync();
 
-				if (m_Connected && m_Sock != null)
-				{
+                if (m_Connected && m_Sock != null)
+                {
                     if (SendDisconnectMessage)
                     {
-                        //Set the timeout to five seconds by default for clients, even though it's not really important for clients.
+                        //Set the timeout to five seconds by default for clients,
+                        //even though it's not really important for clients.
                         GoodbyePacket ByePacket = new GoodbyePacket((int)GonzoDefaultTimeouts.Client);
                         byte[] ByeData = ByePacket.ToByteArray();
-                        Packet Goodbye = new Packet((byte)GonzoNetIDs.CGoodbye, (ushort)ByeData.Length, ByeData);
+                        Packet Goodbye = new Packet((byte)GonzoNetIDs.CGoodbye, 
+                            (ushort)(PacketHeaders.UNENCRYPTED + ByeData.Length), ByeData);
                         await SendAsync(Goodbye.BuildPacket());
                     }
 
@@ -332,17 +505,17 @@ namespace GonzoNet
                         m_Sock.Disconnect(true);
                     }
 
-					lock (m_ConnectedLock)
-						m_Connected = false;
-				}
+                    lock (m_ConnectedLock)
+                        m_Connected = false;
+                }
             }
-            catch(SocketException E)
+            catch (SocketException E)
             {
                 Logger.Log("Exception happened during NetworkClient.DisconnectAsync():" + E.ToString(), LogLevel.error);
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
-                Logger.Log("NetworkClient.DisconnectAsync() tried to shutdown or disconnect socket that was already disposed", 
+                Logger.Log("NetworkClient.DisconnectAsync() tried to shutdown or disconnect socket that was already disposed",
                     LogLevel.warn);
             }
             finally
@@ -357,25 +530,28 @@ namespace GonzoNet
         /// <param name="ID">The ID of the PacketHandler to retrieve.</param>
         /// <returns>A PacketHandler instance if it was found, or null if it wasn't.</returns>
         private PacketHandler FindPacketHandler(byte ID)
-		{
-			PacketHandler Handler = PacketHandlers.Get(ID);
+        {
+            PacketHandler Handler = PacketHandlers.Get(ID);
 
-			if (Handler != null)
-				return Handler;
-			else return null;
-		}
+            if (Handler != null)
+                return Handler;
+            else return null;
+        }
 
-		/// <summary>
-		/// Returns a unique hash code for this NetworkClient instance.
-		/// Needs to be implemented for this class to be usable in a 
-		/// Dictionary.
-		/// </summary>
-		/// <returns>A unique hash code.</returns>
+        /// <summary>
+        /// Returns a unique hash code for this NetworkClient instance.
+        /// Needs to be implemented for this class to be usable in a 
+        /// Dictionary.
+        /// </summary>
+        /// <returns>A unique hash code.</returns>
         public override int GetHashCode()
         {
             return SessionId.GetHashCode();
         }
 
+        /// <summary>
+        /// Finalizer for NetworkClient.
+        /// </summary>
         ~NetworkClient()
         {
             Dispose(false);
@@ -393,16 +569,14 @@ namespace GonzoNet
         /// Disposes of the resources used by this NetworkClient instance.
         /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
-        protected virtual async void Dispose(bool Disposed)
+        protected virtual void Dispose(bool Disposed)
         {
             if (Disposed)
             {
-                if(m_Listener == null) //This is already called by the NetworkListener instance in its Dispose method...
-				    await DisconnectAsync();
-
                 m_ReceiveCancellationTokenSource.Cancel();
 
-                m_Sock.Dispose();
+                if(m_Sock != null)
+                    m_Sock.Dispose();
 
                 m_ProcessingBuffer.OnProcessedPacket -= M_ProcessingBuffer_OnProcessedPacket;
                 m_ProcessingBuffer.Dispose();
@@ -412,6 +586,18 @@ namespace GonzoNet
             }
             else
                 Logger.Log("NetworkClient not explicitly disposed!", LogLevel.error);
+        }
+
+        /// <summary>
+        /// Disposes of the async resources used by this NetworkClient instance.
+        /// </summary>
+        public async ValueTask DisposeAsync()
+        {
+            if (m_Listener == null) //This is already called by the NetworkListener instance in its Dispose method...
+                await DisconnectAsync();
+
+            m_CheckMissedHeartbeatsCTS.Cancel();
+            m_SendHeartbeatCTS.Cancel();
         }
     }
 }

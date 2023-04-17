@@ -4,6 +4,8 @@ using System.Linq;
 using GonzoNet.Packets;
 using GonzoNet.Encryption;
 using GonzoNet;
+using System.IO;
+using System.Threading;
 
 namespace TSOProtocol
 {
@@ -50,6 +52,7 @@ namespace TSOProtocol
                     if (Fish == null)
                         Fish = new Blowfish(HexStringToByteArray(m_Args.Session));
 
+                    m_Data = Fish.RemovePkcs7Padding(Data);
                     Fish.Decipher(m_Data, m_Data.Length);
                     return m_Data;
             }
@@ -82,9 +85,10 @@ namespace TSOProtocol
                     EncryptedData = m_Data;
 
                     if ((EncryptedData.Length % 8) != 0)
-                        EncryptedData = Fish.PadData(EncryptedData);
+                        EncryptedData = Fish.AddPkcs7Padding(EncryptedData, 8);
 
                     Fish.Encipher(EncryptedData, EncryptedData.Length);
+
                     break;
             }
 

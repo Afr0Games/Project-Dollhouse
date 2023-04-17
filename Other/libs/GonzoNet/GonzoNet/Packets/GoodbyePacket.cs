@@ -11,6 +11,7 @@ namespace GonzoNet.Packets
     /// </summary>
     public enum GonzoNetIDs
     {
+        Heartbeat = 0xFD,
         SGoodbye = 0xFE,
         CGoodbye = 0xFF //Should be sufficiently large, no protocol should need this many packets.
     }

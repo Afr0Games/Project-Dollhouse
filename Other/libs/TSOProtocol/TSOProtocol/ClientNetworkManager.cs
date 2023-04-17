@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using GonzoNet.Encryption;
 using ZeroFormatter;
 using SecureRemotePassword;
 using GonzoNet;

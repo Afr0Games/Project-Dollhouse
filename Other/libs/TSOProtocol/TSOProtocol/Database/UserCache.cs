@@ -196,7 +196,6 @@ namespace TSOProtocol.Database
             }
         }
 
-
         ~UserCache()
         {
             Dispose(false);
@@ -214,7 +213,7 @@ namespace TSOProtocol.Database
         /// Disposes of the resources used by this UserCache instance.
         /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
-        protected virtual async void Dispose(bool Disposed)
+        protected virtual void Dispose(bool Disposed)
         {
             if (Disposed)
             {

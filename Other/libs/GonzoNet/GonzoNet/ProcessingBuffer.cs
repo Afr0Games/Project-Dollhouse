@@ -6,7 +6,6 @@ using GonzoNet.Packets;
 
 namespace GonzoNet
 {
-    //delegate void ProcessedPacketDelegate(PacketStream Packet);
     delegate void ProcessedPacketDelegate(Packet packet);
 
     /// <summary>
@@ -122,7 +121,7 @@ namespace GonzoNet
         }
 
         /// <summary>
-        /// Disposes of the resources used by this SoundPlayer instance.
+        /// Disposes of the resources used by this ProcessingBuffer instance.
         /// </summary>
         public void Dispose()
         {
@@ -130,7 +129,7 @@ namespace GonzoNet
         }
 
         /// <summary>
-        /// Disposes of the resources used by this SoundPlayer instance.
+        /// Disposes of the resources used by this ProcessingBuffer instance.
         /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
         protected virtual void Dispose(bool Disposed)
@@ -139,7 +138,7 @@ namespace GonzoNet
             {
                 StopProcessing();
 
-                // Prevent the finalizer from calling ~NetworkClient, since the object is already disposed at this point.
+                // Prevent the finalizer from calling ~ProcessingBuffer, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
             }
             else

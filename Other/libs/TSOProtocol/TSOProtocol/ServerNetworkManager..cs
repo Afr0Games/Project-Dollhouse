@@ -1,7 +1,4 @@
-﻿using System;
-using GonzoNet.Encryption;
-using System.Threading.Tasks;
-using ZeroFormatter;
+﻿using ZeroFormatter;
 using SecureRemotePassword;
 using System.Net;
 using System.Collections.Concurrent;
@@ -37,9 +34,9 @@ namespace TSOProtocol
         /// </summary>
         public event OnPacketReceivedDelegate OnPacketReceived = default!;
 
-        public void Listen(string IP, int Port)
+        public async Task Listen(string IP, int Port)
         {
-            m_Listener = new Listener(); //Change this in release
+            await using Listener m_Listener = new Listener();
             m_Listener.OnConnected += M_Listener_OnConnected;
             m_Listener.OnDisconnected += M_Listener_OnDisconnected;
 
@@ -49,14 +46,14 @@ namespace TSOProtocol
             PacketHandlers.Register((byte)AuthPacketIDs.CAuthProof, false, 0,
                 new OnPacketReceive(Client_OnReceivedData));
 
-            _ = m_Listener.InitializeAsync(Endpoint); 
+            await m_Listener.InitializeAsync(Endpoint); 
         }
 
         /// <summary>
         /// A new client connected!
         /// </summary>
         /// <param name="Client">The client that connected.</param>
-        private void M_Listener_OnConnected(NetworkClient Client)
+        private async Task M_Listener_OnConnected(NetworkClient Client)
         {
             Guid NewClientGuid = Guid.NewGuid();
 
@@ -98,7 +95,7 @@ namespace TSOProtocol
         /// A client disconnected!
         /// </summary>
         /// <param name="Client">The client that disconnected.</param>
-        private void M_Listener_OnDisconnected(NetworkClient Client)
+        private async Task M_Listener_OnDisconnected(NetworkClient Client)
         {
         }
     }

@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the GonzoNet.
+The Original Code is the Parlo Library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -25,17 +25,17 @@ namespace GonzoNet
     /// Occurs when a client connected or disconnected from a Listener.
     /// </summary>
     /// <param name="Client">The NetworkClient instance that connected or disconnected.</param>
-    public delegate void OnDisconnectedDelegate(NetworkClient Client);
+    public delegate Task OnDisconnectedDelegate(NetworkClient Client);
 
     /// <summary>
     /// Represents a listener that listens for incoming clients.
     /// </summary>
-    public class Listener : IDisposable
+    public class Listener : IDisposable, IAsyncDisposable
     {
-		private BlockingCollection<NetworkClient> m_NetworkClients;
+        private BlockingCollection<NetworkClient> m_NetworkClients;
         private Socket m_ListenerSock;
         private IPEndPoint m_LocalEP;
-        private readonly CancellationTokenSource m_ShutdownDelayCTS = new CancellationTokenSource();
+        private readonly CancellationTokenSource m_AcceptCTS = new CancellationTokenSource();
 
         /// <summary>
         /// Fired when a client disconnected.
@@ -69,7 +69,7 @@ namespace GonzoNet
         public Listener()
         {
             m_ListenerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			m_NetworkClients = new BlockingCollection<NetworkClient>();
+            m_NetworkClients = new BlockingCollection<NetworkClient>();
         }
 
         /// <summary>
@@ -99,22 +99,46 @@ namespace GonzoNet
         /// <returns>An awaitable task.</returns>
         private async Task AcceptAsync()
         {
-            while (true)
+            try
             {
-                Socket AcceptedSocket = await m_ListenerSock.AcceptAsync();
-
-                if (AcceptedSocket != null)
+                while (true)
                 {
-                    Logger.Log("\nNew client connected!\r\n", LogLevel.info);
+                    if (m_AcceptCTS.Token.IsCancellationRequested)
+                        break;
 
-                    AcceptedSocket.LingerState = new LingerOption(true, 5);
-                    NetworkClient NewClient = new NetworkClient(AcceptedSocket, this);
-                    NewClient.OnClientDisconnected += NewClient_OnClientDisconnected;
+                    Socket AcceptedSocket = await m_ListenerSock.AcceptAsync();
 
-                    m_NetworkClients.Add(NewClient);
-                    if (OnConnected != null) OnConnected(NewClient);
+                    if (AcceptedSocket != null)
+                    {
+                        Logger.Log("\nNew client connected!\r\n", LogLevel.info);
+
+                        AcceptedSocket.LingerState = new LingerOption(true, 5);
+                        NetworkClient NewClient = new NetworkClient(AcceptedSocket, this);
+                        NewClient.OnClientDisconnected += async (Client) => await NewClient_OnClientDisconnected(Client);
+                        NewClient.OnConnectionLost += async (Client) => await NewClient_OnConnectionLost(Client);
+
+                        m_NetworkClients.Add(NewClient);
+                        if (OnConnected != null)
+                            await OnConnected(NewClient);
+                    }
                 }
             }
+            catch(TaskCanceledException)
+            {
+                Logger.Log("AcceptAsync task cancelled", LogLevel.info);
+            }
+        }
+
+        /// <summary>
+        /// The client missed too many heartbeats, so assume it's disconnected.
+        /// </summary>
+        /// <param name="Sender">The client in question.</param>
+        private async Task NewClient_OnConnectionLost(NetworkClient Sender)
+        {
+            Logger.Log("Client connection lost!", LogLevel.info);
+            m_NetworkClients.TryTake(out Sender);
+            await Sender.DisposeAsync();
+            Sender.Dispose();
         }
 
         /// <summary>
@@ -124,36 +148,36 @@ namespace GonzoNet
         /// <param name="RemotePort">The remote port of the client.</param>
         /// <returns>A NetworkClient instance. Null if not found.</returns>
         public NetworkClient GetClient(string RemoteIP, int RemotePort)
-		{
-            if(RemoteIP == null)
+        {
+            if (RemoteIP == null)
                 throw new ArgumentNullException("RemoteIP!");
             if (RemoteIP == string.Empty)
                 throw new ArgumentException("RemoteIP must be specified!");
 
-			lock (Clients)
-			{
-				foreach (NetworkClient PlayersClient in Clients)
-				{
-					if(RemoteIP.Equals(PlayersClient.RemoteIP, StringComparison.CurrentCultureIgnoreCase))
-					{
-						if(RemotePort == PlayersClient.RemotePort)
-							return PlayersClient;
-					}
-				}
-			}
+            lock (Clients)
+            {
+                foreach (NetworkClient PlayersClient in Clients)
+                {
+                    if (RemoteIP.Equals(PlayersClient.RemoteIP, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        if (RemotePort == PlayersClient.RemotePort)
+                            return PlayersClient;
+                    }
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
         /// <summary>
         /// A connected client disconnected from the Listener.
         /// </summary>
         /// <param name="Sender">The NetworkClient instance that disconnected.</param>
-        private void NewClient_OnClientDisconnected(NetworkClient Sender)
+        private async Task NewClient_OnClientDisconnected(NetworkClient Sender)
         {
             Logger.Log("Client disconnected!", LogLevel.info);
+            await Sender.DisposeAsync();
             Sender.Dispose();
-            //m_NetworkClients.Remove(Sender);
         }
 
         /// <summary>
@@ -181,37 +205,52 @@ namespace GonzoNet
         /// Disposes of the resources used by this Listener instance.
         /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
-        protected virtual async void Dispose(bool Disposed)
+        protected virtual void Dispose(bool Disposed)
         {
             if (Disposed)
             {
-                // First, we wait for all clients to disconnect.
-                var DisconnectTasks = new List<Task>();
-                foreach (NetworkClient Client in m_NetworkClients)
-                    DisconnectTasks.Add(Client.DisconnectAsync());
-
-                if (DisconnectTasks.Count > 0)
+                if (m_ListenerSock != null)
                 {
-                    await Task.WhenAll(DisconnectTasks);
-                    await Task.Delay(TimeSpan.FromSeconds((double)GonzoDefaultTimeouts.Server));
+                    // After all clients have disconnected, shutdown the listener socket.
+                    m_ListenerSock.Shutdown(SocketShutdown.Both);
+                    m_ListenerSock.Close();
+                    m_ListenerSock.Dispose();
                 }
 
-                // After all clients have disconnected, shutdown the listener socket.
-                m_ListenerSock.Shutdown(SocketShutdown.Both);
-                m_ListenerSock.Close();
-                m_ListenerSock.Dispose();
-
-                // Dispose of the clients.
-                foreach (NetworkClient Client in m_NetworkClients)
-                    Client.Dispose();
-
-                m_NetworkClients.Dispose();
+                if(m_NetworkClients != null)
+                    m_NetworkClients.Dispose();
 
                 // Prevent the finalizer from calling ~Listener, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
             }
             else
                 Logger.Log("Listener not explicitly disposed!", LogLevel.error);
+        }
+
+        /// <summary>
+        /// Disposes of the async resources used by this Listener instance.
+        /// </summary>
+        public async ValueTask DisposeAsync()
+        {
+            // First, we wait for all clients to disconnect.
+            var DisconnectTasks = new List<Task>();
+            foreach (NetworkClient Client in m_NetworkClients)
+                DisconnectTasks.Add(Client.DisconnectAsync());
+
+            if (DisconnectTasks.Count > 0)
+            {
+                await Task.WhenAll(DisconnectTasks);
+                await Task.Delay(TimeSpan.FromSeconds((double)GonzoDefaultTimeouts.Server));
+            }
+
+            m_AcceptCTS.Cancel();
+
+            // Dispose of the clients.
+            foreach (NetworkClient Client in m_NetworkClients)
+            {
+                Client.Dispose();
+                await Client.DisposeAsync();
+            }
         }
     }
 }
