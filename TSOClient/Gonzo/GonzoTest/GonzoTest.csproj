@@ -198,6 +198,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <PackageReference Include="Parlo" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Gonzo;
@@ -7,7 +8,7 @@ using Gonzo.Dialogs;
 using Gonzo.Elements;
 using Files;
 using Files.Manager;
-using GonzoNet;
+using Parlo;
 using ResolutionBuddy;
 using TSOProtocol;
 
@@ -57,9 +58,9 @@ namespace GonzoTest
         /// The client successfully connected to the login server!
         /// </summary>
         /// <param name="LoginArgs">The arguments the user used for logging in.</param>
-        private void ClientNetworkManager_OnLogin(LoginArgsContainer LoginArgs)
+        private async Task ClientNetworkManager_OnLogin(LoginArgsContainer LoginArgs)
         {
-            m_LoginProgressDiag.UpdateStatus(LoginProcess.Initial);
+            await m_LoginProgressDiag.UpdateStatus(LoginProcess.Initial);
         }
 
         private void ClientNetworkManager_OnNetworkError(System.Net.Sockets.SocketException Exception)
