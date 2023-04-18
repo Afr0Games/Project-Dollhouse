@@ -3,6 +3,6 @@
     public enum EncryptionMode
     {
         AES,
-        Blowfish
+        Twofish
     }
 }

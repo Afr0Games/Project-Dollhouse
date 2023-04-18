@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GonzoNet.Packets;
+﻿using GonzoNet.Packets;
 using GonzoNet.Encryption;
 using GonzoNet;
-using System.IO;
-using System.Threading;
+using System.Security.Cryptography;
 
 namespace TSOProtocol
 {
     public class EncryptedPacket : Packet, IDisposable
     {
         SRPEncryptionArgs m_Args = new SRPEncryptionArgs();
-
-        public static Blowfish Fish;
 
         /// <summary>
         /// Creates a new instance of EncryptedPacket and adds +1 to the Length
@@ -48,12 +42,35 @@ namespace TSOProtocol
                 default:
                     AES Enc = new AES(m_Args.Session, HexStringToByteArray(m_Args.Salt));
                     return Enc.Decrypt(m_Data);
-                case EncryptionMode.Blowfish:
-                    if (Fish == null)
-                        Fish = new Blowfish(HexStringToByteArray(m_Args.Session));
+                case EncryptionMode.Twofish:
+                    Twofish Fish = new Twofish()
+                    {
+                        KeySize = 256,
+                        Mode = CipherMode.CBC,
+                        Padding = PaddingMode.PKCS7
+                    };
 
-                    m_Data = Fish.RemovePkcs7Padding(Data);
-                    Fish.Decipher(m_Data, m_Data.Length);
+                    Rfc2898DeriveBytes KeyDerivator = new Rfc2898DeriveBytes(m_Args.Session, HexStringToByteArray(m_Args.Salt),
+                        10000);
+                    Fish.Key = KeyDerivator.GetBytes(32); //256 bits
+                    Fish.IV = KeyDerivator.GetBytes(16);  //128 bits
+                    ICryptoTransform Transformer = Fish.CreateDecryptor(Fish.Key, Fish.IV);
+
+                    using (MemoryStream EncryptedStream = new MemoryStream(m_Data))
+                    {
+                        using (CryptoStream CSEncrypt = new CryptoStream(EncryptedStream, Transformer, CryptoStreamMode.Read))
+                        {
+                            using (BinaryReader BWDecrypt = new BinaryReader(CSEncrypt))
+                            {
+                                m_Data = BWDecrypt.ReadBytes(m_Data.Length);
+                            }
+                        }
+                    }
+
+                    KeyDerivator.Dispose();
+                    Transformer.Dispose();
+                    Fish.Dispose();
+
                     return m_Data;
             }
         }
@@ -78,16 +95,37 @@ namespace TSOProtocol
                     AES Enc = new AES(m_Args.Session, HexStringToByteArray(m_Args.Salt));
                     EncryptedData = Enc.Encrypt(m_Data);
                     break;
-                case EncryptionMode.Blowfish:
-                    if (Fish == null)
-                        Fish = new Blowfish(HexStringToByteArray(m_Args.Session));
+                case EncryptionMode.Twofish:
+                    Twofish Fish = new Twofish()
+                    {
+                        KeySize = 256,
+                        Mode = CipherMode.CBC,
+                        Padding = PaddingMode.PKCS7
+                    };
 
-                    EncryptedData = m_Data;
+                    Rfc2898DeriveBytes KeyDerivator = new Rfc2898DeriveBytes(m_Args.Session, HexStringToByteArray(m_Args.Salt),
+                        10000);
+                    Fish.Key = KeyDerivator.GetBytes(32); //256 bits
+                    Fish.IV = KeyDerivator.GetBytes(16);  //128 bits
+                    ICryptoTransform Transformer = Fish.CreateEncryptor(Fish.Key, Fish.IV);
 
-                    if ((EncryptedData.Length % 8) != 0)
-                        EncryptedData = Fish.AddPkcs7Padding(EncryptedData, 8);
+                    using (MemoryStream EncryptedStream = new MemoryStream())
+                    {
+                        using (CryptoStream CSEncrypt = new CryptoStream(EncryptedStream, Transformer, CryptoStreamMode.Write))
+                        {
+                            using (BinaryWriter SWEncrypt = new BinaryWriter(CSEncrypt))
+                            {
+                                SWEncrypt.Write(m_Data);
+                                SWEncrypt.Flush();
+                            }
 
-                    Fish.Encipher(EncryptedData, EncryptedData.Length);
+                            EncryptedData = EncryptedStream.ToArray();
+                        }
+                    }
+
+                    KeyDerivator.Dispose();
+                    Transformer.Dispose();
+                    Fish.Dispose();
 
                     break;
             }
@@ -160,9 +198,6 @@ namespace TSOProtocol
         {
             if (Disposed)
             {
-                if (Fish != null)
-                    Fish.Dispose();
-
                 // Prevent the finalizer from calling ~EncryptedPacket, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
             }

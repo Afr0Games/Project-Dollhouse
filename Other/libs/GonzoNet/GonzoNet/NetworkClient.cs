@@ -3,7 +3,6 @@ If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
 The Original Code is the GonzoNet.
-The Original Code is the Parlo Library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -351,7 +350,7 @@ namespace GonzoNet
                         byte[] TmpBuf = new byte[bytesRead];
                         Buffer.BlockCopy(m_RecvBuf, 0, TmpBuf, 0, bytesRead);
                         //Clear, to make sure this buffer is always fresh.
-                        m_RecvBuf = new byte[ProcessingBuffer.MAX_PACKET_SIZE];
+                        Array.Clear(m_RecvBuf, 0, m_RecvBuf.Length);
 
                         //Keep shoveling shit into the buffer as fast as we can.
                         m_ProcessingBuffer.AddData(TmpBuf); //Hence the Shoveling Shit Algorithm (SSA).
