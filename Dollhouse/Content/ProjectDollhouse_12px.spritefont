@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
+  <Asset Type="Microsoft.Xna.Framework.Content.Pipeline.Graphics.FontDescription">
+   <FontName>SimDialogue - uni - game</FontName>
+   <Size>12</Size>
+   <Spacing>0</Spacing>
+   <UseKerning>true</UseKerning>
+   <Style>Bold</Style>
+   <CharacterRegions>
+      <CharacterRegion>
+        <Start>&#32;</Start>
+        <End>&#126;</End>
+      </CharacterRegion>
+     <CharacterRegion>
+       <Start>&#x0080;</Start> <!--Latin-1 Supplement-->
+       <End>&#x00FF;</End>
+     </CharacterRegion>
+     <CharacterRegion>
+       <Start>&#x00AB;</Start> <!--Double quotation-->
+       <End>&#x00BB;</End>
+     </CharacterRegion>
+     <CharacterRegion>
+       <Start>&#x2018;</Start> <!--Other quotations-->
+       <End>&#x203A;</End>
+     </CharacterRegion>
+     <CharacterRegion>
+       <Start>&#x401;</Start> <!--Cyrillic-->
+       <End>&#x451;</End>
+     </CharacterRegion>
+     <CharacterRegion>
+       <Start>&#8481;</Start> <!--TM symbol-->
+       <End>&#8482;</End>
+     </CharacterRegion>
+    </CharacterRegions>
+  </Asset>
+</XnaContent>
