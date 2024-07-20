@@ -10,7 +10,6 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-//using GonzoNet.Packets;
 using Parlo.Packets;
 using ZeroFormatter;
 

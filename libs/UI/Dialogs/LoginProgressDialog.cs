@@ -88,22 +88,22 @@ namespace UI.Dialogs
             switch (CurrentProcess)
             {
                 case LoginProcess.Unavailable:
-                    m_ProgressBar.SetProgressInPercentage(0);
+                    await m_ProgressBar.SetProgressInPercentage(0);
                     break;
                 case LoginProcess.Authorizing:
-                    m_ProgressBar.SetProgressInPercentage(0);
+                    await m_ProgressBar.SetProgressInPercentage(0);
                     break;
                 case LoginProcess.Attempting:
-                    m_ProgressBar.SetProgressInPercentage(25);
+                    await m_ProgressBar.SetProgressInPercentage(25);
                     break;
                 case LoginProcess.Initial:
-                    m_ProgressBar.SetProgressInPercentage(50);
+                    await m_ProgressBar.SetProgressInPercentage(50);
                     break;
                 case LoginProcess.Loading:
-                    m_ProgressBar.SetProgressInPercentage(75);
+                    await m_ProgressBar.SetProgressInPercentage(75);
                     break;
                 case LoginProcess.DoneLoading:
-                    m_ProgressBar.SetProgressInPercentage(100);
+                    await m_ProgressBar.SetProgressInPercentage(100);
                     break;
             }
         }

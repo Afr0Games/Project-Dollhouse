@@ -1,5 +1,4 @@
-﻿//using GonzoNet;
-using Parlo;
+﻿using Parlo;
 using System.Data;
 using System.Data.SQLite;
 
@@ -86,17 +85,19 @@ namespace TSOProtocol.Database
         }
 
         /// <summary>
-        /// Creates tables for users.
+        /// Creates DB tables if they do not exist.
         /// </summary>
         public static void CreateTables()
         {
-            SQLiteCommand Cmd = new SQLiteCommand(m_ConnectionPool.AcquireConnection());
+            using (SQLiteCommand Cmd = new SQLiteCommand(m_ConnectionPool.AcquireConnection()))
+            {
+                Cmd.CommandText = @"CREATE TABLE IF NOT EXISTS Users(id INTEGER PRIMARY KEY, Username TEXT, Salt TEXT, Verifier TEXT);";
+                Cmd.ExecuteNonQuery();
 
-            Cmd.CommandText = "DROP TABLE IF EXISTS Users";
-            Cmd.ExecuteNonQuery();
-
-            Cmd.CommandText = @"CREATE TABLE Users(id INTEGER PRIMARY KEY, Username TEXT, Salt TEXT, Verifier TEXT)";
-            Cmd.ExecuteNonQuery();
+                Cmd.CommandText = @"CREATE TABLE IF NOT EXISTS Characters(id INTEGER PRIMARY KEY, Name TEXT, Description TEXT, SkinType INTEGER, 
+                                      HeadOutfit INTEGER, BodyOutfit INTEGER);";
+                Cmd.ExecuteNonQuery();
+            }
         }
 
         /// <summary>
@@ -114,18 +115,19 @@ namespace TSOProtocol.Database
             if (ColumnNames.Length != Values.Length)
                 throw new ArgumentException("ColumnNames and Values arrays must have the same length.");
 
-            SQLiteCommand Cmd = new SQLiteCommand(m_ConnectionPool.AcquireConnection());
-
-            Cmd.CommandText = "INSERT INTO " + Table + " (" + string.Join(", ", ColumnNames) + ") VALUES (";
-
-            for (int i = 0; i < Values.Length; i++)
+            using (SQLiteCommand Cmd = new SQLiteCommand(m_ConnectionPool.AcquireConnection()))
             {
-                Cmd.CommandText += "@" + ColumnNames[i] + (i < Values.Length - 1 ? ", " : "");
-                Cmd.Parameters.AddWithValue("@" + ColumnNames[i], Values[i]);
-            }
+                Cmd.CommandText = "INSERT INTO " + Table + " (" + string.Join(", ", ColumnNames) + ") VALUES (";
 
-            Cmd.CommandText += ")";
-            Cmd.ExecuteNonQuery();
+                for (int i = 0; i < Values.Length; i++)
+                {
+                    Cmd.CommandText += "@" + ColumnNames[i] + (i < Values.Length - 1 ? ", " : "");
+                    Cmd.Parameters.AddWithValue("@" + ColumnNames[i], Values[i]);
+                }
+
+                Cmd.CommandText += ")";
+                Cmd.ExecuteNonQuery();
+            }
         }
 
         public static DataTable SelectFrom(string table, string conditionColumn, object conditionValue)

@@ -7,11 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Parlo" Version="1.1.0" />
+    <PackageReference Include="Parlo" Version="1.2.0" />
     <PackageReference Include="srp" Version="1.0.7" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
     <PackageReference Include="ZeroFormatter" Version="1.6.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Files\Files.csproj" />
+    <ProjectReference Include="..\Vitaboy\Vitaboy.csproj" />
   </ItemGroup>
 
 </Project>

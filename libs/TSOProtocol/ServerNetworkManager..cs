@@ -99,5 +99,27 @@ namespace TSOProtocol
         private async Task M_Listener_OnDisconnected(NetworkClient Client)
         {
         }
+
+        /// <summary>
+        /// Serializes a packet, making it ready to be sent over the network.
+        /// </summary>
+        /// <typeparam name="T">The type of the packet to serialize.</typeparam>
+        /// <param name="packet"></param>
+        /// <returns></returns>
+        public byte[] SerializePacket<T>(T PacketToSerialize)
+        {
+            return ZeroFormatterSerializer.Serialize(PacketToSerialize);
+        }
+
+        /// <summary>
+        /// Deserializes a packet, making it ready to be used.
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize to.</typeparam>
+        /// <param name="PacketData"></param>
+        /// <returns>The packet data as the specified type.</returns>
+        public T DeserializePacket<T>(byte[] PacketData)
+        {
+            return ZeroFormatterSerializer.Deserialize<T>(PacketData);
+        }
     }
 }

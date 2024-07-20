@@ -39,6 +39,7 @@ namespace GonzoTest
 
             m_LoginDiag.OnLogin += LoginDiag_OnLogin;
             ClientNetworkManager.OnConnected += ClientNetworkManager_OnLogin;
+            ClientNetworkManager.OnPacketReceived += ClientNetworkManager_OnPacketReceived;
             ClientNetworkManager.OnNetworkError += ClientNetworkManager_OnNetworkError;
             Children.Add(m_LoginDiag);
 
@@ -51,7 +52,7 @@ namespace GonzoTest
         private void LoginDiag_OnLogin(string Username, string Password)
         {
             //TODO: Store the IP and port in an external file.
-            ClientNetworkManager.Instance.Connect("127.0.0.1", 666, Username, Password);
+            ClientNetworkManager.Instance.Connect("localhost", 3077, Username, Password);
         }
 
         /// <summary>
@@ -63,6 +64,31 @@ namespace GonzoTest
             await m_LoginProgressDiag.UpdateStatus(LoginProcess.Initial);
         }
 
+        /// <summary>
+        /// The client received a new packet!
+        /// </summary>
+        /// <param name="Packet">The packet that was received.</param>
+        /// <param name="ID">The ID of the packet that was received.</param>
+        /// <param name="Sender">The packet's sender.</param>
+        /// <returns>A new Task instance for handling the packet.</returns>
+        private async Task ClientNetworkManager_OnPacketReceived(Parlo.Packets.IPacket Packet, byte ID, NetworkClient Sender)
+        {
+            AuthPacketIDs AuthID = (AuthPacketIDs)ID;
+
+            switch (AuthID)
+            {
+                case AuthPacketIDs.ServerInitialAuthResponse:
+                    await m_LoginProgressDiag.UpdateStatus(LoginProcess.Initial);
+                    break;
+                case AuthPacketIDs.SAuthProof:
+                    await m_LoginProgressDiag.UpdateStatus(LoginProcess.DoneLoading);
+                    break;
+                default:
+                    await m_LoginProgressDiag.UpdateStatus(LoginProcess.Unsucessful);
+                    break;
+            }
+        }
+
         private CaretSeparatedText m_CSTStatus = StringManager.StrTable(210);
 
         private void ClientNetworkManager_OnNetworkError(System.Net.Sockets.SocketException Exception)
@@ -71,28 +97,28 @@ namespace GonzoTest
             switch(Exception.ErrorCode) //The original client seems to use Attempting for all of these.
             {
                 case 10050: //WSAENETDOWN
-                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Attempting);
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unsucessful);
                     m_ErrorMsgBox.Message = m_CSTStatus[(int)LoginProcess.Unavailable];
                     m_ErrorMsgBox.Show();
                     break;
                 case 10051: //WSAENETUNREACH
-                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Attempting);
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unsucessful);
                     m_ErrorMsgBox.Message = m_CSTStatus[(int)LoginProcess.Unavailable];
                     m_ErrorMsgBox.Show();
                     break;
                 case 10061: //WSAECONNREFUSED
-                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Attempting);
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unsucessful);
                     m_ErrorMsgBox.Message = m_CSTStatus[(int)LoginProcess.Unavailable];
                     m_ErrorMsgBox.Show();
                     break;
                 case 10064: //WSAEHOSTDOWN
-                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Attempting);
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unsucessful);
                     m_ErrorMsgBox.Message = m_CSTStatus[(int)LoginProcess.Unavailable];
 
                     m_ErrorMsgBox.Show();
                     break;
                 case 10065: //WSAEHOSTUNREACH
-                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Attempting);
+                    m_LoginProgressDiag.UpdateStatus(LoginProcess.Unsucessful);
                     m_ErrorMsgBox.Message = m_CSTStatus[(int)LoginProcess.Unavailable];
                     m_ErrorMsgBox.Show();
                     break;

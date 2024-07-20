@@ -31,6 +31,8 @@ namespace UI.Elements
         private int m_ProgressInPercentage = 0;
         public int TotalProgressInPercentage = 100; //This should never need to change...
 
+        private SemaphoreSlim m_ProgressSemaphore = new SemaphoreSlim(1, 1);
+
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
@@ -75,10 +77,12 @@ namespace UI.Elements
         /// Sets the total progress, in percentage, of this UIProgressBar instance.
         /// </summary>
         /// <param name="ProgressInPercentage">The number of percents that this bar has progressed.</param>
-        public void SetProgressInPercentage(int ProgressInPercentage)
+        public async Task SetProgressInPercentage(int ProgressInPercentage)
         {
-            m_ProgressInPercentage = ProgressInPercentage;
-            m_LblProgressInPercentage.Caption = m_ProgressInPercentage.ToString() + " %";
+            await m_ProgressSemaphore.WaitAsync();
+                m_ProgressInPercentage = ProgressInPercentage;
+                m_LblProgressInPercentage.Caption = m_ProgressInPercentage.ToString() + " %";
+            m_ProgressSemaphore.Release();
         }
 
         /// <summary>
@@ -110,7 +114,7 @@ namespace UI.Elements
         public override void Draw(SpriteBatch SBatch)
         {
             //Texture is 45px / 3 = 15px wide
-            m_ProgressBarBack.Draw(SBatch, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_Size.Y), 
+            m_ProgressBarBack.Draw(SBatch, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_Size.Y),
                 new Rectangle(0, 0, 15, (int)m_Size.Y));
 
             m_ProgressBarBack.Draw(SBatch, new Rectangle((int)(Position.X + 15), (int)Position.Y, (int)(Size.X - 30),
@@ -119,17 +123,19 @@ namespace UI.Elements
             m_ProgressBarBack.Draw(SBatch, new Rectangle((int)((Position.X + Size.X) - 15), (int)Position.Y, 15,
                 (int)m_Size.Y), new Rectangle(30, 0, 15, (int)m_Size.Y));
 
-            if (m_ProgressInPercentage > 0)
+            //Calculate the width of the progress bar front based on the progress percentage
+            int progressWidth = (int)((m_ProgressInPercentage / (float)m_ProgressInPercentage) * (Size.X - 30));
+
+            if (progressWidth > 0)
             {
-                //Texture is 45px / 3 = 15px wide
                 m_ProgressBarFront.Draw(SBatch, new Rectangle((int)Position.X, (int)Position.Y, 15, (int)m_Size.Y),
                     new Rectangle(0, 0, 15, (int)m_Size.Y));
 
-                m_ProgressBarFront.Draw(SBatch, new Rectangle((int)Position.X + 15, (int)Position.Y, 15, (int)m_Size.Y), 
-                    new Rectangle(15, 0, 15, (int)m_Size.Y));
+                m_ProgressBarFront.Draw(SBatch, new Rectangle((int)(Position.X + 15), (int)Position.Y, progressWidth,
+                    (int)m_Size.Y), new Rectangle(15, 0, 15, (int)m_Size.Y));
 
-                m_ProgressBarFront.Draw(SBatch, new Rectangle((int)(Position.X + (m_ProgressInPercentage / 100) * TotalProgressInPercentage) - 15,
-                     (int)Position.Y, 15, (int)m_Size.Y), new Rectangle(30, 0, 15, (int)m_Size.Y));
+                m_ProgressBarFront.Draw(SBatch, new Rectangle((int)(Position.X + 15 + progressWidth), (int)Position.Y, 15,
+                    (int)m_Size.Y), new Rectangle(30, 0, 15, (int)m_Size.Y));
             }
 
             base.Draw(SBatch);
