@@ -50,7 +50,9 @@ namespace Files.Vitaboy
             }
 
             Translation = new Vector3(Reader.ReadFloat(), Reader.ReadFloat(), Reader.ReadFloat());
-            Rotation = new Quaternion(Reader.ReadFloat(), -Reader.ReadFloat(), -Reader.ReadFloat(), Reader.ReadFloat());
+            //NOTE: Y and Z were originally negated to account for left-handed rotation but removing the negation
+            //      seems to have fixed rendering.
+            Rotation = new Quaternion(Reader.ReadFloat(), Reader.ReadFloat(), Reader.ReadFloat(), Reader.ReadFloat());
 
             CanTranslate = (Reader.ReadUInt32() != 0) ? true : false;
             CanRotate = (Reader.ReadUInt32() != 0) ? true : false;

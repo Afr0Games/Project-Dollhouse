@@ -23,7 +23,7 @@ namespace Shared
         {
             m_Camera = Cam;
             m_Camera.Position = new Vector3(0.0f, -2.0f, 17.0f);
-            m_Camera.Zoom = 0.7f;
+            m_Camera.Zoom = 0.6f;
 
             m_Camera.NearPlane = 1.0f;
             m_Camera.FarPlane = 800.0f;
@@ -34,7 +34,7 @@ namespace Shared
             if (Cam.Device.Viewport.Width == 800)
                 m_Camera.ProjectionOrigin = new Vector2(145, 80);
             else
-                m_Camera.ProjectionOrigin = new Vector2(175, 100);
+                m_Camera.ProjectionOrigin = new Vector2(200, 380);
         }
 
         /// <summary>

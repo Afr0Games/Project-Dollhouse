@@ -287,6 +287,8 @@ namespace Vitaboy
         /// <param name="GTime">A GameTime instance.</param>
         public void Update(GameTime GTime)
         {
+            ComputeBonePositions(Skel.RootBone, Matrix.Identity);
+
             if (ShouldRotate)
             {
                 float Time = GTime.TotalGameTime.Ticks;
@@ -306,6 +308,19 @@ namespace Vitaboy
         /// <param name="ProjectionMatrix">A projection matrix.</param>
         public void Render(Matrix ViewMatrix, Matrix WorldMatrix, Matrix ProjectionMatrix)
         {
+            ComputeBonePositions(Skel.RootBone, Matrix.Identity);
+
+            //Rotate the root bone by 180 degrees around the X-axis
+            Matrix correction = Matrix.CreateRotationX(MathHelper.ToRadians(180));
+
+            //Apply this to the root bone's matrix in ComputeBonePositions
+            ComputeBonePositions(Skel.RootBone, correction);
+
+            //Rotate the root bone 180 degrees around the Y-axis
+            correction = Matrix.CreateRotationZ(MathHelper.ToRadians(180));
+            ComputeBonePositions(Skel.RootBone, correction);
+
+
             //This sets DepthBufferEnable and DepthBufferWriteEnable.
             m_Devc.DepthStencilState = DepthStencilState.Default;
             m_Devc.BlendState = BlendState.AlphaBlend;
@@ -381,6 +396,8 @@ namespace Vitaboy
                 {
                     foreach (EffectPass Pass in m_HeadEffect.CurrentTechnique.Passes)
                     {
+                        TransformVertices(HeadMesh, null, MeshType.Head);
+
                         Pass.Apply();
 
                         foreach (Vector3 Fce in HeadMesh.Faces)
@@ -401,8 +418,6 @@ namespace Vitaboy
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
-
-                        TransformVertices(HeadMesh, null, MeshType.Head);
                     }
 
                 }
@@ -449,6 +464,8 @@ namespace Vitaboy
                 {
                     foreach (EffectPass Pass in m_AccessoryEffect.CurrentTechnique.Passes)
                     {
+                        TransformVertices(AccessoryMesh, null, MeshType.Head);
+
                         Pass.Apply();
 
                         foreach (Vector3 Fce in AccessoryMesh.Faces)
@@ -469,8 +486,6 @@ namespace Vitaboy
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
-
-                        TransformVertices(AccessoryMesh, null, MeshType.Head);
                     }
                 }
                 else
@@ -514,6 +529,8 @@ namespace Vitaboy
                 {
                     foreach (EffectPass Pass in m_BodyEffect.CurrentTechnique.Passes)
                     {
+                        TransformVertices(BodyMesh, Skel.Bones[Skel.FindBone("PELVIS")], MeshType.Body);
+
                         Pass.Apply();
 
                         foreach (Vector3 Fce in BodyMesh.Faces)
@@ -534,8 +551,6 @@ namespace Vitaboy
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
-
-                        TransformVertices(BodyMesh, Skel.Bones[Skel.FindBone("PELVIS")], MeshType.Body);
                     }
                 }
                 else
@@ -583,6 +598,8 @@ namespace Vitaboy
                 {
                     foreach (EffectPass Pass in m_LeftHandEffect.CurrentTechnique.Passes)
                     {
+                        TransformVertices(LeftHandMesh, null, MeshType.LHand);
+
                         Pass.Apply();
 
                         foreach (Vector3 Fce in LeftHandMesh.Faces)
@@ -595,8 +612,6 @@ namespace Vitaboy
 
                             m_Devc.DrawUserPrimitives(PrimitiveType.TriangleList, Vertex, 0, 1);
                         }
-
-                        TransformVertices(LeftHandMesh, null, MeshType.LHand);
                     }
                 }
                 else
@@ -754,7 +769,7 @@ namespace Vitaboy
 
                         //Transform the head normals' position by the absolute transform
                         //for the headbone (which is always bone 17) to render the head in place.
-                        Msh.TransformedVertices[i].Normal = Vector3.Transform(Msh.RealVertices[i].Normal,
+                        Msh.TransformedVertices[i].Normal = Vector3.TransformNormal(Msh.RealVertices[i].Normal,
                             Skel.Bones[Skel.FindBone("HEAD")].AbsoluteMatrix);
                     }
 
@@ -777,7 +792,7 @@ namespace Vitaboy
 
                             //Normals...
                             translatedMatrix = Matrix.CreateTranslation(new Vector3(relativeVertex.Normal.X, relativeVertex.Normal.Y, relativeVertex.Normal.Z)) * bone.AbsoluteMatrix;
-                            Msh.TransformedVertices[vertexIndex].Normal = Vector3.Transform(Vector3.Zero, translatedMatrix);
+                            Msh.TransformedVertices[vertexIndex].Normal = Vector3.TransformNormal(Vector3.Zero, translatedMatrix);
                         }
                     }
 
@@ -796,7 +811,7 @@ namespace Vitaboy
 
                         //Transform the left hand normals' position by the absolute transform
                         //for the left handbone (which is always bone 10) to render the left hand in place.
-                        Msh.TransformedVertices[i].Normal = Vector3.Transform(Msh.RealVertices[i].Normal,
+                        Msh.TransformedVertices[i].Normal = Vector3.TransformNormal(Msh.RealVertices[i].Normal,
                             Skel.Bones[Skel.FindBone("L_HAND")].AbsoluteMatrix);
                     }
 
@@ -812,7 +827,7 @@ namespace Vitaboy
 
                         //Transform the right hand normals' position by the absolute transform
                         //for the right handbone (which is always bone 15) to render the right hand in place.
-                        Msh.TransformedVertices[i].Normal = Vector3.Transform(Msh.RealVertices[i].Normal,
+                        Msh.TransformedVertices[i].Normal = Vector3.TransformNormal(Msh.RealVertices[i].Normal,
                             Skel.Bones[Skel.FindBone("R_HAND")].AbsoluteMatrix);
                     }
 
@@ -927,9 +942,7 @@ namespace Vitaboy
             bone.AbsoluteMatrix = myWorld;
 
             foreach (var child in bone.Children)
-            {
                 ComputeBonePositions(child, myWorld);
-            }
         }
 
         ~AvatarBase()

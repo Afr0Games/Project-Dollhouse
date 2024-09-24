@@ -10,7 +10,6 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-using System.Collections.Generic;
 using Shared;
 using Microsoft.Xna.Framework;
 
