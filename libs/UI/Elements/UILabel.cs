@@ -14,6 +14,7 @@ using UIParser.Nodes;
 using UI.Dialogs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 namespace UI.Elements
 {
@@ -285,6 +286,37 @@ namespace UI.Elements
                         SpriteEffects.None, 0);
                 }
             }
+        }
+
+        ~UILabel()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this UIButton instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Disposes of the resources used by this UIButton instance.
+        /// <param name="disposed">Was this resource disposed explicitly?</param>
+        /// </summary>
+        protected virtual void Dispose(bool disposed)
+        {
+            if (disposed)
+            {
+                if (m_TextTex != null)
+                    m_TextTex.Dispose();
+
+                //Prevent the finalizer from calling ~UILabel, since the object is already disposed at this point.
+                GC.SuppressFinalize(this);
+            }
+            else
+                Debug.WriteLine("UILabel not explicitly disposed!");
         }
     }
 }
