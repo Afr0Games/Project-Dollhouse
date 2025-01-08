@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResolutionBuddy", "libs\Res
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glide", "libs\Glide\Glide.csproj", "{891F06E8-3851-469C-B1E2-7D1C70C43359}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Terrain", "libs\Terrain\Terrain.csproj", "{75556ECB-7329-40B1-B9F3-B7B31ECD73C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
