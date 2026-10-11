@@ -13,7 +13,7 @@ Contributor(s):
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Hoodtest
+namespace Terrain
 {
     /// <summary>
     /// A camera for the <see cref="CityRenderer"/>.

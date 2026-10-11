@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Hoodtest
+namespace Terrain
 {
     /// <summary>
     /// Represents a city mesh.

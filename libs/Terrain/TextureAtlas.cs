@@ -17,7 +17,7 @@ using System.IO;
 using System.Numerics;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Hoodtest
+namespace Terrain
 {
     /// <summary>
     /// The five different types that a terrain can be.
