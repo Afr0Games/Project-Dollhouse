@@ -1,19 +1,8 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
-If a copy of the MPL was not distributed with this file, You can obtain one at
-http://mozilla.org/MPL/2.0/.
-
-The Original Code is the Terrain library.
-
-The Initial Developer of the Original Code is
-Mats 'Afr0' Vederhus. All Rights Reserved.
-
-Contributor(s):
-*/
-
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// A node in a <see cref="Quadtree"/>.
@@ -26,6 +15,7 @@ namespace Terrain
         private bool m_IsLeaf;
         private bool m_IsSubDivided = false;
         private CityMesh m_Terrain;
+        private int m_GeneratedLOD = 0;
 
         private GraphicsDevice m_GraphicsDevice;
         private Effect m_Effect;
@@ -100,6 +90,7 @@ namespace Terrain
             {
                 m_Parent.MeshPool.ReturnMesh(m_Terrain);
                 m_Terrain = null;
+                    m_GeneratedLOD = 0;
             }
         }
 
@@ -121,6 +112,7 @@ namespace Terrain
                 {
                     m_Parent.MeshPool.ReturnMesh(m_Terrain);
                     m_Terrain = null;
+                    m_GeneratedLOD = 0;
                 }
 
                 return;
@@ -137,10 +129,18 @@ namespace Terrain
                 {
                     m_Parent.MeshPool.ReturnMesh(m_Terrain);
                     m_Terrain = null;
+                    m_GeneratedLOD = 0;
                 }
             }
             else
             {
+                int desiredLOD = DetermineLOD(Vector3.Distance(Camera.Position, BoundsCenter));
+                if (m_Terrain != null && desiredLOD != m_GeneratedLOD)
+                {
+                    m_Parent.MeshPool.ReturnMesh(m_Terrain);
+                    m_Terrain = null;
+                    m_GeneratedLOD = 0;
+                }
                 if (m_Terrain == null)
                     GenerateMesh();
 
@@ -187,8 +187,8 @@ namespace Terrain
 
             float distance = Vector3.Distance(Camera.Position, BoundsCenter);
 
-            //Subdivide if the node is close enough
-            float subdivisionThreshold = 512f * (CurrentDepth + 1);
+            //Threshold shrinks with depth - close nodes subdivide further, distant ones don't.
+            float subdivisionThreshold = 2048f / (float)Math.Pow(2, CurrentDepth);
             return distance < subdivisionThreshold;
         }
 
@@ -203,6 +203,7 @@ namespace Terrain
             m_Terrain = m_Parent.MeshPool.GetMesh();
             float distanceToCamera = Vector3.Distance(m_Parent.Camera.Position, BoundsCenter);
             int lod = DetermineLOD(distanceToCamera);
+            m_GeneratedLOD = lod;
 
             for (int y = m_MaxY - 1; y >= m_MinY; y -= lod)
             {
@@ -213,20 +214,20 @@ namespace Terrain
 
                     float z = m_Parent.PixelData[512 * (-y) + x].R / 8.0f;
 
-                    AddQuadWithTexCoords(x, y, z, m_Terrain);
+                    AddQuadWithTexCoords(x, y, z, lod, m_Terrain);
 
                     //Right quad (if needed)
-                    if (x < 511 && IsValidCoord(x + 1, y))
+                    if (x + lod < 512 && IsValidCoord(x + lod, y))
                     {
-                        float zr = m_Parent.PixelData[512 * (-y) + (x + 1)].R / 8.0f;
-                        AddVerticalQuad(x, y, z, x + 1, zr);
+                        float zr = m_Parent.PixelData[512 * (-y) + (x + lod)].R / 8.0f;
+                        AddVerticalQuad(x, y, z, x + lod, zr, lod);
                     }
 
                     //Bottom quad (if needed)
-                    if (y > -511 && IsValidCoord(x, y - 1))
+                    if (y - lod >= -511 && IsValidCoord(x, y - lod))
                     {
-                        float zb = m_Parent.PixelData[512 * (-(y - 1)) + x].R / 8.0f;
-                        AddHorizontalQuad(x, y, z, y - 1, zb);
+                        float zb = m_Parent.PixelData[512 * (-(y - lod)) + x].R / 8.0f;
+                        AddHorizontalQuad(x, y, z, y - lod, zb, lod);
                     }
                 }
             }
@@ -236,6 +237,7 @@ namespace Terrain
                 //No vertices were added; dispose of the mesh
                 m_Parent.MeshPool.ReturnMesh(m_Terrain);
                 m_Terrain = null;
+                    m_GeneratedLOD = 0;
 
                 return;
             }
@@ -260,42 +262,24 @@ namespace Terrain
                 return 8; //Lower detail
         }
 
-        /// <summary>
-        /// Adds a quad with texture coordinates at the given coordinates.
-        /// </summary>
-        /// <param name="X">The x coordinate.</param>
-        /// <param name="Y">The y coordinate.</param>
-        /// <param name="Z">The z coordinate.</param>
-        /// <param name="Mesh">A <see cref="CityMesh"/> instance.</param>
-        private void AddQuadWithTexCoords(int X, int Y, float Z, CityMesh Mesh)
+        private void AddQuadWithTexCoords(int X, int Y, float Z, int TileSize, CityMesh Mesh)
         {
-            //Each valid coordinate will generate 4 smaller quads
-            float halfSize = 0.5f; //Half the size for the smaller quads
+            float u1 = X / 512f;
+            float v1 = -Y / 512f;
+            float u2 = (X + TileSize) / 512f;
+            float v2 = -(Y - TileSize) / 512f;
 
-            //Loop to generate 4 smaller quads (2x2) for each valid coord
-            for (int i = 0; i < 2; i++) //For top-left and top-right smaller quads
+            Mesh.AddQuad(new VertexPositionTexture[]
             {
-                for (int j = 0; j < 2; j++) //For bottom-left and bottom-right smaller quads
-                {
-                    //Calculate the offsets for the smaller quads
-                    float offsetX = i * halfSize;
-                    float offsetY = j * halfSize;
-
-                    float u1 = (X + offsetX) / 512f;
-                    float v1 = -(Y + offsetY) / 512f;
-                    float u2 = (X + offsetX + halfSize) / 512f;
-                    float v2 = -(Y + offsetY + halfSize) / 512f;
-
-                    //Generate 4 smaller quads to cover each valid coord's space
-                    Mesh.AddQuad(new VertexPositionTexture[]
-                    {
-                        new VertexPositionTexture(new Vector3(X + offsetX, Y + offsetY, Z), new Vector2(u1, v1)), //Bottom-left
-                        new VertexPositionTexture(new Vector3(X + offsetX + halfSize, Y + offsetY, Z), new Vector2(u2, v1)), //Bottom-right
-                        new VertexPositionTexture(new Vector3(X + offsetX + halfSize, Y + offsetY - halfSize, Z), new Vector2(u2, v2)), //Top-right
-                        new VertexPositionTexture(new Vector3(X + offsetX, Y + offsetY - halfSize, Z), new Vector2(u1, v2)) //Top-left
-                    });
-                }
-            }
+                new VertexPositionTexture(
+                    new Vector3(X,            Y,           Z), new Vector2(u1, v1)),
+                new VertexPositionTexture(
+                    new Vector3(X + TileSize, Y,           Z), new Vector2(u2, v1)),
+                new VertexPositionTexture(
+                    new Vector3(X + TileSize, Y - TileSize,Z), new Vector2(u2, v2)),
+                new VertexPositionTexture(
+                    new Vector3(X,            Y - TileSize,Z), new Vector2(u1, v2))
+            });
         }
 
         /// <summary>
@@ -306,19 +290,20 @@ namespace Terrain
         /// <param name="Z1">The first z coord.</param>
         /// <param name="X2">The second x coord.</param>
         /// <param name="Z2">The second z coord.</param>
-        private void AddVerticalQuad(float X1, float Y, float Z1, int X2, float Z2)
+        /// <param name="TileSize">The tilesize.</param>
+        private void AddVerticalQuad(float X1, float Y, float Z1, int X2, float Z2, int TileSize)
         {
             float U1 = X1 / 512f;
             float V1 = -Y / 512f;
             float U2 = X2 / 512f;
-            float V2 = (-Y - 1) / 512f;
+            float V2 = -(Y - TileSize) / 512f;
 
             m_Terrain.AddQuad(new VertexPositionTexture[]
             {
-                new VertexPositionTexture(new Vector3(X1, Y, Z1), new Vector2(U1, V1)),
-                new VertexPositionTexture(new Vector3(X2, Y, Z2), new Vector2(U2, V1)),
-                new VertexPositionTexture(new Vector3(X2, Y - 1, Z2), new Vector2(U2, V2)),
-                new VertexPositionTexture(new Vector3(X1, Y - 1, Z1), new Vector2(U1, V2))
+                new VertexPositionTexture(new Vector3(X1, Y,           Z1), new Vector2(U1, V1)),
+                new VertexPositionTexture(new Vector3(X2, Y,           Z2), new Vector2(U2, V1)),
+                new VertexPositionTexture(new Vector3(X2, Y - TileSize,Z2), new Vector2(U2, V2)),
+                new VertexPositionTexture(new Vector3(X1, Y - TileSize,Z1), new Vector2(U1, V2))
             });
         }
 
@@ -330,19 +315,20 @@ namespace Terrain
         /// <param name="Z1">The first z coord.</param>
         /// <param name="Y2">The second y coord.</param>
         /// <param name="Z2">The second z coord.</param>
-        private void AddHorizontalQuad(float X, float Y1, float Z1, int Y2, float Z2)
+        /// <param name="TileSize">The tilesize.</param>
+        private void AddHorizontalQuad(float X, float Y1, float Z1, int Y2, float Z2, int TileSize)
         {
             float u1 = X / 512f;
             float v1 = -Y1 / 512f;
-            float u2 = (X + 1) / 512f;
+            float u2 = (X + TileSize) / 512f;
             float v2 = -Y2 / 512f;
 
             m_Terrain.AddQuad(new VertexPositionTexture[]
             {
-                new VertexPositionTexture(new Vector3(X, Y1, Z1), new Vector2(u1, v1)),
-                new VertexPositionTexture(new Vector3(X + 1, Y1, Z1), new Vector2(u2, v1)),
-                new VertexPositionTexture(new Vector3(X + 1, Y2, Z2), new Vector2(u2, v2)),
-                new VertexPositionTexture(new Vector3(X, Y2, Z2), new Vector2(u1, v2))
+                new VertexPositionTexture(new Vector3(X,           Y1, Z1), new Vector2(u1, v1)),
+                new VertexPositionTexture(new Vector3(X + TileSize,Y1, Z1), new Vector2(u2, v1)),
+                new VertexPositionTexture(new Vector3(X + TileSize,Y2, Z2), new Vector2(u2, v2)),
+                new VertexPositionTexture(new Vector3(X,           Y2, Z2), new Vector2(u1, v2))
             });
         }
     }

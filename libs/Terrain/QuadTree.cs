@@ -1,18 +1,7 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
-If a copy of the MPL was not distributed with this file, You can obtain one at
-http://mozilla.org/MPL/2.0/.
-
-The Original Code is the Terrain library.
-
-The Initial Developer of the Original Code is
-Mats 'Afr0' Vederhus. All Rights Reserved.
-
-Contributor(s):
-*/
-
+﻿using System;
 using Microsoft.Xna.Framework;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// A quadtree.
@@ -78,13 +67,6 @@ namespace Terrain
 
             //Render this node
             Node.Render(m_Camera, CurrentDepth);
-
-            //If the node has children, render them recursively
-            if (!Node.IsLeaf)
-            {
-                for (int i = 0; i < 4; i++)
-                    RenderNode(Node.Children[i], CurrentDepth + 1);
-            }
         }
     }
 }

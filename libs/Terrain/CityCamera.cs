@@ -1,18 +1,7 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
-If a copy of the MPL was not distributed with this file, You can obtain one at
-http://mozilla.org/MPL/2.0/.
-
-The Original Code is the Terrain library.
-
-The Initial Developer of the Original Code is
-Mats 'Afr0' Vederhus. All Rights Reserved.
-
-Contributor(s):
-*/
-
+using System;
 using Microsoft.Xna.Framework;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// A camera for the <see cref="CityRenderer"/>.
@@ -53,6 +42,11 @@ namespace Terrain
             m_WorldMatrix = Matrix.Identity;
             m_ViewMatrix = Matrix.CreateLookAt(m_Position, m_Target, Vector3.Up);
             m_ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), DynamicAspectRatio, 0.1f, 4096f);
+        }
+
+        public void SetAspectRatio(float aspectRatio)
+        {
+            m_ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), aspectRatio, 0.1f, 4096f);
         }
 
         /// <summary>
