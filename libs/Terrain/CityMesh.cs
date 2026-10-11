@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Hoodtest
+namespace Terrain
 {
     /// <summary>
     /// Represents a city mesh.
@@ -124,8 +124,6 @@ namespace Hoodtest
                     m_GraphicsDevice.DrawIndexedPrimitives(
                         PrimitiveType.TriangleList,
                         0,
-                        0,
-                        part.Vertices.Count,
                         part.StartIndex,
                         part.PrimitiveCount);
                 }

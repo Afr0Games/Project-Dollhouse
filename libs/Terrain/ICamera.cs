@@ -13,7 +13,7 @@ Contributor(s):
 using Microsoft.Xna.Framework;
 using System;
 
-namespace Hoodtest
+namespace Terrain
 {
     interface ICamera
     {
