@@ -13,7 +13,7 @@ Contributor(s):
 using System.Collections.Concurrent;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// A threadsafe pool for meshes.

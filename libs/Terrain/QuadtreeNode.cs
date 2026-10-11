@@ -14,7 +14,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// A node in a <see cref="Quadtree"/>.

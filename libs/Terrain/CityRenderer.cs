@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Diagnostics;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// Renderer for the city mesh.

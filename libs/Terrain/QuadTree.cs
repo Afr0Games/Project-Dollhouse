@@ -13,7 +13,7 @@ Contributor(s):
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// A quadtree.
