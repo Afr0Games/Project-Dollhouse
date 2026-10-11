@@ -10,9 +10,10 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System;
 using Microsoft.Xna.Framework;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// A quadtree.
@@ -78,13 +79,6 @@ namespace Terrain
 
             //Render this node
             Node.Render(m_Camera, CurrentDepth);
-
-            //If the node has children, render them recursively
-            if (!Node.IsLeaf)
-            {
-                for (int i = 0; i < 4; i++)
-                    RenderNode(Node.Children[i], CurrentDepth + 1);
-            }
         }
     }
 }

@@ -10,12 +10,14 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Numerics;
 using Microsoft.Xna.Framework.Graphics;
-using SixLabors.ImageSharp;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// The five different types that a terrain can be.
@@ -70,7 +72,7 @@ namespace Terrain
             SpriteBatch SBatch = new SpriteBatch(Device);
 
             foreach (string Tex in Textures)
-                LoadedTextures.Add(Texture2D.FromStream(Device, LoadTGA(Tex)));
+                LoadedTextures.Add(Texture2D.FromFile(Device, Tex));
 
             int TexWidth = LoadedTextures[0].Width, TexHeight = LoadedTextures[0].Height;
 
@@ -91,15 +93,6 @@ namespace Terrain
             Device.SetRenderTarget(null);
 
             m_Atlas = TextureAtlas;
-        }
-
-        private Stream LoadTGA(string Path)
-        {
-            Image Img = Image.Load(Path);
-            MemoryStream TGAStream = new MemoryStream();
-            Img.SaveAsPng(TGAStream);
-            TGAStream.Position = 0;
-            return TGAStream;
         }
 
         public Vector2 TexColorToAtlasCoords(Microsoft.Xna.Framework.Color TexColor)
@@ -130,7 +123,7 @@ namespace Terrain
         }
 
         /// <summary>
-        /// Disposes of the resources used by this UIImage instance.
+        /// Disposes of the resources used by this TextureAtlas instance.
         /// </summary>
         public void Dispose()
         {
@@ -138,7 +131,7 @@ namespace Terrain
         }
 
         /// <summary>
-        /// Disposes of the resources used by this UIImage instance.
+        /// Disposes of the resources used by this TextureAtlas instance.
         /// <param name="Disposed">Was this resource disposed explicitly?</param>
         /// </summary>
         protected virtual void Dispose(bool Disposed)
@@ -148,7 +141,7 @@ namespace Terrain
                 if (m_Atlas != null)
                     m_Atlas.Dispose();
 
-                // Prevent the finalizer from calling ~UIImage, since the object is already disposed at this point.
+                // Prevent the finalizer from calling ~TextureAtlas, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
             }
             else

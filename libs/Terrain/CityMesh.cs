@@ -10,9 +10,12 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
+using System.Collections.Generic;
 
-namespace Terrain
+namespace Hoodtest
 {
     /// <summary>
     /// Represents a city mesh.
