@@ -70,30 +70,39 @@ namespace Terrain
         /// </summary>
         public void ZoomTowardsTerrain(float steps)
         {
-            Matrix orientation = Matrix.CreateFromYawPitchRoll(m_Yaw, m_Pitch, m_Roll);
-            Vector3 forward = Vector3.Normalize(Vector3.Transform(Vector3.Forward, orientation));
-            Vector3 position = m_Position;
-            if (forward.Z >= -0.001f) return;
-
             Vector3 focus;
-            if (SampleTerrainHeight == null || !TryFindTerrainFocus(position, forward, out focus))
-            {
-                //Water/outside the city: use the sea-level plane as a fallback.
-                float distanceToSea = -position.Z / forward.Z;
+            if (!TryGetFocus(out focus)) return;
 
-                if (distanceToSea <= 0f)
-                    return;
-
-                focus = position + forward * distanceToSea;
-            }
-
+            Vector3 position = m_Position;
             float distance = Vector3.Distance(position, focus);
+            if (distance <= 0.001f) return;
             //Keep a useful distance from the terrain; clamp distance instead of
             //world Z so a mountaintop cannot pull the camera underground.
             float nextDistance = MathHelper.Clamp(distance * (float)Math.Pow(0.83, steps), 8f, 2000f);
 
             m_Position = focus + (position - focus) * (nextDistance / distance);
             RefreshView();
+        }
+
+        /// <summary>
+        /// Gets the 3D point at the centre of the current view. The terrain-height
+        /// query uses the existing sample / 8 height convention; sea level is the
+        /// fallback over water or outside the city. Shared by zoom and LOD metrics.
+        /// </summary>
+        public bool TryGetFocus(out Vector3 focus)
+        {
+            focus = Vector3.Zero;
+            Vector3 forward = Vector3.Normalize(m_Target - m_Position);
+            if (forward.Z >= -0.001f) return false;
+
+            if (SampleTerrainHeight != null &&
+                TryFindTerrainFocus(m_Position, forward, out focus))
+                return true;
+
+            float distanceToSea = -m_Position.Z / forward.Z;
+            if (distanceToSea <= 0f) return false;
+            focus = m_Position + forward * distanceToSea;
+            return true;
         }
 
         /// <summary>

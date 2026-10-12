@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -10,9 +10,9 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Terrain
 {
@@ -28,7 +28,7 @@ namespace Terrain
         private Color[] m_PixelData;
         private Texture2D m_HeightmapTex;
 
-        public Color[] PixelData { get { return m_PixelData; } }
+        public Color[] PixelData {  get { return m_PixelData; } }
 
         /// <summary>
         /// Gets this QuadTree's MeshPool instance.
@@ -94,6 +94,30 @@ namespace Terrain
         public void Zoom(float steps)
         {
             m_Camera.ZoomTowardsTerrain(steps);
+        }
+
+        /// <summary>
+        /// Keep the point at the center of the view inside the city diamond.
+        /// Deliberately clamp the VIEW FOCUS, not the camera XYZ: a distant,
+        /// tilted perspective camera normally sits outside the footprint.
+        /// The camera and mesh elevation remain unchanged in Z.
+        /// </summary>
+        public void ConstrainCameraFocus()
+        {
+            // A terrain ray can switch from sea-level fallback to elevated land
+            // after a move. Re-evaluate a few times to keep the focus in bounds.
+            for (int attempt = 0; attempt < 3; ++attempt)
+            {
+                Vector3 focus;
+                if (!m_Camera.TryGetFocus(out focus)) return;
+
+                Vector2 current = new Vector2(focus.X, focus.Y);
+                Vector2 clamped = CityViewBounds.ClampFocus(current);
+                Vector2 correction = clamped - current;
+                if (correction.LengthSquared() < 0.0001f) return;
+
+                m_Camera.Position += new Vector3(correction.X, correction.Y, 0f);
+            }
         }
 
         /// <summary>
