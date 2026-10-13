@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -114,9 +115,7 @@ namespace Terrain
         public void Render(CityCamera Camera, int CurrentDepth)
         {
             //Calculate the bounding box for frustum culling
-            BoundingBox NodeBounds = new BoundingBox(
-                new Vector3(m_MinX, m_MinY, -1000),
-                new Vector3(m_MaxX, m_MaxY, 1000));
+            BoundingBox NodeBounds = new BoundingBox(new Vector3(m_MinX, m_MinY, 0f), new Vector3(m_MaxX, m_MaxY, 32f));
 
             if (!IsInFrustum(Camera, NodeBounds))
             {
@@ -134,8 +133,8 @@ namespace Terrain
             {
                 Subdivide(CurrentDepth);
 
-                foreach (var child in m_Children)
-                    child.Render(Camera, CurrentDepth + 1);
+                foreach (QuadtreeNode Child in m_Children)
+                    Child.Render(Camera, CurrentDepth + 1);
 
                 if (m_Terrain != null)
                 {
@@ -146,8 +145,8 @@ namespace Terrain
             }
             else
             {
-                int desiredLOD = DetermineLOD(Vector3.Distance(Camera.Position, BoundsCenter));
-                if (m_Terrain != null && desiredLOD != m_GeneratedLOD)
+                int DesiredLOD = m_Parent.MeshLOD;
+                if (m_Terrain != null && DesiredLOD != m_GeneratedLOD)
                 {
                     m_Parent.MeshPool.ReturnMesh(m_Terrain);
                     m_Terrain = null;
@@ -159,17 +158,6 @@ namespace Terrain
                 if (m_Terrain != null)
                     m_Terrain.Draw(Camera);
             }
-        }
-
-        /// <summary>
-        /// Determines if the given coordinates are valid coordinates for reading height map data.
-        /// </summary>
-        /// <param name="X">The x coordinate to check.</param>
-        /// <param name="Y">The y coordinate to check.</param>
-        /// <returns>True if the coordinates are valid, false otherwise.</returns>
-        private bool IsValidCoord(float X, float Y)
-        {
-            return (X >= Math.Abs(306 + Y) && X <= 511 - Math.Abs(205 + Y));
         }
 
         /// <summary>
@@ -213,35 +201,19 @@ namespace Terrain
                 return;
 
             m_Terrain = m_Parent.MeshPool.GetMesh();
-            float distanceToCamera = Vector3.Distance(m_Parent.Camera.Position, BoundsCenter);
-            int lod = DetermineLOD(distanceToCamera);
+            int lod = m_Parent.MeshLOD;
             m_GeneratedLOD = lod;
 
-            for (int y = m_MaxY - 1; y >= m_MinY; y -= lod)
+            //Generate a continuous heightfield instead of disconnected flat tile
+            //tops plus vertical walls. Roads and terrain use the same XY positions,
+            //so they naturally follow the slopes rather than stretching down walls.
+            //
+            //All visible quadtree nodes use the SAME LOD for this frame. Their
+            //shared border vertices therefore coincide without T-junction cracks.
+            for (int y = m_MaxY; y > m_MinY; y -= lod)
             {
                 for (int x = m_MinX; x < m_MaxX; x += lod)
-                {
-                    if (!IsValidCoord(x, y))
-                        continue;
-
-                    float z = m_Parent.PixelData[512 * (-y) + x].R / 8.0f;
-
-                    AddQuadWithTexCoords(x, y, z, lod, m_Terrain);
-
-                    //Right quad (if needed)
-                    if (x + lod < 512 && IsValidCoord(x + lod, y))
-                    {
-                        float zr = m_Parent.PixelData[512 * (-y) + (x + lod)].R / 8.0f;
-                        AddVerticalQuad(x, y, z, x + lod, zr, lod);
-                    }
-
-                    //Bottom quad (if needed)
-                    if (y - lod >= -511 && IsValidCoord(x, y - lod))
-                    {
-                        float zb = m_Parent.PixelData[512 * (-(y - lod)) + x].R / 8.0f;
-                        AddHorizontalQuad(x, y, z, y - lod, zb, lod);
-                    }
-                }
+                    AddTerrainCell(x, y, lod);
             }
 
             if (m_Terrain.VertexCount == 0)
@@ -249,7 +221,7 @@ namespace Terrain
                 //No vertices were added; dispose of the mesh
                 m_Parent.MeshPool.ReturnMesh(m_Terrain);
                 m_Terrain = null;
-                    m_GeneratedLOD = 0;
+                m_GeneratedLOD = 0;
 
                 return;
             }
@@ -258,90 +230,129 @@ namespace Terrain
         }
 
         /// <summary>
-        /// Determines the Level Of Detail for a generated mesh based on the camera's distance.
+        /// City boundary: 306 <= x-y <= 716, -306 <= x+y <= 306.
+        /// Clip each terrain cell against this convex diamond. Skipping a whole
+        /// cell based on its top-left vertex leaves visible triangular holes.
+        /// Clipping also prevents out-of-map quads from overhanging the coast.
         /// </summary>
-        /// <param name="DistanceToCamera">How far away is the camera?</param>
-        /// <returns></returns>
-        private int DetermineLOD(float DistanceToCamera)
+        /// <param name="X">The x position of the cell to add.</param>
+        /// <param name="Y">The y position of the cell to add.</param>
+        /// <param name="LOD">THe level of detail of the cell.</param>
+        private void AddTerrainCell(int X, int Y, int LOD)
         {
-            if (DistanceToCamera < 500f)
-                return 1; //Highest detail
-            else if (DistanceToCamera < 1500f)
-                return 2;
-            else if (DistanceToCamera < 3000f)
-                return 4;
-            else
-                return 8; //Lower detail
+            //The diamond is the intersection of four half-planes. Since
+            //distance to each plane is linear, checking its min/max over the
+            //rectangular cell is sufficient to reject or accept it cheaply.
+            const float Epsilon = 1e-5f;
+            if (X - Y + 2 * LOD < 306f - Epsilon ||
+                716f - X + Y < -Epsilon ||
+                X + Y + LOD < -306f - Epsilon ||
+                306f - X - Y + LOD < -Epsilon)
+                return;
+
+            bool allInside =
+                X - Y >= 306f - Epsilon &&
+                716f - X + Y - 2 * LOD >= -Epsilon &&
+                X + Y - LOD >= -306f - Epsilon &&
+                306f - X - Y - LOD >= -Epsilon;
+
+            var v0 = TerrainVertex(X,       Y);
+            var v1 = TerrainVertex(X + LOD, Y);
+            var v2 = TerrainVertex(X + LOD, Y - LOD);
+            var v3 = TerrainVertex(X,       Y - LOD);
+
+            if (allInside)
+            {
+                m_Terrain.AddQuad(new[] { v0, v1, v2, v3 });
+                return;
+            }
+
+            var Polygon = new List<VertexPositionTexture>(4)
+            {
+                v0, v1, v2, v3
+            };
+
+            for (int Plane = 0; Plane < 4; ++Plane)
+            {
+                Polygon = ClipToCity(Polygon, Plane);
+
+                if (Polygon.Count < 3) 
+                    return;
+            }
+
+            //A clipped quad can still have four vertices. It may also have
+            //more than four; triangles are the common case near a corner.
+            for (int i = 1; i + 1 < Polygon.Count; ++i)
+            {
+                var a = Polygon[0];
+                var b = Polygon[i];
+                var c = Polygon[i + 1];
+                float TwiceArea = (b.Position.X - a.Position.X) * (c.Position.Y - a.Position.Y)
+                                - (b.Position.Y - a.Position.Y) * (c.Position.X - a.Position.X);
+                
+                if (Math.Abs(TwiceArea) > 1e-5f)
+                    m_Terrain.AddTriangle(a, b, c);
+            }
         }
 
-        private void AddQuadWithTexCoords(int X, int Y, float Z, int TileSize, CityMesh Mesh)
+        private VertexPositionTexture TerrainVertex(int X, int Y)
         {
-            float u1 = X / 512f;
-            float v1 = -Y / 512f;
-            float u2 = (X + TileSize) / 512f;
-            float v2 = -(Y - TileSize) / 512f;
+            int Width = m_Parent.HeightmapWidth;
+            int Height = m_Parent.HeightmapHeight;
+            int sx = Math.Max(0, Math.Min(Width - 1, X));
+            int sy = Math.Max(0, Math.Min(Height - 1, -Y));
+            float z = m_PixelData[sy * Width + sx].R / 8.0f;
 
-            Mesh.AddQuad(new VertexPositionTexture[]
-            {
-                new VertexPositionTexture(
-                    new Vector3(X,            Y,           Z), new Vector2(u1, v1)),
-                new VertexPositionTexture(
-                    new Vector3(X + TileSize, Y,           Z), new Vector2(u2, v1)),
-                new VertexPositionTexture(
-                    new Vector3(X + TileSize, Y - TileSize,Z), new Vector2(u2, v2)),
-                new VertexPositionTexture(
-                    new Vector3(X,            Y - TileSize,Z), new Vector2(u1, v2))
-            });
+            return new VertexPositionTexture(new Vector3(X, Y, z), new Vector2(X / (float)Width, -Y / (float)Height));
         }
 
-        /// <summary>
-        /// Adds a vertical quad.
-        /// </summary>
-        /// <param name="X1">The first x coord.</param>
-        /// <param name="Y">The y coord.</param>
-        /// <param name="Z1">The first z coord.</param>
-        /// <param name="X2">The second x coord.</param>
-        /// <param name="Z2">The second z coord.</param>
-        /// <param name="TileSize">The tilesize.</param>
-        private void AddVerticalQuad(float X1, float Y, float Z1, int X2, float Z2, int TileSize)
+        private static float CityPlaneDistance(Vector3 P, int Plane)
         {
-            float U1 = X1 / 512f;
-            float V1 = -Y / 512f;
-            float U2 = X2 / 512f;
-            float V2 = -(Y - TileSize) / 512f;
-
-            m_Terrain.AddQuad(new VertexPositionTexture[]
+            switch (Plane)
             {
-                new VertexPositionTexture(new Vector3(X1, Y,           Z1), new Vector2(U1, V1)),
-                new VertexPositionTexture(new Vector3(X2, Y,           Z2), new Vector2(U2, V1)),
-                new VertexPositionTexture(new Vector3(X2, Y - TileSize,Z2), new Vector2(U2, V2)),
-                new VertexPositionTexture(new Vector3(X1, Y - TileSize,Z1), new Vector2(U1, V2))
-            });
+                case 0: 
+                    return P.X - P.Y - 306f;
+                case 1: 
+                    return 716f - P.X + P.Y;
+                case 2: 
+                    return P.X + P.Y + 306f;
+                default: 
+                    return 306f - P.X - P.Y;
+            }
         }
 
-        /// <summary>
-        /// Adds a horizontal quad.
-        /// </summary>
-        /// <param name="X">The x coord.</param>
-        /// <param name="Y1">The first y coord.</param>
-        /// <param name="Z1">The first z coord.</param>
-        /// <param name="Y2">The second y coord.</param>
-        /// <param name="Z2">The second z coord.</param>
-        /// <param name="TileSize">The tilesize.</param>
-        private void AddHorizontalQuad(float X, float Y1, float Z1, int Y2, float Z2, int TileSize)
+        private static List<VertexPositionTexture> ClipToCity(List<VertexPositionTexture> Polygon, int Plane)
         {
-            float u1 = X / 512f;
-            float v1 = -Y1 / 512f;
-            float u2 = (X + TileSize) / 512f;
-            float v2 = -Y2 / 512f;
+            List<VertexPositionTexture> Output = new List<VertexPositionTexture>(Polygon.Count + 1);
 
-            m_Terrain.AddQuad(new VertexPositionTexture[]
+            if (Polygon.Count == 0)
+                return Output;
+
+            VertexPositionTexture Previous = Polygon[Polygon.Count - 1];
+            float PrevDistance = CityPlaneDistance(Previous.Position, Plane);
+            bool PrevInside = PrevDistance >= -1e-5f;
+
+            foreach (VertexPositionTexture current in Polygon)
             {
-                new VertexPositionTexture(new Vector3(X,           Y1, Z1), new Vector2(u1, v1)),
-                new VertexPositionTexture(new Vector3(X + TileSize,Y1, Z1), new Vector2(u2, v1)),
-                new VertexPositionTexture(new Vector3(X + TileSize,Y2, Z2), new Vector2(u2, v2)),
-                new VertexPositionTexture(new Vector3(X,           Y2, Z2), new Vector2(u1, v2))
-            });
+                float Distance = CityPlaneDistance(current.Position, Plane);
+                bool Inside = Distance >= -1e-5f;
+
+                if (PrevInside != Inside)
+                {
+                    float t = PrevDistance / (PrevDistance - Distance);
+                    Output.Add(new VertexPositionTexture(
+                        Vector3.Lerp(Previous.Position, current.Position, t),
+                        Vector2.Lerp(Previous.TextureCoordinate, current.TextureCoordinate, t)));
+                }
+                if (Inside)
+                    Output.Add(current);
+
+                Previous = current;
+                PrevDistance = Distance;
+                PrevInside = Inside;
+            }
+
+            return Output;
         }
     }
 }

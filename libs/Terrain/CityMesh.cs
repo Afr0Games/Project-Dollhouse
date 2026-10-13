@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -134,11 +134,11 @@ namespace Terrain
         /// Requests a MeshPart instance.
         /// </summary>
         /// <returns>A MeshPart instance.</returns>
-        private MeshPart RequestPart()
+        private MeshPart RequestPart(int requiredVertices)
         {
             var Part = m_Parts.Last();
 
-            if (Part.Vertices.Count >= 65536)
+            if (Part.Vertices.Count + requiredVertices > 65536)
             {
                 Part = new MeshPart();
                 m_Parts.Add(Part);
@@ -153,7 +153,7 @@ namespace Terrain
         /// <param name="Vertices">An array of VertexPositionTexture instances to create the quad from.</param>
         public void AddQuad(VertexPositionTexture[] Vertices)
         {
-            var part = RequestPart();
+            var part = RequestPart(4);
 
             part.Vertices.AddRange(Vertices);
 
@@ -166,6 +166,23 @@ namespace Terrain
 
             part.IndexOffset += 4;
             part.PrimitiveCount += 2;
+        }
+
+        /// <summary>
+        /// Adds one triangle (used for clipping terrain at the city boundary).
+        /// </summary>
+        public void AddTriangle(VertexPositionTexture a, VertexPositionTexture b,
+            VertexPositionTexture c)
+        {
+            var part = RequestPart(3);
+            part.Vertices.Add(a);
+            part.Vertices.Add(b);
+            part.Vertices.Add(c);
+            part.Indices.Add((ushort)part.IndexOffset);
+            part.Indices.Add((ushort)(part.IndexOffset + 1));
+            part.Indices.Add((ushort)(part.IndexOffset + 2));
+            part.IndexOffset += 3;
+            part.PrimitiveCount += 1;
         }
 
         /// <summary>

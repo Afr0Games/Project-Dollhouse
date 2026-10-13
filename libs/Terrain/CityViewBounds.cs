@@ -44,40 +44,39 @@ namespace Terrain
         /// Return the nearest legal focus point. Interior points are unchanged,
         /// and outside points slide along the nearest diamond edge.
         /// </summary>
-        public static Vector2 ClampFocus(Vector2 focus)
+        public static Vector2 ClampFocus(Vector2 Focus)
         {
-            if (float.IsNaN(focus.X) || float.IsNaN(focus.Y) ||
-                float.IsInfinity(focus.X) || float.IsInfinity(focus.Y))
+            if (float.IsNaN(Focus.X) || float.IsNaN(Focus.Y) ||
+                float.IsInfinity(Focus.X) || float.IsInfinity(Focus.Y))
                 return Center;
 
-            bool inside = true;
-            float bestSquaredDistance = float.MaxValue;
+            bool Inside = true;
+            float BestSquaredDistance = float.MaxValue;
             Vector2 nearest = Center;
 
             for (int i = 0; i < CityCorners.Length; ++i)
             {
                 Vector2 a = Inset(CityCorners[i]);
                 Vector2 b = Inset(CityCorners[(i + 1) % CityCorners.Length]);
-                Vector2 edge = b - a;
-                Vector2 relative = focus - a;
+                Vector2 Edge = b - a;
+                Vector2 Relative = Focus - a;
 
                 //Positive cross product is inside a counterclockwise polygon.
-                if (edge.X * relative.Y - edge.Y * relative.X < 0f)
-                    inside = false;
+                if (Edge.X * Relative.Y - Edge.Y * Relative.X < 0f)
+                    Inside = false;
 
-                float lengthSquared = edge.LengthSquared();
-                float t = lengthSquared > 0f
-                    ? MathHelper.Clamp(Vector2.Dot(relative, edge) / lengthSquared, 0f, 1f)
-                    : 0f;
-                Vector2 candidate = a + edge * t;
-                float distSquared = Vector2.DistanceSquared(focus, candidate);
-                if (distSquared < bestSquaredDistance)
+                float lengthSquared = Edge.LengthSquared();
+                float t = lengthSquared > 0f ? MathHelper.Clamp(Vector2.Dot(Relative, Edge) / lengthSquared, 0f, 1f) : 0f;
+                Vector2 Candidate = a + Edge * t;
+                float distSquared = Vector2.DistanceSquared(Focus, Candidate);
+                if (distSquared < BestSquaredDistance)
                 {
-                    bestSquaredDistance = distSquared;
-                    nearest = candidate;
+                    BestSquaredDistance = distSquared;
+                    nearest = Candidate;
                 }
             }
-            return inside ? focus : nearest;
+
+            return Inside ? Focus : nearest;
         }
 
         private static Vector2 Inset(Vector2 corner)

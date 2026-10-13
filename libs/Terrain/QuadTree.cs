@@ -30,6 +30,14 @@ namespace Terrain
 
         public Color[] PixelData {  get { return m_PixelData; } }
 
+        public int HeightmapWidth { get { return m_HeightmapTex.Width; } }
+        public int HeightmapHeight { get { return m_HeightmapTex.Height; } }
+
+        //Uniform per-frame LOD removes cracks between independently subdivided
+        //quadtree nodes. Individual nodes still control visibility and mesh lifetime.
+        public int MeshLOD { get; private set; } = 1;
+
+
         /// <summary>
         /// Gets this QuadTree's MeshPool instance.
         /// </summary>
@@ -71,6 +79,10 @@ namespace Terrain
         /// </summary>
         public void Render()
         {
+            Vector3 focus;
+            float distance = m_Camera.TryGetFocus(out focus) ? Vector3.Distance(m_Camera.Position, focus) : Math.Abs(m_Camera.Position.Z);
+
+            MeshLOD = distance < 160f ? 1 : distance < 350f ? 2 : distance < 700f ? 4 : 8;
             RenderNode(m_Root, 0);
         }
 
@@ -81,7 +93,8 @@ namespace Terrain
         /// <param name="CurrentDepth">This tree's current depth.</param>
         private void RenderNode(QuadtreeNode Node, int CurrentDepth)
         {
-            if (Node == null) return;
+            if (Node == null) 
+                return;
 
             //Render this node
             Node.Render(m_Camera, CurrentDepth);
@@ -91,9 +104,9 @@ namespace Terrain
         /// Zooms towards the actual heightmap surface at the center of the view.
         /// No changes to projection FOV or tile/mesh selection.
         /// </summary>
-        public void Zoom(float steps)
+        public void Zoom(float Steps)
         {
-            m_Camera.ZoomTowardsTerrain(steps);
+            m_Camera.ZoomTowardsTerrain(Steps);
         }
 
         /// <summary>
@@ -108,15 +121,19 @@ namespace Terrain
             // after a move. Re-evaluate a few times to keep the focus in bounds.
             for (int attempt = 0; attempt < 3; ++attempt)
             {
-                Vector3 focus;
-                if (!m_Camera.TryGetFocus(out focus)) return;
+                Vector3 Focus;
 
-                Vector2 current = new Vector2(focus.X, focus.Y);
-                Vector2 clamped = CityViewBounds.ClampFocus(current);
-                Vector2 correction = clamped - current;
-                if (correction.LengthSquared() < 0.0001f) return;
+                if (!m_Camera.TryGetFocus(out Focus)) 
+                    return;
 
-                m_Camera.Position += new Vector3(correction.X, correction.Y, 0f);
+                Vector2 Current = new Vector2(Focus.X, Focus.Y);
+                Vector2 Clamped = CityViewBounds.ClampFocus(Current);
+                Vector2 Correction = Clamped - Current;
+
+                if (Correction.LengthSquared() < 0.0001f) 
+                    return;
+
+                m_Camera.Position += new Vector3(Correction.X, Correction.Y, 0f);
             }
         }
 
@@ -127,25 +144,25 @@ namespace Terrain
         /// <param name="y">Y coordinate of position.</param>
         /// <param name="height">Height at position.</param>
         /// <returns>True if it suceeded; false otherwise.</returns>
-        private bool TryGetTerrainHeight(float x, float y, out float height)
+        private bool TryGetTerrainHeight(float X, float Y, out float Height)
         {
-            height = 0f;
+            Height = 0f;
 
             if (m_HeightmapTex == null || m_PixelData == null)
                 return false;
 
-            int ix = (int)Math.Floor(x);
-            int iy = (int)Math.Floor(-y);
-            int width = m_HeightmapTex.Width, rows = m_HeightmapTex.Height;
+            int ix = (int)Math.Floor(X);
+            int iy = (int)Math.Floor(-Y);
+            int Width = m_HeightmapTex.Width, Rows = m_HeightmapTex.Height;
 
-            if (ix < 0 || ix >= width || iy < 0 || iy >= rows)
+            if (ix < 0 || ix >= Width || iy < 0 || iy >= Rows)
                 return false;
 
             //Match the diamond-shaped city map mask used by QuadtreeNode.
-            if (x < Math.Abs(306f + y) || x > 511f - Math.Abs(205f + y))
+            if (X < Math.Abs(306f + Y) || X > 511f - Math.Abs(205f + Y))
                 return false;
 
-            height = m_PixelData[iy * width + ix].R / 8f;
+            Height = m_PixelData[iy * Width + ix].R / 8f;
 
             return true;
         }
