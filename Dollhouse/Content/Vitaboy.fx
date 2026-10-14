@@ -1,4 +1,4 @@
-﻿#if OPENGL
+#if OPENGL
 #define VS_SHADERMODEL vs_3_0
 #define PS_SHADERMODEL ps_3_0
 #else
@@ -24,17 +24,16 @@ sampler VitaboyTextureSampler = sampler_state
 
 struct VitaboyInput
 {
-    float4 Position : POSITION0;
-    float4 TexPosition : TEXCOORD0;
-    float4 Normal : NORMAL0;
+    float3 Position : POSITION0;
+    float2 TexPosition : TEXCOORD0;
+    float3 Normal : NORMAL0;
     float BoneBinding : BLENDWEIGHT0;
 };
 
 struct VitaboyOutput
 {
     float4 Position : SV_POSITION;
-    float4 TexPosition : TEXCOORD0;
-    float4 Normal : NORMAL0;
+    float2 TexPosition : TEXCOORD0;
 };
 
 float4x4 CreateTranslation(float x, float y, float z)
@@ -49,13 +48,16 @@ VitaboyOutput TransformVertices(VitaboyInput Input)
 {
     VitaboyOutput Output;
 
-    float4 Position = mul(Input.Position, ChildBones[Input.BoneBinding]);
+    //BLENDWEIGHT0 carries a mesh-local *bone index*, not a blend weight.
+    //Round before converting to an integer so GPU interpolation/float precision
+    //never selects a fractional matrix index.
+    int BoneIndex = (int)clamp(floor(Input.BoneBinding + 0.5), 0.0, 49.0);
+    float4 Skinned = mul(float4(Input.Position, 1.0), ChildBones[BoneIndex]);
 
-    float4 WorldPosition = mul(Position, World);
+    float4 WorldPosition = mul(Skinned, World);
     float4 ViewPosition = mul(WorldPosition, View);
     Output.Position = mul(ViewPosition, Projection);
     Output.TexPosition = Input.TexPosition;
-    Output.Normal = mul(ViewPosition, Projection);
 
     return Output;
 }
@@ -70,7 +72,7 @@ technique TransformVerticesTechnique
 {
     pass HeadPass
     {
-        VertexShader = compile vs_3_0 TransformVertices();
-        PixelShader = compile ps_3_0 VitaboyPixelShaderFunction();
+        VertexShader = compile VS_SHADERMODEL TransformVertices();
+        PixelShader = compile PS_SHADERMODEL VitaboyPixelShaderFunction();
     }
 }
