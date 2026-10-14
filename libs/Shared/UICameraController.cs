@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using Microsoft.Xna.Framework;
+using ResolutionBuddy;
 
 namespace Shared
 {
@@ -31,10 +32,9 @@ namespace Shared
             m_Camera.UpVector = Vector3.Down;
             m_Camera.Target = Vector3.Zero;
 
-            if (Cam.Device.Viewport.Width == 800)
-                m_Camera.ProjectionOrigin = new Vector2(145, 80);
-            else
-                m_Camera.ProjectionOrigin = new Vector2(200, 380);
+            //CAS artwork uses ResolutionBuddy's virtual UI coordinates, not
+            //physical backbuffer pixels. The portrait remains upper-left.
+            m_Camera.ProjectionOrigin = new Vector2(145f, 265f);
         }
 
         /// <summary>
@@ -50,15 +50,19 @@ namespace Shared
         {
             float Aspect = m_Camera.Device.Viewport.AspectRatio * 1.0f;
 
-            float RatioX = m_Camera.ProjectionOrigin.X / m_Camera.Device.Viewport.Width;
-            float RatioY = m_Camera.ProjectionOrigin.Y / m_Camera.Device.Viewport.Height;
+            Rectangle VirtualArea = Resolution.ScreenArea;
+            if (VirtualArea.Width <= 0 || VirtualArea.Height <= 0)
+                throw new InvalidOperationException("ResolutionBuddy must be initialized before the UI camera.");
 
-            float ProjectionX = 0.0f - (1.0f * RatioX);
-            float ProjectionY = (1.0f * RatioY);
+            float RatioX = (m_Camera.ProjectionOrigin.X - VirtualArea.X) / VirtualArea.Width;
+            float RatioY = (m_Camera.ProjectionOrigin.Y - VirtualArea.Y) / VirtualArea.Height;
 
-            m_Camera.Projection = Matrix.CreatePerspectiveOffCenter(ProjectionX, ProjectionX + 1.0f,
-                ((ProjectionY - 1.0f) / Aspect), (ProjectionY) / Aspect, m_Camera.NearPlane, m_Camera.FarPlane);
-            m_Camera.Projection = Matrix.CreateScale(m_Camera.Zoom, m_Camera.Zoom, 1.0f) * m_Camera.Projection;
+            float left = -RatioX;
+            float top = RatioY / Aspect;
+            float bottom = (RatioY - 1f) / Aspect;
+
+            m_Camera.Projection = Matrix.CreatePerspectiveOffCenter(left, left + 1f, bottom, top, m_Camera.NearPlane, m_Camera.FarPlane);
+            m_Camera.Projection = Matrix.CreateScale(m_Camera.Zoom, m_Camera.Zoom, 1f) * m_Camera.Projection;
         }
 
         protected override void CalculateView()

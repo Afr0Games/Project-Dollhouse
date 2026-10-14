@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Files\Files.csproj" />
+    <ProjectReference Include="..\ResolutionBuddy\ResolutionBuddy.csproj" />
     <ProjectReference Include="..\Vitaboy\Vitaboy.csproj" />
   </ItemGroup>
 
