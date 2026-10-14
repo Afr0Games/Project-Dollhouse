@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -50,6 +50,7 @@ namespace UI.Elements
         private bool m_IsTextButton = false;
         private string m_Text;
         private float m_XScale = 1.0f; //Used to scale buttons to fit text.
+        private float m_TextDrawScale = 1.0f;
         private static readonly ILog m_Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private Vector2 m_TextPosition = new Vector2(0, 0);
@@ -340,19 +341,38 @@ namespace UI.Elements
         /// Scales a button to the size of the button's text.
         /// Also repositions a button's text according to the new size.
         /// </summary>
+        /// <summary>The visible width, including text-based stretching.</summary>
+        public float DisplayWidth => m_Size.X * m_XScale;
+        public float DisplayHeight => m_Size.Y;
+
+        /// <summary>
+        /// Shrinks a button only when the dialog cannot fit its natural width.
+        /// Also shrinks the caption so it stays within the button and hit area.
+        /// </summary>
+        public void LimitDisplayWidth(float maximumWidth)
+        {
+            if (maximumWidth >= DisplayWidth || maximumWidth <= 0f || m_Size.X <= 0f)
+                return;
+
+            m_XScale = maximumWidth / m_Size.X;
+            if (m_IsTextButton && !string.IsNullOrEmpty(m_Text) && m_Font != null)
+            {
+                float captionWidth = m_Font.MeasureString(m_Text).X;
+                if (captionWidth > 0f)
+                    m_TextDrawScale = Math.Min(1.0f, Math.Max(0.1f, maximumWidth - 12f) / captionWidth);
+            }
+        }
+
         private void ScaleToText()
         {
-            if (m_Font.MeasureString(m_Text).X > m_Size.X)
-                m_XScale = m_Font.MeasureString(m_Text).X / m_Size.X;
-            else if(m_Font.MeasureString(m_Text).X <= m_Size.X)
-                m_XScale = m_Size.X / m_Font.MeasureString(m_Text).X;
+            if (m_Font == null || string.IsNullOrEmpty(m_Text) || m_Size.X <= 0f)
+                return;
 
-            m_XScale += 0.5f; //Text margin.
-
-            float HalfX = m_Size.X / 2;
-            float HalfY = m_Size.Y / 2; 
-            m_TextPosition.X += (HalfX * m_XScale) - (m_Font.MeasureString(m_Text).X / 2);
-            m_TextPosition.Y += HalfY - (m_Font.MeasureString(m_Text).Y / 2);
+            // Do not invert the ratio for short captions. That previously made
+            // the short word "Exit" much wider than its button needed to be.
+            float requiredWidth = m_Font.MeasureString(m_Text).X + 20f;
+            m_XScale = Math.Max(1f, requiredWidth / m_Size.X);
+            m_TextDrawScale = 1f;
         }
 
         /// <summary>
@@ -413,8 +433,8 @@ namespace UI.Elements
 
                 float HalfX = m_Size.X / 2;
                 float HalfY = m_Size.Y / 2;
-                m_TextPosition.X += (HalfX * m_XScale) - (m_Font.MeasureString(m_Text).X / 2);
-                m_TextPosition.Y += HalfY - (m_Font.MeasureString(m_Text).Y / 2);
+                m_TextPosition.X += (HalfX * m_XScale) - ((m_Font.MeasureString(m_Text).X * m_TextDrawScale) / 2);
+                m_TextPosition.Y += HalfY - ((m_Font.MeasureString(m_Text).Y * m_TextDrawScale) / 2);
             }
 
             if(IsMouseOver(Input) || PixelCheck(Input, (int)m_Size.X))
@@ -481,7 +501,7 @@ namespace UI.Elements
                 {
                     //TODO: What depth should be used to have the text draw on top?
                     SBatch.DrawString(m_Font, m_Text, m_TextPosition, TextDrawingColor, 0.0f,
-                        new Vector2(0.0f, 0.0f), 1.0f, SpriteEffects.None, 0/*Depth + 0.1f*/);
+                        new Vector2(0.0f, 0.0f), m_TextDrawScale, SpriteEffects.None, 0/*Depth + 0.1f*/);
                 }
             }
         }
@@ -510,7 +530,7 @@ namespace UI.Elements
                 if (Image != null)
                     Image.Dispose();
 
-                // Prevent the finalizer from calling ~UIButton, since the object is already disposed at this point.
+                //Prevent the finalizer from calling ~UIButton, since the object is already disposed at this point.
                 GC.SuppressFinalize(this);
             }
             else

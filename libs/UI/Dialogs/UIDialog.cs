@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Collections.Generic;
 using UI.Elements;
 using Microsoft.Xna.Framework;
@@ -79,11 +79,11 @@ namespace UI.Dialogs
             {
                 //This needs to start drawing at 1 on the Y axis to render correctly.
                 m_CloseBtnBack = new UIImage(CloseBtnBackground,
-                    new Vector2(Image.Slicer.Width - CloseBtnBackground.Width, 1), Screen, this, m_Opacity);
+                    Position + new Vector2(Image.Slicer.Width - CloseBtnBackground.Width, 1), Screen, this, m_Opacity);
                 Children.Add(m_CloseBtnBack);
 
                 m_CloseButton = new UIButton("CloseBtn",
-                    new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex, "", 9,
+                    Position + new Vector2(Image.Slicer.Width - (CloseButtonTex.Width / 2.5f), 9f), Screen, CloseButtonTex, "", 9,
                     true, this);
                 m_CloseButton.OnButtonClicked += CloseButton_OnButtonClicked;
                 m_CloseButton.ZIndex = this.ZIndex + 1;
@@ -106,19 +106,16 @@ namespace UI.Dialogs
             if(Helper.IsNewPress(MouseButtons.LeftButton) == true && 
                 Helper.IsOldPress(MouseButtons.LeftButton) == false)
             {
-                if (IsMouseOver(Helper))
+                if (IsMouseOver(Helper) && Helper.MousePosition.Y <= Position.Y + Image.Slicer.TopPadding)
                 {
-                    m_DragOffset = Helper.MousePosition / 5.0f;
+                    m_DragOffset = Helper.MousePosition - Position;
                     m_DoDrag = true;
                 }
             }
 
             //Left button has been released.
-            if (Helper.IsNewPress(MouseButtons.LeftButton) == false &&
-                Helper.IsOldPress(MouseButtons.LeftButton) == true)
-            {
+            if (Helper.IsNewPress(MouseButtons.LeftButton) == false && Helper.IsOldPress(MouseButtons.LeftButton) == true)
                 m_DoDrag = false;
-            }
         }
 
         /// <summary>
@@ -131,6 +128,18 @@ namespace UI.Dialogs
             m_Size.X = Width;
             m_Size.Y = Height;
             Image.SetSize(Width, Height);
+            UpdateCloseButtonPositions();
+        }
+
+        private void UpdateCloseButtonPositions()
+        {
+            if (!m_HasExitBtn || m_CloseBtnBack == null || m_CloseButton == null)
+                return;
+
+            m_CloseBtnBack.Position = Position +
+                new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 1f);
+            m_CloseButton.Position = Position +
+                new Vector2(Image.Slicer.Width - (m_CloseButton.Image.Texture.Width / 2.5f), 9f);
         }
 
         /// <summary>
@@ -156,19 +165,11 @@ namespace UI.Dialogs
                 {
                     if (m_DoDrag)
                     {
-                        OnDragged(Helper.MousePosition, m_DragOffset);
+                        OnDragged?.Invoke(Helper.MousePosition, m_DragOffset);
 
-                        Position = (Helper.MousePosition - m_DragOffset);
+                        Position = Helper.MousePosition - m_DragOffset;
 
-                        if (m_HasExitBtn)
-                        {
-                            //This needs to start drawing at 1 on the Y axis to render correctly.
-                            Vector2 OffsetFromMouse = new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 1);
-                            m_CloseBtnBack.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-
-                            OffsetFromMouse = new Vector2(Image.Slicer.Width - (m_CloseButton.Image.Texture.Width / 2.5f), 9f);
-                            m_CloseButton.Position = (Helper.MousePosition + OffsetFromMouse) - m_DragOffset;
-                        }
+                        UpdateCloseButtonPositions();
                     }
 
                     MouseEvents(Helper);
@@ -178,9 +179,9 @@ namespace UI.Dialogs
 
         public override bool IsMouseOver(InputHelper Input)
         {
-            if (Input.MousePosition.X > Position.X && Input.MousePosition.X <= (Position.X + (Image.Texture.Width)))
+            if (Input.MousePosition.X > Position.X && Input.MousePosition.X <= Position.X + m_Size.X)
             {
-                if (Input.MousePosition.Y > Position.Y && Input.MousePosition.Y <= (Position.Y + (Image.Texture.Height)))
+                if (Input.MousePosition.Y > Position.Y && Input.MousePosition.Y <= Position.Y + m_Size.Y)
                     return true;
             }
 
@@ -200,11 +201,7 @@ namespace UI.Dialogs
             Position = new Vector2(OffsetX + TopLeft.X + ((Element.Size.X - m_Size.X) / 2), 
                 OffsetY + TopLeft.Y + ((Element.Size.Y - m_Size.Y) / 2));
 
-            if(m_HasExitBtn)
-            {
-                m_CloseBtnBack.Position = Position + new Vector2(Image.Slicer.Width - m_CloseBtnBack.Texture.Width, 0);
-                m_CloseButton.Position = Position + new Vector2(Image.Slicer.Width - (m_CloseButton.Image.Texture.Width / 2.5f), 9f);
-            }
+            UpdateCloseButtonPositions();
         }
 
         private bool m_AdjustDepth = true;
