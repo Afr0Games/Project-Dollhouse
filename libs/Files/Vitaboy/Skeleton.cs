@@ -10,10 +10,6 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using log4net;
 
@@ -51,14 +47,15 @@ namespace Files.Vitaboy
             m_Reader.Close();
         }
 
-        /// <summary>
+
         /// Finds the bone in this skeleton with the given name.
         /// </summary>
         /// <param name="BoneName">Name of bone to find.</param>
         /// <returns>Index of bone in this Skeleton.</returns>
         public int FindBone(string BoneName)
         {
-            return Bones.FirstOrDefault(x => x.Name == BoneName).BoneIndex;
+            Bone bone = Bones.FirstOrDefault(x => x.Name == BoneName);
+            return bone?.BoneIndex ?? -1;
         }
 
         ~Skeleton()
