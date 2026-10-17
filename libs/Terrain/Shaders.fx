@@ -246,6 +246,41 @@ float2 RoadCellSize;
 float RoadsEnabled;
 float ForestEnabled;
 
+//Reconstructed early-preview look: user-provided screenshots are the visual reference.
+//This is NOT a recovered Maxis preview palette or modified game artwork.
+//No new texture sampler: this adjusts already-sampled RGB values only.
+float PreviewColorsEnabled;
+float3 PreviewGrassTint;  //e.g. (1.08, 1.33, 0.55) to boost lush green
+float3 PreviewWaterTint;  //e.g. (0.12, 0.52, 0.68) to deepen blue
+float3 PreviewWaterBias;  //e.g. (0.00, 0.016, 0.045) to retain blue detail
+float3 PreviewSandTint;   //muted, grey-beige shore (preview-inspired)
+float3 PreviewSandBias;
+float3 PreviewRockTint;   //less saturated, deep reddish-brown rock
+float3 PreviewRockBias;
+float3 PreviewSnowTint;   //cooler, slightly darker mountain snow
+float3 PreviewSnowBias;
+
+float3 ApplyPreviewColor(float3 rgb, float terrainId)
+{
+    if (PreviewColorsEnabled < 0.5)
+        return rgb;
+
+    //Local Hoodtest IDs: 0 grass, 1 water, 2 sand, 3 rock, 4 snow.
+    //Apply before transition mixing to preserve the original shoreline masks.
+    if (terrainId < 0.5)
+        return saturate(rgb * PreviewGrassTint);
+    if (terrainId < 1.5)
+        return saturate(rgb * PreviewWaterTint + PreviewWaterBias);
+    if (terrainId < 2.5)
+        return saturate(rgb * PreviewSandTint + PreviewSandBias);
+    if (terrainId < 3.5)
+        return saturate(rgb * PreviewRockTint + PreviewRockBias);
+    if (terrainId < 4.5)
+        return saturate(rgb * PreviewSnowTint + PreviewSnowBias);
+
+    return rgb;
+}
+
 //One bank per row: row 0 = road; row 1 = roadcorner.
 //Padding is 2 pixels, with source edge replication. UVs sample texel centers
 //in the actual source extent (main and corner images may have different sizes).
@@ -359,6 +394,10 @@ float4 MainPS(VertexOutput input) : SV_TARGET
     float4 SecondaryTexture = SampleAtlasType(Secondary, BaseUV);
     if (Secondary != 1.0)
         SecondaryTexture *= vertexColor;
+
+    //Grade each material BEFORE transition blending, preserving smooth shoreline masks.
+    SampledTexture.rgb = ApplyPreviewColor(SampledTexture.rgb, Primary);
+    SecondaryTexture.rgb = ApplyPreviewColor(SecondaryTexture.rgb, Secondary);
 
     if (Mask < 14.5 && abs(Primary - Secondary) > 0.5)
     {
