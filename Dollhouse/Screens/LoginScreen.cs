@@ -82,6 +82,9 @@ namespace GonzoTest
                     break;
                 case AuthPacketIDs.SAuthProof:
                     await m_LoginProgressDiag.UpdateStatus(LoginProcess.DoneLoading);
+                    this.Manager.RemoveScreen(this);
+                    this.Manager.AddScreen(new SASScreen(Manager, m_SBatch));
+                    this.Dispose();
                     break;
                 default:
                     await m_LoginProgressDiag.UpdateStatus(LoginProcess.Unsucessful);
