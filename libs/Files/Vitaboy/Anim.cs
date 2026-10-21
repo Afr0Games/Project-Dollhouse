@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -43,8 +43,8 @@ namespace Files.Vitaboy
 
             ASCIIEncoding Enc = new ASCIIEncoding();
             Name = Enc.GetString(m_Reader.ReadBytes(m_Reader.ReadUShort()));
-            Duration = m_Reader.ReadFloat();
-            Distance = m_Reader.ReadFloat();
+            Duration = m_Reader.ReadLittleEndianFloat();
+            Distance = m_Reader.ReadLittleEndianFloat();
             IsMoving = (m_Reader.ReadByte() != 0) ? true : false;
             TranslationsCount = m_Reader.ReadUInt32();
 
@@ -52,9 +52,9 @@ namespace Files.Vitaboy
             
             for(int i = 0; i < TranslationsCount; i++)
             {
-                Translations[i, 0] = m_Reader.ReadFloat();
-                Translations[i, 1] = m_Reader.ReadFloat();
-                Translations[i, 2] = m_Reader.ReadFloat();
+                Translations[i, 0] = m_Reader.ReadLittleEndianFloat();
+                Translations[i, 1] = m_Reader.ReadLittleEndianFloat();
+                Translations[i, 2] = m_Reader.ReadLittleEndianFloat();
             }
 
             RotationsCount = m_Reader.ReadUInt32();
@@ -63,10 +63,10 @@ namespace Files.Vitaboy
 
             for (int i = 0; i < RotationsCount; i++)
             {
-                Rotations[i, 0] = m_Reader.ReadFloat();
-                Rotations[i, 1] = m_Reader.ReadFloat();
-                Rotations[i, 2] = m_Reader.ReadFloat();
-                Rotations[i, 3] = m_Reader.ReadFloat();
+                Rotations[i, 0] = m_Reader.ReadLittleEndianFloat();
+                Rotations[i, 1] = m_Reader.ReadLittleEndianFloat();
+                Rotations[i, 2] = m_Reader.ReadLittleEndianFloat();
+                Rotations[i, 3] = m_Reader.ReadLittleEndianFloat();
             }
 
             MotionCount = m_Reader.ReadUInt32();

@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -10,7 +10,6 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace Files.Vitaboy
@@ -49,10 +48,10 @@ namespace Files.Vitaboy
                     PropertyList.Add(new Property(Reader));
             }
 
-            Translation = new Vector3(Reader.ReadFloat(), Reader.ReadFloat(), Reader.ReadFloat());
+            Translation = new Vector3(Reader.ReadLittleEndianFloat(), Reader.ReadLittleEndianFloat(), Reader.ReadLittleEndianFloat());
             //NOTE: Y and Z were originally negated to account for left-handed rotation but removing the negation
             //      seems to have fixed rendering.
-            Rotation = new Quaternion(Reader.ReadFloat(), Reader.ReadFloat(), Reader.ReadFloat(), Reader.ReadFloat());
+            Rotation = new Quaternion(Reader.ReadLittleEndianFloat(), Reader.ReadLittleEndianFloat(), Reader.ReadLittleEndianFloat(), Reader.ReadLittleEndianFloat());
 
             CanTranslate = (Reader.ReadUInt32() != 0) ? true : false;
             CanRotate = (Reader.ReadUInt32() != 0) ? true : false;
@@ -61,8 +60,8 @@ namespace Files.Vitaboy
             //Don Hopkins says the Wiggle parameters are left over from an attempt to use Perlin noise 
             //introduce some randomness into the animations, so that an animation would look a little different 
             //each time it was run.
-            Reader.ReadFloat();
-            Reader.ReadFloat();
+            Reader.ReadLittleEndianFloat();
+            Reader.ReadLittleEndianFloat();
         }
     }
 }

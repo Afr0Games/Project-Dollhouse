@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -10,9 +10,6 @@ Mats 'Afr0' Vederhus. All Rights Reserved.
 Contributor(s):
 */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using log4net;
 using System.Runtime.InteropServices;
@@ -35,7 +32,6 @@ namespace Files.Vitaboy
         public List<BlendVertexProperty> BlendVertexProps = new List<BlendVertexProperty>();
         public uint TotalVertexCount;
         public List<VertexPositionNormalTexture> RealVertices = new List<VertexPositionNormalTexture>();
-        //public VertexPositionNormalTexture[] TransformedVertices;
         public VitaboyVertex[] TransformedVertices;
         public List<VertexPositionNormalTexture> BlendedVertices = new List<VertexPositionNormalTexture>();
 
@@ -65,7 +61,7 @@ namespace Files.Vitaboy
             List<Vector2> TexVertices = new List<Vector2>();
 
             for (int i = 0; i < RealVertexCount; i++)
-                TexVertices.Add(new Vector2(m_Reader.ReadFloat(), m_Reader.ReadFloat()));
+                TexVertices.Add(new Vector2(m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat()));
 
             BlendVertexCount = m_Reader.ReadUInt32();
 
@@ -73,19 +69,18 @@ namespace Files.Vitaboy
                 BlendVertexProps.Add(new BlendVertexProperty(m_Reader));
 
             TotalVertexCount = m_Reader.ReadUInt32();
-            //TransformedVertices = new VertexPositionNormalTexture[TotalVertexCount];
             TransformedVertices = new VitaboyVertex[TotalVertexCount];
 
             for (int i = 0; i < RealVertexCount; i++)
             {
-                RealVertices.Add(new VertexPositionNormalTexture(new Vector3(m_Reader.ReadFloat(), m_Reader.ReadFloat(), m_Reader.ReadFloat()),
-                    new Vector3(m_Reader.ReadFloat(), m_Reader.ReadFloat(), m_Reader.ReadFloat()), TexVertices[i]));
+                RealVertices.Add(new VertexPositionNormalTexture(new Vector3(m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat()),
+                    new Vector3(m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat()), TexVertices[i]));
             }
 
             for(int i = 0; i < BlendVertexCount; i++)
             {
-                BlendedVertices.Add(new VertexPositionNormalTexture(new Vector3(m_Reader.ReadFloat(), m_Reader.ReadFloat(), m_Reader.ReadFloat()), 
-                    new Vector3(m_Reader.ReadFloat(), m_Reader.ReadFloat(), m_Reader.ReadFloat()), TexVertices[i]));
+                BlendedVertices.Add(new VertexPositionNormalTexture(new Vector3(m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat()), 
+                    new Vector3(m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat(), m_Reader.ReadLittleEndianFloat()), TexVertices[i]));
             }
 
             m_Reader.Close();
