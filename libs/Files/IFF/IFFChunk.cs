@@ -113,10 +113,6 @@ namespace Files.IFF
                 throw new EndOfStreamException("Truncated IFF payload");
         }
 
-            m_Data = Reader.ReadBytes((int)(Size - 76));
-
-            if (!Endian.IsBigEndian)
-                Array.Reverse(m_Data); //Data is Little Endian, so needs to be reversed.
         /// <summary>Writes the header followed by the correctly sized, unswapped payload.</summary>
         public virtual Stream ToStream()
         {
