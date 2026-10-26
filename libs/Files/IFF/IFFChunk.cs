@@ -114,6 +114,28 @@ namespace Files.IFF
         }
 
             m_Data = Reader.ReadBytes((int)(Size - 76));
+        /// <summary>Explicit, lossless payload editing for any supported or unknown chunk.</summary>
+        public void ReplacePayload(byte[] Data)
+        {
+            if (Data == null) 
+                throw new ArgumentNullException(nameof(Data));
+            m_Data = (byte[])Data.Clone();
+            m_PayloadWasReplaced = true;
+            m_HasBeenUpdated = true;
+        }
+
+        /// <summary>Obtain an independent copy of the raw chunk payload.</summary>
+        public byte[] GetRawPayload() { return (byte[])m_Data.Clone(); }
+
+        /// <summary>Mark a chunk's parsed data as modified. Override the serializer first.</summary>
+        public void MarkModified() { m_SemanticChanged = true; m_HasBeenUpdated = true; }
+
+        protected virtual byte[] GetPayloadForWriting()
+        {
+            if (m_SemanticChanged && !m_PayloadWasReplaced)
+                throw new NotSupportedException("Semantic serialization is not implemented for " + m_RawType + ". Use ReplacePayload to edit its raw contents.");
+            return m_Data;
+        }
 
             if (!Endian.IsBigEndian)
                 Array.Reverse(m_Data); //Data is Little Endian, so needs to be reversed.
