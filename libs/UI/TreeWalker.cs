@@ -2,7 +2,7 @@
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
-The Original Code is the Gonzo library.
+The Original Code is the UI library.
 
 The Initial Developer of the Original Code is
 Mats 'Afr0' Vederhus. All Rights Reserved.
@@ -198,16 +198,15 @@ namespace UI
 
                     if (State.InSharedPropertiesGroup)
                     {
-                        UIElement Test = new UIElement(m_Screen, null);
                         //Script implicitly created an object... :\
-                        if (!Result.Elements.TryGetValue(ControlPropsNode.Control, out Test))
+                        if (!Result.Elements.TryGetValue(ControlPropsNode.Control, out UIElement existing) || existing == null)
                         {
-                            Result.Elements.Add(ControlPropsNode.Control, new UIElement(m_Screen, null));
-
+                            UIElement implicitElement = new UIElement(m_Screen, null);
                             if (Ctrl.Image != null)
-                                Result.Elements[ControlPropsNode.Control].Image = new UIImage(Ctrl.Image);
+                                implicitElement.Image = new UIImage(Ctrl.Image);
 
-                            Result.Elements[ControlPropsNode.Control].Position = Ctrl.Position;
+                            implicitElement.Position = Ctrl.Position;
+                            Result.Elements[ControlPropsNode.Control] = implicitElement;
                         }
                     }
 

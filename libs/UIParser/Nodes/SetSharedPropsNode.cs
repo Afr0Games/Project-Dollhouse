@@ -59,8 +59,15 @@ namespace UIParser.Nodes
         {
             InitChildrenAsList(nodes);
 
-            if (nodes[1].AstNode != null)
-                AssignmentBlock = (AssignmentBlockNode)nodes[1].AstNode;
+            if (nodes.Count > 1 && nodes[1].AstNode is AssignmentBlockNode Block)
+                AssignmentBlock = Block;
+
+            //Empty shared-property blocks should keep their default values.
+            if (AssignmentBlock == null || AssignmentBlock.ChildNodes.Count == 0)
+            {
+                AsString = "SetSharedProperties";
+                return;
+            }
 
             foreach (AssignmentNode ANode in AssignmentBlock.ChildNodes[0].ChildNodes)
             {

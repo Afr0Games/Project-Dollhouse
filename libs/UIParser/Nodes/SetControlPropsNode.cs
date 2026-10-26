@@ -42,10 +42,18 @@ namespace UIParser.Nodes
             Control = nodes[1].Token.Text;
             Image = "";
 
-            if (nodes[2].AstNode != null)
-                AssignmentBlock = (AssignmentBlockNode)nodes[2].AstNode;
+            if (nodes.Count > 2 && nodes[2].AstNode is AssignmentBlockNode Block)
+                AssignmentBlock = Block;
 
-            foreach(AssignmentNode ANode in AssignmentBlock.ChildNodes[0].ChildNodes)
+            //Maxis permits SetControlProperties declarations with no assignments.
+            //Keep the named control, but leave its optional properties at their defaults.
+            if (AssignmentBlock == null || AssignmentBlock.ChildNodes.Count == 0)
+            {
+                AsString = "SetControlProperties";
+                return;
+            }
+
+            foreach (AssignmentNode ANode in AssignmentBlock.ChildNodes[0].ChildNodes)
             {
                 switch(ANode.TypeOfAssignment)
                 {
