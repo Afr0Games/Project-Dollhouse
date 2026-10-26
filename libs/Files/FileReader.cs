@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -120,7 +120,7 @@ namespace Files
         public long ReadBigEndianInt64()
         {
             byte[] b = ReadBytes(8);
-            return b[7] + (b[6] << 8) + (b[5] << 16) + (b[4] << 24) + (b[3] << 32) + (b[2] << 40) + (b[1] << 48) + (b[0] << 56);
+            return (long)((ulong)b[7] | ((ulong)b[6] << 8) | ((ulong)b[5] << 16) | ((ulong)b[4] << 24) | ((ulong)b[3] << 32) | ((ulong)b[2] << 40) | ((ulong)b[1] << 48) | ((ulong)b[0] << 56));
         }
 
         /// <summary>
@@ -290,65 +290,57 @@ namespace Files
         /// <returns>The number of bytes that were peeked.</returns>
         public byte[] PeekBytes(int Count)
         {
-            lock(m_Reader)
+            lock (m_Reader)
             {
-                byte[] Data = m_Reader.ReadBytes(Count);
-                m_Reader.BaseStream.Position -= Count;
-
-                if (Endian.IsBigEndian != m_IsBigEndian)
-                    Array.Reverse(Data);
-
-                    return Data;
+                byte[] data = m_Reader.ReadBytes(Count);
+                m_Reader.BaseStream.Position -= data.Length;
+                return data;
             }
         }
 
-        /// <summary>
-        /// Reads a specified number of bytes from the underlying stream.
-        /// </summary>
-        /// <param name="Count">Number of bytes to read.</param>
-        /// <returns>The data that was read, as an array of bytes.</returns>
+        /// <summary>Reads raw bytes without changing their order.</summary>
         public byte[] ReadBytes(int Count)
         {
             lock (m_Reader)
-            {
-                if (Endian.IsBigEndian != m_IsBigEndian)
-                {
-                    byte[] Data = m_Reader.ReadBytes(Count);
-                    Array.Reverse(Data);
-                    return Data;
-                }
-
                 return m_Reader.ReadBytes(Count);
-            }
         }
 
-        /// <summary>
-        /// Reads all the remaining bytes in this stream.
-        /// </summary>
-        /// <returns>The data that was read, as an array of bytes.</returns>
+        /// <summary>Reads the remaining raw bytes in their original order.</summary>
         public byte[] ReadToEnd()
         {
             lock (m_Reader)
-            {
-                if (Endian.IsBigEndian != m_IsBigEndian)
-                {
-                    byte[] Data = m_Reader.ReadBytes((int)(m_Reader.BaseStream.Length - m_Reader.BaseStream.Position));
-                    Array.Reverse(Data);
-                    return Data;
-                }
-
-                return m_Reader.ReadBytes((int)(m_Reader.BaseStream.Length - m_Reader.BaseStream.Position));
-            }
+                return m_Reader.ReadBytes(checked((int)(m_Reader.BaseStream.Length - m_Reader.BaseStream.Position)));
         }
 
         /// <summary>
-        /// Reads a float from the underlying stream.
-        /// Doesn't support endian swapping.
+        /// Reads a float using the reader's configured byte order.
         /// </summary>
         /// <returns>A float.</returns>
         public float ReadFloat()
         {
-            lock(m_Reader)
+            lock (m_Reader)
+            {
+                if (!m_IsBigEndian)
+                    return m_Reader.ReadSingle();
+
+                byte[] Bytes = m_Reader.ReadBytes(4);
+                if (Bytes.Length != 4) 
+                    throw new EndOfStreamException();
+
+                Array.Reverse(Bytes);
+
+                return BitConverter.ToSingle(Bytes, 0);
+            }
+        }
+
+        /// <summary>
+        /// Reads a little-endian IEEE-754 single regardless of the integer
+        /// byte order configured for this reader. Vitaboy formats mix big-
+        /// endian integer fields with little-endian floating-point fields.
+        /// </summary>
+        public float ReadLittleEndianFloat()
+        {
+            lock (m_Reader)
                 return m_Reader.ReadSingle();
         }
 

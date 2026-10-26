@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -87,19 +87,9 @@ namespace Files
         /// <param name="BigEndian">Is the filed stored as big endian?</param>
         public FileWriter(string Path, bool BigEndian)
         {
-            m_MemFile = MemoryMappedFile.CreateFromFile(File.Open(Path, FileMode.Open, FileAccess.Read,
-                FileShare.ReadWrite), null, 0L, MemoryMappedFileAccess.Read, HandleInheritability.None, false);
-
+            if (Path == null) throw new ArgumentNullException(nameof(Path));
             m_IsBigEndian = BigEndian;
-
-            try
-            {
-                m_Writer = new BinaryWriter(m_MemFile.CreateViewStream(0, 0, MemoryMappedFileAccess.Read));
-            }
-            catch (IOException Exception)
-            {
-                throw new ReadingException("Couldn't open file - WriterReader.cs\r\n" + Exception.ToString());
-            }
+            m_Writer = new BinaryWriter(new FileStream(Path, FileMode.Create, FileAccess.Write, FileShare.Read));
         }
 
         #region Write
@@ -127,7 +117,7 @@ namespace Files
             {
                 if (Endian.IsBigEndian != m_IsBigEndian)
                 {
-                    Endian.SwapInt64(Val);
+                    Val = Endian.SwapInt64(Val);
                     m_Writer.Write(Val);
 
                     return;
@@ -147,7 +137,7 @@ namespace Files
             {
                 if (Endian.IsBigEndian != m_IsBigEndian)
                 {
-                    Endian.SwapUInt64(Val);
+                    Val = Endian.SwapUInt64(Val);
                     m_Writer.Write(Val);
 
                     return;
@@ -167,7 +157,7 @@ namespace Files
             {
                 if (Endian.IsBigEndian != m_IsBigEndian)
                 {
-                    Endian.SwapUInt32(Val);
+                    Val = Endian.SwapUInt32(Val);
                     m_Writer.Write(Val);
 
                     return;
@@ -187,7 +177,7 @@ namespace Files
             {
                 if (Endian.IsBigEndian != m_IsBigEndian)
                 {
-                    Endian.SwapUInt16(Val);
+                    Val = Val = Endian.SwapUInt16(Val);
                     m_Writer.Write(Val);
 
                     return;
@@ -286,7 +276,7 @@ namespace Files
             {
                 if (Endian.IsBigEndian != m_IsBigEndian)
                 {
-                    Endian.SwapInt32(Val);
+                    Val = Endian.SwapInt32(Val);
                     m_Writer.Write(Val);
                     return;
                 }
@@ -304,7 +294,7 @@ namespace Files
             {
                 if (Endian.IsBigEndian != m_IsBigEndian)
                 {
-                    Endian.SwapInt16(Val);
+                    Val = Endian.SwapInt16(Val);
                     m_Writer.Write(Val);
                     return;
                 }
@@ -322,7 +312,7 @@ namespace Files
             {
                 if (Endian.IsBigEndian != m_IsBigEndian)
                 {
-                    Endian.SwapUInt16(Val);
+                    Val = Val = Endian.SwapUInt16(Val);
                     m_Writer.Write(Val);
                     return;
                 }
@@ -356,18 +346,9 @@ namespace Files
         /// <param name="Data">Bytes to write</param>
         public void WriteBytes(byte[] Data)
         {
+            if (Data == null) throw new ArgumentNullException(nameof(Data));
             lock (m_Writer)
-            {
-                if (Endian.IsBigEndian != m_IsBigEndian)
-                {
-                    Array.Reverse(Data);
-                    m_Writer.Write(Data);
-
-                    return;
-                }
-
-                 m_Writer.Write(Data);
-            }
+                m_Writer.Write(Data);
         }
 
         /// <summary>
@@ -377,7 +358,12 @@ namespace Files
         public void WriteFloat(float Val)
         {
             lock (m_Writer)
-                m_Writer.Write(Val);
+            {
+                byte[] bytes = BitConverter.GetBytes(Val);
+                if (m_IsBigEndian == BitConverter.IsLittleEndian)
+                    Array.Reverse(bytes);
+                m_Writer.Write(bytes);
+            }
         }
 
         /// <summary>
