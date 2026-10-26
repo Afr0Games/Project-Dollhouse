@@ -11,6 +11,7 @@ Contributor(s):
 */
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
@@ -439,8 +440,6 @@ namespace Files.IFF
                         break;
                 }
 
-                if (IsAssemblyDebugBuild(Assembly.GetExecutingAssembly()))
-                    Chunks.Add(Chunk);
                 m_OrderedChunks.Add(Chunk);
             }
             long tailStart = m_Reader.Position;

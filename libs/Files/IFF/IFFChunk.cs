@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -11,13 +11,17 @@ Contributor(s):
 */
 
 using System;
+using System.IO;
+using System.Reflection;
 using System.Diagnostics;
+using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Files.IFF
 {
     public enum IFFChunkTypes : int
     {
+        Unknown = -1,
         BMP_ = 0,
         FBMP = 1,
         FWAV = 2,
@@ -42,18 +46,49 @@ namespace Files.IFF
         rsmp = 21
     }
 
+    /// <summary>
+    /// Raw IFF container chunk. Decoders retain the original bytes so that unknown
+    /// and versioned payloads can be saved without interpreting or corrupting them.
+    /// The chunk size on disk includes the 76-byte header.
+    /// </summary>
     public class IFFChunk
     {
         protected Iff m_Parent;
         protected GraphicsDevice m_Device;
+        protected string m_NameString = "";
         public IFFChunkTypes Type;
         public uint Size;
         public ushort ID;
         protected byte[] m_Data;
+        private ushort m_Flags;
+        private byte[] m_Label = new byte[64];
+        private string m_RawType = "";
+        protected bool m_HasBeenUpdated;
+        private ushort m_OriginalID;
+        private IFFChunkTypes m_OriginalType;
+        private bool m_PayloadWasReplaced;
+        private bool m_SemanticChanged;
+        protected bool m_RawPayloadOverride { get { return m_PayloadWasReplaced; } }
+        protected bool m_SemanticPayloadChanged { get { return m_SemanticChanged; } }
 
-#if DEBUG
-        public string NameString = "";
-#endif
+        /// <summary>The original four-character type code, including # or NUL.</summary>
+        public string RawType { get { return m_RawType; } }
+        /// <summary>Original label as a NUL-terminated Latin-1 string.</summary>
+        public string Label
+        {
+            get { return Encoding.Latin1.GetString(m_Label).TrimEnd('\0'); }
+            set
+            {
+                byte[] bytes = Encoding.Latin1.GetBytes(value ?? "");
+                if (bytes.Length > 64) throw new ArgumentException("IFF labels cannot exceed 64 bytes", nameof(value));
+                m_Label = new byte[64];
+                Array.Copy(bytes, m_Label, bytes.Length);
+                m_HasBeenUpdated = true;
+            }
+        }
+        public ushort Flags { get { return m_Flags; } set { m_Flags = value; m_HasBeenUpdated = true; } }
+        public bool HasChanges { get { return m_HasBeenUpdated || ID != m_OriginalID || Type != m_OriginalType; } }
+        public string NameString { get { return m_RawType; } }
 
         public IFFChunk(FileReader Reader, GraphicsDevice Device, Iff Parent)
         {
@@ -72,8 +107,17 @@ namespace Files.IFF
         public IFFChunk(IFFChunk BaseChunk)
         {
             m_Parent = BaseChunk.m_Parent;
-            m_Device = BaseChunk.m_Parent.Device;
+            m_Device = BaseChunk.m_Device;
+            m_NameString = BaseChunk.m_NameString;
+            m_RawType = BaseChunk.m_RawType;
             m_Data = BaseChunk.m_Data;
+            m_Label = (byte[])BaseChunk.m_Label.Clone();
+            m_Flags = BaseChunk.m_Flags;
+            m_HasBeenUpdated = BaseChunk.m_HasBeenUpdated;
+            m_OriginalID = BaseChunk.m_OriginalID;
+            m_OriginalType = BaseChunk.m_OriginalType;
+            m_PayloadWasReplaced = BaseChunk.m_PayloadWasReplaced;
+            m_SemanticChanged = BaseChunk.m_SemanticChanged;
             Size = BaseChunk.Size;
             ID = BaseChunk.ID;
             Type = BaseChunk.Type;

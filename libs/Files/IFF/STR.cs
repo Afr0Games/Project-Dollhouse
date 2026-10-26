@@ -57,6 +57,7 @@ namespace Files.IFF
     {
         public LanguageCodes LangCode;
         public string TranslatedStr;
+        public string Comment;
     }
 
     /// <summary>
@@ -174,7 +175,7 @@ namespace Files.IFF
                             TranslatedString Str = new TranslatedString();
                             Str.LangCode = LanguageCodes.unused;
                             Str.TranslatedStr = Reader.ReadCString();
-                            Reader.ReadCString(); //Comment
+                            Str.Comment = Reader.ReadCString();
 
                             if (Strings.ContainsKey(Str.LangCode))
                                 Strings[Str.LangCode].Add(Str);
@@ -195,7 +196,7 @@ namespace Files.IFF
                             TranslatedString Str = new TranslatedString();
                             Str.LangCode = (LanguageCodes)Reader.ReadByte();
                             Str.TranslatedStr = Reader.ReadCString();
-                            Reader.ReadCString(); //Comment
+                            Str.Comment = Reader.ReadCString();
 
                             if (Strings.ContainsKey(Str.LangCode))
                                 Strings[Str.LangCode].Add(Str);
@@ -219,8 +220,7 @@ namespace Files.IFF
                                 TranslatedString Str = new TranslatedString();
                                 Str.LangCode = (LanguageCodes)(Reader.ReadByte() + 1);
                                 Str.TranslatedStr = Reader.ReadString();
-
-                                Reader.ReadString(); //Comment
+                                Str.Comment = Reader.ReadString();
 
                                 if (Strings.ContainsKey(Str.LangCode))
                                     Strings[Str.LangCode].Add(Str);
