@@ -152,6 +152,9 @@ namespace Files.IFF
             }
 
             Reader.Close();
+
+        }
+
         public override Stream ToStream()
         {
             return base.ToStream();

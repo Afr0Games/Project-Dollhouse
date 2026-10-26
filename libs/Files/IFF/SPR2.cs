@@ -72,6 +72,8 @@ namespace Files.IFF
 
             Reader.Close();
             //m_Data = null; //Don't do this here!
+        }
+
         public override Stream ToStream()
         {
             return base.ToStream();

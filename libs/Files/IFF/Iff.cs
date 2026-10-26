@@ -454,7 +454,6 @@ namespace Files.IFF
             return true;
         }
 
-        private bool IsAssemblyDebugBuild(Assembly assembly)
         /// <summary>
         /// Serialize chunks in their original order, preserving every original byte
         /// when no edits are present. Changed files omit the old rsmp offset index:
