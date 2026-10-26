@@ -270,7 +270,7 @@ namespace Files.IFF
         /// <returns>A GLOB chunk.</returns>
         public GLOB GetGLOB(ushort ID)
         {
-            return (GLOB)m_BHAVChunks[ID];
+            return (GLOB)m_GLOBChunks[ID];
         }
 
         public Iff(GraphicsDevice Device)
