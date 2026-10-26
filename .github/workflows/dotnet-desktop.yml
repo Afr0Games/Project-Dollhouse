@@ -25,7 +25,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore YourSolution.sln
+        run: dotnet restore Dollhouse.sln
 
       - name: Build
         run: dotnet build Dollhouse.sln --configuration ${{ matrix.configuration }} --no-restore
