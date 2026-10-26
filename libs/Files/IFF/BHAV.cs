@@ -92,6 +92,8 @@ namespace Files.IFF
             //Read all the instructions...
             for (int i = 0; i < Count; i++)
                 m_Instructions.Add(Reader.ReadBytes(12));
+
+        }
         public override Stream ToStream()
         {
             return base.ToStream();

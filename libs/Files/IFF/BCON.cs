@@ -35,6 +35,9 @@ namespace Files.IFF
 
             for (int i = 0; i < NumConstants; i++)
                 Constants.Add(Reader.ReadInt16());
+
+        }
+
         }
     }
 }
