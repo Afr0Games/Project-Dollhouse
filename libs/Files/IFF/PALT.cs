@@ -49,6 +49,9 @@ namespace Files.IFF
 
             Reader.Close();
             m_Data = null;
+        public override Stream ToStream()
+        {
+            return base.ToStream();
         }
     }
 }

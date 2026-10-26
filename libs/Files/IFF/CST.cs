@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -152,6 +152,26 @@ namespace Files.IFF
 
             Reader.Close();
             m_Data = null;
+        public override Stream ToStream()
+        {
+            return base.ToStream();
+        }
+
+        /// <summary>
+        /// Finds the number of translated strings in this CTSS instance.
+        /// </summary>
+        /// <returns>The number of strings.</returns>
+        private int FindNumberOfStrings()
+        {
+            int NumStrings = 0;
+
+            foreach (KeyValuePair<LanguageCodes, List<TranslatedString>> KVP in Strings)
+            {
+                for (int i = 0; i < KVP.Value.Count; i++)
+                    NumStrings++;
+            }
+
+            return NumStrings;
         }
     }
 }

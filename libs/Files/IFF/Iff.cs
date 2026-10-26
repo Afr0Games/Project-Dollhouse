@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -56,6 +56,18 @@ namespace Files.IFF
         private Dictionary<ushort, IFFChunk> m_STRChunks = new Dictionary<ushort, IFFChunk>();
         private Dictionary<ushort, IFFChunk> m_CSTChunks = new Dictionary<ushort, IFFChunk>();
         private List<OBJD> m_OBJDs = new List<OBJD>();
+
+        //For writing this IFF to a stream if it needs to be output to a file.
+        // Preserve every chunk in source order, including types with no decoder.
+        private readonly List<IFFChunk> m_OrderedChunks = new List<IFFChunk>();
+        private byte[] m_OriginalFile;
+        private byte[] m_OriginalHeader;
+        private byte[] m_TrailingData = Array.Empty<byte>();
+        private uint m_OriginalRsmpOffset;
+        private bool m_StructureChanged;
+
+        /// <summary>All chunks, including unrecognized types, in original file order.</summary>
+        public IReadOnlyList<IFFChunk> AllChunks { get { return m_OrderedChunks; } }
 
 
 #if DEBUG
@@ -291,6 +303,18 @@ namespace Files.IFF
         public bool Init(Stream Data, bool ThrowException)
         {
             m_Reader = new FileReader(Data, true);
+            m_OriginalHeader = new byte[64];
+            Array.Copy(m_OriginalFile, m_OriginalHeader, 64);
+            m_Reader?.Dispose();
+            m_Reader = new FileReader(new MemoryStream(m_OriginalFile, false), true);
+            m_OrderedChunks.Clear();
+            m_OBJDs.Clear();
+            m_BHAVChunks.Clear(); m_OBJfChunks.Clear(); m_FBMPChunks.Clear(); m_BMP_Chunks.Clear();
+            m_GLOBChunks.Clear(); m_BCONChunks.Clear(); m_TTABChunks.Clear(); m_TTAsChunks.Clear();
+            m_TPRPChunks.Clear(); m_DGRPChunks.Clear(); m_FWAVChunks.Clear(); m_FCNSChunks.Clear();
+            m_SPR2Chunks.Clear(); m_CTSSChunks.Clear(); m_PALTChunks.Clear(); m_SPRChunks.Clear();
+            m_STRChunks.Clear(); m_CSTChunks.Clear();
+            m_StructureChanged = false;
 
             string MagicNumber = m_Reader.ReadString(60);
 
@@ -319,93 +343,156 @@ namespace Files.IFF
                     case IFFChunkTypes.FBMP:
                         FBMP FBMPChunk = new FBMP(Chunk);
                         m_FBMPChunks.Add(Chunk.ID, FBMPChunk);
+                        Chunk = FBMPChunk;
                         break;
                     case IFFChunkTypes.FWAV:
                         FWAV FWAVChunk = new FWAV(Chunk);
                         m_FWAVChunks.Add(Chunk.ID, FWAVChunk);
+                        Chunk = FWAVChunk;
                         break;
                     case IFFChunkTypes.BMP_:
                         BMP_ BMPChunk = new BMP_(Chunk);
                         m_BMP_Chunks.Add(Chunk.ID, BMPChunk);
+                        Chunk = BMPChunk;
                         break;
                     case IFFChunkTypes.DGRP:
                         DGRP DGRPChunk = new DGRP(m_Device, Chunk);
                         m_DGRPChunks.Add(Chunk.ID, DGRPChunk);
+                        Chunk = DGRPChunk;
                         break;
                     case IFFChunkTypes.BCON:
                         BCON BCONChunk = new BCON(Chunk);
                         m_BCONChunks.Add(Chunk.ID, BCONChunk);
+                        Chunk = BCONChunk;
                         break;
                     case IFFChunkTypes.GLOB:
                         GLOB GlobChunk = new GLOB(Chunk);
                         m_GLOBChunks.Add(Chunk.ID, GlobChunk);
+                        Chunk = GlobChunk;
                         break;
                     case IFFChunkTypes.OBJD:
                         OBJD OBJDChunk = new OBJD(Chunk);
                         m_OBJDs.Add(OBJDChunk);
+                        Chunk = OBJDChunk;
                         break;
                     case IFFChunkTypes.TTAs:
                         TTAs TTAsChunk = new TTAs(Chunk);
                         m_TTAsChunks.Add(Chunk.ID, TTAsChunk);
+                        Chunk = TTAsChunk;
                         break;
                     case IFFChunkTypes.TTAB:
                         TTAB TTABChunk = new TTAB(Chunk);
                         TTABChunk.Type = Chunk.Type;
                         TTABChunk.ID = Chunk.ID;
                         m_TTABChunks.Add(Chunk.ID, TTABChunk);
+                        Chunk = TTABChunk;
                         break;
                     case IFFChunkTypes.TPRP:
                         TPRP TPRPChunk = new TPRP(Chunk);
                         m_TPRPChunks.Add(Chunk.ID, TPRPChunk);
+                        Chunk = TPRPChunk;
                         break;
                     case IFFChunkTypes.STR:
                         STR STRChunk = new STR(Chunk);
                         m_STRChunks.Add(Chunk.ID, STRChunk);
+                        Chunk = STRChunk;
                         break;
                     case IFFChunkTypes.BHAV:
                         BHAV BHAVChunk = new BHAV(Chunk);
                         m_BHAVChunks.Add(Chunk.ID, BHAVChunk);
+                        Chunk = BHAVChunk;
                         break;
                     case IFFChunkTypes.OBJf:
                         OBJf OBJfChunk = new OBJf(Chunk);
                         m_OBJfChunks.Add(Chunk.ID, OBJfChunk);
+                        Chunk = OBJfChunk;
                         break;
                     case IFFChunkTypes.FCNS:
                         FCNS FCNSChunk = new FCNS(Chunk);
                         m_FCNSChunks.Add(Chunk.ID, FCNSChunk);
+                        Chunk = FCNSChunk;
                         break;
                     case IFFChunkTypes.SPR:
                         SPR SPRChunk = new SPR(Chunk);
                         m_SPRChunks.Add(Chunk.ID, SPRChunk);
+                        Chunk = SPRChunk;
                         break;
                     case IFFChunkTypes.SPR2:
                         SPR2 SPR2Chunk = new SPR2(Chunk);
                         m_SPR2Chunks.Add(Chunk.ID, SPR2Chunk);
+                        Chunk = SPR2Chunk;
                         break;
                     case IFFChunkTypes.PALT:
                         PALT PALTChunk = new PALT(Chunk);
                         m_PALTChunks.Add(Chunk.ID, PALTChunk);
+                        Chunk = PALTChunk;
                         break;
                     case IFFChunkTypes.CTSS:
                         CTSS CTSSChunk = new CTSS(Chunk);
                         m_CTSSChunks.Add(Chunk.ID, CTSSChunk);
+                        Chunk = CTSSChunk;
                         break;
                     case IFFChunkTypes.CST:
                         CST CSTChunk = new CST(Chunk);
                         m_CSTChunks.Add(Chunk.ID, CSTChunk);
+                        Chunk = CSTChunk;
                         break;
                 }
 
                 if (IsAssemblyDebugBuild(Assembly.GetExecutingAssembly()))
                     Chunks.Add(Chunk);
+                m_OrderedChunks.Add(Chunk);
             }
+            long tailStart = m_Reader.Position;
+            if (m_OriginalRsmpOffset == 0 && tailStart < m_OriginalFile.Length)
+            {
+                m_TrailingData = new byte[m_OriginalFile.Length - (int)tailStart];
+                Array.Copy(m_OriginalFile, tailStart, m_TrailingData, 0, m_TrailingData.Length);
+            }
+            else m_TrailingData = Array.Empty<byte>();
 
             return true;
         }
 
         private bool IsAssemblyDebugBuild(Assembly assembly)
+        /// <summary>
+        /// Serialize chunks in their original order, preserving every original byte
+        /// when no edits are present. Changed files omit the old rsmp offset index:
+        /// stale offsets are more dangerous than a missing optional index. A verified
+        /// rsmp rebuilder is a separate feature (see README).
+        /// </summary>
+        public Stream ToStream()
         {
-            return assembly.GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
+            bool changed = m_StructureChanged;
+            foreach (IFFChunk chunk in m_OrderedChunks)
+                changed |= chunk.HasChanges;
+
+            if (!changed && m_OriginalFile != null)
+                return new MemoryStream((byte[])m_OriginalFile.Clone(), false);
+
+            using var output = new MemoryStream();
+            byte[] header = m_OriginalHeader ?? CreateIFFHeader();
+            byte[] copy = (byte[])header.Clone();
+            copy[60] = copy[61] = copy[62] = copy[63] = 0; // no stale rsmp pointer
+            output.Write(copy, 0, copy.Length);
+            foreach (IFFChunk chunk in m_OrderedChunks)
+            {
+                using Stream serialized = chunk.ToStream();
+                serialized.CopyTo(output);
+            }
+            // Preserve unrelated trailing bytes when no rsmp was present.
+            if (m_OriginalRsmpOffset == 0 && m_TrailingData.Length > 0 &&
+                System.Text.Encoding.ASCII.GetString(m_TrailingData, 0, Math.Min(4, m_TrailingData.Length)) != "rsmp")
+                output.Write(m_TrailingData, 0, m_TrailingData.Length);
+            return new MemoryStream(output.ToArray(), false);
+        }
+
+        private static byte[] CreateIFFHeader()
+        {
+            byte[] bytes = new byte[64];
+            string magic = "IFF FILE 2.5:TYPE FOLLOWED BY SIZE\0 JAMIE DOORNBOS & MAXIS 1";
+            System.Text.Encoding.ASCII.GetBytes(magic, 0, magic.Length, bytes, 0);
+            return bytes;
         }
 
         ~Iff()

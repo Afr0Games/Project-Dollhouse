@@ -1,4 +1,4 @@
-﻿/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+/*This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 
@@ -11,6 +11,10 @@ Contributor(s):
 */
 
 using System.Text;
+using System.IO;
+using System;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace Files.IFF
 {
@@ -235,6 +239,98 @@ namespace Files.IFF
 
             Reader.Close();
             m_Data = null;
+
+        }
+
+        protected override byte[] GetPayloadForWriting()
+        {
+            if (!m_SemanticPayloadChanged) return base.GetPayloadForWriting();
+            // Explicit raw overrides are handled without re-encoding strings.
+            if (m_RawPayloadOverride) return base.GetPayloadForWriting();
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding encoding = Encoding.GetEncoding(1252);
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream, encoding, true);
+            writer.Write(Version); // STR# payloads are little endian.
+
+            if (Version == 0 || Version == -1 || Version == -2)
+            {
+                Strings.TryGetValue(LanguageCodes.unused, out var values);
+                values ??= new List<TranslatedString>();
+                writer.Write(checked((ushort)values.Count));
+                foreach (var entry in values)
+                {
+                    if (Version == 0) WritePascal(writer, encoding, entry.TranslatedStr);
+                    else
+                    {
+                        WriteCString(writer, encoding, entry.TranslatedStr);
+                        if (Version == -2) WriteCString(writer, encoding, entry.Comment);
+                    }
+                }
+            }
+            else if (Version == -3)
+            {
+                writer.Write(checked((ushort)FindNumberOfStrings()));
+                foreach (var group in Strings)
+                    foreach (var entry in group.Value)
+                    {
+                        writer.Write((byte)group.Key);
+                        WriteCString(writer, encoding, entry.TranslatedStr);
+                        WriteCString(writer, encoding, entry.Comment);
+                    }
+            }
+            else if (Version == -4)
+            {
+                writer.Write(checked((byte)Strings.Count));
+                foreach (var group in Strings)
+                {
+                    if (group.Key == LanguageCodes.unused)
+                        throw new InvalidDataException("STR# version -4 cannot encode language 0 in its +1 language mapping.");
+                    writer.Write(checked((ushort)group.Value.Count));
+                    foreach (var entry in group.Value)
+                    {
+                        writer.Write(checked((byte)((byte)group.Key - 1)));
+                        writer.Write(entry.TranslatedStr ?? ""); // BinaryWriter 7-bit length UTF/CP1252 encoding
+                        writer.Write(entry.Comment ?? "");
+                    }
+                }
+            }
+            else throw new NotSupportedException("Unsupported edited STR# version " + Version);
+            writer.Flush();
+            return stream.ToArray();
+        }
+
+        private static void WriteCString(BinaryWriter writer, Encoding encoding, string value)
+        {
+            writer.Write(encoding.GetBytes(value ?? ""));
+            writer.Write((byte)0);
+        }
+
+        private static void WritePascal(BinaryWriter writer, Encoding encoding, string value)
+        {
+            byte[] bytes = encoding.GetBytes(value ?? "");
+            writer.Write(checked((byte)bytes.Length));
+            writer.Write(bytes);
+        }
+
+        public override Stream ToStream() { return base.ToStream(); }
+
+        /// <summary>
+        /// Finds the number of translated strings in this STR instance.
+        /// </summary>
+        /// <returns>The number of strings.</returns>
+        private int FindNumberOfStrings()
+        {
+            int NumStrings = 0;
+
+            foreach (KeyValuePair<LanguageCodes, List<TranslatedString>> KVP in Strings)
+            {
+                for (int i = 0; i < KVP.Value.Count; i++)
+                    NumStrings++;
+            }
+
+            return NumStrings;
         }
     }
 }
